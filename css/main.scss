@@ -1,0 +1,291 @@
+$primaryColor: #ffcc00;
+$primaryDarkColor: #cc9900;
+$secondaryColor: #d3d3d3;
+$faint:#9c989852;
+$faintDark:#312f2f;
+$defaultColor: #ffffff;
+
+@mixin shade {
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+@mixin flex($d: row, $j: center, $a: center) {
+  display: flex;
+  flex-direction: $d;
+  justify-content: $j;
+  align-items: $a;
+}
+@mixin setBg($color: $defaultColor) {
+  background-color: $color !important;
+}
+html {
+  scroll-behavior: smooth;
+}
+body {
+  padding: 0;
+  margin: 0;
+}
+
+header .logo > img {
+  width: 200px;
+  height: 200px;
+  object-fit: cover;
+}
+header {
+  @include flex(row, space-between, flex-start);
+  padding: 0.5em;
+  margin-bottom: 3em;
+}
+header.bg-curve-primary-up {
+  @include setBg($primaryColor);
+  border-bottom-left-radius: 50%;
+  border-bottom-right-radius: 50%;
+  height: 120px;
+  z-index: -1000;
+}
+header .dash{
+  font-size: 2rem;color:$defaultColor;
+  margin:0.5em;
+  cursor:pointer;
+}
+header > nav{
+  @include flex(row,space-evenly, center);
+}
+header > nav > a.nav-item{
+  margin:0.5em 1em;
+}
+.large-logo{
+  width:300px;
+  height:auto;
+  margin:1em auto;
+}
+.container{
+  height:100%;
+}
+.content {
+  height: 100vh;
+  width: 100%;
+  margin: 0 auto;
+  padding:0;
+  @include flex(row, space-between, center);
+}
+.content .logo {
+  @include flex(column, center, center);
+  width:50%;
+}
+
+.content .logo > img {
+  // width: 80%;
+  height: auto;
+  max-width: 300px;
+  margin: 2em auto;
+  // border: 1px solid blue;
+}
+.content > div:nth-child(2) {
+  @include flex(row, space-evenly, center);
+  height: 100%;
+  width: 50%;
+  margin:0 auto;
+}
+.content > div.product-details{
+  @include flex(column,flex-start ,flex-start);
+  height:auto;
+  padding:1em;
+  padding-top:0;
+}
+
+// texts formats
+.medium-text {
+  font-size: 1.5rem;
+}
+.large-text {
+  font-size: 4rem;
+}
+.small-text {
+  font-size: 0.5rem;
+}
+.primary-text{
+  color:$primaryColor;
+}
+.primary-dark-text{
+  color:$primaryDarkColor;
+}
+.secondary-text{
+  color:$secondaryColor;
+}
+// links
+a,
+a:visited,
+a.nav-item,
+a.nav-item:visited {
+  color: $secondaryColor;
+  text-decoration: none;
+}
+a:hover,
+a.nav-item:hover {
+  font-weight: bold;
+  color: $secondaryColor;
+}
+.dashboard {
+  @include setBg($defaultColor);
+  margin: -5em auto;
+  @include shade();
+  width: 80%;
+  min-height: calc(90vh - 4em);
+  height:auto;
+  padding: 1em;
+  @include flex(row, space-evenly, center);
+}
+.dashboard:has( > span){
+  @include flex(row, space-evenly, flex-start);
+}
+.product-details{
+  border-left:1px solid $secondaryColor;
+  font-size: medium;
+}
+.product-details > div{
+  @include flex(column,flex-start,flex-start);
+  margin-bottom: 1em;
+}
+.product-details label{
+  color: $faintDark;
+}
+.product-details span{
+  color: $secondaryColor;
+  font-size: large;
+}
+.details,.details-list{
+  flex-wrap: wrap;
+}
+.item-list{
+  // @include setBg($primaryDarkColor);
+  width: 100%;
+  padding:0.5em 0;
+  margin-top: 0.5em;
+  @include flex(row,space-between, center);
+  cursor: pointer;
+  @include shade();
+
+}
+.item-list:hover{
+  @include setBg($faint);
+}
+.item-data{
+  @include flex(column,center,flex-start);
+  margin-left:0.5em;
+  flex-grow: 1;
+}
+.item-image{
+  width:50px;
+  height:50px;
+  border-radius:50%;
+  margin:0.5em;
+  object-fit: cover;
+}
+.item-title{
+  // color:$faint;
+  font-size:1.2rem;
+}
+.item-focus{
+  color:$secondaryColor;
+}
+.details {
+  width:100%;
+  @include flex(row, space-between, center);
+  max-width: 480px;
+}
+.details-list{
+  width: 100%;
+  @include flex(row,space-evenly, flex-start);
+  align-items:flex-start !important;
+}
+.actions-wide{
+  @include flex(row, space-between, center);
+  width:100%;
+  // @include setBg($primaryColor);
+}
+.graph {
+  @include flex(column, center, center);
+}
+.graph > img {
+  width: 420px;
+  height: auto;
+}
+
+//message toaster
+.toast{
+  position:fixed;
+  top: 0;
+  margin:0 auto;
+  background-color:rgba(0, 0, 0, 0.596);
+  padding:2em;
+  z-index: 9999999999999999999999999999999;
+  height:200px;
+  display:block;
+}
+
+//buttons
+.action-buttons{
+  @include flex(row,space-evenly,flex-end);
+  // border:1px solid red;
+  // flex-grow: 1;
+}
+.action-buttons > span{
+  cursor: pointer;
+  padding:0.5em;
+  // color:$faint;
+}
+.action-buttons > span:hover{
+  color:$secondaryColor;
+
+}
+.icon-button {
+  border-radius: 5px;
+  box-shadow: 3px 3px 3px;
+  @include flex(column, center, center);
+  padding: 1em;
+  color: $primaryColor;
+  width: 150px;
+  height: 150px;
+  margin: 2em auto;
+  cursor: pointer;
+  border:1px solid $primaryColor;
+}
+.icon-button > span.material-icons {
+  font-size: 3.2rem;
+  cursor: pointer;
+}
+
+.icon-button:hover{
+  @include setBg($secondaryColor);
+  color:$defaultColor;
+  border:0px solid $primaryColor;
+}
+.bg-success{
+  @include setBg($secondaryColor);
+  color:$defaultColor !important;
+}
+.primary-bg{
+  @include setBg($primaryColor);
+  color:$defaultColor !important;
+}
+
+
+//spinner
+#spinner{
+  display:block;
+  width:50px;
+  height:50px;
+  border-radius: 50%;
+  border:1px solid $secondaryColor;
+  border-top:none;
+  animation: spin 1s linear 0s 3 forwards;
+}
+
+@keyframes spin{
+  from{
+    transform:rotate(0deg);
+  }
+  to{
+    transform:rotate(360deg);
+  }
+}
