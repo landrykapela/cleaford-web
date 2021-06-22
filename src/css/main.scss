@@ -1,7 +1,7 @@
 $primaryColor: #ffcc00;
 $primaryDarkColor: #cc9900;
 $secondaryColor: #d3d3d3;
-$faint:#9c989852;
+$faint: #9c9898;
 $faintDark:#312f2f;
 $defaultColor: #ffffff;
 
@@ -23,6 +23,7 @@ html {
 body {
   padding: 0;
   margin: 0;
+  font-family: 'Baloo 2',cursive;
 }
 
 header .logo > img {
@@ -92,6 +93,41 @@ header > nav > a.nav-item{
   padding:1em;
   padding-top:0;
 }
+//forms
+form {
+  @include flex(column,flex-start ,center );
+  padding: 1em;
+  margin: 0 auto;
+  // border:1px solid $primaryDarkColor;
+}
+form#signup{
+  width:50%;
+}
+form input[type="text"], form input[type="email"],form input[type="password"],form input[type="select"],form input[type="submit"]{
+  min-width:300px;
+  padding:0.5em 1em;
+  margin:0.5em;
+}
+form input[type="submit"]{
+  background-color: $primaryColor;
+  color:$faintDark;
+  padding:0.5em 1em;
+  border:none;
+  cursor: pointer;
+  min-width:150px;
+  font-family: 'Baloo 2',cursive;
+  text-transform: uppercase;
+  font-weight: bold;
+  // align-self: flex-start;
+}
+form input[type="submit"]:hover{
+  background-color: $primaryDarkColor;
+  color:$defaultColor;
+}
+
+
+//end forms
+
 
 // texts formats
 .medium-text {
@@ -117,13 +153,13 @@ a,
 a:visited,
 a.nav-item,
 a.nav-item:visited {
-  color: $secondaryColor;
+  color: $primaryDarkColor;
   text-decoration: none;
 }
 a:hover,
 a.nav-item:hover {
-  font-weight: bold;
-  color: $secondaryColor;
+  text-decoration: underline;
+  color: $primaryDarkColor;
 }
 .dashboard {
   @include setBg($defaultColor);
