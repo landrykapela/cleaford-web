@@ -1,7 +1,7 @@
 const storage = window.localStorage;
 var currentUser = (storage.getItem("currentUser")) ? JSON.parse(storage.getItem("currentUser")):null;
 
-const signup_url = "http://localhost:5000/signup";
+// const signup_url = "http://localhost:5000/signup";
 
 const signupForm = document.querySelector("#signup_form");
 if(signupForm){
@@ -48,7 +48,7 @@ if(loginForm){
         let password = loginForm.password.value;
         let user = {email:email,password:password};
         console.log("data: ",user);
-        const signin_url = "http://localhost:5000/signin";
+        // const signin_url = "http://localhost:5000/signin";
         fetch(signin_url,{method:"POST",body:JSON.stringify(user),headers:{'Content-type':'application/json'}})
         .then(res=>res.json()).then(response=>{
             if(response.error){
@@ -76,7 +76,7 @@ const showErrorLogin =(msg)=>{
 //signout
 const signoutUser = ()=>{
   
-        var signout_url = "http://localhost:5000/signout";
+        // var signout_url = "http://localhost:5000/signout";
         // var urlObj = new URL(window.location.href);
         // let token = (currentUser) ? currentUser.token: null;
         fetch(signout_url,
@@ -93,6 +93,7 @@ const signoutUser = ()=>{
   
 };
 
+
 //handle signout link/button
 const signout = document.querySelector("#signout");
 if(signout){
@@ -105,4 +106,47 @@ if(signout){
             console.log("no singout");
         }
     });
+}
+
+//cpature client details
+const showClientDetailForm = (user)=>{
+    
+}
+//activate user
+const activateAccount = (user)=>{
+    var headers = {'Content-type':'application/json','Authorization':'Bearer '+user.accessToken};
+    var body = JSON.stringify({email:user.email});
+    fetch(initialize_url,{method:"POST",body:body,headers:headers})
+    .then(res=>json())
+    .then(result=>{
+        console.log("result: ",result);
+    })
+    .catch(er=>{
+        console.log("errr: ",err);
+    })
+}
+
+//check if current page is dashboard
+if(window.location.pathname == "/dashboard.html"){
+    const activateButton = document.querySelector("#activate");
+    const profileButton = document.querySelector("#profile");
+    if(currentUser.db == ""){
+        //handle activate button
+        if(activateButton){
+            activateButton.addEventListener('click',(e)=>{
+                e.preventDefault();
+                activateAccount(currentUser);
+            })
+        }
+    }
+    else{
+        activateButton.classList.add("hidden");
+        profileButton.classList.remove("hidden");
+        if(profileButton){
+            profileButton.addEventListener('click',(e)=>{
+                e.preventDefault();
+                showClientDetailForm(currentUser);
+            })
+        }
+    }
 }
