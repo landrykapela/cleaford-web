@@ -6,20 +6,23 @@
         <meta name="author" content="Landry Kapela">
         <meta name="viewport" content="width=device-width,initial-scale=1">
         <link href="css/main.css" rel="stylesheet"/>
+        <link rel="icon" href="img/favicon.png"/>
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Baloo+2&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Baloo+Thambi+2&display=swap" rel="stylesheet">
     </head>
 
     <body style="text-align: center;">
-        <img class="large-logo" src="/img/logo.png"/><br />
+        <div id="feedback" class="hidden"></div>
+        <img class="large-logo" src="img/logo.png"/><br />
         <span class="medium-text primary-dark-text">This application is still in development</span>
-        <form id="signin">
+        <form id="signin_form" method="POST">
              
             <input type="email" id="email" name="email" placeholder="E-mail"/>
             <input type="password" id="password" name="password" placeholder="Password"/>
-            <input type="submit" id="btnSubmit" name="btnSubmit" value="Submit"/>
+            <input class="buttons" type="submit" id="btnSubmit" name="btnSubmit" value="Submit"/>
         </form>
         <p >First time here? <a href="signup.html">sign up</a> to proceed</p>
+        <script src="js/main.js"></script>
     </body>
 </html>

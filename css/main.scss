@@ -4,6 +4,11 @@ $secondaryColor: #d3d3d3;
 $faint: #9c9898;
 $faintDark:#312f2f;
 $defaultColor: #ffffff;
+$failColor:#e63030c9;
+$buttonBorderRadius:8px;
+$titleSize:30px;
+$standardTextSize:16px;
+$fontFamily:'Baloo Thambi 2';
 
 @mixin shade {
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
@@ -23,7 +28,8 @@ html {
 body {
   padding: 0;
   margin: 0;
-  font-family: 'Baloo 2',cursive;
+  font-family: $fontFamily,cursive;
+  font-size:$standardTextSize;
 }
 
 header .logo > img {
@@ -93,6 +99,36 @@ header > nav > a.nav-item{
   padding:1em;
   padding-top:0;
 }
+//feedback
+#feedback{
+  position:fixed;
+  top:0;
+  margin: 0 auto;
+  width:calc(100% - 4em);
+  padding:0.5em 2em;
+  @include setBg($failColor);
+  color:$defaultColor;
+  margin-bottom: 1em;
+}
+//display
+.hidden{
+  display:none;
+}
+//start buttons
+.buttons{
+  @include setBg($primaryDarkColor);
+  color:$defaultColor;
+  padding:0.5em 1em;
+  border:none;
+  border-radius: 8px;
+  cursor: pointer;
+  min-width:100px;
+  font-family: $fontFamily,cursive;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+//end buttons
 //forms
 form {
   @include flex(column,flex-start ,center );
@@ -108,22 +144,22 @@ form input[type="text"], form input[type="email"],form input[type="password"],fo
   padding:0.5em 1em;
   margin:0.5em;
 }
+input[type="email"]:invalid, input[type="password"]:invalid{
+  outline-color: $failColor;
+}
+input[type="email"]:valid, input[type="password"]:valid{
+  outline-color: $primaryColor;
+}
 form input[type="submit"]{
-  background-color: $primaryColor;
-  color:$faintDark;
-  padding:0.5em 1em;
-  border:none;
-  cursor: pointer;
-  min-width:150px;
-  font-family: 'Baloo 2',cursive;
-  text-transform: uppercase;
-  font-weight: bold;
+  @extend .buttons;
+
+  }
   // align-self: flex-start;
-}
-form input[type="submit"]:hover{
-  background-color: $primaryDarkColor;
-  color:$defaultColor;
-}
+
+// form input[type="submit"]:hover{
+//   background-color: $primaryDarkColor;
+//   color:$defaultColor;
+// }
 
 
 //end forms
@@ -147,6 +183,9 @@ form input[type="submit"]:hover{
 }
 .secondary-text{
   color:$secondaryColor;
+}
+.fail-text{
+  color:$failColor;
 }
 // links
 a,
