@@ -39,7 +39,7 @@ header {
   @include flex(row, space-between, flex-start);
   padding: 0;
 }
-header img.logo {
+header img.logo,.logo {
   width: calc(#{$sideBarSize});
   height: auto;
   // margin:0.25em;
@@ -95,28 +95,58 @@ main > div.content .info{
   width:50px;
   height:50px;
   object-fit: contain;
+ 
   // border:1px solid $faintDark;
+}
+
+.menu{
+  overflow: visible;
+}
+//dropdwon menu
+.drop-down{
+  position:fixed;
+  top:120px;
+  width: 100%;
+  @include flex(column,flex-start,flex-start);
+  @include setBg($faint);
+}
+.drop-down > span{
+  cursor: pointer;
+  padding:0.5em;
+  color:$faintDark;
+  width:calc(100% - 1em);
+@include setBg($secondaryColor);
+text-align: left;
+}
+.drop-down > span:hover{
+  @include setBg($defaultColor);
+  color:$faintDark;
 }
 #arrow-drop{
   color:$faintDark;
   cursor: pointer;
 }
+.x{
+  position:relative;
+}
 //end of content
 //side bar
-#side-bar{
+#side-bar,.drop-down{
   @include setBg($faint);
   @include flex(column,flex-start,flex-start );
   color:$faintDark;
   width:$sideBarSize;
   text-align: left;
   font-size: large;
-  padding-top:1em;
-  height: calc(100vh - 74px);
 }
+#side-bar{
+  padding-top:1em;
+  height: calc(100vh - 74px);}
 #side-bar .item{
   width:calc(100% - 4em);
   padding:0.5em 2em;
   margin:0 auto;
+  cursor: pointer;
 }
 #side-bar .active{
   @include setBg($secondaryColor);

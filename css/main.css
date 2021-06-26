@@ -18,7 +18,7 @@ header {
   padding: 0;
 }
 
-header img.logo {
+header img.logo, .logo {
   width: calc(200px);
   height: auto;
   object-fit: contain;
@@ -96,12 +96,45 @@ main > div.content .info {
   object-fit: contain;
 }
 
+.menu {
+  overflow: visible;
+}
+
+.drop-down {
+  position: fixed;
+  top: 120px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  background-color: #9c9898 !important;
+}
+
+.drop-down > span {
+  cursor: pointer;
+  padding: 0.5em;
+  color: #666262;
+  width: calc(100% - 1em);
+  background-color: #d3d3d3 !important;
+  text-align: left;
+}
+
+.drop-down > span:hover {
+  background-color: #ffffff !important;
+  color: #666262;
+}
+
 #arrow-drop {
   color: #666262;
   cursor: pointer;
 }
 
-#side-bar {
+.x {
+  position: relative;
+}
+
+#side-bar, .drop-down {
   background-color: #9c9898 !important;
   display: flex;
   flex-direction: column;
@@ -111,6 +144,9 @@ main > div.content .info {
   width: 200px;
   text-align: left;
   font-size: large;
+}
+
+#side-bar {
   padding-top: 1em;
   height: calc(100vh - 74px);
 }
@@ -119,6 +155,7 @@ main > div.content .info {
   width: calc(100% - 4em);
   padding: 0.5em 2em;
   margin: 0 auto;
+  cursor: pointer;
 }
 
 #side-bar .active {

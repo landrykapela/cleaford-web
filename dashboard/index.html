@@ -32,14 +32,22 @@
             </div>
             <div class="content">
                 <div class="info"><p class="medium-text" id="greetings"></p>
+                    <div class="menu">
                     <div class="account-menu">
                         <img class="user-avatar" src="/img/favicon.png" alt="user avatar"/>
                         <span id="account-name">Mr. Cleaford</span>
-                        <span class="material-icons large-text" id="arrow-drop">arrow_drop_down</span>
-                    </div></div>
-                
+                        <span class="material-icons large-text" id="arrow-drop">arrow_drop_down</span>                       
+                    </div>
+                    <div class="drop-down hidden" id="drop-down">
+                        <span class="drop-item" id="profile">Settings</span>
+                        <span class="drop-item" id="signout">Logout</span>
+                    </div>
+                </div>
+                </div>
+                <div class="x">
                 <button id="activate" class="buttons bg-primary">ACTIVATE ACCOUNT</button>
                 <button id="profile" class="buttons bg-primary hidden">SETUP ACCOUNT</button>
+            </div>
             </div>
         </main>
         <div id="feedback" class="hidden"></div>

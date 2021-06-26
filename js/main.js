@@ -247,3 +247,31 @@ if(window.location.pathname == "/profile/"){
         });
     }
 }
+
+
+//handle sidebar nav
+const sideBar = document.querySelector("#side-bar");
+if(sideBar){
+    const items = Array.from(sideBar.children);
+    items.forEach(item=>{
+        if(item){
+            item.addEventListener('click',(e)=>{
+                items.forEach(i=>{
+                    if(i.classList.contains("active")) i.classList.remove("active");
+                });
+                item.classList.add("active");
+            })
+        }
+    })
+    
+}
+
+//handle arrow drop down
+const arrowDrop = document.querySelector("#arrow-drop");
+if(arrowDrop){
+    const dropDown = document.querySelector("#drop-down");
+    arrowDrop.addEventListener('click',(d)=>{
+        if(dropDown.classList.contains("hidden")) dropDown.classList.remove("hidden");
+        else dropDown.classList.add("hidden");
+    })
+}
