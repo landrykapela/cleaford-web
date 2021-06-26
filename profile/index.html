@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="eng">
+    <head>
+        <title>Cleaford - Signup</title>
+        <meta name="keyword" content="Cleaford, clearing and forwarding, clearing and forwarding system, customs management, landry kapela">
+        <meta name="author" content="Landry Kapela">
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <link rel="icon" href="/img/favicon.png"/>
+        <link href="/css/main.css" rel="stylesheet"/>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Baloo+2&display=swap" rel="stylesheet">
+    </head>
+
+    <body style="text-align: center;">
+        <img class="large-logo" src="/img/logo.png"/><br />
+        <span class="medium-text primary-dark-text">Complete Your Profile</span>
+        <div id="placeholder">
+        <form id="client_profile_form" method="POST">
+            <input type="text" id="company_name" name="company_name" placeholder="Company name" required minlength="8"/>
+            <input type="email" id="email" name="email" placeholder="E-mail" required/>
+            <input type="text" id="address" name="address" placeholder="Address"/>
+            <input type="number" id="phone" name="phone" placeholder="Phone number" required/>
+            <input type="text" id="contact_person" name="contact_person" required placeholder="Contact person name"/>
+            <input type="email" id="contact_email" name="contact_email" required placeholder="Contact e-mail"/>
+            <input type="submit" id="btnSubmit" name="btnSubmit" value="SUBMIT"/>
+        </form></div>
+        <p ><a href="/dashboard/">Back to Dashboard</a></p>
+        <script src="/js/config.js"></script>
+        <script src="/js/main.js"></script>
+    </body>
+</html>

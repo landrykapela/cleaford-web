@@ -13,12 +13,14 @@
     </head>
 
     <body style="text-align: center;">
-        <img class="large-logo" src="/img/logo.png"/><br />
+        <div id="feedback" class="hidden"></div>
+        <img class="large-logo" src="img/logo.png"/><br />
         <span class="medium-text primary-dark-text">This application is still in development</span>
         <form id="signup_form" method="POST">
             <input type="email" id="email" name="email" placeholder="E-mail" required/>
             <input type="password" id="password" name="password" placeholder="Password" required minlength="8"/>
             <input type="password" id="cpassword" name="cpassword" placeholder="Confirm"/>
+            <span class="hidden fail-text py-2" id="field-error" name="field-error"></span>
             <input type="submit" id="btnSubmit" name="btnSubmit" value="Signup"/>
         </form>
         <p >Already have an account? <a href="signin.html">sign in</a> to proceed</p>

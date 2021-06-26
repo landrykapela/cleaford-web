@@ -1,14 +1,16 @@
+@import url("https://fonts.googleapis.com/icon?family=Material+Icons");
 $primaryColor: #ffcc00;
 $primaryDarkColor: #cc9900;
 $secondaryColor: #d3d3d3;
 $faint: #9c9898;
-$faintDark:#312f2f;
+$faintDark:#666262;
 $defaultColor: #ffffff;
 $failColor:#e63030c9;
 $buttonBorderRadius:8px;
 $titleSize:30px;
 $standardTextSize:16px;
 $fontFamily:'Baloo Thambi 2';
+$sideBarSize: 200px;
 
 @mixin shade {
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
@@ -32,73 +34,109 @@ body {
   font-size:$standardTextSize;
 }
 
-header .logo > img {
-  width: 200px;
-  height: 200px;
-  object-fit: cover;
-}
+//layouts
 header {
   @include flex(row, space-between, flex-start);
-  padding: 0.5em;
-  margin-bottom: 3em;
+  padding: 0;
 }
-header.bg-curve-primary-up {
-  @include setBg($primaryColor);
-  border-bottom-left-radius: 50%;
-  border-bottom-right-radius: 50%;
-  height: 120px;
-  z-index: -1000;
-}
-header .dash{
-  font-size: 2rem;color:$defaultColor;
-  margin:0.5em;
-  cursor:pointer;
-}
-header > nav{
-  @include flex(row,space-evenly, center);
-}
-header > nav > a.nav-item{
-  margin:0.5em 1em;
-}
-.large-logo{
-  width:300px;
-  height:auto;
-  margin:1em auto;
-}
-.container{
-  height:100%;
-}
-.content {
-  height: 100vh;
-  width: 100%;
-  margin: 0 auto;
-  padding:0;
-  @include flex(row, space-between, center);
-}
-.content .logo {
-  @include flex(column, center, center);
-  width:50%;
-}
-
-.content .logo > img {
-  // width: 80%;
+header img.logo {
+  width: calc(#{$sideBarSize});
   height: auto;
-  max-width: 300px;
-  margin: 2em auto;
-  // border: 1px solid blue;
+  // margin:0.25em;
+  object-fit: contain;
 }
-.content > div:nth-child(2) {
-  @include flex(row, space-evenly, center);
-  height: 100%;
-  width: 50%;
+header > div.theme-band{
+  @include flex(row,space-evenly,flex-start);
+  border-bottom:4px $primaryColor solid;
+  height:70px;
+  flex-grow: 1;
+}
+header > div.theme-band > div{
+  display: block;
+  height:25px;
+  width:100%;
+}
+header > div.theme-band :nth-child(1){
+  @include setBg($primaryColor);
+}
+header > div.theme-band :nth-child(2){
+  @include setBg($secondaryColor);
+}
+header > div.theme-band :nth-child(3){
+  @include setBg($primaryDarkColor);
+}
+header > div.theme-band :nth-child(4){
+  @include setBg($faintDark);
+}
+//main
+main{
+  margin:0 auto;
+  @include flex(row,flex-start,flex-start );
+  // @include setBg($primaryDarkColor);
+}
+//content
+main > div.content{
+  flex-grow: 1;
+  @include setBg($secondaryColor);
+  padding:0.5em 1em;
+  @include flex(column,flex-start,flex-start);
+}
+main > div.content .info{
+  @include flex(row,space-between ,center );
+  width: 100%;
+
+}
+.account-menu{
+  @include flex(row,flex-start,center);
+}
+//avatar
+.user-avatar{
+  border-radius: 50%;
+  width:50px;
+  height:50px;
+  object-fit: contain;
+  // border:1px solid $faintDark;
+}
+#arrow-drop{
+  color:$faintDark;
+  cursor: pointer;
+}
+//end of content
+//side bar
+#side-bar{
+  @include setBg($faint);
+  @include flex(column,flex-start,flex-start );
+  color:$faintDark;
+  width:$sideBarSize;
+  text-align: left;
+  font-size: large;
+  padding-top:1em;
+  height: calc(100vh - 74px);
+}
+#side-bar .item{
+  width:calc(100% - 4em);
+  padding:0.5em 2em;
   margin:0 auto;
 }
-.content > div.product-details{
-  @include flex(column,flex-start ,flex-start);
-  height:auto;
-  padding:1em;
-  padding-top:0;
+#side-bar .active{
+  @include setBg($secondaryColor);
+  border-left: 10px solid $faintDark;
+  width:calc(100% - 4em - 10px);
+  // padding-left: 1em;
 }
+
+//end side bar
+
+//footer
+footer{
+  text-align: center;
+  color: $defaultColor;
+  width: calc(100% - 2em);
+  padding:0.5em 1em;
+  @include setBg($faintDark);
+}
+//end footer
+
 //feedback
 #feedback{
   position:fixed;
@@ -110,6 +148,9 @@ header > nav > a.nav-item{
   color:$defaultColor;
   margin-bottom: 1em;
 }
+//end layouts
+
+
 //display
 .hidden{
   display:none;
@@ -139,7 +180,7 @@ form {
 form#signup{
   width:50%;
 }
-form input[type="text"], form input[type="email"],form input[type="password"],form input[type="select"],form input[type="submit"]{
+form input[type="number"],form input[type="text"], form input[type="email"],form input[type="password"],form input[type="select"],form input[type="submit"]{
   min-width:300px;
   padding:0.5em 1em;
   margin:0.5em;
@@ -200,103 +241,7 @@ a.nav-item:hover {
   text-decoration: underline;
   color: $primaryDarkColor;
 }
-.dashboard {
-  @include setBg($defaultColor);
-  margin: -5em auto;
-  @include shade();
-  width: 80%;
-  min-height: calc(90vh - 4em);
-  height:auto;
-  padding: 1em;
-  @include flex(row, space-evenly, center);
-}
-.dashboard:has( > span){
-  @include flex(row, space-evenly, flex-start);
-}
-.product-details{
-  border-left:1px solid $secondaryColor;
-  font-size: medium;
-}
-.product-details > div{
-  @include flex(column,flex-start,flex-start);
-  margin-bottom: 1em;
-}
-.product-details label{
-  color: $faintDark;
-}
-.product-details span{
-  color: $secondaryColor;
-  font-size: large;
-}
-.details,.details-list{
-  flex-wrap: wrap;
-}
-.item-list{
-  // @include setBg($primaryDarkColor);
-  width: 100%;
-  padding:0.5em 0;
-  margin-top: 0.5em;
-  @include flex(row,space-between, center);
-  cursor: pointer;
-  @include shade();
 
-}
-.item-list:hover{
-  @include setBg($faint);
-}
-.item-data{
-  @include flex(column,center,flex-start);
-  margin-left:0.5em;
-  flex-grow: 1;
-}
-.item-image{
-  width:50px;
-  height:50px;
-  border-radius:50%;
-  margin:0.5em;
-  object-fit: cover;
-}
-.item-title{
-  // color:$faint;
-  font-size:1.2rem;
-}
-.item-focus{
-  color:$secondaryColor;
-}
-.details {
-  width:100%;
-  @include flex(row, space-between, center);
-  max-width: 480px;
-}
-.details-list{
-  width: 100%;
-  @include flex(row,space-evenly, flex-start);
-  align-items:flex-start !important;
-}
-.actions-wide{
-  @include flex(row, space-between, center);
-  width:100%;
-  // @include setBg($primaryColor);
-}
-.graph {
-  @include flex(column, center, center);
-}
-.graph > img {
-  width: 420px;
-  height: auto;
-}
-
-//message toaster
-.toast{
-  position:fixed;
-  top: 0;
-  margin:0 auto;
-  background-color:rgba(0, 0, 0, 0.596);
-  padding:2em;
-  z-index: 9999999999999999999999999999999;
-  height:200px;
-  display:block;
-}
 
 //buttons
 .action-buttons{

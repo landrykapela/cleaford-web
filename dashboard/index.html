@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="eng">
+    <head>
+        <title>Cleaford Dashboard</title>
+        <meta name="keyword" content="Cleaford, clearing and forwarding, clearing and forwarding system, customs management, landry kapela">
+        <meta name="author" content="Landry Kapela">
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <link rel="icon" href="/img/favicon.png"/>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Baloo+Thambi+2&display=swap" rel="stylesheet"> 
+        <link href="/css/main.css" rel="stylesheet"/>
+    </head>
+
+    <body style="text-align: center;">
+        <header>
+            <img class="logo" src="/img/logo.png" alt="cleaford logo" />
+            <div class="theme-band">
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+            </div>
+        </header>
+        <main>
+            <div id="side-bar">
+                <span class="item active">Dashboard</span>
+                <span class="item">Clients</span>
+                <span class="item">Subscriptions</span>
+                <span class="item">Roles</span>
+                <span class="item">Reports</span>
+            </div>
+            <div class="content">
+                <div class="info"><p class="medium-text" id="greetings"></p>
+                    <div class="account-menu">
+                        <img class="user-avatar" src="/img/favicon.png" alt="user avatar"/>
+                        <span id="account-name">Mr. Cleaford</span>
+                        <span class="material-icons large-text" id="arrow-drop">arrow_drop_down</span>
+                    </div></div>
+                
+                <button id="activate" class="buttons bg-primary">ACTIVATE ACCOUNT</button>
+                <button id="profile" class="buttons bg-primary hidden">SETUP ACCOUNT</button>
+            </div>
+        </main>
+        <div id="feedback" class="hidden"></div>
+        <footer>&copy; 2021, Cleaford. All rights reserved</footer>
+   <script src="/js/config.js"></script>
+        <script src="/js/main.js"></script>
+    </body>
+</html>
