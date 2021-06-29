@@ -8,6 +8,7 @@ body {
   margin: 0;
   font-family: "Baloo Thambi 2", cursive;
   font-size: 16px;
+  color: #9c9898;
 }
 
 header {
@@ -72,6 +73,7 @@ main > div.content {
   flex-direction: column;
   justify-content: flex-start;
   align-items: flex-start;
+  height: 100%;
 }
 
 main > div.content .info {
@@ -80,6 +82,10 @@ main > div.content .info {
   justify-content: space-between;
   align-items: center;
   width: 100%;
+}
+
+#clients_content, #add_client_content {
+  background-color: #ffffff !important;
 }
 
 .account-menu {
@@ -102,7 +108,7 @@ main > div.content .info {
 
 .drop-down {
   position: fixed;
-  top: 120px;
+  top: 140px;
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -125,13 +131,13 @@ main > div.content .info {
   color: #666262;
 }
 
-#arrow-drop {
+.arrow {
   color: #666262;
   cursor: pointer;
 }
 
-.x {
-  position: relative;
+.sort-arrow {
+  cursor: pointer;
 }
 
 #side-bar, .drop-down {
@@ -148,7 +154,7 @@ main > div.content .info {
 
 #side-bar {
   padding-top: 1em;
-  height: calc(100vh - 74px);
+  height: calc(100vh - 130px);
 }
 
 #side-bar .item {
@@ -172,32 +178,54 @@ footer {
   background-color: #666262 !important;
 }
 
-#feedback {
-  position: fixed;
-  top: 0;
-  margin: 0 auto;
-  width: calc(100% - 4em);
-  padding: 0.5em 2em;
-  background-color: #e63030c9 !important;
-  color: #ffffff;
-  margin-bottom: 1em;
+.form-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  border-radius: 30px;
+  background-color: #9c9898 !important;
+  width: 60%;
+  margin: 2em auto;
+  color: #666262;
+  padding: 1em 0;
 }
 
-.hidden {
-  display: none;
+.form-container > span {
+  margin: 1em;
 }
 
-.buttons, form input[type=submit] {
-  background-color: #cc9900 !important;
+.no-corner {
+  border-radius: unset !important;
+}
+
+.export-buttons {
+  width: 50px;
+  background-color: #666262 !important;
   color: #ffffff;
+  margin: 0.25em;
+  cursor: pointer;
+}
+
+.buttons, .buttons-s, form input[type=submit] {
   padding: 0.5em 1em;
   border: none;
   border-radius: 8px;
   cursor: pointer;
   min-width: 100px;
   font-family: "Baloo Thambi 2", cursive;
-  text-transform: uppercase;
   font-weight: bold;
+}
+
+.buttons {
+  border: 1px #cc9900 solid;
+  background-color: transparent !important;
+  color: #cc9900;
+}
+
+.buttons-s, form input[type=submit] {
+  background-color: #cc9900 !important;
+  color: #ffffff;
 }
 
 form {
@@ -214,9 +242,8 @@ form#signup {
 }
 
 form input[type=number], form input[type=text], form input[type=email], form input[type=password], form input[type=select], form input[type=submit] {
-  min-width: 300px;
-  padding: 0.5em 1em;
-  margin: 0.5em;
+  padding: 0.5em 0.5em;
+  margin: 0.5em 0;
 }
 
 input[type=email]:invalid, input[type=password]:invalid {
@@ -225,6 +252,196 @@ input[type=email]:invalid, input[type=password]:invalid {
 
 input[type=email]:valid, input[type=password]:valid {
   outline-color: #ffcc00;
+}
+
+.form-group, .form-group-no-border {
+  padding: 0.25em 0.5em;
+  border-radius: 4px;
+  margin: 5px;
+  width: 100%;
+  min-width: 300px;
+}
+
+.form-group-no-border {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.form-group-no-border > span {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  font-size: large;
+  color: #666262;
+}
+
+.form-group {
+  border: 1px solid #cc9900;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.form-group > input[type=checkbox]:checked {
+  color: #cc9900;
+}
+
+.form-group > input[type=email], .form-group > input[type=password] {
+  outline-color: none;
+  outline-width: 0;
+  outline-width: none;
+  border: 0;
+  font-size: 16px;
+  margin: 0;
+}
+
+.form-group > input[type=email]:focus, .form-group > input[type=password]:focus {
+  outline: none;
+  border: 0;
+}
+
+.form-group > img.icon {
+  width: 24px;
+  height: 24px;
+}
+
+.search {
+  width: calc(100px - 0.5em);
+}
+
+.form-container > form {
+  background-color: #ffffff !important;
+  color: #9c9898;
+  border-radius: 20px;
+  width: calc(100% - 2.2em);
+  margin: 0 auto;
+}
+
+form#client_profile_form > div.form-group {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  width: 80%;
+  border: 0px solid red;
+}
+
+form#client_profile_form > div.form-group label {
+  text-align: right;
+  width: 30%;
+  margin-right: 0.5em;
+}
+
+form#client_profile_form > div.form-group :nth-child(2) {
+  flex-grow: 1;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+  outline-color: #ffcc00;
+  padding: 0.25em 0.5em;
+  border: 1px #ffcc00 solid;
+}
+
+form#client_profile_form .form-group input[type=email], form#client_profile_form .form-group input[type=password], form#client_profile_form .form-group input[type=number], form#client_profile_form .form-group input[type=text] {
+  padding: 0.5em 1.5em;
+}
+
+.feature-image {
+  width: 50%;
+}
+
+.head-row {
+  background-color: #666262 !important;
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+  color: #ffffff;
+  margin-top: 0.5em;
+}
+
+.head-row > span, .body-row > span {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  width: 100%;
+  padding: 0.5em;
+}
+
+.body-row {
+  color: #9c9898;
+}
+
+.head-row, .body-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  align-items: center;
+  width: calc(100% - 2px);
+  border: 1px solid #9c9898;
+}
+
+#feedback {
+  position: fixed;
+  top: 0;
+  margin: 0 auto;
+  width: calc(100% - 4em);
+  padding: 0.5em 2em;
+  background-color: #e63030c9 !important;
+  color: #ffffff;
+  margin-bottom: 1em;
+  text-align: center;
+}
+
+.row {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.row-space {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.row-end {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: center;
+  width: 100%;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.center-me {
+  margin: 0 auto;
+}
+
+#login-container {
+  margin: 2em auto;
+  width: 80%;
+  height: 90vh;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+#my-container {
+  background-image: url(../img/container.png);
+  background-size: cover;
+  width: 40%;
+  height: 100%;
+  display: block;
 }
 
 .medium-text {
@@ -323,13 +540,24 @@ a.nav-item:hover {
 }
 
 #spinner {
+  position: fixed;
+  top: 50vh;
+  left: 50vw;
   display: block;
   width: 50px;
   height: 50px;
   border-radius: 50%;
   border: 1px solid #d3d3d3;
   border-top: none;
-  animation: spin 1s linear 0s 3 forwards;
+  animation: spin 1s linear 0s infinite forwards;
+}
+
+.round-corner {
+  border-radius: 8px;
+}
+
+.hidden {
+  display: none !important;
 }
 
 @keyframes spin {

@@ -6,12 +6,26 @@ $faint: #9c9898;
 $faintDark:#666262;
 $defaultColor: #ffffff;
 $failColor:#e63030c9;
+$buttonBorderSize:4px;
 $buttonBorderRadius:8px;
 $titleSize:30px;
 $standardTextSize:16px;
 $fontFamily:'Baloo Thambi 2';
 $sideBarSize: 200px;
 
+@mixin addRoundCorner($size:$buttonBorderRadius) {
+  border-radius:$size;
+}
+@mixin addRoundCornerTop($left:$buttonBorderRadius,$right:$buttonBorderRadius) {
+  border-top-left-radius: $left;
+  border-top-right-radius: $right;
+}
+@mixin squareCorner {
+  border-radius: unset !important;
+}
+@mixin addBorder($size:$buttonBorderSize,$color:$primaryColor,$style:solid) {
+  border: $size $color $style;
+}
 @mixin shade {
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
@@ -32,6 +46,7 @@ body {
   margin: 0;
   font-family: $fontFamily,cursive;
   font-size:$standardTextSize;
+  color:$faint;
 }
 
 //layouts
@@ -80,11 +95,15 @@ main > div.content{
   @include setBg($secondaryColor);
   padding:0.5em 1em;
   @include flex(column,flex-start,flex-start);
+  height:100%;
 }
 main > div.content .info{
   @include flex(row,space-between ,center );
   width: 100%;
 
+}
+#clients_content,#add_client_content{
+  @include setBg($defaultColor);
 }
 .account-menu{
   @include flex(row,flex-start,center);
@@ -105,7 +124,7 @@ main > div.content .info{
 //dropdwon menu
 .drop-down{
   position:fixed;
-  top:120px;
+  top:140px;
   width: 100%;
   @include flex(column,flex-start,flex-start);
   @include setBg($faint);
@@ -122,13 +141,14 @@ text-align: left;
   @include setBg($defaultColor);
   color:$faintDark;
 }
-#arrow-drop{
+.arrow{
   color:$faintDark;
   cursor: pointer;
 }
-.x{
-  position:relative;
+.sort-arrow{
+  cursor: pointer;
 }
+
 //end of content
 //side bar
 #side-bar,.drop-down{
@@ -141,7 +161,8 @@ text-align: left;
 }
 #side-bar{
   padding-top:1em;
-  height: calc(100vh - 74px);}
+  height: calc(100vh - 130px);
+}
 #side-bar .item{
   width:calc(100% - 4em);
   padding:0.5em 2em;
@@ -167,38 +188,51 @@ footer{
 }
 //end footer
 
-//feedback
-#feedback{
-  position:fixed;
-  top:0;
-  margin: 0 auto;
-  width:calc(100% - 4em);
-  padding:0.5em 2em;
-  @include setBg($failColor);
-  color:$defaultColor;
-  margin-bottom: 1em;
+//form container
+.form-container{
+  @include flex(column,flex-start,center);
+  @include addRoundCorner(30px);
+  @include setBg($faint);
+  width:60%;
+  margin:2em auto;
+  color:$faintDark;
+  padding:1em 0;
 }
-//end layouts
-
-
-//display
-.hidden{
-  display:none;
+.form-container > span{
+  // align-self: flex-start;
+  margin:1em;
 }
+
 //start buttons
-.buttons{
-  @include setBg($primaryDarkColor);
+.no-corner{
+  @include squareCorner();
+}
+.export-buttons{
+  width:50px;
+  @include setBg($faintDark);
   color:$defaultColor;
+  margin:0.25em;
+  cursor: pointer;
+}
+.buttons,.buttons-s{
   padding:0.5em 1em;
   border:none;
   border-radius: 8px;
   cursor: pointer;
   min-width:100px;
   font-family: $fontFamily,cursive;
-  text-transform: uppercase;
+  // text-transform: uppercase;
   font-weight: bold;
 }
-
+.buttons{
+  @include addBorder(1px,$primaryDarkColor ,solid );
+  @include setBg(transparent);
+  color:$primaryDarkColor;
+}
+.buttons-s{
+  @include setBg($primaryDarkColor);
+  color:$defaultColor;
+}
 //end buttons
 //forms
 form {
@@ -211,9 +245,9 @@ form#signup{
   width:50%;
 }
 form input[type="number"],form input[type="text"], form input[type="email"],form input[type="password"],form input[type="select"],form input[type="submit"]{
-  min-width:300px;
-  padding:0.5em 1em;
-  margin:0.5em;
+  // min-width:300px;
+  padding:0.5em 0.5em;
+  margin:0.5em 0;
 }
 input[type="email"]:invalid, input[type="password"]:invalid{
   outline-color: $failColor;
@@ -222,19 +256,151 @@ input[type="email"]:valid, input[type="password"]:valid{
   outline-color: $primaryColor;
 }
 form input[type="submit"]{
-  @extend .buttons;
+  @extend .buttons-s;
 
   }
-  // align-self: flex-start;
 
-// form input[type="submit"]:hover{
-//   background-color: $primaryDarkColor;
-//   color:$defaultColor;
-// }
+  .form-group,.form-group-no-border{
+    padding:0.25em 0.5em;
+    @include addRoundCorner(4px);
+    margin:5px;
+    width: 100%;
+    min-width: 300px;
+  }
+  .form-group-no-border{
 
+    @include flex(row,space-between,center);
+  }
+  .form-group-no-border > span{
+    @include flex(row,flex-start,center);
+    font-size: large;
+    color: $faintDark;
+  }
+  
+  .form-group{
+    border:1px solid $primaryDarkColor;
+    @include flex(row,flex-start,center);
+  }
+  .form-group > input[type="checkbox"]:checked{
+    color: $primaryDarkColor;
+  }
+  .form-group > input[type="email"],.form-group > input[type="password"]{
+    outline-color: none;
+    outline-width: 0;
+    outline-width: none;
+    border:0;
+    font-size: $standardTextSize;
+    margin:0;
+  }
+  .form-group > input[type="email"]:focus,.form-group > input[type="password"]:focus{
+    outline:none;
+    border: 0;
+  }
+  .form-group > img.icon{
+    width: 24px;
+    height:24px;
+  }
+  .search{
+    width: calc(100px - 0.5em);
+  }
+  .form-container > form{
+    @include setBg($defaultColor);
+    color:$faint;
+    @include addRoundCorner(20px);
+    width:calc(100% - 2.2em);
+    margin:0 auto;
+  }
+  form#client_profile_form > div.form-group{
+    @include flex(row,center ,center );
+    width:80%;
+    border:0px solid red;
+  }
+  form#client_profile_form >div.form-group label{
+  text-align: right;
+  width:30%;
+  margin-right:0.5em;
+  }
+  form#client_profile_form >div.form-group :nth-child(2){
+  flex-grow: 1;
+  @include addRoundCornerTop(5px,5px );
+  outline-color: $primaryColor;
+  padding:0.25em 0.5em;
+  @include addBorder(1px,$primaryColor ,solid )
+  }
+  form#client_profile_form .form-group input[type="email"],form#client_profile_form .form-group input[type="password"],form#client_profile_form .form-group input[type="number"],form#client_profile_form .form-group input[type="text"]{
 
-//end forms
+  padding:0.5em 1.5em;
+  }
+  //feature
+  .feature-image{
+    width:50%;
+  }
+  //tables
+  .head-row{
+    @include setBg($faintDark);
+    @include addRoundCornerTop(4px,4px );
+    color:$defaultColor; 
+    margin-top:0.5em;
+  }
+  .head-row > span,.body-row > span{
+    @include flex(row,flex-start,center);
+    width: 100%;
+    padding:0.5em;
+  }
+  .body-row{
+    color:$faint;
+  }
+  .head-row,.body-row{
+    @include flex(row,space-evenly,center );
+    width: calc(100% - 2px);border:1px solid $faint;
+  }
+//feedback
+#feedback{
+  position:fixed;
+  top:0;
+  margin: 0 auto;
+  width:calc(100% - 4em);
+  padding:0.5em 2em;
+  @include setBg($failColor);
+  color:$defaultColor;
+  margin-bottom: 1em;
+  text-align: center;
+}
 
+.row{
+  @include flex(row,space-between ,flex-start )
+}
+.row-space{
+  @include flex(row,space-between,flex-start);
+}
+.row-end{
+  @include flex(row,flex-end,center);
+  width:100%;
+}
+.column{
+  @include flex(column,center,center);
+}
+.center-me{
+  margin:0 auto;
+}
+
+#login-container{
+  margin:2em auto;
+  // border:1px solid blue;
+  width:80%;
+  height:90vh;
+  @include addRoundCorner(10px);
+  overflow: hidden;
+}
+#my-container{
+  background-image: url(../img/container.png);
+  background-size: cover;
+  width:40%;
+  height:100%;
+  display: block;
+}
+
+//end layouts
 
 // texts formats
 .medium-text {
@@ -322,15 +488,27 @@ a.nav-item:hover {
 
 //spinner
 #spinner{
+  position:fixed;
+  top:50vh;
+  left:50vw;
   display:block;
   width:50px;
   height:50px;
   border-radius: 50%;
   border:1px solid $secondaryColor;
   border-top:none;
-  animation: spin 1s linear 0s 3 forwards;
+  animation: spin 1s linear 0s infinite forwards;
 }
 
+//others
+.round-corner{
+  @include addRoundCorner($buttonBorderRadius);
+}
+.hidden{
+  display:none !important;
+}
+
+//animations
 @keyframes spin{
   from{
     transform:rotate(0deg);
