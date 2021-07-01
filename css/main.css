@@ -9,6 +9,8 @@ body {
   font-family: "Baloo Thambi 2", cursive;
   font-size: 16px;
   color: #9c9898;
+  width: 100%;
+  height: 100%;
 }
 
 header {
@@ -59,6 +61,7 @@ header > div.theme-band :nth-child(4) {
 
 main {
   margin: 0 auto;
+  height: 100%;
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
@@ -84,7 +87,7 @@ main > div.content .info {
   width: 100%;
 }
 
-#clients_content, #add_client_content {
+#clients_content, #add_client_content, #edit_client_content {
   background-color: #ffffff !important;
 }
 
@@ -154,7 +157,8 @@ main > div.content .info {
 
 #side-bar {
   padding-top: 1em;
-  height: calc(100vh - 130px);
+  min-height: 100vh;
+  height: 100%;
 }
 
 #side-bar .item {
@@ -321,7 +325,7 @@ input[type=email]:valid, input[type=password]:valid {
   margin: 0 auto;
 }
 
-form#client_profile_form > div.form-group {
+form.client_forms > div.form-group {
   display: flex;
   flex-direction: row;
   justify-content: center;
@@ -330,13 +334,13 @@ form#client_profile_form > div.form-group {
   border: 0px solid red;
 }
 
-form#client_profile_form > div.form-group label {
+form.client_forms > div.form-group label {
   text-align: right;
   width: 30%;
   margin-right: 0.5em;
 }
 
-form#client_profile_form > div.form-group :nth-child(2) {
+form.client_forms > div.form-group :nth-child(2) {
   flex-grow: 1;
   border-top-left-radius: 5px;
   border-top-right-radius: 5px;
@@ -345,7 +349,7 @@ form#client_profile_form > div.form-group :nth-child(2) {
   border: 1px #ffcc00 solid;
 }
 
-form#client_profile_form .form-group input[type=email], form#client_profile_form .form-group input[type=password], form#client_profile_form .form-group input[type=number], form#client_profile_form .form-group input[type=text] {
+form.client_forms .form-group input[type=email], form.client_forms .form-group input[type=password], form.client_forms .form-group input[type=number], form.client_forms .form-group input[type=text] {
   padding: 0.5em 1.5em;
 }
 
@@ -374,6 +378,10 @@ form#client_profile_form .form-group input[type=email], form#client_profile_form
   color: #9c9898;
 }
 
+.body-row :nth-child(1) {
+  cursor: pointer;
+}
+
 .head-row, .body-row {
   display: flex;
   flex-direction: row;
@@ -389,10 +397,18 @@ form#client_profile_form .form-group input[type=email], form#client_profile_form
   margin: 0 auto;
   width: calc(100% - 4em);
   padding: 0.5em 2em;
-  background-color: #e63030c9 !important;
-  color: #ffffff;
   margin-bottom: 1em;
   text-align: center;
+}
+
+.fail {
+  background-color: #e63030c9 !important;
+  color: #ffffff;
+}
+
+.success {
+  background-color: #cc9900 !important;
+  color: #ffffff;
 }
 
 .row {

@@ -2,10 +2,16 @@ const storage = window.localStorage;
 var currentUser = (storage.getItem("currentUser")) ? JSON.parse(storage.getItem("currentUser")):null;
 var data = (storage.getItem("data")) ? JSON.parse(storage.getItem("data")):[];
 
+
+
+if(window.location.pathname == "/signin.html"){
+    storage.setItem("data",JSON.stringify({}));
+   
+}
 //arrow drop
 
 let arrowDropCount = document.getElementsByClassName("arrow").length;
-console.log('count: ',arrowDropCount);
+
 const signupForm = document.querySelector("#signup_form");
 if(signupForm){
     const fieldError = document.getElementById("field-error");
@@ -50,11 +56,10 @@ if(signupForm){
         }})
         .then(res=>res.json())
         .then(result=>{
-            console.log("signup ", result);
             delete result.password;
             currentUser = result;
             storage.setItem("currentUser",JSON.stringify(currentUser));
-            showDashboard();
+            showProfile();
         });
     });
    
@@ -71,26 +76,41 @@ if(loginForm){
         fetch(signin_url,{method:"POST",body:JSON.stringify(user),headers:{'Content-type':'application/json'}})
         .then(res=>res.json()).then(response=>{
             if(response.error){
-                showErrorFeedback(response.error);
+                showFeedback(response.error,1);
             }
             else{
+                console.log("response: ",response);
                 currentUser = response;
                 storage.setItem("currentUser",JSON.stringify(currentUser));
                 if(currentUser.id == 0) showAdmin();
-                else showDashboard();
+                else{
+                    if(currentUser.db == null) showProfile();
+                    else showDashboard();
+                }
             }
         })
         .catch(err=>{
             let error = (err.error) ? err.error : "Connection Problems. Please try again later";
-            showErrorFeedback(error);
+            showFeedback(error,1);
         });
     });
 }
-//show error login
-const showErrorFeedback =(msg)=>{
+//show error
+const showFeedback =(msg,type)=>{
     const feedback = document.querySelector("#feedback");
     feedback.textContent = msg;
     feedback.classList.remove("hidden");
+    if(type==0){
+        feedback.classList.remove("fail");
+        feedback.classList.add("success");
+    }
+    else{
+        feedback.classList.remove("success");
+        feedback.classList.add("fail");
+    }
+    setTimeout(()=>{
+        feedback.classList.add("hidden");
+    },5000);
 
 };
 //signout
@@ -114,24 +134,14 @@ const signoutUser = ()=>{
 };
 
 
-//handle signout link/button
-const signout = document.querySelector("#signout");
-if(signout){
-    signout.addEventListener('click',(e)=>{
-        e.preventDefault();
-        if(confirm("Are you sure you want to sign out?")){
-            signoutUser();
-        }
-        else{
-            console.log("no singout");
-        }
-    });
-}
-
 //show admin dashboard
 const showAdmin = ()=>{
     window.location.pathname = "/admin/";
     // window.location.hash = "#"+target;
+}
+//show profile
+const showProfile = ()=>{
+    window.location.pathname = "/profile/";
 }
 //show dashboard
 const showDashboard = ()=>{
@@ -184,7 +194,7 @@ const activateAccount = (user)=>{
     })
     .catch(er=>{
         console.log("errr: ",er);
-        showErrorFeedback(err.msg);
+        showFeedback(err.msg,1);
     })
 }
 
@@ -195,137 +205,232 @@ if(window.location.pathname ==="/admin/"){
     }
     else{
         document.querySelector("#greetings").textContent = "Hello, Admin";
+        const detailForm = document.querySelector("#client_profile_form");
+        
+        // detailForm.email.value = currentUser.email;
+        if(detailForm){
+            document.getElementById("btnCancelAdd").addEventListener('click',()=>{
+                closeClientForm('add_client_content');
+            });
+            detailForm.addEventListener('submit',(e)=>{
+                e.preventDefault();
+    
+                let name   = detailForm.company_name.value;
+                let email  = detailForm.email.value;
+                let phone  = detailForm.phone.value;
+                let person = detailForm.contact_person.value;
+                let cemail = detailForm.contact_email.value;
+                let address= detailForm.address.value;
+                let file = detailForm.company_logo.files[0];
+                let logoFile = null;
+                let data = {
+                    company_name:name,
+                    email:email,
+                    phone:phone,
+                    contact_person:person,
+                    contact_email:cemail,
+                    address:address,
+                    logo:logoFile,
+                    user:currentUser.id
+                };
+    
+                if(file){
+                    var reader = new FileReader();
+                    reader.addEventListener('load',()=>{
+                        data.logo = reader.result;
+                    },false);
+    
+                    reader.readAsDataURL(file);
+                }
+    
+                const headers = {
+                    'Content-type':'application/json',
+                    'Authorization':'Bearer '+currentUser.accessToken
+                }
+                const options = {
+                    method:"POST",body:JSON.stringify(data),headers:headers
+                }
+                fetch(create_client_url,options)
+                .then(res=>{
+                    if(res.status == 403){
+                        showFeedback("Session expired. Please signin",1);
+                        signoutUser();
+                        return;
+                    }
+                    return res.json()
+                }).then(result=>{
+                    closeClientForm('add_client_content');
+                    updateClients(result.data);
+                })
+                .catch(err=>{
+                    console.log("err: ",err);
+                })
+    
+            });
+        }
+
+        //update client
+        const updateForm = document.querySelector("#edit_client_form");
+       
+        if(updateForm){
+            document.getElementById("btnCancelEdit").addEventListener('click',()=>{
+            closeClientForm('edit_client_content');
+            });
+             
+            let imagePreview = document.getElementById("client_image");
+            let inputFile = document.getElementById("company_logo");
+            inputFile.addEventListener('change',(e)=>{
+                var file = inputFile.files[0];
+                if(file){
+                    var reader = new FileReader();
+                    reader.addEventListener('load',()=>{
+                        // data.logo = reader.result;
+                        console.log(reader.result);
+                        imagePreview.src = reader.result;
+                    },false);
+
+                    reader.readAsDataURL(file);
+                }
+            })
+            updateForm.addEventListener('submit',(e)=>{
+                e.preventDefault();
+                let id = updateForm.client_id.value;
+                let name   = updateForm.company_name.value;
+                let email  = updateForm.email.value;
+                let phone  = updateForm.phone.value;
+                let person = updateForm.contact_person.value;
+                let cemail = updateForm.contact_email.value;
+                let address= updateForm.address.value;
+                let file = updateForm.company_logo.files[0];
+                let data = JSON.parse(storage.getItem("data"));
+
+                let client = data.clients.filter(c=>c.id == id);
+                if(client.logo && client.logo.length !=0) imagePreview.src = client.logo;
+                let logoFile = client.logo;
+                let newData = {
+                    id:id,
+                    company_name:(name && name.length !==0) ? name: client.name,
+                    email:(email && email.length !==0) ? email: client.email,
+                    phone:(phone && phone.length !==0) ? phone: client.phone,
+                    contact_person:(person && person.length !==0) ? person: client.contact_person,
+                    contact_email:(cemail && cemail.length !==0) ? cemail: client.contact_email,
+                    address:(address && address.length !==0) ? address: client.address,
+                    logo:logoFile,
+                    user:currentUser.id
+                };
+    
+                if(file){
+                    var reader = new FileReader();
+                    reader.addEventListener('load',()=>{
+                        newData.logo = reader.result;
+                        imagePreview.src = newData.logo;
+                    },false);
+    
+                    reader.readAsDataURL(file);
+                }
+    
+                const headers = {
+                    'Content-type':'application/json',
+                    'Authorization':'Bearer '+currentUser.accessToken
+                }
+                const options = {
+                    method:"PUT",body:JSON.stringify(newData),headers:headers
+                }
+                console.log("test: ",newData);
+                fetch(create_client_url,options)
+                .then(res=>{
+                    if(res.status == 403){
+                        showFeedback("Session expired. Please signin",1);
+                        signoutUser();
+                        return;
+                    }
+                    return res.json()
+                }).then(result=>{
+                   showFeedback(result.msg,result.code);
+                        closeClientForm('edit_client_content');
+                        updateClients(result.data);
+                   
+                })
+                .catch(err=>{
+                    showFeedback(err,1);
+                })
+            });
+        }
     }
 }
 //check if current page is dashboard
 if(window.location.pathname == "/dashboard/"){
     if(currentUser == null) window.location.pathname = "/signin.html";
     else{
-         document.querySelector("#greetings").textContent = "Hello, "+currentUser.email;
-    const activateButton = document.querySelector("#activate");
-    const profileButton = document.querySelector("#profile");
-    if(currentUser.db ==null){
-        //handle activate button
-        if(activateButton){
-            activateButton.addEventListener('click',(e)=>{
-                e.preventDefault();
-                activateAccount(currentUser);
-            })
-        }
+        var clientDetails = currentUser.detail;
+         document.querySelector("#greetings").textContent = "Hello, "+clientDetails.name;
+         document.querySelector("#account-name").textContent = clientDetails.name;
+         if(clientDetails.logo) document.querySelector("#avatar").src =clientDetails.logo;
     }
-    else{
-        if(activateButton){
-            activateButton.classList.add("hidden");
-        }
-        
-        profileButton.classList.remove("hidden");
-        if(profileButton){
-            profileButton.addEventListener('click',(e)=>{
-                e.preventDefault();
-                showClientDetailForm();
-            })
-        }
-    }
-    }
-   
 }
 
 //client profile
 if(window.location.pathname == "/profile/"){
-    const detailForm = document.querySelector("#client_profile_form");
-    detailForm.email.value = currentUser.email;
-    if(detailForm){
-        detailForm.addEventListener('submit',(e)=>{
-            e.preventDefault();
-
-            let name   = detailForm.company_name.value;
-            let email  = detailForm.email.value;
-            let phone  = detailForm.phone.value;
-            let person = detailForm.contact_person.value;
-            let cemail = detailForm.contact_email.value;
-            let address= detailForm.address.value;
-
-            let data = JSON.stringify({
-                company_name:name,
-                email:email,
-                phone:phone,
-                contact_person:person,
-                contact_email:cemail,
-                address:address
+        const detailForm = document.querySelector("#client_profile_form");
+        detailForm.email.value = currentUser.email;
+        if(detailForm){
+            detailForm.addEventListener('submit',(e)=>{
+                e.preventDefault();
+    
+                let name   = detailForm.company_name.value;
+                let email  = detailForm.email.value;
+                let phone  = detailForm.phone.value;
+                let person = detailForm.contact_person.value;
+                let cemail = detailForm.contact_email.value;
+                let address= detailForm.address.value;
+                let file = detailForm.company_logo.files[0];
+                let logoFile = null;
+                let data = {
+                    company_name:name,
+                    email:email,
+                    phone:phone,
+                    contact_person:person,
+                    contact_email:cemail,
+                    address:address,
+                    logo:logoFile,
+                    user:currentUser.id
+                };
+    
+                if(file){
+                    var reader = new FileReader();
+                    reader.addEventListener('load',()=>{
+                        data.logo = reader.result;
+                    },false);
+    
+                    reader.readAsDataURL(file);
+                }
+    
+                const headers = {
+                    'Content-type':'application/json',
+                    'Authorization':'Bearer '+currentUser.accessToken
+                }
+                const options = {
+                    method:"POST",body:JSON.stringify(data),headers:headers
+                }
+                fetch(create_client_url,options)
+                .then(res=>{
+                    if(res.status == 403){
+                        showFeedback("Session expired. Please signin",1);
+                        signoutUser();
+                        return;
+                    }
+                    return res.json()
+                }).then(result=>{
+                    console.log("result: ",result);
+                    showDashboard();
+                })
+                .catch(err=>{
+                    console.log("err: ",err);
+                })
+    
             });
+        }
 
-            const headers = {
-                'Content-type':'application/json',
-                'Authorization':'Bearer '+currentUser.accessToken
-            }
-            const options = {
-                method:"POST",body:data,headers:headers
-            }
-            fetch(create_client_url,options)
-            .then(res=>res.json()).then(result=>{
-                showDashboard();
-            })
-            .catch(err=>{
-                console.log("err: ",err);
-            })
-
-        });
-    }
-}
-//client profile
-if(window.location.pathname == "/admin/"){
-    const detailForm = document.querySelector("#client_profile_form");
-    // detailForm.email.value = currentUser.email;
-    if(detailForm){
-        detailForm.addEventListener('submit',(e)=>{
-            e.preventDefault();
-
-            let name   = detailForm.company_name.value;
-            let email  = detailForm.email.value;
-            let phone  = detailForm.phone.value;
-            let person = detailForm.contact_person.value;
-            let cemail = detailForm.contact_email.value;
-            let address= detailForm.address.value;
-            let file = detailForm.company_logo.files[0];
-            let logoFile = null;
-            let data = {
-                company_name:name,
-                email:email,
-                phone:phone,
-                contact_person:person,
-                contact_email:cemail,
-                address:address,
-                logo:logoFile,
-                user:currentUser.id
-            };
-
-            if(file){
-                var reader = new FileReader();
-                reader.addEventListener('load',()=>{
-                    data.logo = reader.result;
-                },false);
-
-                reader.readAsDataURL(file);
-            }
-
-            const headers = {
-                'Content-type':'application/json',
-                'Authorization':'Bearer '+currentUser.accessToken
-            }
-            const options = {
-                method:"POST",body:JSON.stringify(data),headers:headers
-            }
-            fetch(create_client_url,options)
-            .then(res=>res.json()).then(result=>{
-                closeClientForm();
-                updateClients();
-            })
-            .catch(err=>{
-                console.log("err: ",err);
-            })
-
-        });
-    }
 }
 
 
@@ -337,14 +442,16 @@ if(sideBar){
         if(item){
             item.addEventListener('click',(e)=>{
                 let target = e.target.id;
-                console.log(target);
                 items.forEach(i=>{
                     if(i.classList.contains("active")){
                         i.classList.remove("active");
                         document.getElementById(i.id+"_content").classList.add("hidden");
-                       
                     } 
                 });
+                Array.from(document.getElementsByTagName("MAIN")[0].children)
+                .forEach(child=>{
+                    if(child.id.includes("_content")) child.classList.add("hidden");
+                })
                 item.classList.add("active");
                 if(item.id =="clients") getClients();
                 else{
@@ -355,6 +462,23 @@ if(sideBar){
         }
     })
     
+}
+
+const editClientDetail = (client)=>{
+    const editForm = document.querySelector("#edit_client_form");
+    editForm.client_id.value = client.id;
+    editForm.company_name.value = client.name;
+    editForm.address.value = client.address+", "+client.region;
+    editForm.email.value = client.email;
+    editForm.contact_person.value = client.contact_person;
+    editForm.phone.value = client.phone;
+    editForm.contact_email.value = client.contact_email;
+
+    document.querySelector("#clients_content").classList.add("hidden");
+    document.querySelector("#edit_client_content").classList.remove("hidden");
+    document.getElementById("btnCancelEdit").addEventListener('click',()=>{
+        closeClientForm('edit_client_content');
+    })
 }
 
 //show spinner
@@ -386,6 +510,7 @@ const createClientRow = (row)=>{
         const companyPhone = document.createElement("span");
 
         companyName.textContent = row.name;
+        companyName.id = row.id;
         companyAddress.textContent = row.address;
         companyPhone.textContent = row.phone;
         contactName.textContent = row.contact_person;
@@ -396,6 +521,11 @@ const createClientRow = (row)=>{
         rowHolder.appendChild(companyPhone);
         rowHolder.appendChild(contactName);
         rowHolder.appendChild(contactEmail);
+
+        //add click listener
+        companyName.addEventListener('click',()=>{
+            editClientDetail(row);
+        })
     }
 
     holder.appendChild(rowHolder);
@@ -416,9 +546,9 @@ const showClients = (data)=>{
     }
 }
 //show clientForm
-const closeClientForm=()=>{
-    document.querySelector("#add_client_content").classList.add("hidden");
-    document.querySelector("#clients_content").classList.remove("hidden");
+const closeClientForm=(source)=>{
+    document.getElementById(source).classList.add("hidden");
+    document.getElementById("clients_content").classList.remove("hidden");
 }
 //fetch clients
 const getClients = ()=>{
@@ -427,7 +557,8 @@ const getClients = ()=>{
     fetch(clients_url,{method:"GET",headers:headers})
     .then(response=>{
         if(response.status == 403){
-            showErrorFeedback("Your session has expired. Please login again");
+            console.log("response: ",response)
+            showFeedback("Your session has expired. Please login again",1);
             setTimeout(()=>{
                 window.location.pathname = "/signin.html";
             },3000);
@@ -443,7 +574,7 @@ const getClients = ()=>{
     })
     .catch(e=>{
         hideSpinner();
-        showErrorFeedback("Your session has expired. Please login again");
+        showFeedback("Your session has expired. Please login again",1);
             
     })
 }
@@ -451,25 +582,64 @@ const getClients = ()=>{
 //update clients
 const updateClients = (clients)=>{
     if(clients && clients.length > 0){
+        let data = JSON.parse(storage.getItem("db"));
         data.clients = clients;
-        storage.setItem("data",JSON.stringify(clients));
+        storage.setItem("data",JSON.stringify(data));
         showClients();
     }
 }
-//handle arrow drop down
+
+//handle arrow drop down and menus
 for(let i=0;i<arrowDropCount;i++){
     let id = "arrow-drop"+i;
+    let signoutId = "#signout"+i;
+    let settingsId = "#settings"+i;
+    const settings = document.querySelector(settingsId);
+    const signout = document.querySelector(signoutId);
     const arrowDrop = document.getElementById(id);
-    console.log("test: ",arrowDrop.textContent);
     if(arrowDrop){
+        const dropDown = document.querySelector("#drop-down"+i);
         arrowDrop.addEventListener('click',(e)=>{
-            const dropDown = document.querySelector("#drop-down"+i);
             showHideDropDown(dropDown,arrowDrop);
+        });
+        //listen to move movement
+        // dropDown.addEventListener('mouseout',(e)=>{
+        //     dropDown.classList.add("hidden");
+        // })
+    }
+    if(signout){
+        signout.addEventListener('click',(e)=>{
+            e.preventDefault();
+            if(confirm("Are you sure you want to sign out?")){
+                signoutUser();
+            }
+            else{
+                console.log("no singout");
+            }
+        });
+    }
+    if(settings){
+        settings.addEventListener('click',(e)=>{
+            showSettings();
         })
     }
-    
-}
 
+}
+document.addEventListener('mouseup',(e)=>{
+    for(let i=0; i< arrowDropCount;i++){
+        var dropDown = document.getElementById("drop-down"+i);
+        var arrowDrop = document.getElementById("arrow-drop"+i);
+        if(!dropDown.contains(e.target)) {
+            dropDown.classList.add("hidden");
+            arrowDrop.innerHTML = "arrow_drop_down";
+        }
+        // showHideDropDown(dropDown,arrowDrop);
+    }
+})
+
+const showSettings=()=>{
+    alert("Showing settings");
+}
 const showHideDropDown = (dropDown,arrowDrop)=>{
     if(dropDown.classList.contains("hidden")) {
         dropDown.classList.remove("hidden");

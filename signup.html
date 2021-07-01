@@ -1,29 +1,50 @@
 <!DOCTYPE html>
 <html lang="eng">
     <head>
-        <title>Cleaford - Signup</title>
+        <title>Cleaford - Sign in</title>
         <meta name="keyword" content="Cleaford, clearing and forwarding, clearing and forwarding system, customs management, landry kapela">
         <meta name="author" content="Landry Kapela">
         <meta name="viewport" content="width=device-width,initial-scale=1">
-        <link rel="icon" href="img/favicon.png"/>
         <link href="css/main.css" rel="stylesheet"/>
+        <link rel="icon" href="img/favicon.png"/>
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Baloo+2&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Baloo+Thambi+2&display=swap" rel="stylesheet">
     </head>
 
-    <body style="text-align: center;">
+    <body >
+        <main>
+        <div class="round-corner row" id="login-container">
+
+            <div id="my-container"></div>
+            <div class="column center-me">
+            <img class="logo" src="img/logo.png"/><br />
+            <span class="large-text ">Signup Page</span>
+            <form id="signup_form" method="POST">
+                <div class="form-group">
+                    <img class="icon" src="img/mail-dark.png"/>
+                    <input type="email" id="email" name="email" placeholder="e-mail"/>
+                </div>
+                <div class="form-group">
+                    <img class="icon" src="img/passkey-dark.png"/>
+                <input type="password" id="password" name="password" placeholder="password"/>
+            </div>
+            <div class="form-group">
+                <img class="icon" src="img/passkey-dark.png"/>
+            <input type="password" id="cpassword" name="cpassword" placeholder="confirm password"/>
+        </div>
+            
+            <div class="form-group-no-border">
+                <input class="buttons-s" type="submit" id="btnSubmit" name="btnSubmit" value="Create Account"/>
+                <button class="buttons" onclick="window.location.pathname='/signin.html'">Login</button>
+                </div>
+                
+            </form>
+        </div>
+        </div>
+        </main>
+
         <div id="feedback" class="hidden"></div>
-        <img class="logo" src="img/logo.png"/><br />
-        <span class="medium-text primary-dark-text">This application is still in development</span>
-        <form id="signup_form" method="POST">
-            <input type="email" id="email" name="email" placeholder="E-mail" required/>
-            <input type="password" id="password" name="password" placeholder="Password" required minlength="8"/>
-            <input type="password" id="cpassword" name="cpassword" placeholder="Confirm"/>
-            <span class="hidden fail-text py-2" id="field-error" name="field-error"></span>
-            <input type="submit" id="btnSubmit" name="btnSubmit" value="Signup"/>
-        </form>
-        <p >Already have an account? <a href="signin.html">sign in</a> to proceed</p>
         <script src="js/config.js"></script>
         <script src="js/main.js"></script>
     </body>

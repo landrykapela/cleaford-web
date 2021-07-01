@@ -47,6 +47,8 @@ body {
   font-family: $fontFamily,cursive;
   font-size:$standardTextSize;
   color:$faint;
+  width:100%;
+  height:100%;
 }
 
 //layouts
@@ -86,6 +88,8 @@ header > div.theme-band :nth-child(4){
 //main
 main{
   margin:0 auto;
+  height:100%;
+  // height:auto;
   @include flex(row,flex-start,flex-start );
   // @include setBg($primaryDarkColor);
 }
@@ -102,7 +106,7 @@ main > div.content .info{
   width: 100%;
 
 }
-#clients_content,#add_client_content{
+#clients_content,#add_client_content,#edit_client_content{
   @include setBg($defaultColor);
 }
 .account-menu{
@@ -161,7 +165,8 @@ text-align: left;
 }
 #side-bar{
   padding-top:1em;
-  height: calc(100vh - 130px);
+  min-height: 100vh;
+  height:100%;
 }
 #side-bar .item{
   width:calc(100% - 4em);
@@ -310,24 +315,24 @@ form input[type="submit"]{
     width:calc(100% - 2.2em);
     margin:0 auto;
   }
-  form#client_profile_form > div.form-group{
+  form.client_forms > div.form-group{
     @include flex(row,center ,center );
     width:80%;
     border:0px solid red;
   }
-  form#client_profile_form >div.form-group label{
+  form.client_forms >div.form-group label{
   text-align: right;
   width:30%;
   margin-right:0.5em;
   }
-  form#client_profile_form >div.form-group :nth-child(2){
+  form.client_forms >div.form-group :nth-child(2){
   flex-grow: 1;
   @include addRoundCornerTop(5px,5px );
   outline-color: $primaryColor;
   padding:0.25em 0.5em;
   @include addBorder(1px,$primaryColor ,solid )
   }
-  form#client_profile_form .form-group input[type="email"],form#client_profile_form .form-group input[type="password"],form#client_profile_form .form-group input[type="number"],form#client_profile_form .form-group input[type="text"]{
+  form.client_forms .form-group input[type="email"],form.client_forms .form-group input[type="password"],form.client_forms .form-group input[type="number"],form.client_forms .form-group input[type="text"]{
 
   padding:0.5em 1.5em;
   }
@@ -350,6 +355,9 @@ form input[type="submit"]{
   .body-row{
     color:$faint;
   }
+  .body-row :nth-child(1){
+    cursor: pointer;
+  }
   .head-row,.body-row{
     @include flex(row,space-evenly,center );
     width: calc(100% - 2px);border:1px solid $faint;
@@ -361,12 +369,17 @@ form input[type="submit"]{
   margin: 0 auto;
   width:calc(100% - 4em);
   padding:0.5em 2em;
-  @include setBg($failColor);
-  color:$defaultColor;
   margin-bottom: 1em;
   text-align: center;
 }
-
+.fail{
+@include setBg($failColor);
+  color:$defaultColor;
+}
+.success{
+@include setBg($primaryDarkColor);
+  color:$defaultColor;
+}
 .row{
   @include flex(row,space-between ,flex-start )
 }

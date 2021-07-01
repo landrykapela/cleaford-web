@@ -40,8 +40,8 @@
                         <span class="material-icons large-text arrow" id="arrow-drop0">arrow_drop_down</span>                       
                     </div>
                     <div class="drop-down hidden" id="drop-down0">
-                        <span class="drop-item" id="profile">Settings</span>
-                        <span class="drop-item" id="signout">Logout</span>
+                        <span class="drop-item" id="settings0">Settings</span>
+                        <span class="drop-item" id="signout0">Logout</span>
                     </div>
                 </div>
                 </div>
@@ -56,8 +56,8 @@
                         <span class="material-icons large-text arrow" id="arrow-drop1">arrow_drop_down</span>                       
                     </div>
                     <div class="drop-down hidden" id="drop-down1">
-                        <span class="drop-item" id="profile">Settings</span>
-                        <span class="drop-item" id="signout">Logout</span>
+                        <span class="drop-item" id="settings1">Settings</span>
+                        <span class="drop-item" id="signout1">Logout</span>
                     </div>
                 </div>
                 </div>
@@ -92,14 +92,14 @@
                         <span class="material-icons large-text arrow" id="arrow-drop2">arrow_drop_down</span>                       
                     </div>
                     <div class="drop-down hidden" id="drop-down2">
-                        <span class="drop-item" id="profile">Settings</span>
-                        <span class="drop-item" id="signout">Logout</span>
+                        <span class="drop-item" id="settings2">Settings</span>
+                        <span class="drop-item" id="signout2">Logout</span>
                     </div>
                 </div>
                 </div>
                 <div id="form-container" class="form-container">
                     <span class="medium-text">Company Details</span>
-                    <form id="client_profile_form" method="POST">
+                    <form id="client_profile_form" method="POST" class="client_forms">
                         <div class="form-group">
                             <label for="company_name">Company Name</label>
                             <input type="text" id="company_name" name="company_name"  required />
@@ -129,7 +129,62 @@
                         </div>
                       <div class="form-group-no-border">
                         <input class="no-corner" type="submit" id="btnSubmit" name="btnSubmit" value="SUBMIT"/>
-                        <button class="buttons no-corner" id="btnCancel" onclick="closeClientForm();">Cancel</button>
+                        <input type="reset" class="buttons no-corner" id="btnCancelAdd" name="btnCancelAdd" value="Cancel"/>
+                    </div>
+                    </form>
+                </div>
+            </div>
+            <div class="content hidden" id="edit_client_content">
+                <div class="info"><div><span class="medium-text">Clients</span><br /><span>Clients | Edit Client</span></div>
+                    <div class="menu">
+                    <div class="account-menu">
+                        <img class="user-avatar" src="/img/favicon.png" alt="user avatar"/>
+                        <span id="account-name">Mr. Cleaford</span>
+                        <span class="material-icons large-text arrow" id="arrow-drop3">arrow_drop_down</span>                       
+                    </div>
+                    <div class="drop-down hidden" id="drop-down3">
+                        <span class="drop-item" id="settings3">Settings</span>
+                        <span class="drop-item" id="signout3">Logout</span>
+                    </div>
+                </div>
+                </div>
+                <div id="form-container" class="form-container">
+                    <span class="medium-text">Edit Client Details</span>
+                    <form id="edit_client_form" method="POST" class="client_forms">
+                        <input type="hidden" name="client_id" id="client_id"/>
+                        <div class="form-group">
+                            <label for="company_name">Company Name</label>
+                            <input type="text" id="company_name" name="company_name"  required />
+                        </div>
+                        <div class="form-group">
+                            <label for="address">Company Address</label>
+                            <textarea rows=5 id="address" name="address"></textarea>
+                        </div> 
+                        <div class="form-group">
+                            <label for="email">Company E-mail</label>
+                            <input type="email" id="email" name="email"/></div>
+                        <div class="form-group">
+                            <label for="phone">Company Telephone</label>
+                            <input type="number" id="phone" name="phone" required/>
+                        </div>
+                        <div class="form-group">
+                            <label for="contact_person">Contact Person</label>
+                            <input type="text" id="contact_person" name="contact_person" required />
+                       </div>
+                       <div class="form-group">
+                           <label for="contact_email">Contact E-mail</label>
+                           <input type="email" id="contact_email" name="contact_email" required />
+                       </div>
+                       <div class="form-group">
+                           <img src="/img/logo.png" class="user-avatar" id="client_image" name="client_image"/>
+                       </div>
+                       <div class="form-group">
+                           <label for="company_logo">Company Logo</label>
+                           <input type="file" id="company_logo" name="company_logo"/>
+                        </div>
+                      <div class="form-group-no-border">
+                        <input class="no-corner" type="submit" id="btnSubmit" name="btnSubmit" value="UPDATE"/>
+                        <input type="reset" class="buttons no-corner" id="btnCancelEdit" name="btnCancelEdit" value="Cancel" />
                     </div>
                     </form>
                 </div>
