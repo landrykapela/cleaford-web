@@ -372,6 +372,27 @@ form input[type="submit"]{
   margin-bottom: 1em;
   text-align: center;
 }
+.stat-card{
+  // border: 1px solid red;
+  width:160px;
+  height: 70px;
+  @include setBg($defaultColor);
+  @include addRoundCorner(5px);
+  padding:0.25em;
+  @include flex(row,space-between,flex-end)
+}
+.stat-card :nth-child(1){
+  font-size: small;
+}
+.stat-card :nth-child(2){
+  align-self: center;
+  // flex-grow: 1;
+  // height:100%;
+}
+.stat-value{
+  font-size: $titleSize;
+  color: $primaryColor;
+}
 .fail{
 @include setBg($failColor);
   color:$defaultColor;

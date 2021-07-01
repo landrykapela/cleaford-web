@@ -401,6 +401,31 @@ form.client_forms .form-group input[type=email], form.client_forms .form-group i
   text-align: center;
 }
 
+.stat-card {
+  width: 160px;
+  height: 70px;
+  background-color: #ffffff !important;
+  border-radius: 5px;
+  padding: 0.25em;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.stat-card :nth-child(1) {
+  font-size: small;
+}
+
+.stat-card :nth-child(2) {
+  align-self: center;
+}
+
+.stat-value {
+  font-size: 30px;
+  color: #ffcc00;
+}
+
 .fail {
   background-color: #e63030c9 !important;
   color: #ffffff;
