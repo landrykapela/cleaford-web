@@ -41,6 +41,9 @@ $sideBarSize: 200px;
 html {
   scroll-behavior: smooth;
 }
+.shadow{
+  @include shade();
+}
 body {
   padding: 0;
   margin: 0;
@@ -105,6 +108,27 @@ main > div.content .info{
   @include flex(row,space-between ,center );
   width: 100%;
 
+}
+main >div.content .info-stats{
+  @include flex(row,flex-start ,center );
+  flex-wrap: wrap;
+  width: 60%;
+}
+main >div.content .info-charts{
+
+  width: 40%;
+}
+.info-charts > canvas{
+  max-height:160px;
+}
+.info-charts{
+  @include setBg($defaultColor);
+  border:1px solid $primaryColor;
+}
+main > div#dashboard_content{
+  background-image: url(../img/admin_bg.jpg);
+  background-size: cover;
+  background-repeat: no-repeat;
 }
 #clients_content,#add_client_content,#edit_client_content{
   @include setBg($defaultColor);
@@ -228,6 +252,7 @@ footer{
   font-family: $fontFamily,cursive;
   // text-transform: uppercase;
   font-weight: bold;
+  font-size: $standardTextSize;
 }
 .buttons{
   @include addBorder(1px,$primaryDarkColor ,solid );
@@ -249,7 +274,7 @@ form {
 form#signup{
   width:50%;
 }
-form input[type="number"],form input[type="text"], form input[type="email"],form input[type="password"],form input[type="select"],form input[type="submit"]{
+form textarea,form input[type="number"],form input[type="text"], form input[type="email"],form input[type="password"],form input[type="select"],form input[type="submit"]{
   // min-width:300px;
   padding:0.5em 0.5em;
   margin:0.5em 0;
@@ -268,13 +293,13 @@ form input[type="submit"]{
   .form-group,.form-group-no-border{
     padding:0.25em 0.5em;
     @include addRoundCorner(4px);
-    margin:5px;
-    width: 100%;
     min-width: 300px;
   }
   .form-group-no-border{
-
+    padding:0;
     @include flex(row,space-between,center);
+    margin:5px 0;
+    width:100%;
   }
   .form-group-no-border > span{
     @include flex(row,flex-start,center);
@@ -285,6 +310,8 @@ form input[type="submit"]{
   .form-group{
     border:1px solid $primaryDarkColor;
     @include flex(row,flex-start,center);
+    margin:5px;
+    width: calc(100% - 5px - 1em);
   }
   .form-group > input[type="checkbox"]:checked{
     color: $primaryDarkColor;
@@ -376,9 +403,10 @@ form input[type="submit"]{
   // border: 1px solid red;
   width:160px;
   height: 70px;
+  margin:0.25em;
   @include setBg($defaultColor);
   @include addRoundCorner(5px);
-  padding:0.25em;
+  padding:0.5em;
   @include flex(row,space-between,flex-end)
 }
 .stat-card :nth-child(1){
@@ -413,6 +441,7 @@ form input[type="submit"]{
 }
 .column{
   @include flex(column,center,center);
+  // border: 1px solid red;
 }
 .center-me{
   margin:0 auto;
@@ -420,16 +449,16 @@ form input[type="submit"]{
 
 #login-container{
   margin:2em auto;
-  // border:1px solid blue;
+  @include flex(row,center ,center );
   width:80%;
   height:90vh;
   @include addRoundCorner(10px);
   overflow: hidden;
 }
 #my-container{
-  background-image: url(../img/container.png);
+  background-image: url(../img/container.webp);
   background-size: cover;
-  width:40%;
+  width:50%;
   height:100%;
   display: block;
 }

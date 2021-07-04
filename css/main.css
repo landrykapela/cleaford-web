@@ -3,6 +3,10 @@ html {
   scroll-behavior: smooth;
 }
 
+.shadow {
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
 body {
   padding: 0;
   margin: 0;
@@ -85,6 +89,34 @@ main > div.content .info {
   justify-content: space-between;
   align-items: center;
   width: 100%;
+}
+
+main > div.content .info-stats {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  flex-wrap: wrap;
+  width: 60%;
+}
+
+main > div.content .info-charts {
+  width: 40%;
+}
+
+.info-charts > canvas {
+  max-height: 160px;
+}
+
+.info-charts {
+  background-color: #ffffff !important;
+  border: 1px solid #ffcc00;
+}
+
+main > div#dashboard_content {
+  background-image: url(../img/admin_bg.jpg);
+  background-size: cover;
+  background-repeat: no-repeat;
 }
 
 #clients_content, #add_client_content, #edit_client_content {
@@ -219,6 +251,7 @@ footer {
   min-width: 100px;
   font-family: "Baloo Thambi 2", cursive;
   font-weight: bold;
+  font-size: 16px;
 }
 
 .buttons {
@@ -245,7 +278,7 @@ form#signup {
   width: 50%;
 }
 
-form input[type=number], form input[type=text], form input[type=email], form input[type=password], form input[type=select], form input[type=submit] {
+form textarea, form input[type=number], form input[type=text], form input[type=email], form input[type=password], form input[type=select], form input[type=submit] {
   padding: 0.5em 0.5em;
   margin: 0.5em 0;
 }
@@ -261,16 +294,17 @@ input[type=email]:valid, input[type=password]:valid {
 .form-group, .form-group-no-border {
   padding: 0.25em 0.5em;
   border-radius: 4px;
-  margin: 5px;
-  width: 100%;
   min-width: 300px;
 }
 
 .form-group-no-border {
+  padding: 0;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
+  margin: 5px 0;
+  width: 100%;
 }
 
 .form-group-no-border > span {
@@ -288,6 +322,8 @@ input[type=email]:valid, input[type=password]:valid {
   flex-direction: row;
   justify-content: flex-start;
   align-items: center;
+  margin: 5px;
+  width: calc(100% - 5px - 1em);
 }
 
 .form-group > input[type=checkbox]:checked {
@@ -404,9 +440,10 @@ form.client_forms .form-group input[type=email], form.client_forms .form-group i
 .stat-card {
   width: 160px;
   height: 70px;
+  margin: 0.25em;
   background-color: #ffffff !important;
   border-radius: 5px;
-  padding: 0.25em;
+  padding: 0.5em;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -471,6 +508,10 @@ form.client_forms .form-group input[type=email], form.client_forms .form-group i
 
 #login-container {
   margin: 2em auto;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
   width: 80%;
   height: 90vh;
   border-radius: 10px;
@@ -478,9 +519,9 @@ form.client_forms .form-group input[type=email], form.client_forms .form-group i
 }
 
 #my-container {
-  background-image: url(../img/container.png);
+  background-image: url(../img/container.webp);
   background-size: cover;
-  width: 40%;
+  width: 50%;
   height: 100%;
   display: block;
 }

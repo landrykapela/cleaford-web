@@ -2,6 +2,18 @@ const storage = window.localStorage;
 var currentUser = (storage.getItem("currentUser")) ? JSON.parse(storage.getItem("currentUser")):null;
 var data = (storage.getItem("data")) ? JSON.parse(storage.getItem("data")):[];
 
+const originalSetItem = localStorage.setItem;
+
+localStorage.setItem = function(key, value) {
+  const event = new Event('updateData');
+
+  event.value = value; // Optional..
+  event.key = key; // Optional..
+
+  document.dispatchEvent(event);
+
+  originalSetItem.apply(this, arguments);
+};
 
 
 if(window.location.pathname == "/signin.html"){
@@ -133,11 +145,47 @@ const signoutUser = ()=>{
   
 };
 
+//show admin stats
+const showAdminStats=()=>{
+    document.querySelector("#greetings").textContent = "Hello, Admin";
+    const numberOfClients = document.getElementById("no_of_clients");
+    let data = (storage.getItem("data")) ? JSON.parse(storage.getItem("data")):null;
+        numberOfClients.textContent = (data == null) ? 0:data.clients.length;
+    let canvas = document.getElementById("pie_chart");
+    let summary = {
+        labels:["Clearing","Forwarding"],
+        datasets:[{
+            label:"Consigment Type",
+            data:[102,360],
+            backgroundColor:['#ffcc00','#cc9900'],
+            hoverOffset:4
+        }]
+    }
+    let config = {
+        type:'pie',data:summary,options:{
+            plugins:{
+                legend:{
+                    display:true,
+                    position:'left'
+                },
+                title:{
+                    display:true,
+                    position:'top',text:'Consigment Type',
+                    align:'start',
+                    padding:{
+                        top:10,left:10,bottom:10
+                    }
+                }
+            }
+        }
+    }
+    var myChart = drawChart(config,canvas);
+}
 
 //show admin dashboard
 const showAdmin = ()=>{
     window.location.pathname = "/admin/";
-    // window.location.hash = "#"+target;
+    getClients();
 }
 //show profile
 const showProfile = ()=>{
@@ -303,6 +351,7 @@ const getClients = ()=>{
         }
         }).then(result=>{
         hideSpinner();
+        let data = (storage.getItem("data")) ? JSON.parse(storage.getItem("data")) : {};
         data.clients = result.data;
         storage.setItem("data",JSON.stringify(data));
         showClients(result.data);
@@ -317,7 +366,7 @@ const getClients = ()=>{
 //update clients
 const updateClients = (clients)=>{
     if(clients && clients.length > 0){
-        let data = JSON.parse(storage.getItem("db"));
+        let data = JSON.parse(storage.getItem("data"));
         data.clients = clients;
         storage.setItem("data",JSON.stringify(data));
         showClients();
@@ -334,6 +383,10 @@ const updateClientDetail = (detail)=>{
     }
 }
 
+//show pie chart
+const drawChart = (config,canvas)=>{
+    return myChart = new Chart(canvas,config);
+}
 //refresh user
 const refreshUser=()=>{
     console.log("refreshed user");
@@ -517,13 +570,15 @@ if(window.location.pathname ==="/admin/"){
         window.location.pathname = "/signin.html";
     }
     else{
+        
+        document.addEventListener("updateData", (e)=>{
+            if(e.key == "data"){
+                showAdminStats();
+            }
+        }, false);
         getClients();
-        document.querySelector("#greetings").textContent = "Hello, Admin";
-        const detailForm = document.querySelector("#client_profile_form");
-        const numberOfClients = document.getElementById("no_of_clients");
-        let data = (storage.getItem("data")) ? JSON.parse(storage.getItem("data")):null;
-        numberOfClients.textContent = (data == null) ? 0:data.clients.length;
-        // detailForm.email.value = currentUser.email;
+       
+    const detailForm = document.querySelector("#client_profile_form");
         if(detailForm){
             document.getElementById("btnCancelAdd").addEventListener('click',()=>{
                 closeClientForm('add_client_content');
@@ -539,7 +594,7 @@ if(window.location.pathname ==="/admin/"){
                 let address= detailForm.address.value;
                 let file = detailForm.company_logo.files[0];
                 let logoFile = null;
-                let data = {
+                let datas = {
                     company_name:name,
                     email:email,
                     phone:phone,
@@ -553,7 +608,7 @@ if(window.location.pathname ==="/admin/"){
                 if(file){
                     var reader = new FileReader();
                     reader.addEventListener('load',()=>{
-                        data.logo = reader.result;
+                        datas.logo = reader.result;
                     },false);
     
                     reader.readAsDataURL(file);
@@ -564,7 +619,7 @@ if(window.location.pathname ==="/admin/"){
                     'Authorization':'Bearer '+currentUser.accessToken
                 }
                 const options = {
-                    method:"POST",body:JSON.stringify(data),headers:headers
+                    method:"POST",body:JSON.stringify(datas),headers:headers
                 }
                 fetch(create_client_url,options)
                 .then(res=>{
