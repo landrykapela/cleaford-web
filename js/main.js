@@ -1,4 +1,5 @@
 const storage = window.localStorage;
+const clientSummaryCount = 5;
 var currentUser = (storage.getItem("currentUser")) ? JSON.parse(storage.getItem("currentUser")):null;
 var data = (storage.getItem("data")) ? JSON.parse(storage.getItem("data")):{};
 
@@ -31,35 +32,42 @@ if(sideBar){
     items.forEach(item=>{
         if(item){
             item.addEventListener('click',(e)=>{
-                let target = e.target.id;
-                items.forEach(i=>{
-                    if(i.classList.contains("active")){
-                        i.classList.remove("active");
-                        document.getElementById(i.id+"_content").classList.add("hidden");
-                    } 
-                });
-                Array.from(document.getElementsByTagName("MAIN")[0].children)
-                .forEach(child=>{
-                    if(child.id.includes("_content")) child.classList.add("hidden");
-                })
-                item.classList.add("active");
-                if(item.id =="clients"){
-                    getClients().then(clients=>{
-                        showClients(clients)
-                    }).catch(er=>{
-                        showFeedback(er,1);
-                    });
-                }
-                else{
-                    document.getElementById("add_client_content").classList.add("hidden");
-                }
-                document.getElementById(target+"_content").classList.remove("hidden");
+                activateMenu(e.target.id);
             })
         }
     })
     
 }
-
+const activateMenu =(target)=>{
+    const items = Array.from(sideBar.children);
+    items.forEach(i=>{
+        if(i.classList.contains("active")){
+            i.classList.remove("active");
+            // const target = document.getElementById(i.id+"_content");
+            // if(target) target.classList.add("hidden");
+        } 
+        Array.from(document.getElementsByTagName("MAIN")[0].children)
+        .forEach(child=>{
+            if(child.id.includes("_content")) child.classList.add("hidden");
+        })
+    });
+    items.forEach(item=>{
+       
+        if(item.id == target) item.classList.add("active");
+        if(item.id =="clients"){
+            getClients().then(clients=>{
+                showClients(clients)
+            }).catch(er=>{
+                showFeedback(er,1);
+            });
+        }
+        else{
+            document.getElementById("add_client_content").classList.add("hidden");
+        }
+        document.getElementById(target+"_content").classList.remove("hidden");
+    })
+    
+}
 const getActiveMenu =()=>{
     if(sideBar){
         const items = Array.from(sideBar.children);
@@ -197,8 +205,11 @@ const signoutUser = ()=>{
 const showAdminStats=()=>{
     document.querySelector("#greetings").textContent = "Hello, Admin";
     const numberOfClients = document.getElementById("no_of_clients");
-    let data = (storage.getItem("data")) ? JSON.parse(storage.getItem("data")):null;
-        numberOfClients.textContent = (data !== null && data.clients !== null) ? data.clients.length : 0;
+    let data = (storage.getItem("data")) ? JSON.parse(storage.getItem("data")):{clients:[]};
+    numberOfClients.textContent = (data && data.clients) ? data.clients.length : 0;
+    
+    //show client summary
+    showClientsSummary();
     let chartArea = document.getElementById("chart-area");
     while(chartArea.hasChildNodes()){
         chartArea.removeChild(chartArea.childNodes[0]);
@@ -233,7 +244,6 @@ const showAdminStats=()=>{
         }
     }
     var myChart = drawChart(config,canvas);
-    showClientsSummary();
 }
 
 //show admin dashboard
@@ -367,7 +377,7 @@ const createClientRow = (row)=>{
     holder.appendChild(rowHolder);
 }
 const createClientSummaryRow = (row)=>{
-    const holder = document.querySelector("#clients_content");
+    const holder = document.querySelector("#client_table_summary");
     const rowHolder = document.createElement("div");
     rowHolder.classList.add("body-row");
     if(row == null){
@@ -419,10 +429,27 @@ const showClients = (data)=>{
         });
     }
 }
+const createMoreLink = (target,holder)=>{
+    const button = document.createElement("button");
+    button.id = "button_more";
+    button.textContent = "More...";
+    console.log("creating more button...");
+    if(!holder.contains(button)){
+        holder.appendChild(button);
+        button.classList.add("secondary-button");
+        button.addEventListener('click',(e)=>{
+            activateMenu(target);
+         })
+    }
+    else{
+
+        if(button) holder.removeChild(button);
+    }
+    
+}
 const showClientsSummary = ()=>{
     const data = (storage.getItem("data")) ? JSON.parse(storage.getItem("data")) : null;
-    console.log("creating summary :",data.clients);
-    if(data == null || data.clients == null || data.clients.length) {
+    if(data == null || data.clients == null || data.clients.length == 0) {
         createClientSummaryRow(null);
     }
     else {
@@ -430,10 +457,16 @@ const showClientsSummary = ()=>{
         Array.from(holder.children).forEach(child=>{
             if(child.classList.contains("body-row")) holder.removeChild(child);
         })
-        data.forEach(row=>{
-            console.log("creating row");
-        createClientSummaryRow(row);
+        var topClients = data.clients.filter((row,index)=>{
+            return index <= clientSummaryCount;
+            
+        });
+        topClients.forEach(row=>{
+                createClientSummaryRow(row);     
         })
+        // if(data.clients.length > clientSummaryCount){
+        //     createMoreLink('clients',holder);
+        // }
     }
 }
 //show clientForm
@@ -519,10 +552,6 @@ for(let i=0;i<arrowDropCount;i++){
         arrowDrop.addEventListener('click',(e)=>{
             showHideDropDown(dropDown,arrowDrop);
         });
-        //listen to move movement
-        // dropDown.addEventListener('mouseout',(e)=>{
-        //     dropDown.classList.add("hidden");
-        // })
     }
     if(signout){
         signout.addEventListener('click',(e)=>{
@@ -542,6 +571,7 @@ for(let i=0;i<arrowDropCount;i++){
     }
 
 }
+//listen to window events
 document.addEventListener('mouseup',(e)=>{
     for(let i=0; i< arrowDropCount;i++){
         var dropDown = document.getElementById("drop-down"+i);
@@ -556,11 +586,16 @@ document.addEventListener('mouseup',(e)=>{
 document.addEventListener('updateData',(e)=>{
     if(window.location.pathname == '/admin/'){
         let data = JSON.parse(e.value);
+        console.log("may be an update triggered")
         if(getActiveMenu() == 'dashboard') showAdminStats();
         else showClients(data);
     }
 })
 
+//listen to poststate change
+window.addEventListener('poststate',(e)=>{
+    console.log("poststate: ",e.state);
+})
 const showSettings=()=>{
     if(currentUser.id === 0){
         alert("settings admin");
@@ -693,6 +728,7 @@ if(window.location.pathname ==="/admin/"){
     else{
         
         getClients().then(clients=>{
+            console.log("may be called from here")
             if(getActiveMenu() == 'dashboard') showAdminStats();
             else showClients(clients);
         })

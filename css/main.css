@@ -80,7 +80,7 @@ main > div.content {
   flex-direction: column;
   justify-content: flex-start;
   align-items: flex-start;
-  height: 100%;
+  min-height: 100vh;
 }
 
 main > div.content .info {
@@ -267,6 +267,17 @@ footer {
   color: #ffffff;
 }
 
+.secondary-button {
+  background-color: #9c9898 !important;
+  width: 70px;
+  color: #ffffff;
+  border-radius: unset !important;
+  border: none;
+  margin: 0.5em 0;
+  padding: 0.25em;
+  font-size: small;
+}
+
 form {
   display: flex;
   flex-direction: column;
@@ -397,6 +408,7 @@ form.client_forms .form-group input[type=email], form.client_forms .form-group i
 
 main > div.content .summary-table {
   margin-top: 0.5em;
+  padding: 0 0.5em;
   width: calc(50% - 1em);
   display: flex;
   flex-direction: column;
@@ -409,27 +421,28 @@ main > div.content .summary-table > span.summary-head {
   background-color: #ffcc00 !important;
   text-align: left;
   padding: 0.5em;
-  width: calc(100% - 1em);
+  align-self: center;
+  width: calc(100%);
 }
 
-main > div.content .summary-head, main > div.content .head-row {
+.summary-head, .head-row {
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
   border-top-left-radius: 4px;
   border-top-right-radius: 4px;
   color: #ffffff;
-  width: 100%;
 }
 
 .head-row {
   background-color: #666262 !important;
   margin-top: 0.5em;
+  border: 1px solid #666262;
 }
 
 .summary-table .head-row {
-  margin-top: -0.25em;
+  margin-top: 0.25em;
 }
 
 .head-row > span, .body-row > span {
@@ -438,7 +451,8 @@ main > div.content .summary-head, main > div.content .head-row {
   justify-content: flex-start;
   align-items: center;
   width: 100%;
-  padding: 0.5em;
+  padding: 0.25em;
+  font-size: small;
 }
 
 .body-row {
@@ -454,8 +468,9 @@ main > div.content .summary-head, main > div.content .head-row {
   flex-direction: row;
   justify-content: space-evenly;
   align-items: center;
-  width: calc(100% - 2px);
+  width: calc(100% - 0.5em - 2px);
   border: 1px solid #9c9898;
+  padding: 0.25em;
 }
 
 #feedback {
