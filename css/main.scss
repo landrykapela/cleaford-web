@@ -110,12 +110,14 @@ main > div.content .info{
 
 }
 main >div.content .info-stats{
-  @include flex(row,flex-start ,center );
+  @include flex(row,space-between ,center );
   flex-wrap: wrap;
-  width: 60%;
+  width: calc(50% - 1em);
+  margin:0.5em 0.25;
 }
-main >div.content .info-charts{
 
+main >div.content .info-charts{
+  padding:0.5em;
   width: 40%;
 }
 .info-charts > canvas{
@@ -368,11 +370,30 @@ form input[type="submit"]{
     width:50%;
   }
   //tables
-  .head-row{
-    @include setBg($faintDark);
+  main > div.content .summary-table{
+    margin-top:0.5em;
+    width:calc(50% - 1em);
+    @include flex(column,flex-start,space-evenly);
+    @include setBg($defaultColor);
+  }
+  main > div.content .summary-table > span.summary-head{
+    @include setBg($primaryColor);
+    text-align: left;
+    padding:0.5em;
+    width:calc(100% - 1em);
+  }
+  main > div.content .summary-head,main > div.content .head-row{
+    @include flex(row,space-between,center);
     @include addRoundCornerTop(4px,4px );
     color:$defaultColor; 
+    width:100%;
+  }
+  .head-row{
+    @include setBg($faintDark);
     margin-top:0.5em;
+  }
+  .summary-table .head-row{
+    margin-top:-0.25em;
   }
   .head-row > span,.body-row > span{
     @include flex(row,flex-start,center);
@@ -403,7 +424,7 @@ form input[type="submit"]{
   // border: 1px solid red;
   width:160px;
   height: 70px;
-  margin:0.25em;
+  margin:0.25em 0;
   @include setBg($defaultColor);
   @include addRoundCorner(5px);
   padding:0.5em;
@@ -434,6 +455,7 @@ form input[type="submit"]{
 }
 .row-space{
   @include flex(row,space-between,flex-start);
+  width: 100%;
 }
 .row-end{
   @include flex(row,flex-end,center);

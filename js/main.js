@@ -1,6 +1,6 @@
 const storage = window.localStorage;
 var currentUser = (storage.getItem("currentUser")) ? JSON.parse(storage.getItem("currentUser")):null;
-var data = (storage.getItem("data")) ? JSON.parse(storage.getItem("data")):[];
+var data = (storage.getItem("data")) ? JSON.parse(storage.getItem("data")):{};
 
 const originalSetItem = localStorage.setItem;
 
@@ -23,6 +23,55 @@ if(window.location.pathname == "/signin.html"){
 //arrow drop
 
 let arrowDropCount = document.getElementsByClassName("arrow").length;
+
+//handle sidebar nav
+const sideBar = document.querySelector("#side-bar");
+if(sideBar){
+    const items = Array.from(sideBar.children);
+    items.forEach(item=>{
+        if(item){
+            item.addEventListener('click',(e)=>{
+                let target = e.target.id;
+                items.forEach(i=>{
+                    if(i.classList.contains("active")){
+                        i.classList.remove("active");
+                        document.getElementById(i.id+"_content").classList.add("hidden");
+                    } 
+                });
+                Array.from(document.getElementsByTagName("MAIN")[0].children)
+                .forEach(child=>{
+                    if(child.id.includes("_content")) child.classList.add("hidden");
+                })
+                item.classList.add("active");
+                if(item.id =="clients"){
+                    getClients().then(clients=>{
+                        showClients(clients)
+                    }).catch(er=>{
+                        showFeedback(er,1);
+                    });
+                }
+                else{
+                    document.getElementById("add_client_content").classList.add("hidden");
+                }
+                document.getElementById(target+"_content").classList.remove("hidden");
+            })
+        }
+    })
+    
+}
+
+const getActiveMenu =()=>{
+    if(sideBar){
+        const items = Array.from(sideBar.children);
+        items.forEach(item=>{
+            if(item.classList.contains("active")){
+                return item.id;
+            } 
+                
+        });
+        return 'dashboard';
+    }
+}
 
 const signupForm = document.querySelector("#signup_form");
 if(signupForm){
@@ -91,7 +140,6 @@ if(loginForm){
                 showFeedback(response.error,1);
             }
             else{
-                console.log("response: ",response);
                 currentUser = response;
                 storage.setItem("currentUser",JSON.stringify(currentUser));
                 if(currentUser.id == 0) showAdmin();
@@ -150,8 +198,13 @@ const showAdminStats=()=>{
     document.querySelector("#greetings").textContent = "Hello, Admin";
     const numberOfClients = document.getElementById("no_of_clients");
     let data = (storage.getItem("data")) ? JSON.parse(storage.getItem("data")):null;
-        numberOfClients.textContent = (data == null) ? 0:data.clients.length;
-    let canvas = document.getElementById("pie_chart");
+        numberOfClients.textContent = (data !== null && data.clients !== null) ? data.clients.length : 0;
+    let chartArea = document.getElementById("chart-area");
+    while(chartArea.hasChildNodes()){
+        chartArea.removeChild(chartArea.childNodes[0]);
+    }
+    const canvas = document.createElement("canvas");
+    chartArea.appendChild(canvas);
     let summary = {
         labels:["Clearing","Forwarding"],
         datasets:[{
@@ -180,12 +233,12 @@ const showAdminStats=()=>{
         }
     }
     var myChart = drawChart(config,canvas);
+    showClientsSummary();
 }
 
 //show admin dashboard
 const showAdmin = ()=>{
     window.location.pathname = "/admin/";
-    getClients();
 }
 //show profile
 const showProfile = ()=>{
@@ -313,6 +366,44 @@ const createClientRow = (row)=>{
 
     holder.appendChild(rowHolder);
 }
+const createClientSummaryRow = (row)=>{
+    const holder = document.querySelector("#clients_content");
+    const rowHolder = document.createElement("div");
+    rowHolder.classList.add("body-row");
+    if(row == null){
+        const data = document.createTextNode("No clients");
+        rowHolder.appendChild(data);
+    }
+    else{
+        const companyName = document.createElement("span");
+        const companyAddress = document.createElement("span");
+        // const contactName = document.createElement("span");
+        const contactEmail = document.createElement("span");
+        // const companyPhone = document.createElement("span");
+        const companyStatus = document.createElement("span");
+
+        companyName.textContent = row.name;
+        companyName.id = row.id;
+        companyAddress.textContent = row.address;
+        // companyPhone.textContent = row.phone;
+        // contactName.textContent = row.contact_person;
+        contactEmail.textContent = row.contact_email;
+        companyStatus.textContent = row.status == 0 ? 'Pending Activation' : "Activated";
+
+        rowHolder.appendChild(companyName);
+        rowHolder.appendChild(contactEmail);
+        rowHolder.appendChild(companyAddress);
+        rowHolder.appendChild(companyStatus);
+        // rowHolder.appendChild(contactName);
+
+        //add click listener
+        companyName.addEventListener('click',()=>{
+            editClientDetail(row);
+        })
+    }
+
+    holder.appendChild(rowHolder);
+}
 //showClients
 const showClients = (data)=>{
     if(data.length == 0){
@@ -328,6 +419,23 @@ const showClients = (data)=>{
         });
     }
 }
+const showClientsSummary = ()=>{
+    const data = (storage.getItem("data")) ? JSON.parse(storage.getItem("data")) : null;
+    console.log("creating summary :",data.clients);
+    if(data == null || data.clients == null || data.clients.length) {
+        createClientSummaryRow(null);
+    }
+    else {
+        const holder = document.querySelector("#client_table_summary");
+        Array.from(holder.children).forEach(child=>{
+            if(child.classList.contains("body-row")) holder.removeChild(child);
+        })
+        data.forEach(row=>{
+            console.log("creating row");
+        createClientSummaryRow(row);
+        })
+    }
+}
 //show clientForm
 const closeClientForm=(source)=>{
     document.getElementById(source).classList.add("hidden");
@@ -336,31 +444,37 @@ const closeClientForm=(source)=>{
 //fetch clients
 const getClients = ()=>{
     showSpinner();
-    const headers = {'Content-type':'application/json','Authorization':'Bearer '+currentUser.accessToken};
-    fetch(clients_url,{method:"GET",headers:headers})
-    .then(response=>{
-        if(response.status == 403){
-            console.log("response: ",response)
+    return new Promise((resolve,reject)=>{
+        const headers = {'Content-type':'application/json','Authorization':'Bearer '+currentUser.accessToken};
+        fetch(clients_url,{method:"GET",headers:headers})
+        .then(response=>{
+            if(response.status == 403){
+                console.log("response: ",response)
+                showFeedback("Your session has expired. Please login again",1);
+                setTimeout(()=>{
+                    window.location.pathname = "/signin.html";
+                },3000);
+            }
+            else{
+            return response.json();
+            }
+            }).then(result=>{
+            hideSpinner();
+            let data = (storage.getItem("data")) ? JSON.parse(storage.getItem("data")) : {clients:[]};
+            data.clients = result.data;
+            console.log("fetch: ",data.clients);
+            storage.setItem("data",JSON.stringify(data));
+            resolve(result.data);
+        })
+        .catch(e=>{
+            hideSpinner();
+            console.log("eer: ",e);
             showFeedback("Your session has expired. Please login again",1);
-            setTimeout(()=>{
-                window.location.pathname = "/signin.html";
-            },3000);
-        }
-        else{
-        return response.json();
-        }
-        }).then(result=>{
-        hideSpinner();
-        let data = (storage.getItem("data")) ? JSON.parse(storage.getItem("data")) : {};
-        data.clients = result.data;
-        storage.setItem("data",JSON.stringify(data));
-        showClients(result.data);
+            reject(e);
+                
+        })
     })
-    .catch(e=>{
-        hideSpinner();
-        showFeedback("Your session has expired. Please login again",1);
-            
-    })
+   
 }
 
 //update clients
@@ -369,7 +483,7 @@ const updateClients = (clients)=>{
         let data = JSON.parse(storage.getItem("data"));
         data.clients = clients;
         storage.setItem("data",JSON.stringify(data));
-        showClients();
+        showClients(clients);
     }
 }
 
@@ -437,6 +551,13 @@ document.addEventListener('mouseup',(e)=>{
             arrowDrop.innerHTML = "arrow_drop_down";
         }
         // showHideDropDown(dropDown,arrowDrop);
+    }
+})
+document.addEventListener('updateData',(e)=>{
+    if(window.location.pathname == '/admin/'){
+        let data = JSON.parse(e.value);
+        if(getActiveMenu() == 'dashboard') showAdminStats();
+        else showClients(data);
     }
 })
 
@@ -571,14 +692,16 @@ if(window.location.pathname ==="/admin/"){
     }
     else{
         
-        document.addEventListener("updateData", (e)=>{
-            if(e.key == "data"){
-                showAdminStats();
-            }
-        }, false);
-        getClients();
+        getClients().then(clients=>{
+            if(getActiveMenu() == 'dashboard') showAdminStats();
+            else showClients(clients);
+        })
+        .catch(error=>{
+            showFeedback("Your session expired, please login",1);
+        });
+        
        
-    const detailForm = document.querySelector("#client_profile_form");
+        const detailForm = document.querySelector("#client_profile_form");
         if(detailForm){
             document.getElementById("btnCancelAdd").addEventListener('click',()=>{
                 closeClientForm('add_client_content');
@@ -788,33 +911,3 @@ if(window.location.pathname == "/profile/"){
 
 }
 
-
-//handle sidebar nav
-const sideBar = document.querySelector("#side-bar");
-if(sideBar){
-    const items = Array.from(sideBar.children);
-    items.forEach(item=>{
-        if(item){
-            item.addEventListener('click',(e)=>{
-                let target = e.target.id;
-                items.forEach(i=>{
-                    if(i.classList.contains("active")){
-                        i.classList.remove("active");
-                        document.getElementById(i.id+"_content").classList.add("hidden");
-                    } 
-                });
-                Array.from(document.getElementsByTagName("MAIN")[0].children)
-                .forEach(child=>{
-                    if(child.id.includes("_content")) child.classList.add("hidden");
-                })
-                item.classList.add("active");
-                if(item.id =="clients") getClients();
-                else{
-                    document.getElementById("add_client_content").classList.add("hidden");
-                }
-                document.getElementById(target+"_content").classList.remove("hidden");
-            })
-        }
-    })
-    
-}
