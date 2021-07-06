@@ -6,6 +6,7 @@ $faint: #9c9898;
 $faintDark:#666262;
 $defaultColor: #ffffff;
 $failColor:#e63030c9;
+$successColor:#0f810f;
 $buttonBorderSize:4px;
 $buttonBorderRadius:8px;
 $titleSize:30px;
@@ -465,7 +466,7 @@ form input[type="submit"]{
   color:$defaultColor;
 }
 .success{
-@include setBg($primaryDarkColor);
+@include setBg($successColor);
   color:$defaultColor;
 }
 .row{

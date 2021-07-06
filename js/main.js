@@ -846,10 +846,11 @@ if(window.location.pathname ==="/admin/"){
     else{
         getClients().then(clients=>{
             showAdminStats();
-            fetchRoles().then(roles=>{
-
+            fetchRoles().then(result=>{
+                
             }).catch(e=>{
                 console.log("errrrror: ",e);
+                showFeedback(e.msg,1);
             })
         })
         .catch(error=>{
@@ -1045,6 +1046,7 @@ if(window.location.pathname ==="/admin/"){
                         roles = result.data;
                         storedData.roles = roles;
                         storage.setItem("data",JSON.stringify(storedData));
+                        showFeedback(result.msg,0);
                     }
                     cancelAddRoleForm();
                 }).catch(e=>{
