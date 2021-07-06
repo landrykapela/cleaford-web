@@ -28,7 +28,7 @@
                 <span class="item" id="clients">Clients</span>
                 <span class="item" id="subscriptions">Subscriptions</span>
                 <span class="item" id="roles">Roles</span>
-                <!-- <span class="item" id="reports">Reports</span> -->
+                <span class="item" id="reports">Reports</span>
             </div>
            
             <div class="content" id="dashboard_content">
@@ -106,12 +106,11 @@
                     </div>
                 </div>
                 </div>
-                <div class="head-row" id="clients-head-row">
-                    <span>Role
-                        <span class="sort-arrow material-icons" id="sort_company" onclick="sortClients('sort_company',this);">arrow_drop_down</span>
-                    </span>
-                    <span>Name
-                        </span>
+                <div class="row-end"><button class="buttons-s no-corner" id="add_role" onclick="showRoleForm();">Add Role</button></div>
+               
+                <div class="head-row" id="roles-head-row">
+                    <span>Role</span>
+                    <span>Description</span>
                     <span>Permissions</span>
                     
                 </div>
@@ -255,6 +254,42 @@
                       <div class="form-group-no-border">
                         <input class="no-corner" type="submit" id="btnSubmit" name="btnSubmit" value="UPDATE"/>
                         <input type="reset" class="buttons no-corner" id="btnCancelEdit" name="btnCancelEdit" value="Cancel" />
+                    </div>
+                    </form>
+                </div>
+            </div>
+            <div class="content hidden" id="add_role_content">
+                <div class="info"><div><span class="medium-text">Roles</span><br /><span>Roles | Add Role</span></div>
+                    <div class="menu">
+                    <div class="account-menu">
+                        <img class="user-avatar" src="/img/favicon.png" alt="user avatar"/>
+                        <span id="account-name">Mr. Cleaford</span>
+                        <span class="material-icons large-text arrow" id="arrow-drop5">arrow_drop_down</span>                       
+                    </div>
+                    <div class="drop-down hidden" id="drop-down5">
+                        <span class="drop-item" id="settings5">Settings</span>
+                        <span class="drop-item" id="signout5">Logout</span>
+                    </div>
+                </div>
+                </div>
+                <div id="form-container" class="form-container">
+                    <span class="medium-text">Add New Role</span>
+                    <form id="add_role_form" method="POST" class="client_forms">
+                        <div class="form-group">
+                            <label for="name">Name</label>
+                            <input type="text" id="name" name="name"  required />
+                        </div>
+                        <div class="form-group">
+                            <label for="description">Description</label>
+                            <textarea rows=5 id="description" name="description"></textarea>
+                        </div> 
+                        <div class="form-group">
+                            <label for="permission">Permissions</label>
+                            <input type="text" id="permission" name="permission" placeholder="separate with commas"/></div>
+                        
+                      <div class="form-group-no-border">
+                        <input class="no-corner" type="submit" id="btnSubmit" name="btnSubmit" value="SUBMIT"/>
+                        <input type="reset" class="buttons no-corner" id="btnCancelAddRole" name="btnCancelAddRole" value="Cancel"/>
                     </div>
                     </form>
                 </div>

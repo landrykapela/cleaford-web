@@ -1,7 +1,7 @@
 const storage = window.localStorage;
 const clientSummaryCount = 5;
 var currentUser = (storage.getItem("currentUser")) ? JSON.parse(storage.getItem("currentUser")):null;
-var data = (storage.getItem("data")) ? JSON.parse(storage.getItem("data")):{};
+var storedData = (storage.getItem("data")) ? JSON.parse(storage.getItem("data")):{clients:[],roles:[]};
 
 const originalSetItem = localStorage.setItem;
 
@@ -39,34 +39,83 @@ if(sideBar){
     
 }
 const activateMenu =(target)=>{
+    // alert(target);
     const items = Array.from(sideBar.children);
     items.forEach(i=>{
+
+    //unselect all sidebar menu items
         if(i.classList.contains("active")){
             i.classList.remove("active");
-            // const target = document.getElementById(i.id+"_content");
-            // if(target) target.classList.add("hidden");
         } 
+        //remove previously selected content
         Array.from(document.getElementsByTagName("MAIN")[0].children)
         .forEach(child=>{
             if(child.id.includes("_content")) child.classList.add("hidden");
         })
     });
-    items.forEach(item=>{
-       
-        if(item.id == target) item.classList.add("active");
-        if(item.id =="clients"){
-            getClients().then(clients=>{
-                showClients(clients)
-            }).catch(er=>{
-                showFeedback(er,1);
-            });
+
+    //activate currently selected item and show it's content
+    items.forEach(item=>{  
+        if(item.id == target) {
+            item.classList.add("active");
+            var cont = document.getElementById(target+"_content");
+            if(cont) cont.classList.remove("hidden");
+        }      
+        // document.getElementById(target+"_content").classList.remove("hidden");
+    });
+    const menu = document.getElementById(target);
+    //get and display data as per selected menu item
+    if(menu){
+        switch(menu.id){
+            case 'clients':
+                getClients().then(clients=>{
+                    showClients(clients)
+                }).catch(er=>{
+                    console.log("er:",er);
+                    showFeedback(er,1);
+                });
+                break;
+            case 'roles':
+                if(!storedData.roles || storedData.roles.length == 0){
+                    fetchRoles().then(roles=>{
+                        console.log("let's see this...ok");
+                        showRoles(roles);
+                    }).then(e=>{
+                        showFeedback(e,1);
+                        console.log("let's see this...not ok",e);
+                    });
+                }
+                else showRoles(storedData.roles);
+                break;
+            case 'dashboard':
+                if(window.location.pathname=="/admin/") showAdminStats();
+                else showDashboard();
+            break;
         }
-        else{
-            document.getElementById("add_client_content").classList.add("hidden");
-        }
-        document.getElementById(target+"_content").classList.remove("hidden");
-    })
-    
+    }
+    // else{//menu menu item does not exist in the side bar (call may have come from button click)
+        
+    //     const content = document.getElementById(target+"_content");
+    //     switch(target){
+    //         case 'add_role':
+    //             document.querySelector("#roles").classList.add("active");
+    //             if(content) content.classList.remove("hidden");
+    //             break;
+    //         case 'edit_role':
+    //             document.querySelector("#roles").classList.add("active");
+    //             if(content) content.classList.remove("hidden");
+    //             break;
+    //         case 'add_client':
+    //             document.querySelector("#clients").classList.add("active");
+    //             if(content) content.classList.remove("hidden");
+    //             break;
+    //         case 'edit_client':
+    //             document.querySelector("#clients").classList.add("active");
+    //             if(content) content.classList.remove("hidden");
+    //             break;
+    //     }
+    // }
+  
 }
 const getActiveMenu =()=>{
     if(sideBar){
@@ -205,8 +254,7 @@ const signoutUser = ()=>{
 const showAdminStats=()=>{
     document.querySelector("#greetings").textContent = "Hello, Admin";
     const numberOfClients = document.getElementById("no_of_clients");
-    let data = (storage.getItem("data")) ? JSON.parse(storage.getItem("data")):{clients:[]};
-    numberOfClients.textContent = (data && data.clients) ? data.clients.length : 0;
+     numberOfClients.textContent = storedData.clients.length;
     
     //show client summary
     showClientsSummary();
@@ -340,8 +388,7 @@ const hideSpinner=()=>{
     if(spinner) spinner.classList.add("hidden");
 }
 //create row
-const createClientRow = (row)=>{
-    const holder = document.querySelector("#clients_content");
+const createClientRow = (row,holder)=>{
     const rowHolder = document.createElement("div");
     rowHolder.classList.add("body-row");
     if(row == null){
@@ -416,18 +463,93 @@ const createClientSummaryRow = (row)=>{
 }
 //showClients
 const showClients = (data)=>{
-    if(data.length == 0){
-        createClientRow(null);
+    const holder = document.querySelector("#clients_content");    
+    if(!data || data.length == 0){
+        createClientRow(null,holder);
     }
     else{
-        const holder = document.querySelector("#clients_content");
         Array.from(holder.children).forEach(child=>{
             if(child.classList.contains("body-row")) holder.removeChild(child);
         })
         data.forEach(row=>{
-            createClientRow(row);
+            createClientRow(row,holder);
         });
     }
+}
+//display system roles
+const showRoles = (roles)=>{
+    const holder = document.getElementById("roles_content");
+    Array.from(holder.children).forEach(child=>{
+        if(child.classList.contains('body-row')) holder.removeChild(child);
+    })
+    if(roles && roles.length > 0){
+        console.log("we got roles")
+        roles.forEach(role=>{
+            const rowHolder = document.createElement("div");
+            rowHolder.classList.add("body-row");
+            const roleId = document.createElement("span");
+            roleId.textContent = role.name;
+            const roleName = document.createElement("span");
+            roleName.textContent = role.description;
+            const rolePermission = document.createElement("span");
+            rolePermission.textContent = role.permission;
+
+            rowHolder.appendChild(roleId);
+            rowHolder.appendChild(roleName);
+            rowHolder.appendChild(rolePermission);
+            holder.appendChild(rowHolder);
+        })
+    }
+    else{
+        const rowHolder = document.createElement("div");
+        rowHolder.classList.add("body-row");
+        const nodata = document.createElement("span");
+        nodata.textContent = "No data";
+        rowHolder.appendChild(nodata);
+        holder.appendChild(rowHolder);
+       
+    }
+}
+//fetch roles
+const fetchRoles = ()=>{
+    console.log("fetchinnnnn")
+    return new Promise((resolve,reject)=>{
+        var headers = {
+            'Content-Type':'application/json',
+            'Authorization':'Bearer '+currentUser.accessToken
+        }
+        
+        fetch(roles_url,{method:"GET",headers:headers})
+        .then(res=>{
+            if(res.status == 403){
+                showFeedback("Your session expired, please sign in");
+            }
+            else return res.json();
+        }).then(result=>{
+             storedData.roles = result.data;
+            storage.setItem("data",JSON.stringify(storedData));
+            resolve(result);
+        })
+        .catch(e=>{
+            console.log("e:",e);
+            showFeedback(e.msg,1)
+            reject(e);
+        })
+    })
+}
+//cancel role form
+const cancelAddRoleForm = ()=>{
+    const roleList = document.querySelector("#roles_content");
+    const roleForm = document.querySelector("#add_role_content");
+    roleList.classList.remove("hidden");
+    roleForm.classList.add("hidden");
+}
+//show role form
+const showRoleForm = ()=>{
+    const roleList = document.querySelector("#roles_content");
+    const roleForm = document.querySelector("#add_role_content");
+    roleList.classList.add("hidden");
+    roleForm.classList.remove("hidden");
 }
 const createMoreLink = (target,holder)=>{
     const button = document.createElement("button");
@@ -448,8 +570,7 @@ const createMoreLink = (target,holder)=>{
     
 }
 const showClientsSummary = ()=>{
-    const data = (storage.getItem("data")) ? JSON.parse(storage.getItem("data")) : null;
-    if(data == null || data.clients == null || data.clients.length == 0) {
+    if(storedData.clients.length == 0) {
         createClientSummaryRow(null);
     }
     else {
@@ -457,16 +578,14 @@ const showClientsSummary = ()=>{
         Array.from(holder.children).forEach(child=>{
             if(child.classList.contains("body-row")) holder.removeChild(child);
         })
-        var topClients = data.clients.filter((row,index)=>{
+        var topClients = storedData.clients.filter((row,index)=>{
             return index <= clientSummaryCount;
             
         });
         topClients.forEach(row=>{
                 createClientSummaryRow(row);     
         })
-        // if(data.clients.length > clientSummaryCount){
-        //     createMoreLink('clients',holder);
-        // }
+       
     }
 }
 //show clientForm
@@ -493,10 +612,9 @@ const getClients = ()=>{
             }
             }).then(result=>{
             hideSpinner();
-            let data = (storage.getItem("data")) ? JSON.parse(storage.getItem("data")) : {clients:[]};
-            data.clients = result.data;
-            console.log("fetch: ",data.clients);
-            storage.setItem("data",JSON.stringify(data));
+             storedData.clients = result.data;
+            // console.log("fetch: ",data.clients);
+            storage.setItem("data",JSON.stringify(storedData));
             resolve(result.data);
         })
         .catch(e=>{
@@ -513,9 +631,8 @@ const getClients = ()=>{
 //update clients
 const updateClients = (clients)=>{
     if(clients && clients.length > 0){
-        let data = JSON.parse(storage.getItem("data"));
-        data.clients = clients;
-        storage.setItem("data",JSON.stringify(data));
+        storedData.clients = clients;
+        storage.setItem("data",JSON.stringify(storedData));
         showClients(clients);
     }
 }
@@ -588,7 +705,8 @@ document.addEventListener('updateData',(e)=>{
         let data = JSON.parse(e.value);
         console.log("may be an update triggered")
         if(getActiveMenu() == 'dashboard') showAdminStats();
-        else showClients(data);
+        else if(getActiveMenu() == 'clients') showClients(data.clients);
+        else if(getActiveMenu() == 'roles') showRoles(data.roles);
     }
 })
 
@@ -726,11 +844,13 @@ if(window.location.pathname ==="/admin/"){
         window.location.pathname = "/signin.html";
     }
     else{
-        
         getClients().then(clients=>{
-            console.log("may be called from here")
-            if(getActiveMenu() == 'dashboard') showAdminStats();
-            else showClients(clients);
+            showAdminStats();
+            fetchRoles().then(roles=>{
+
+            }).catch(e=>{
+                console.log("errrrror: ",e);
+            })
         })
         .catch(error=>{
             showFeedback("Your session expired, please login",1);
@@ -798,7 +918,6 @@ if(window.location.pathname ==="/admin/"){
     
             });
         }
-
         //update client
         const updateForm = document.querySelector("#edit_client_form");
        
@@ -832,9 +951,9 @@ if(window.location.pathname ==="/admin/"){
                 let cemail = updateForm.contact_email.value;
                 let address= updateForm.address.value;
                 let file = updateForm.company_logo.files[0];
-                let data = JSON.parse(storage.getItem("data"));
+                
 
-                let client = data.clients.filter(c=>c.id == id);
+                let client = storedData.clients.filter(c=>c.id == id);
                 if(client.logo && client.logo.length !=0) imagePreview.src = client.logo;
                 let logoFile = client.logo;
                 let newData = {
@@ -866,7 +985,7 @@ if(window.location.pathname ==="/admin/"){
                 const options = {
                     method:"PUT",body:JSON.stringify(newData),headers:headers
                 }
-                console.log("test: ",newData);
+                
                 fetch(create_client_url,options)
                 .then(res=>{
                     if(res.status == 403){
@@ -885,6 +1004,54 @@ if(window.location.pathname ==="/admin/"){
                     showFeedback(err,1);
                 })
             });
+        }
+
+        //add role
+        const roleForm = document.querySelector("#add_role_form");
+        if(roleForm){
+            const cancelForm = document.querySelector("#btnCancelAddRole");
+            if(cancelForm){
+                cancelForm.addEventListener('click',(e)=>{
+                    cancelAddRoleForm();
+                });
+            }
+
+            roleForm.addEventListener('submit',(e)=>{
+                e.preventDefault();
+                let roles = (storedData.roles) ? storedData.roles : [];
+                let name = roleForm.name.value.trim();
+                let description = roleForm.description.value.trim();
+                let permission = roleForm.permission.value.trim();
+                const data = {name:name,description:description,permission:permission};
+                const headers = {
+                    'Content-type':'application/json', 'Authorization': 'Bearer '+currentUser.accessToken
+                }
+                const options ={
+                    body:JSON.stringify(data),
+                    method:"POST",
+                    headers:headers
+                }
+                fetch(create_role_url,options).then(res=>{
+                    if(res.status == 403){
+                        showFeedback("Your session has expired, please login",1);
+                        signoutUser();
+                    }
+                    return res.json();
+
+                })
+                .then(result=>{
+                    console.log(result);
+                    if(result.data !== null && result.data.length > 0) {
+                        roles = result.data;
+                        storedData.roles = roles;
+                        storage.setItem("data",JSON.stringify(storedData));
+                    }
+                    cancelAddRoleForm();
+                }).catch(e=>{
+                    showFeedback(e.msg,1);
+                })
+            })
+
         }
     }
 }

@@ -274,6 +274,7 @@ footer{
   margin:0.5em 0;
   padding:0.25em;
   font-size: small;
+  align-self: flex-end;
 }
 //end buttons
 //forms
@@ -382,7 +383,7 @@ form input[type="submit"]{
   //tables
   main > div.content .summary-table{
     margin-top:0.5em;
-    padding:0 0.5em;
+    padding:0 0.5em 0.5em 0.5em;
     width:calc(50% - 1em);
     @include flex(column,flex-start,space-evenly);
     @include setBg($defaultColor);

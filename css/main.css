@@ -276,6 +276,7 @@ footer {
   margin: 0.5em 0;
   padding: 0.25em;
   font-size: small;
+  align-self: flex-end;
 }
 
 form {
@@ -408,7 +409,7 @@ form.client_forms .form-group input[type=email], form.client_forms .form-group i
 
 main > div.content .summary-table {
   margin-top: 0.5em;
-  padding: 0 0.5em;
+  padding: 0 0.5em 0.5em 0.5em;
   width: calc(50% - 1em);
   display: flex;
   flex-direction: column;
