@@ -314,6 +314,11 @@ input[type=email]:valid, input[type=password]:valid {
   outline-color: #ffcc00;
 }
 
+form input[type=submit] :disabled {
+  background-color: #666262 !important;
+  cursor: not-allowed;
+}
+
 .form-group, .form-group-no-border {
   padding: 0.25em 0.5em;
   border-radius: 4px;
@@ -463,6 +468,7 @@ main > div.content .summary-table > span.summary-head {
   width: 100%;
   padding: 0.25em;
   font-size: small;
+  text-align: left;
 }
 
 .body-row {
@@ -608,7 +614,8 @@ main > div.content .summary-table > span.summary-head {
 }
 
 .fail-text {
-  color: #e63030c9;
+  color: #e63030c9 !important;
+  font-size: small !important;
 }
 
 a,

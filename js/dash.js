@@ -7,10 +7,8 @@ const originalSetItem = localStorage.setItem;
 
 localStorage.setItem = function(key, value) {
   const event = new Event('updateData');
-
   event.value = value; // Optional..
   event.key = key; // Optional..
-
   document.dispatchEvent(event);
 
   originalSetItem.apply(this, arguments);
@@ -69,7 +67,7 @@ const activateMenu =(target)=>{
         switch(menu.id){
             case 'customers':
                 getCustomers().then(customers=>{
-                    showCustomers(customers)
+                    // showCustomers(customers)
                 }).catch(er=>{
                     console.log("er:",er);
                     showFeedback(er,1);
@@ -79,14 +77,14 @@ const activateMenu =(target)=>{
                 if(!storedData.client_roles || storedData.client_roles.length == 0){
                     fetchClientRoles().then(result=>{
                         console.log("res: ",result);
-                        if(result.code == 0) showClientRoles(result.data);
+                        if(result.code == 0) showClientRoles();
                         else showFeedback(result.msg,1);
                     }).catch(e=>{
                         showFeedback(e.msg,1);
                         console.log("let's see this...not ok",e);
                     });
                 }
-                else showClientRoles(storedData.client_roles);
+                else showClientRoles();
                 break;
             case 'dashboard':
                showClientStats();
@@ -169,12 +167,16 @@ const signoutUser = ()=>{
 
 //show admin stats
 const showClientStats =()=>{
-    greet("Hello "+currentUser.detail.contact_person.split(" ")[0],null);
-     const numberOfCustomers = document.getElementById("no_of_customers");
-     numberOfCustomers.textContent = (storedData.customers) ? storedData.customers.length:23;
-    
+    if(currentUser.detail){
+        greet("Hello "+currentUser.detail.contact_person.split(" ")[0],null);
+        const numberOfCustomers = document.getElementById("no_of_customers");
+        numberOfCustomers.textContent = (storedData.customers) ? storedData.customers.length:23;       
+    }
+    else{
+        greet("Hello "+currentUser.email,null);
+    }
     //show client summary
-    // showCustomersSummary();
+    fetchClientRoles();
     let chartArea = document.getElementById("chart-area");
     while(chartArea.hasChildNodes()){
         chartArea.removeChild(chartArea.childNodes[0]);
@@ -213,7 +215,7 @@ const showClientStats =()=>{
 
 //show profile
 const showProfile = ()=>{
-    window.location.pathname = "/profile/";
+    window.location.pathname = "/account/";
 }
 //show dashboard
 const showDashboard = ()=>{
@@ -389,12 +391,13 @@ const showCustomers = (data)=>{
     }
 }
 //display system roles
-const showClientRoles = (roles)=>{
+const showClientRoles = ()=>{
     greet("Roles",{title:"Roles",description:"Add Role"});
     const holder = document.getElementById("roles_content");
     Array.from(holder.children).forEach(child=>{
         if(child.classList.contains('body-row')) holder.removeChild(child);
     })
+    var roles = storedData.client_roles;
     if(roles && roles.length > 0){
         roles = roles.map(role=>{
             let newRole = role;
@@ -479,9 +482,8 @@ const fetchClientRoles = ()=>{
             }
             else {
                 res.json().then(result=>{
-                    console.log(result);
-                    storedData.client_roles = result.data;
-                    storage.setItem("data",JSON.stringify(storedData));
+                    console.log("res2: ",result);
+                    updateClientRoles(result.data);
                     resolve(result);
                 })
                 .catch(e=>{
@@ -516,6 +518,7 @@ const registerClientRole = (data)=>{
             else{
                 res.json().then(result=>{
                     showFeedback(result.msg,result.code);
+                    if(result.code == 0) updateClientRoles(result.data);
                     resolve(result);
                 })
                 .catch(err=>{
@@ -545,6 +548,9 @@ const showRoleForm = ()=>{
     roleForm.classList.remove("hidden");
     if(window.location.pathname == "/dashboard/"){
         const selectLevel = document.querySelector("#level");
+        while(selectLevel.hasChildNodes()){
+            selectLevel.removeChild(selectLevel.childNodes[0]);
+        }
         storedData.roles.forEach(role=>{
             selectLevel.options.add(new Option(role.name,role.id));
         })
@@ -595,7 +601,7 @@ const showCustomersSummary = ()=>{
 const closeClientForm=(source)=>{
     document.getElementById(source).classList.add("hidden");
     document.getElementById("clients_content").classList.remove("hidden");
-    showCustomers(storedData.clients);
+    //showCustomers(storedData.clients);
 }
 //fetch clients
 const getCustomers = ()=>{
@@ -637,7 +643,7 @@ const updateClients = (clients)=>{
     if(clients && clients.length > 0){
         storedData.clients = clients;
         storage.setItem("data",JSON.stringify(storedData));
-        showCustomers(clients);
+        // showCustomers(clients);
     }
 }
 
@@ -661,15 +667,15 @@ const refreshUser=()=>{
 }
 
 //handle arrow drop down and menus
-for(let i=0;i<arrowDropCount;i++){
-    let id = "arrow-drop"+i;
-    let signoutId = "#signout"+i;
-    let settingsId = "#settings"+i;
+
+    let id = "arrow-drop";
+    let signoutId = "#signout";
+    let settingsId = "#settings";
     const settings = document.querySelector(settingsId);
     const signout = document.querySelector(signoutId);
     const arrowDrop = document.getElementById(id);
     if(arrowDrop){
-        const dropDown = document.querySelector("#drop-down"+i);
+        const dropDown = document.querySelector("#drop-down");
         arrowDrop.addEventListener('click',(e)=>{
             showHideDropDown(dropDown,arrowDrop);
         });
@@ -691,18 +697,18 @@ for(let i=0;i<arrowDropCount;i++){
         })
     }
 
-}
+
 //listen to window events
 document.addEventListener('mouseup',(e)=>{
-    for(let i=0; i< arrowDropCount;i++){
-        var dropDown = document.getElementById("drop-down"+i);
-        var arrowDrop = document.getElementById("arrow-drop"+i);
+    
+        var dropDown = document.getElementById("drop-down");
+        var arrowDrop = document.getElementById("arrow-drop");
         if(!dropDown.contains(e.target)) {
             dropDown.classList.add("hidden");
             arrowDrop.innerHTML = "arrow_drop_down";
         }
         // showHideDropDown(dropDown,arrowDrop);
-    }
+  
 })
 document.addEventListener('updateData',(e)=>{
     if(window.location.pathname == '/admin/'){
@@ -710,7 +716,7 @@ document.addEventListener('updateData',(e)=>{
         console.log("may be an update triggered")
         if(getActiveMenu() == 'dashboard') showClientStats();
         else if(getActiveMenu() == 'customers') showCustomers(data.customers);
-        else if(getActiveMenu() == 'roles') showClientRoles(data.client_roles);
+        else if(getActiveMenu() == 'roles') showClientRoles();
     }
 })
 
@@ -718,7 +724,7 @@ document.addEventListener('updateData',(e)=>{
 window.addEventListener('poststate',(e)=>{
     console.log("poststate: ",e.state);
 })
-const showSettings=()=>{
+const showSettings =()=>{
     if(currentUser.id === 0){
         alert("settings admin");
     }
@@ -808,31 +814,43 @@ const populateClientDetails = (form,client)=>{
 }
 
 //submit dlient form
-const submitClientDetail=(data)=>{
+const submitClientDetail =(data,verb)=>{
     const headers = {
         'Content-type':'application/json',
         'Authorization':'Bearer '+currentUser.accessToken
     }
     const options = {
-        method:"POST",body:JSON.stringify(data),headers:headers
+        method:verb,body:JSON.stringify(data),headers:headers
     }
     fetch(create_client_url,options)
     .then(res=>{
         if(res.status == 403){
             showFeedback("Session expired. Please signin",1);
             signoutUser();
-            return;
+            
         }
-        return res.json()
-    }).then(result=>{
-        console.log("result: ",result);
-        currentUser.detail = result.data;
-        updateClientDetail(result.data);
-        showDashboard();
+        else{
+            res.json().then(result=>{
+                console.log("result: ",result);
+                currentUser.detail = result.data;
+                updateClientDetail(result.data);
+                showDashboard();
+                showFeedback(result.msg,result.code);
+            })
+            .catch(err=>{
+                console.log("err: ",err);
+                showFeedback("Something went wrong, please try again later",1);
+            })
+        }
     })
-    .catch(err=>{
-        console.log("err: ",err);
-    })
+}
+//update client roles
+const updateClientRoles =(roles)=>{
+    if(roles && roles.length > 0){
+        storedData.client_roles = roles;
+        storage.setItem("data",JSON.stringify(storedData));
+        // showClientRoles();
+    }
 }
 //search
 const search = document.querySelector("#search_customers");
@@ -855,9 +873,12 @@ if(window.location.pathname == "/dashboard/"){
     if(currentUser == null) window.location.pathname = "/signin.html";
     else{
         var clientDetails = currentUser.detail;
-         greet("Hello "+clientDetails.contact_person.split(" ")[0],null);
-         document.querySelector("#account-name").textContent = clientDetails.contact_person;
-         if(clientDetails.logo) document.querySelector("#avatar").src =clientDetails.logo;
+         if(clientDetails) {
+             greet("Hello "+clientDetails.contact_person.split(" ")[0],null);
+             document.querySelector("#account-name").textContent = clientDetails.contact_person;
+             if(clientDetails.logo) document.querySelector("#avatar").src =clientDetails.logo;
+         }
+         else greet("Hello "+currentUser.email,null);
         showClientStats();
         //  let chartArea = document.getElementById("chart-area");
         //     while(chartArea.hasChildNodes()){
@@ -920,10 +941,7 @@ if(window.location.pathname == "/dashboard/"){
                 registerClientRole(data).then(result=>{
                     console.log("sasaje: ",result);
                     if(result.data && result.data.length > 0) {
-                        roles = result.data;
-                        storedData.client_roles = roles;
-                        storage.setItem("data",JSON.stringify(storedData));
-                        
+                        updateClientRoles(result.data);
                         cancelAddRoleForm();
                     }
                     showFeedback(result.msg,result.code);
@@ -939,13 +957,19 @@ if(window.location.pathname == "/dashboard/"){
 }
 
 //client profile
-if(window.location.pathname == "/profile/"){
+if(window.location.pathname == "/account/"){
         const detailForm = document.querySelector("#client_profile_form");
-        
-        if(currentUser){
-            populateClientDetails(detailForm,currentUser);
+        var clientDetails = currentUser.detail;
+        if(clientDetails) {
+            // greet("Hello "+clientDetails.contact_person.split(" ")[0],null);
+            document.querySelector("#account-name").textContent = clientDetails.contact_person;
+            if(clientDetails.logo) document.querySelector("#avatar").src =clientDetails.logo;
         }
+        
         if(detailForm){
+            if(currentUser){
+                populateClientDetails(detailForm,currentUser);
+            }
             detailForm.addEventListener('submit',(e)=>{
                 e.preventDefault();
     
@@ -965,19 +989,26 @@ if(window.location.pathname == "/profile/"){
                     contact_email:cemail,
                     address:address,
                     logo:logoFile,
-                    user:currentUser.id
+                    user:currentUser.id,
+                    db:currentUser.db
                 };
-    
+                let method = "POST";
+                if(currentUser.detail) {
+                    data.id = currentUser.detail.id;
+                    method = "PUT";
+                }
                 if(file){
                     var reader = new FileReader();
                     reader.addEventListener('load',()=>{
                         data.logo = reader.result;
-                        submitClientDetail(data);
+                        submitClientDetail(data,method);
                     },false);
     
                     reader.readAsDataURL(file);
                 }
-    
+                else{
+                    submitClientDetail(data,method);
+                }
                 
     
             });

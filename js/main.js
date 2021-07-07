@@ -16,10 +16,14 @@ localStorage.setItem = function(key, value) {
   originalSetItem.apply(this, arguments);
 };
 
-
+//validate email address
+const isValidEmail = (email)=>{
+    const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return re.test(String(email).toLowerCase());
+}
 if(window.location.pathname == "/signin.html"){
+    storage.setItem("currentUser",JSON.stringify({}));
     storage.setItem("data",JSON.stringify({}));
-   
 }
 //arrow drop
 
@@ -78,14 +82,12 @@ const activateMenu =(target)=>{
             case 'roles':
                 if(!storedData.roles || storedData.roles.length == 0){
                     fetchRoles().then(roles=>{
-                        console.log("let's see this...ok");
-                        showRoles(roles);
-                    }).then(e=>{
+                        updateRoles(roles);
+                    }).catch(e=>{
                         showFeedback(e,1);
-                        console.log("let's see this...not ok",e);
                     });
                 }
-                else showRoles(storedData.roles);
+                else showRoles();
                 break;
             case 'dashboard':
                 if(window.location.pathname=="/admin/") showAdminStats();
@@ -132,34 +134,66 @@ const getActiveMenu =()=>{
 
 const signupForm = document.querySelector("#signup_form");
 if(signupForm){
+    let pwdOk = false;
+    let pwdMatch = false;
+    let emailOk = false;
     const fieldError = document.getElementById("field-error");
+    var emailField = signupForm.email;
+    emailField.addEventListener('input',(e)=>{
+        if(!isValidEmail(e.target.value)){
+            fieldError.classList.remove("hidden");
+            emailField.classList.add("fail-text");
+            signupForm.btnSubmit.disabled = true;
+            fieldError.textContent = "Invalid email address";
+        }
+        else{
+            emailOk = true;
+            emailField.classList.remove("fail-text");
+            fieldError.classList.add("hidden");
+            if(pwdOk && pwdMatch){
+                signupForm.btnSubmit.disabled = false;
+                fieldError.classList.add("hidden");
+            }
+            
+        }
+    })
     signupForm.cpassword.addEventListener('input',(e)=>{
         var password = signupForm.password.value;
         if(e.target.value === password) {
-            signupForm.cpassword.classList.remove("fail-text");
             signupForm.cpassword.classList.add("primary-dark-text");
             fieldError.classList.add("hidden");
+            pwdMatch = true;
+            if(pwdOk && emailOk){
+                fieldError.classList.add("hidden");
+                signupForm.btnSubmit.disabled = false;
+            }
         }
         else {
             signupForm.cpassword.classList.remove("primary-dark-text");
-            signupForm.cpassword.classList.add("fail-text");
             fieldError.textContent = "Passwords do not match";
             fieldError.classList.remove("hidden");
+            signupForm.btnSubmit.disabled = true;
+            pwdMatch = false;
+            // signupForm.btnSubmit.classList.add("hidden");
         }
     });
-
+    
     signupForm.password.addEventListener('input',(e)=>{
        
         if(e.target.value.length >=8) {
-            signupForm.password.classList.remove("fail-text");
             signupForm.password.classList.add("primary-dark-text");
             fieldError.classList.add("hidden");
+            pwdOk = true;
+            if(pwdMatch && emailOk){
+                signupForm.btnSubmit.disabled = false;
+            }
         }
         else {
             signupForm.password.classList.remove("primary-dark-text");
-            signupForm.password.classList.add("fail-text");
             fieldError.textContent = "Password is too short";
             fieldError.classList.remove("hidden");
+            pwdOk = false;
+            signupForm.btnSubmit.disabled = true;
         }
     });
     signupForm.addEventListener('submit',(e)=>{
@@ -174,11 +208,17 @@ if(signupForm){
         }})
         .then(res=>res.json())
         .then(result=>{
-            delete result.password;
-            currentUser = result;
+            console.log("test: ",result);
+            currentUser = result.data;
+            currentUser.accessToken = result.accessToken;
+            delete currentUser.password;
             storage.setItem("currentUser",JSON.stringify(currentUser));
             showProfile();
-        });
+            showFeedback(result.msg,result.code);
+        }).catch(e=>{
+            console.log("signup: ",e);
+            showFeedback("Something went wrong, please try again later",1);
+        })
     });
    
 }
@@ -197,7 +237,7 @@ if(loginForm){
                 showFeedback(response.error,1);
             }
             else{
-                currentUser = response;
+                currentUser = response.data;
                 storage.setItem("currentUser",JSON.stringify(currentUser));
                 if(currentUser.id == 0) showAdmin();
                 else{
@@ -240,8 +280,8 @@ const signoutUser = ()=>{
             {method:"POST",body:JSON.stringify({email:currentUser.email}),headers:{'Content-type':'application/json'}})
         .then(res=>res.json())
             .then(result=>{
-            // console.log("result: ",result);
-            storage.setItem("currentUser",null);
+                storage.setItem("currentUser",JSON.stringify({}));
+                storage.setItem("data",JSON.stringify({}));
             window.location.pathname = "/signin.html";
         })
         .catch(e=>{
@@ -251,13 +291,14 @@ const signoutUser = ()=>{
 };
 
 //show admin stats
-const showAdminStats=()=>{
+const showAdminStats =()=>{
     document.querySelector("#greetings").textContent = "Hello, Admin";
     const numberOfClients = document.getElementById("no_of_clients");
      numberOfClients.textContent = storedData.clients.length;
     
     //show client summary
     showClientsSummary();
+    // fetchRoles();
     let chartArea = document.getElementById("chart-area");
     while(chartArea.hasChildNodes()){
         chartArea.removeChild(chartArea.childNodes[0]);
@@ -300,7 +341,7 @@ const showAdmin = ()=>{
 }
 //show profile
 const showProfile = ()=>{
-    window.location.pathname = "/profile/";
+    window.location.pathname = "/account/";
 }
 //show dashboard
 const showDashboard = ()=>{
@@ -463,25 +504,27 @@ const createClientSummaryRow = (row)=>{
 }
 //showClients
 const showClients = (data)=>{
-    const holder = document.querySelector("#clients_content");    
+    const holder = document.querySelector("#clients_content");   
+    Array.from(holder.children).forEach(child=>{
+        if(child.classList.contains("body-row")) holder.removeChild(child);
+    }) 
     if(!data || data.length == 0){
         createClientRow(null,holder);
     }
     else{
-        Array.from(holder.children).forEach(child=>{
-            if(child.classList.contains("body-row")) holder.removeChild(child);
-        })
+        
         data.forEach(row=>{
             createClientRow(row,holder);
         });
     }
 }
 //display system roles
-const showRoles = (roles)=>{
+const showRoles = ()=>{
     const holder = document.getElementById("roles_content");
     Array.from(holder.children).forEach(child=>{
         if(child.classList.contains('body-row')) holder.removeChild(child);
     })
+    var roles = storedData.roles;
     if(roles && roles.length > 0){
         roles.forEach(role=>{
             const rowHolder = document.createElement("div");
@@ -490,12 +533,8 @@ const showRoles = (roles)=>{
             roleId.textContent = role.name;
             const roleName = document.createElement("span");
             roleName.textContent = role.description;
-            const rolePermission = document.createElement("span");
-            rolePermission.textContent = role.permission;
-
             rowHolder.appendChild(roleId);
             rowHolder.appendChild(roleName);
-            rowHolder.appendChild(rolePermission);
             holder.appendChild(rowHolder);
         })
     }
@@ -509,9 +548,17 @@ const showRoles = (roles)=>{
        
     }
 }
-
+const updateRoles = (roles)=>{
+    if(roles && roles.length > 0){
+        storedData.roles = roles;
+        storage.setItem("data",JSON.stringify(storedData));
+        showRoles();
+    }
+}
 //fetch roles
 const fetchRoles = ()=>{
+    showSpinner();
+    console.log("fetching underground...");
     return new Promise((resolve,reject)=>{
         var headers = {
             'Content-Type':'application/json',
@@ -520,20 +567,24 @@ const fetchRoles = ()=>{
         
         fetch(roles_url,{method:"GET",headers:headers})
         .then(res=>{
+            hideSpinner();
             if(res.status == 403){
                 showFeedback("Your session expired, please sign in");
             }
-            else return res.json();
-        }).then(result=>{
-             storedData.roles = result.data;
-            storage.setItem("data",JSON.stringify(storedData));
-            resolve(result);
-        })
-        .catch(e=>{
-            console.log("e:",e);
-            // showFeedback(e.msg,1)
-            showFeedback("Your session expired, please sign in");
-            reject(e);
+            else {
+                res.json().then(result=>{
+                    console.log("bingo:",result.data);
+                    updateRoles(result.data);
+                    resolve(result);
+               })
+               .catch(e=>{
+                   hideSpinner();
+                   console.log("e:",e);
+                   // showFeedback(e.msg,1)
+                   showFeedback("Your session expired, please sign in");
+                   reject(e);
+               })
+            }
         })
     })
 }
@@ -606,6 +657,8 @@ const getClients = ()=>{
                 console.log("response: ",response)
                 showFeedback("Your session has expired. Please login again",1);
                 setTimeout(()=>{
+                    storage.setItem("currentUser",JSON.stringify({}));
+                    storage.setItem("data",JSON.stringify({}));
                     window.location.pathname = "/signin.html";
                 },3000);
             }
@@ -702,15 +755,13 @@ document.addEventListener('mouseup',(e)=>{
         // showHideDropDown(dropDown,arrowDrop);
     }
 })
-document.addEventListener('updateData',(e)=>{
-    if(window.location.pathname == '/admin/'){
-        let data = JSON.parse(e.value);
-        console.log("may be an update triggered")
-        if(getActiveMenu() == 'dashboard') showAdminStats();
-        else if(getActiveMenu() == 'clients') showClients(data.clients);
-        else if(getActiveMenu() == 'roles') showRoles(data.roles);
-    }
-})
+// document.addEventListener('updateData',(e)=>{
+//     if(window.location.pathname == '/admin/'){
+//         if(getActiveMenu() == 'dashboard') showAdminStats();
+//         else if(getActiveMenu() == 'clients') showClients();
+//         else if(getActiveMenu() == 'roles') showRoles();
+//     }
+// })
 
 //listen to poststate change
 window.addEventListener('poststate',(e)=>{
@@ -843,17 +894,13 @@ if(search){
 //check if admin is loggedin
 if(window.location.pathname ==="/admin/"){
     if(currentUser == null || currentUser.id !== ADMIN){
+        storage.setItem("currentUser",JSON.stringify({}));
+        storage.setItem("data",JSON.stringify({}));
         window.location.pathname = "/signin.html";
     }
     else{
         getClients().then(clients=>{
             showAdminStats();
-            fetchRoles().then(result=>{
-                
-            }).catch(e=>{
-                console.log("errrrror: ",e);
-                showFeedback(e.msg,1);
-            })
         })
         .catch(error=>{
             showFeedback("Your session expired, please login",1);
@@ -905,20 +952,24 @@ if(window.location.pathname ==="/admin/"){
                 }
                 fetch(create_client_url,options)
                 .then(res=>{
+                    console.log("did any happened?");
                     if(res.status == 403){
                         showFeedback("Session expired. Please signin",1);
                         signoutUser();
-                        return;
                     }
-                    return res.json()
-                }).then(result=>{
-                    closeClientForm('add_client_content');
-                    updateClients(result.data);
+                    else{
+                        res.json().then(result=>{
+                            closeClientForm('add_client_content');
+                            updateClients(result.data);
+                        })
+                        .catch(err=>{
+                            console.log("err: ",err);
+                        })
+            
+                    }
+                }).catch(e=>{
+                    console.log("fetch e: ",e);
                 })
-                .catch(err=>{
-                    console.log("err: ",err);
-                })
-    
             });
         }
         //update client
@@ -1060,102 +1111,4 @@ if(window.location.pathname ==="/admin/"){
     }
 }
 
-//check if current page is dashboard
-if(window.location.pathname == "/dashboard/"){
-    if(currentUser == null) window.location.pathname = "/signin.html";
-    else{
-        var clientDetails = currentUser.detail;
-         document.querySelector("#greetings").textContent = "Hello, "+clientDetails.contact_person.split(" ")[0];
-         document.querySelector("#account-name").textContent = clientDetails.contact_person;
-         if(clientDetails.logo) document.querySelector("#avatar").src =clientDetails.logo;
-
-         let chartArea = document.getElementById("chart-area");
-            while(chartArea.hasChildNodes()){
-                chartArea.removeChild(chartArea.childNodes[0]);
-            }
-            const canvas = document.createElement("canvas");
-            chartArea.appendChild(canvas);
-            let summary = {
-                labels:["Clearing","Forwarding"],
-                datasets:[{
-                    label:"Consigment Type",
-                    data:[102,360],
-                    backgroundColor:['#ffcc00','#cc9900'],
-                    hoverOffset:4
-                }]
-            }
-            let config = {
-                type:'pie',data:summary,options:{
-                    plugins:{
-                        legend:{
-                            display:true,
-                            position:'left'
-                        },
-                        title:{
-                            display:true,
-                            position:'top',text:'Consigment Type',
-                            align:'start',
-                            padding:{
-                                top:10,left:10,bottom:10
-                            }
-                        }
-                    }
-                }
-            }
-            var myChart = drawChart(config,canvas);
-            fetchRoles().then(result=>{
-
-            })
-            .catch(e=>{
-                showFeedback(e.msg,1);
-            })
-        }
-}
-
-//client profile
-if(window.location.pathname == "/profile/"){
-        const detailForm = document.querySelector("#client_profile_form");
-        
-        if(currentUser){
-            populateClientDetails(detailForm,currentUser);
-        }
-        if(detailForm){
-            detailForm.addEventListener('submit',(e)=>{
-                e.preventDefault();
-    
-                let name   = detailForm.company_name.value;
-                let email  = detailForm.email.value;
-                let phone  = detailForm.phone.value;
-                let person = detailForm.contact_person.value;
-                let cemail = detailForm.contact_email.value;
-                let address= detailForm.address.value;
-                let file = detailForm.company_logo.files[0];
-                let logoFile = null;
-                let data = {
-                    company_name:name,
-                    email:email,
-                    phone:phone,
-                    contact_person:person,
-                    contact_email:cemail,
-                    address:address,
-                    logo:logoFile,
-                    user:currentUser.id
-                };
-    
-                if(file){
-                    var reader = new FileReader();
-                    reader.addEventListener('load',()=>{
-                        data.logo = reader.result;
-                        submitClientDetail(data);
-                    },false);
-    
-                    reader.readAsDataURL(file);
-                }
-    
-                
-    
-            });
-        }
-
-}
 
