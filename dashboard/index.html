@@ -24,36 +24,105 @@
         </header>
         <main>
             <div id="side-bar">
-                <span class="item active">Dashboard</span>
-                <span class="item">Customers</span>
-                <span class="item">Consignments</span>
-                <span class="item">Subscriptions</span>
-                <span class="item">Roles</span>
-                <span class="item">Reports</span>
+                <span class="item active" id="dashboard">Dashboard</span>
+                <span class="item" id="customers">Customers</span>
+                <span class="item" id="consignments">Consignments</span>
+                <span class="item" id="subscriptions">Subscriptions</span>
+                <span class="item" id="roles">Roles</span>
+                <span class="item" id="reports">Reports</span>
             </div>
             <div class="content">
-                <div class="info"><p class="medium-text" id="greetings"></p>
+                <div class="info">
+                    <div>
+                        <span class="medium-text" id="greetings"></span><br />
+                        <span id="crumbs"></span>
+                    </div>
                     <div class="menu">
-                    <div class="account-menu">
-                        <img class="user-avatar" id="avatar" src="/img/favicon.png" alt="user avatar"/>
-                        <span id="account-name">Mr. Cleaford</span>
-                        <span class="material-icons large-text arrow" id="arrow-drop0">arrow_drop_down</span>                       
-                    </div>
-                    <div class="drop-down hidden" id="drop-down0">
-                        <span class="drop-item" id="settings0">Settings</span>
-                        <span class="drop-item" id="signout0">Logout</span>
+                        <div class="account-menu">
+                            <img class="user-avatar" id="avatar" src="/img/favicon.png" alt="user avatar"/>
+                            <span id="account-name">Mr. Cleaford</span>
+                            <span class="material-icons large-text arrow" id="arrow-drop0">arrow_drop_down</span>                       
+                        </div>
+                        <div class="drop-down hidden" id="drop-down0">
+                            <span class="drop-item" id="settings0">Settings</span>
+                            <span class="drop-item" id="signout0">Logout</span>
+                        </div>
                     </div>
                 </div>
+                <div class="can-hide" id="dashboard_content">
+                    <div class="row-space">
+                        <div class="info-stats">
+                            <div class="stat-card">
+                                <span>Customers registered</span>
+                                <span class="stat-value" id="no_of_customers">43</span>
+                            </div>
+                            <div class="stat-card">
+                                <span>Consignments processed</span>
+                                <span class="stat-value" id="no_of_clients">155</span>
+                            </div>
+                            <div class="stat-card">
+                                <span>Ready for shipping</span>
+                                <span class="stat-value" id="no_of_clients">4</span>
+                            </div>
+                            <div class="stat-card">
+                                <span>Ready for release</span>
+                                <span class="stat-value" id="no_of_clients">5</span>
+                            </div>
+                            <div class="stat-card">
+                                <span>Pending approval</span>
+                                <span class="stat-value" id="no_of_clients">3</span>
+                            </div>
+                            <div class="stat-card">
+                                <span>Client's registered</span>
+                                <span class="stat-value" id="no_of_clients"></span>
+                            </div>
+                        </div>
+                        <div class="info-charts" id="chart-area">
+                        </div>
+                    </div>
                 </div>
-                <!-- <div class="x">
-                <button id="activate" class="buttons bg-primary">ACTIVATE ACCOUNT</button>
-                <button id="profile" class="buttons bg-primary hidden">SETUP ACCOUNT</button>
-            </div> -->
+            
+                <div class="can-hide hidden" id="add_role_content">
+                    <div class="row-space">
+                        <div id="form-container" class="form-container">
+                            <span class="medium-text">Add New Role</span>
+                            <form id="add_role_form" method="POST" class="client_forms">
+                                <div class="form-group">
+                                    <label for="name">Name</label>
+                                    <input type="text" id="name" name="name"  required />
+                                </div>
+                                <div class="form-group">
+                                    <label for="description">Description</label>
+                                    <textarea rows=5 id="description" name="description"></textarea>
+                                </div> 
+                                <div class="form-group">
+                                    <label for="level">Select Operation Level</label>
+                                    <select id="level" name="level"></select>    
+                                </div>
+                                
+                            <div class="form-group-no-border">
+                                <input class="no-corner" type="submit" id="btnSubmit" name="btnSubmit" value="SUBMIT"/>
+                                <input type="reset" class="buttons no-corner" id="btnCancelAddRole" name="btnCancelAddRole" value="Cancel"/>
+                            </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="can-hide hidden" id="roles_content">
+                    <div class="row-end"><button class="buttons-s no-corner" id="add_role" onclick="showRoleForm();">Add Role</button></div>
+                    <div class="head-row" id="roles-head-row">
+                        <span>Role</span>
+                        <span>Description</span>
+                        <span>Level</span>    
+                    </div>
+
+                </div>
             </div>
         </main>
         <div id="feedback" class="hidden"></div>
         <footer>&copy; 2021, Cleaford. All rights reserved</footer>
    <script src="/js/config.js"></script>
-        <script src="/js/main.js"></script>
+   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="/js/dash.js"></script>
     </body>
 </html>

@@ -139,6 +139,10 @@ main > div#dashboard_content{
 .account-menu{
   @include flex(row,flex-start,center);
 }
+#greetings{
+  margin-left:0;
+  padding-left:0;
+}
 //avatar
 .user-avatar{
   border-radius: 50%;
@@ -179,7 +183,9 @@ text-align: left;
 .sort-arrow{
   cursor: pointer;
 }
-
+.content .can-hide{
+  width: 100%;
+}
 //end of content
 //side bar
 #side-bar,.drop-down{
@@ -385,7 +391,7 @@ form input[type="submit"]{
   main > div.content .summary-table{
     margin-top:0.5em;
     padding:0 0.5em 0.5em 0.5em;
-    width:calc(50% - 1em);
+    width:calc(50% - 2em);
     @include flex(column,flex-start,space-evenly);
     @include setBg($defaultColor);
   }
@@ -599,7 +605,7 @@ a.nav-item:hover {
   width:50px;
   height:50px;
   border-radius: 50%;
-  border:1px solid $secondaryColor;
+  border:1px solid $primaryColor;
   border-top:none;
   animation: spin 1s linear 0s infinite forwards;
 }

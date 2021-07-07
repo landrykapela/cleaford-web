@@ -1,7 +1,7 @@
 const storage = window.localStorage;
 const clientSummaryCount = 5;
 var currentUser = (storage.getItem("currentUser")) ? JSON.parse(storage.getItem("currentUser")):null;
-var storedData = (storage.getItem("data")) ? JSON.parse(storage.getItem("data")):{client_roles:[],clients:[],roles:[]};
+var storedData = (storage.getItem("data")) ? JSON.parse(storage.getItem("data")):{client_roles:[],customers:[],roles:[]};
 
 const originalSetItem = localStorage.setItem;
 
@@ -19,7 +19,7 @@ localStorage.setItem = function(key, value) {
 
 if(window.location.pathname == "/signin.html"){
     storage.setItem("data",JSON.stringify({}));
-   
+    storage.setItem("currentUser",null);
 }
 //arrow drop
 
@@ -48,7 +48,7 @@ const activateMenu =(target)=>{
             i.classList.remove("active");
         } 
         //remove previously selected content
-        Array.from(document.getElementsByTagName("MAIN")[0].children)
+        Array.from(document.getElementsByClassName("can-hide"))
         .forEach(child=>{
             if(child.id.includes("_content")) child.classList.add("hidden");
         })
@@ -67,29 +67,30 @@ const activateMenu =(target)=>{
     //get and display data as per selected menu item
     if(menu){
         switch(menu.id){
-            case 'clients':
-                getClients().then(clients=>{
-                    showClients(clients)
+            case 'customers':
+                getCustomers().then(customers=>{
+                    showCustomers(customers)
                 }).catch(er=>{
                     console.log("er:",er);
                     showFeedback(er,1);
                 });
                 break;
             case 'roles':
-                if(!storedData.roles || storedData.roles.length == 0){
-                    fetchRoles().then(roles=>{
-                        console.log("let's see this...ok");
-                        showRoles(roles);
-                    }).then(e=>{
-                        showFeedback(e,1);
+                if(!storedData.client_roles || storedData.client_roles.length == 0){
+                    fetchClientRoles().then(result=>{
+                        console.log("res: ",result);
+                        if(result.code == 0) showClientRoles(result.data);
+                        else showFeedback(result.msg,1);
+                    }).catch(e=>{
+                        showFeedback(e.msg,1);
                         console.log("let's see this...not ok",e);
                     });
                 }
-                else showRoles(storedData.roles);
+                else showClientRoles(storedData.client_roles);
                 break;
             case 'dashboard':
-                if(window.location.pathname=="/admin/") showAdminStats();
-                else showDashboard();
+               showClientStats();
+                
             break;
         }
     }
@@ -105,12 +106,12 @@ const activateMenu =(target)=>{
                 document.querySelector("#roles").classList.add("active");
                 if(content) content.classList.remove("hidden");
                 break;
-            case 'add_client':
-                document.querySelector("#clients").classList.add("active");
+            case 'add_customer':
+                document.querySelector("#customers").classList.add("active");
                 if(content) content.classList.remove("hidden");
                 break;
-            case 'edit_client':
-                document.querySelector("#clients").classList.add("active");
+            case 'edit_customer':
+                document.querySelector("#customers").classList.add("active");
                 if(content) content.classList.remove("hidden");
                 break;
         }
@@ -119,99 +120,18 @@ const activateMenu =(target)=>{
 }
 const getActiveMenu =()=>{
     if(sideBar){
+        let active = 'dashboard';
         const items = Array.from(sideBar.children);
         items.forEach(item=>{
             if(item.classList.contains("active")){
-                return item.id;
+                active = item.id;
             } 
                 
         });
-        return 'dashboard';
+        return active;
     }
 }
 
-const signupForm = document.querySelector("#signup_form");
-if(signupForm){
-    const fieldError = document.getElementById("field-error");
-    signupForm.cpassword.addEventListener('input',(e)=>{
-        var password = signupForm.password.value;
-        if(e.target.value === password) {
-            signupForm.cpassword.classList.remove("fail-text");
-            signupForm.cpassword.classList.add("primary-dark-text");
-            fieldError.classList.add("hidden");
-        }
-        else {
-            signupForm.cpassword.classList.remove("primary-dark-text");
-            signupForm.cpassword.classList.add("fail-text");
-            fieldError.textContent = "Passwords do not match";
-            fieldError.classList.remove("hidden");
-        }
-    });
-
-    signupForm.password.addEventListener('input',(e)=>{
-       
-        if(e.target.value.length >=8) {
-            signupForm.password.classList.remove("fail-text");
-            signupForm.password.classList.add("primary-dark-text");
-            fieldError.classList.add("hidden");
-        }
-        else {
-            signupForm.password.classList.remove("primary-dark-text");
-            signupForm.password.classList.add("fail-text");
-            fieldError.textContent = "Password is too short";
-            fieldError.classList.remove("hidden");
-        }
-    });
-    signupForm.addEventListener('submit',(e)=>{
-        e.preventDefault();
-        let email = signupForm.email.value;
-        let password = signupForm.password.value;
-        let body = {email:email,password:password};
-        let data = JSON.stringify(body);
-    
-        fetch(signup_url,{method:"POST",body:data,headers:{
-            'Content-Type':'application/json'
-        }})
-        .then(res=>res.json())
-        .then(result=>{
-            delete result.password;
-            currentUser = result;
-            storage.setItem("currentUser",JSON.stringify(currentUser));
-            showProfile();
-        });
-    });
-   
-}
-
-//signin
-const loginForm = document.querySelector("#signin_form");
-if(loginForm){
-    loginForm.addEventListener('submit',(e)=>{
-        e.preventDefault();
-        let email = loginForm.email.value;
-        let password = loginForm.password.value;
-        let user = {email:email,password:password};
-        fetch(signin_url,{method:"POST",body:JSON.stringify(user),headers:{'Content-type':'application/json'}})
-        .then(res=>res.json()).then(response=>{
-            if(response.error){
-                showFeedback(response.error,1);
-            }
-            else{
-                currentUser = response;
-                storage.setItem("currentUser",JSON.stringify(currentUser));
-                if(currentUser.id == 0) showAdmin();
-                else{
-                    if(currentUser.db == null) showProfile();
-                    else showDashboard();
-                }
-            }
-        })
-        .catch(err=>{
-            let error = (err.error) ? err.error : "Connection Problems. Please try again later";
-            showFeedback(error,1);
-        });
-    });
-}
 //show error
 const showFeedback =(msg,type)=>{
     const feedback = document.querySelector("#feedback");
@@ -232,32 +152,29 @@ const showFeedback =(msg,type)=>{
 };
 //signout
 const signoutUser = ()=>{
-  
-        // var signout_url = "http://localhost:5000/signout";
-        // var urlObj = new URL(window.location.href);
-        // let token = (currentUser) ? currentUser.token: null;
-        fetch(signout_url,
-            {method:"POST",body:JSON.stringify({email:currentUser.email}),headers:{'Content-type':'application/json'}})
-        .then(res=>res.json())
-            .then(result=>{
-            // console.log("result: ",result);
-            storage.setItem("currentUser",null);
-            window.location.pathname = "/signin.html";
-        })
-        .catch(e=>{
-            console.log(e);
-        });
+    fetch(signout_url,
+        {method:"POST",body:JSON.stringify({email:currentUser.email}),headers:{'Content-type':'application/json'}})
+    .then(res=>res.json())
+        .then(result=>{
+        // console.log("result: ",result);
+        storage.setItem("currentUser",null);
+        window.location.pathname = "/signin.html";
+    })
+    .catch(e=>{
+        console.log(e);
+        showFeedback(e,1);
+    });
   
 };
 
 //show admin stats
-const showAdminStats=()=>{
-    document.querySelector("#greetings").textContent = "Hello, Admin";
-    const numberOfClients = document.getElementById("no_of_clients");
-     numberOfClients.textContent = storedData.clients.length;
+const showClientStats =()=>{
+    greet("Hello "+currentUser.detail.contact_person.split(" ")[0],null);
+     const numberOfCustomers = document.getElementById("no_of_customers");
+     numberOfCustomers.textContent = (storedData.customers) ? storedData.customers.length:23;
     
     //show client summary
-    showClientsSummary();
+    // showCustomersSummary();
     let chartArea = document.getElementById("chart-area");
     while(chartArea.hasChildNodes()){
         chartArea.removeChild(chartArea.childNodes[0]);
@@ -268,7 +185,7 @@ const showAdminStats=()=>{
         labels:["Clearing","Forwarding"],
         datasets:[{
             label:"Consigment Type",
-            data:[102,360],
+            data:[22,36],
             backgroundColor:['#ffcc00','#cc9900'],
             hoverOffset:4
         }]
@@ -294,10 +211,6 @@ const showAdminStats=()=>{
     var myChart = drawChart(config,canvas);
 }
 
-//show admin dashboard
-const showAdmin = ()=>{
-    window.location.pathname = "/admin/";
-}
 //show profile
 const showProfile = ()=>{
     window.location.pathname = "/profile/";
@@ -307,9 +220,9 @@ const showDashboard = ()=>{
     window.location.pathname = "/dashboard/";
 }
 //cpature client details
-const showClientDetailForm = ()=>{
-    const clientList = document.querySelector("#clients_content");
-    const clientForm = document.querySelector("#add_client_content");
+const showCustomerDetailForm = ()=>{
+    const clientList = document.querySelector("#customers_content");
+    const clientForm = document.querySelector("#add_customer_content");
     clientList.classList.add("hidden");
     clientForm.classList.remove("hidden");
 }
@@ -349,14 +262,13 @@ const activateAccount = (user)=>{
         }
         return res.json()})
     .then(result=>{
-        showClientDetailForm();
+        showCustomerDetailForm();
     })
     .catch(er=>{
         console.log("errr: ",er);
         showFeedback(err.msg,1);
     })
 }
-
 
 const editClientDetail = (client,source)=>{
     const editForm = document.querySelector("#edit_client_form");
@@ -461,8 +373,8 @@ const createClientSummaryRow = (row)=>{
 
     holder.appendChild(rowHolder);
 }
-//showClients
-const showClients = (data)=>{
+//showCustomers
+const showCustomers = (data)=>{
     const holder = document.querySelector("#clients_content");    
     if(!data || data.length == 0){
         createClientRow(null,holder);
@@ -477,12 +389,21 @@ const showClients = (data)=>{
     }
 }
 //display system roles
-const showRoles = (roles)=>{
+const showClientRoles = (roles)=>{
+    greet("Roles",{title:"Roles",description:"Add Role"});
     const holder = document.getElementById("roles_content");
     Array.from(holder.children).forEach(child=>{
         if(child.classList.contains('body-row')) holder.removeChild(child);
     })
     if(roles && roles.length > 0){
+        roles = roles.map(role=>{
+            let newRole = role;
+            storedData.roles.forEach(r=>{
+                if(role.level == r.id) newRole.level_name = r.name;
+               
+            });
+            return newRole;
+        })
         roles.forEach(role=>{
             const rowHolder = document.createElement("div");
             rowHolder.classList.add("body-row");
@@ -490,12 +411,12 @@ const showRoles = (roles)=>{
             roleId.textContent = role.name;
             const roleName = document.createElement("span");
             roleName.textContent = role.description;
-            const rolePermission = document.createElement("span");
-            rolePermission.textContent = role.permission;
+            const roleLevel = document.createElement("span");
+            roleLevel.textContent = role.level_name;
 
             rowHolder.appendChild(roleId);
             rowHolder.appendChild(roleName);
-            rowHolder.appendChild(rolePermission);
+            rowHolder.appendChild(roleLevel);
             holder.appendChild(rowHolder);
         })
     }
@@ -521,20 +442,91 @@ const fetchRoles = ()=>{
         fetch(roles_url,{method:"GET",headers:headers})
         .then(res=>{
             if(res.status == 403){
-                showFeedback("Your session expired, please sign in");
+                showFeedback("Your session expired, please sign in",1);
+                signoutUser();
             }
-            else return res.json();
-        }).then(result=>{
-             storedData.roles = result.data;
-            storage.setItem("data",JSON.stringify(storedData));
-            resolve(result);
+            else{
+                res.json().then(result=>{
+                    console.log(result);
+                    storedData.roles = result.data;
+                    storage.setItem("data",JSON.stringify(storedData));
+                    resolve(result);
+                })
+                .catch(e=>{
+                    reject(e);
+                })
+            }
         })
         .catch(e=>{
-            console.log("e:",e);
-            // showFeedback(e.msg,1)
-            showFeedback("Your session expired, please sign in");
-            reject(e);
+            console.log("fetch errror: ",e);
+            reject(e)
         })
+    })
+}
+
+//fetch clientRoles
+const fetchClientRoles = ()=>{
+    return new Promise((resolve,reject)=>{
+        let headers={
+            'Content-Type':'application/json',
+            'Authorization':'Bearer '+currentUser.accessToken
+        }
+        fetch(client_roles+"/"+currentUser.id,{method:"GET",headers:headers})
+        .then(res=>{
+            if(res.status == 403){
+                showFeedback("Session expired, please login",1);
+                signoutUser();
+            }
+            else {
+                res.json().then(result=>{
+                    console.log(result);
+                    storedData.client_roles = result.data;
+                    storage.setItem("data",JSON.stringify(storedData));
+                    resolve(result);
+                })
+                .catch(e=>{
+                    reject(e);
+                })
+            }
+        })
+        .catch(e=>{
+            console.log("fetch error: ",e)
+        })
+    })
+}
+//register client role
+const registerClientRole = (data)=>{
+    return new Promise((resolve,reject)=>{
+        let url = client_roles+"/"+currentUser.id;
+        const body = JSON.stringify({user_id:currentUser.id,name:data.name,description:data.description,level:data.level});
+        const headers = {
+            'Content-type':'application/json',
+            'Authorization':'Bearer '+currentUser.accessToken
+        }
+        const options = {
+            method:"POST",
+            body:body,
+            headers:headers
+        }
+        fetch(url,options).then(res=>{
+            if(res.status == 403) {
+                showFeedback("Your session expired, please login",1);
+                signoutUser();
+            }
+            else{
+                res.json().then(result=>{
+                    showFeedback(result.msg,result.code);
+                    resolve(result);
+                })
+                .catch(err=>{
+                    reject(err);
+                })
+            }
+        })
+        .catch(err=>{
+            reject(err);
+        })
+        
     })
 }
 //cancel role form
@@ -546,11 +538,21 @@ const cancelAddRoleForm = ()=>{
 }
 //show role form
 const showRoleForm = ()=>{
+    greet("Roles",{title:"Roles",description:"Add Role"});
     const roleList = document.querySelector("#roles_content");
     const roleForm = document.querySelector("#add_role_content");
     roleList.classList.add("hidden");
     roleForm.classList.remove("hidden");
-    
+    if(window.location.pathname == "/dashboard/"){
+        const selectLevel = document.querySelector("#level");
+        storedData.roles.forEach(role=>{
+            selectLevel.options.add(new Option(role.name,role.id));
+        })
+        const cancelBut = document.querySelector("#btnCancelAddRole");
+        cancelBut.addEventListener('click',(e)=>{
+            cancelAddRoleForm();
+        })
+    }
 }
 const createMoreLink = (target,holder)=>{
     const button = document.createElement("button");
@@ -570,7 +572,7 @@ const createMoreLink = (target,holder)=>{
     }
     
 }
-const showClientsSummary = ()=>{
+const showCustomersSummary = ()=>{
     if(storedData.clients.length == 0) {
         createClientSummaryRow(null);
     }
@@ -593,10 +595,10 @@ const showClientsSummary = ()=>{
 const closeClientForm=(source)=>{
     document.getElementById(source).classList.add("hidden");
     document.getElementById("clients_content").classList.remove("hidden");
-    showClients(storedData.clients);
+    showCustomers(storedData.clients);
 }
 //fetch clients
-const getClients = ()=>{
+const getCustomers = ()=>{
     showSpinner();
     return new Promise((resolve,reject)=>{
         const headers = {'Content-type':'application/json','Authorization':'Bearer '+currentUser.accessToken};
@@ -635,7 +637,7 @@ const updateClients = (clients)=>{
     if(clients && clients.length > 0){
         storedData.clients = clients;
         storage.setItem("data",JSON.stringify(storedData));
-        showClients(clients);
+        showCustomers(clients);
     }
 }
 
@@ -706,9 +708,9 @@ document.addEventListener('updateData',(e)=>{
     if(window.location.pathname == '/admin/'){
         let data = JSON.parse(e.value);
         console.log("may be an update triggered")
-        if(getActiveMenu() == 'dashboard') showAdminStats();
-        else if(getActiveMenu() == 'clients') showClients(data.clients);
-        else if(getActiveMenu() == 'roles') showRoles(data.roles);
+        if(getActiveMenu() == 'dashboard') showClientStats();
+        else if(getActiveMenu() == 'customers') showCustomers(data.customers);
+        else if(getActiveMenu() == 'roles') showClientRoles(data.client_roles);
     }
 })
 
@@ -772,10 +774,10 @@ const sortClients = (sortBy,source)=>{
         })
     }
     
-    showClients(clients);
+    showCustomers(clients);
 }
 //search client
-const searchClients = (keyword)=>{
+const searchCustomers = (keyword)=>{
     keyword = keyword.toLowerCase();
     let clients = data.clients;
     if(clients.length > 0){
@@ -833,183 +835,72 @@ const submitClientDetail=(data)=>{
     })
 }
 //search
-const search = document.querySelector("#search_client");
+const search = document.querySelector("#search_customers");
 if(search){
     search.addEventListener('input',(e)=>{
-        showClients(searchClients(e.target.value));
+        showCustomers(searchCustomers(e.target.value));
     })
 }
-
-//check if admin is loggedin
-if(window.location.pathname ==="/admin/"){
-    if(currentUser == null || currentUser.id !== ADMIN){
-        window.location.pathname = "/signin.html";
+//shwo greeting
+const greet=(name,detail=null)=>{
+    document.querySelector("#greetings").textContent = name;
+    if(detail){
+        document.querySelector("#crumbs").textContent = detail.title+" | "+detail.description;
     }
+    else document.querySelector("#crumbs").textContent ="";
+         
+}
+//check if current page is dashboard
+if(window.location.pathname == "/dashboard/"){
+    if(currentUser == null) window.location.pathname = "/signin.html";
     else{
-        getClients().then(clients=>{
-            showAdminStats();
+        var clientDetails = currentUser.detail;
+         greet("Hello "+clientDetails.contact_person.split(" ")[0],null);
+         document.querySelector("#account-name").textContent = clientDetails.contact_person;
+         if(clientDetails.logo) document.querySelector("#avatar").src =clientDetails.logo;
+        showClientStats();
+        //  let chartArea = document.getElementById("chart-area");
+        //     while(chartArea.hasChildNodes()){
+        //         chartArea.removeChild(chartArea.childNodes[0]);
+        //     }
+        //     const canvas = document.createElement("canvas");
+        //     chartArea.appendChild(canvas);
+        //     let summary = {
+        //         labels:["Clearing","Forwarding"],
+        //         datasets:[{
+        //             label:"Consigment Type",
+        //             data:[102,360],
+        //             backgroundColor:['#ffcc00','#cc9900'],
+        //             hoverOffset:4
+        //         }]
+        //     }
+        //     let config = {
+        //         type:'pie',data:summary,options:{
+        //             plugins:{
+        //                 legend:{
+        //                     display:true,
+        //                     position:'left'
+        //                 },
+        //                 title:{
+        //                     display:true,
+        //                     position:'top',text:'Consigment Type',
+        //                     align:'start',
+        //                     padding:{
+        //                         top:10,left:10,bottom:10
+        //                     }
+        //                 }
+        //             }
+        //         }
+        //     }
+        //     var myChart = drawChart(config,canvas);
             fetchRoles().then(result=>{
-                
-            }).catch(e=>{
-                console.log("errrrror: ",e);
+            })
+            .catch(e=>{
                 showFeedback(e.msg,1);
             })
-        })
-        .catch(error=>{
-            showFeedback("Your session expired, please login",1);
-        });
-        
-       
-        const detailForm = document.querySelector("#client_profile_form");
-        if(detailForm){
-            document.getElementById("btnCancelAdd").addEventListener('click',()=>{
-                closeClientForm('add_client_content');
-            });
-            detailForm.addEventListener('submit',(e)=>{
-                e.preventDefault();
-    
-                let name   = detailForm.company_name.value;
-                let email  = detailForm.email.value;
-                let phone  = detailForm.phone.value;
-                let person = detailForm.contact_person.value;
-                let cemail = detailForm.contact_email.value;
-                let address= detailForm.address.value;
-                let file = detailForm.company_logo.files[0];
-                let logoFile = null;
-                let datas = {
-                    company_name:name,
-                    email:email,
-                    phone:phone,
-                    contact_person:person,
-                    contact_email:cemail,
-                    address:address,
-                    logo:logoFile,
-                    user:currentUser.id
-                };
-    
-                if(file){
-                    var reader = new FileReader();
-                    reader.addEventListener('load',()=>{
-                        datas.logo = reader.result;
-                    },false);
-    
-                    reader.readAsDataURL(file);
-                }
-    
-                const headers = {
-                    'Content-type':'application/json',
-                    'Authorization':'Bearer '+currentUser.accessToken
-                }
-                const options = {
-                    method:"POST",body:JSON.stringify(datas),headers:headers
-                }
-                fetch(create_client_url,options)
-                .then(res=>{
-                    if(res.status == 403){
-                        showFeedback("Session expired. Please signin",1);
-                        signoutUser();
-                        return;
-                    }
-                    return res.json()
-                }).then(result=>{
-                    closeClientForm('add_client_content');
-                    updateClients(result.data);
-                })
-                .catch(err=>{
-                    console.log("err: ",err);
-                })
-    
-            });
-        }
-        //update client
-        const updateForm = document.querySelector("#edit_client_form");
-       
-        if(updateForm){
-            document.getElementById("btnCancelEdit").addEventListener('click',()=>{
-            closeClientForm('edit_client_content');
-            });
-             
-            let imagePreview = document.getElementById("client_image");
-            let inputFile = document.getElementById("company_logo");
-            inputFile.addEventListener('change',(e)=>{
-                var file = inputFile.files[0];
-                if(file){
-                    var reader = new FileReader();
-                    reader.addEventListener('load',()=>{
-                        // data.logo = reader.result;
-                        console.log(reader.result);
-                        imagePreview.src = reader.result;
-                    },false);
 
-                    reader.readAsDataURL(file);
-                }
-            })
-            updateForm.addEventListener('submit',(e)=>{
-                e.preventDefault();
-                let id = updateForm.client_id.value;
-                let name   = updateForm.company_name.value;
-                let email  = updateForm.email.value;
-                let phone  = updateForm.phone.value;
-                let person = updateForm.contact_person.value;
-                let cemail = updateForm.contact_email.value;
-                let address= updateForm.address.value;
-                let file = updateForm.company_logo.files[0];
-                
-
-                let client = storedData.clients.filter(c=>c.id == id);
-                if(client.logo && client.logo.length !=0) imagePreview.src = client.logo;
-                let logoFile = client.logo;
-                let newData = {
-                    id:id,
-                    company_name:(name && name.length !==0) ? name: client.name,
-                    email:(email && email.length !==0) ? email: client.email,
-                    phone:(phone && phone.length !==0) ? phone: client.phone,
-                    contact_person:(person && person.length !==0) ? person: client.contact_person,
-                    contact_email:(cemail && cemail.length !==0) ? cemail: client.contact_email,
-                    address:(address && address.length !==0) ? address: client.address,
-                    logo:logoFile,
-                    user:currentUser.id
-                };
-    
-                if(file){
-                    var reader = new FileReader();
-                    reader.addEventListener('load',()=>{
-                        newData.logo = reader.result;
-                        imagePreview.src = newData.logo;
-                    },false);
-    
-                    reader.readAsDataURL(file);
-                }
-    
-                const headers = {
-                    'Content-type':'application/json',
-                    'Authorization':'Bearer '+currentUser.accessToken
-                }
-                const options = {
-                    method:"PUT",body:JSON.stringify(newData),headers:headers
-                }
-                
-                fetch(create_client_url,options)
-                .then(res=>{
-                    if(res.status == 403){
-                        showFeedback("Session expired. Please signin",1);
-                        signoutUser();
-                        return;
-                    }
-                    return res.json()
-                }).then(result=>{
-                   showFeedback(result.msg,result.code);
-                        closeClientForm('edit_client_content');
-                        updateClients(result.data);
-                   
-                })
-                .catch(err=>{
-                    showFeedback(err,1);
-                })
-            });
-        }
-
-        //add role
+            //add client role
+             //add role
         const roleForm = document.querySelector("#add_role_form");
         if(roleForm){
             const cancelForm = document.querySelector("#btnCancelAddRole");
@@ -1021,94 +912,29 @@ if(window.location.pathname ==="/admin/"){
 
             roleForm.addEventListener('submit',(e)=>{
                 e.preventDefault();
-                let roles = (storedData.roles) ? storedData.roles : [];
+                let roles = (storedData.client_roles) ? storedData.client_roles : [];
                 let name = roleForm.name.value.trim();
                 let description = roleForm.description.value.trim();
-                let permission = roleForm.permission.value.trim();
-                const data = {name:name,description:description,permission:permission};
-                const headers = {
-                    'Content-type':'application/json', 'Authorization': 'Bearer '+currentUser.accessToken
-                }
-                const options ={
-                    body:JSON.stringify(data),
-                    method:"POST",
-                    headers:headers
-                }
-                fetch(create_role_url,options).then(res=>{
-                    if(res.status == 403){
-                        showFeedback("Your session has expired, please login",1);
-                        signoutUser();
-                    }
-                    return res.json();
-
-                })
-                .then(result=>{
-                    console.log(result);
-                    if(result.data !== null && result.data.length > 0) {
+                let level = roleForm.level.options[roleForm.level.options.selectedIndex].value;
+                const data = {name:name,description:description,level:level};
+                registerClientRole(data).then(result=>{
+                    console.log("sasaje: ",result);
+                    if(result.data && result.data.length > 0) {
                         roles = result.data;
-                        storedData.roles = roles;
+                        storedData.client_roles = roles;
                         storage.setItem("data",JSON.stringify(storedData));
-                        showFeedback(result.msg,0);
+                        
+                        cancelAddRoleForm();
                     }
-                    cancelAddRoleForm();
-                }).catch(e=>{
-                    showFeedback(e.msg,1);
+                    showFeedback(result.msg,result.code);
+                })
+                .catch(e=>{
+                    console.log("eee: ",e);
+                    showFeedback("Oops! Something might have gone wrong. Please try again later",1);
                 })
             })
 
         }
-    }
-}
-
-//check if current page is dashboard
-if(window.location.pathname == "/dashboard/"){
-    if(currentUser == null) window.location.pathname = "/signin.html";
-    else{
-        var clientDetails = currentUser.detail;
-         document.querySelector("#greetings").textContent = "Hello, "+clientDetails.contact_person.split(" ")[0];
-         document.querySelector("#account-name").textContent = clientDetails.contact_person;
-         if(clientDetails.logo) document.querySelector("#avatar").src =clientDetails.logo;
-
-         let chartArea = document.getElementById("chart-area");
-            while(chartArea.hasChildNodes()){
-                chartArea.removeChild(chartArea.childNodes[0]);
-            }
-            const canvas = document.createElement("canvas");
-            chartArea.appendChild(canvas);
-            let summary = {
-                labels:["Clearing","Forwarding"],
-                datasets:[{
-                    label:"Consigment Type",
-                    data:[102,360],
-                    backgroundColor:['#ffcc00','#cc9900'],
-                    hoverOffset:4
-                }]
-            }
-            let config = {
-                type:'pie',data:summary,options:{
-                    plugins:{
-                        legend:{
-                            display:true,
-                            position:'left'
-                        },
-                        title:{
-                            display:true,
-                            position:'top',text:'Consigment Type',
-                            align:'start',
-                            padding:{
-                                top:10,left:10,bottom:10
-                            }
-                        }
-                    }
-                }
-            }
-            var myChart = drawChart(config,canvas);
-            fetchRoles().then(result=>{
-
-            })
-            .catch(e=>{
-                showFeedback(e.msg,1);
-            })
         }
 }
 
