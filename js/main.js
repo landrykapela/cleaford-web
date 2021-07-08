@@ -3,6 +3,8 @@ const clientSummaryCount = 5;
 var currentUser = (storage.getItem("currentUser")) ? JSON.parse(storage.getItem("currentUser")):null;
 var storedData = (storage.getItem("data")) ? JSON.parse(storage.getItem("data")):{client_roles:[],clients:[],roles:[]};
 
+const DATA_COUNT = 12;
+const NUMBER_CFG = {count: DATA_COUNT, min: 0, max: 100};
 const originalSetItem = localStorage.setItem;
 
 localStorage.setItem = function(key, value) {
@@ -290,12 +292,24 @@ const signoutUser = ()=>{
   
 };
 
+const generateRandomData = ()=>{
+    var result = [];
+    for(let i=0; i<NUMBER_CFG.count;i++){
+        let random = Math.floor(Math.random() * (NUMBER_CFG.max - NUMBER_CFG.min + 1)) + NUMBER_CFG.min;
+        console.log("random: ",random);
+        result.push(random);
+    }
+    console.log("rand: ",result);
+    return result;
+}
+
 //show admin stats
 const showAdminStats =()=>{
     document.querySelector("#greetings").textContent = "Hello, Admin";
     const numberOfClients = document.getElementById("no_of_clients");
      numberOfClients.textContent = storedData.clients.length;
     
+
     //show client summary
     showClientsSummary();
     // fetchRoles();
@@ -305,34 +319,37 @@ const showAdminStats =()=>{
     }
     const canvas = document.createElement("canvas");
     chartArea.appendChild(canvas);
-    let summary = {
-        labels:["Clearing","Forwarding"],
-        datasets:[{
-            label:"Consigment Type",
-            data:[102,360],
-            backgroundColor:['#ffcc00','#cc9900'],
-            hoverOffset:4
-        }]
+
+    const labels = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    let data = {
+        labels: labels,
+        datasets: [
+            {
+            label: 'Sales',
+            data: generateRandomData(),
+            borderColor: "#cc9900",
+            backgroundColor: "#ffcc00",
+            },
+            
+        ]
     }
     let config = {
-        type:'pie',data:summary,options:{
-            plugins:{
-                legend:{
-                    display:true,
-                    position:'left'
-                },
-                title:{
-                    display:true,
-                    position:'top',text:'Consigment Type',
-                    align:'start',
-                    padding:{
-                        top:10,left:10,bottom:10
-                    }
-                }
+        type: 'line',   
+        data: data,
+        options: {
+          responsive: true,
+          plugins: {
+        
+            title: {
+              display: true,
+              text: 'Annual Sales'
             }
-        }
+          }
+        },
     }
     var myChart = drawChart(config,canvas);
+
+
 }
 
 //show admin dashboard
@@ -706,6 +723,7 @@ const updateClientDetail = (detail)=>{
 const drawChart = (config,canvas)=>{
     return myChart = new Chart(canvas,config);
 }
+
 //refresh user
 const refreshUser=()=>{
     console.log("refreshed user");
@@ -903,7 +921,8 @@ if(window.location.pathname ==="/admin/"){
             showAdminStats();
         })
         .catch(error=>{
-            showFeedback("Your session expired, please login",1);
+            console.log("error: ",error);
+            showFeedback("Something went wrong please try again later",1);
         });
         
        
