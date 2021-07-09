@@ -10,16 +10,26 @@
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Baloo+Thambi+2&display=swap" rel="stylesheet"> 
         <link href="/css/main.css" rel="stylesheet"/>
+        <style type="text/css">
+            .legend{color: black; width: 300px; font-family: arial; font-size: 14px;}    
+            .legend_color {display: table; width: 100%; background: white; list-style: none; margin: 0px; padding: 0px; }
+            .legend_color li{width: 20%;  height: 20px; display: table-cell;}
+            .legend_label {display: table; width: 100%;  padding: 0px; padding-left: 10%; padding-right: 10%; list-style: none; margin: 0px; box-sizing: border-box;}
+            .legend_label li{width: 25%;  height: 20px; display: table-cell; text-align: center;}
+            </style>
     </head>
 
     <body>
         <header>
             <img class="logo" src="/img/logo.png" alt="cleaford logo" />
             <div class="theme-band">
-                <div></div>
-                <div></div>
-                <div></div>
-                <div></div>
+                <div class="colors">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+                
             </div>
         </header>
         <main>
@@ -81,12 +91,13 @@
                         <div class="head-row">
                             <span>Name</span>
                             <span>Email</span>
-                            <span>Address</span>
+                            <span>Location</span>
                             <span>Status</span>
                         </div>
                        
                     </div>
-                    <div class="info-charts" id="chart-area">
+                    <div class="info-map" id="map-chart">
+                       
                     </div>
                 </div>
             </div>
@@ -180,6 +191,10 @@
                             <textarea rows=5 id="address" name="address"></textarea>
                         </div> 
                         <div class="form-group">
+                            <label for="region">Region</label>
+                            <select id="region" name="region"></select>
+                        </div> 
+                        <div class="form-group">
                             <label for="email">Company E-mail</label>
                             <input type="email" id="email" name="email"/></div>
                         <div class="form-group">
@@ -230,6 +245,10 @@
                         <div class="form-group">
                             <label for="address">Company Address</label>
                             <textarea rows=5 id="address" name="address"></textarea>
+                        </div> 
+                        <div class="form-group">
+                            <label for="region">Region</label>
+                            <select id="region" name="region"></select>
                         </div> 
                         <div class="form-group">
                             <label for="email">Company E-mail</label>
@@ -300,6 +319,10 @@
         <div id="feedback" class="hidden"></div>
         <span id="spinner" class="hidden"></span>
         <footer>&copy; 2021, Cleaford. All rights reserved</footer>
+        <script src="//cdn.amcharts.com/lib/4/core.js"></script>
+<script src="//cdn.amcharts.com/lib/4/charts.js"></script>
+<script src="//cdn.amcharts.com/lib/4/maps.js"></script>
+<script src="//cdn.amcharts.com/lib/4/geodata/tanzaniaHigh.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script src="/js/config.js"></script>
         <script src="/js/main.js"></script>

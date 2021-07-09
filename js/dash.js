@@ -1,7 +1,7 @@
 const storage = window.localStorage;
 const clientSummaryCount = 5;
 var currentUser = (storage.getItem("currentUser")) ? JSON.parse(storage.getItem("currentUser")):null;
-var storedData = (storage.getItem("data")) ? JSON.parse(storage.getItem("data")):{client_roles:[],customers:[],roles:[]};
+var storedData = (storage.getItem("data")) ? JSON.parse(storage.getItem("data")):{roles:[],client_roles:[],customers:[],roles:[]};
 
 const originalSetItem = localStorage.setItem;
 
@@ -66,12 +66,12 @@ const activateMenu =(target)=>{
     if(menu){
         switch(menu.id){
             case 'customers':
-                getCustomers().then(customers=>{
-                    // showCustomers(customers)
-                }).catch(er=>{
-                    console.log("er:",er);
-                    showFeedback(er,1);
-                });
+                // getCustomers();//.then(customers=>{
+                    showCustomers(getCustomers())
+                // }).catch(er=>{
+                //     console.log("er:",er);
+                //     showFeedback(er,1);
+                // });
                 break;
             case 'roles':
                 if(!storedData.client_roles || storedData.client_roles.length == 0){
@@ -177,6 +177,7 @@ const showClientStats =()=>{
     }
     //show client summary
     fetchClientRoles();
+    fetchRegions();
     let chartArea = document.getElementById("chart-area");
     while(chartArea.hasChildNodes()){
         chartArea.removeChild(chartArea.childNodes[0]);
@@ -281,6 +282,7 @@ const editClientDetail = (client,source)=>{
     editForm.contact_person.value = client.contact_person;
     editForm.phone.value = client.phone;
     editForm.contact_email.value = client.contact_email;
+    editForm.region.value = client.region;
     activateMenu('edit_client');
     document.getElementById(source).classList.add("hidden");
     document.querySelector("#edit_client_content").classList.remove("hidden");
@@ -302,7 +304,7 @@ const hideSpinner=()=>{
     if(spinner) spinner.classList.add("hidden");
 }
 //create row
-const createClientRow = (row,holder)=>{
+const createCustomerRow = (row,holder)=>{
     const rowHolder = document.createElement("div");
     rowHolder.classList.add("body-row");
     if(row == null){
@@ -312,6 +314,7 @@ const createClientRow = (row,holder)=>{
     else{
         const companyName = document.createElement("span");
         const companyAddress = document.createElement("span");
+        const companyLocation = document.createElement("span");
         const contactName = document.createElement("span");
         const contactEmail = document.createElement("span");
         const companyPhone = document.createElement("span");
@@ -319,25 +322,27 @@ const createClientRow = (row,holder)=>{
         companyName.textContent = row.name;
         companyName.id = row.id;
         companyAddress.textContent = row.address;
+        companyLocation.textContent = row.region;
         companyPhone.textContent = row.phone;
         contactName.textContent = row.contact_person;
-        contactEmail.textContent = row.contact_email;
+        contactEmail.textContent = row.email;
 
         rowHolder.appendChild(companyName);
         rowHolder.appendChild(companyAddress);
+        rowHolder.appendChild(companyLocation);
         rowHolder.appendChild(companyPhone);
         rowHolder.appendChild(contactName);
         rowHolder.appendChild(contactEmail);
 
         //add click listener
         companyName.addEventListener('click',()=>{
-            editClientDetail(row,'clients_content');
+            editClientDetail(row,'customers_content');
         })
     }
 
     holder.appendChild(rowHolder);
 }
-const createClientSummaryRow = (row)=>{
+const createCustomerSummaryRow = (row)=>{
     const holder = document.querySelector("#client_table_summary");
     const rowHolder = document.createElement("div");
     rowHolder.classList.add("body-row");
@@ -377,16 +382,17 @@ const createClientSummaryRow = (row)=>{
 }
 //showCustomers
 const showCustomers = (data)=>{
-    const holder = document.querySelector("#clients_content");    
+    greet(currentUser.detail.contact_person.split(" ")[0],{title:'Customers',description:'Customers List'})
+    const holder = document.querySelector("#customers_content");    
     if(!data || data.length == 0){
-        createClientRow(null,holder);
+        createCustomerRow(null,holder);
     }
     else{
         Array.from(holder.children).forEach(child=>{
             if(child.classList.contains("body-row")) holder.removeChild(child);
         })
         data.forEach(row=>{
-            createClientRow(row,holder);
+            createCustomerRow(row,holder);
         });
     }
 }
@@ -580,7 +586,7 @@ const createMoreLink = (target,holder)=>{
 }
 const showCustomersSummary = ()=>{
     if(storedData.clients.length == 0) {
-        createClientSummaryRow(null);
+        createCustomerSummaryRow(null);
     }
     else {
         const holder = document.querySelector("#client_table_summary");
@@ -592,7 +598,7 @@ const showCustomersSummary = ()=>{
             
         });
         topClients.forEach(row=>{
-                createClientSummaryRow(row);     
+                createCustomerSummaryRow(row);     
         })
        
     }
@@ -601,40 +607,50 @@ const showCustomersSummary = ()=>{
 const closeClientForm=(source)=>{
     document.getElementById(source).classList.add("hidden");
     document.getElementById("clients_content").classList.remove("hidden");
-    //showCustomers(storedData.clients);
+    showCustomers(storedData.clients);
 }
 //fetch clients
 const getCustomers = ()=>{
     showSpinner();
-    return new Promise((resolve,reject)=>{
-        const headers = {'Content-type':'application/json','Authorization':'Bearer '+currentUser.accessToken};
-        fetch(clients_url,{method:"GET",headers:headers})
-        .then(response=>{
-            if(response.status == 403){
-                console.log("response: ",response)
-                showFeedback("Your session has expired. Please login again",1);
-                setTimeout(()=>{
-                    window.location.pathname = "/signin.html";
-                },3000);
-            }
-            else{
-            return response.json();
-            }
-            }).then(result=>{
-            hideSpinner();
-             storedData.clients = result.data;
-            // console.log("fetch: ",data.clients);
-            storage.setItem("data",JSON.stringify(storedData));
-            resolve(result.data);
-        })
-        .catch(e=>{
-            hideSpinner();
-            console.log("eer: ",e);
-            showFeedback("Your session has expired. Please login again",1);
-            reject(e);
+    var customers = [{
+        id:1,name:"Customer One",address:"456 Jambo Street",region:"Dar es Salaam",email:"info@customerone.com",contact_person:"Person One",phone:"0712123123"
+    },{
+        id:2,name:"Customer Two",address:"78 Rolls Plaza",region:"Arusha",email:"info@customertwo.com",contact_person:"Person Two",phone:"0712123123"
+    },
+
+    ]
+    storedData.customers = customers;
+    storage.setItem("data",JSON.stringify(storedData));
+    return customers
+    // return new Promise((resolve,reject)=>{
+    //     const headers = {'Content-type':'application/json','Authorization':'Bearer '+currentUser.accessToken};
+    //     fetch(clients_url,{method:"GET",headers:headers})
+    //     .then(response=>{
+    //         if(response.status == 403){
+    //             console.log("response: ",response)
+    //             showFeedback("Your session has expired. Please login again",1);
+    //             setTimeout(()=>{
+    //                 window.location.pathname = "/signin.html";
+    //             },3000);
+    //         }
+    //         else{
+    //         return response.json();
+    //         }
+    //         }).then(result=>{
+    //         hideSpinner();
+    //          storedData.clients = result.data;
+    //         // console.log("fetch: ",data.clients);
+    //         storage.setItem("data",JSON.stringify(storedData));
+    //         resolve(result.data);
+    //     })
+    //     .catch(e=>{
+    //         hideSpinner();
+    //         console.log("eer: ",e);
+    //         showFeedback("Your session has expired. Please login again",1);
+    //         reject(e);
                 
-        })
-    })
+    //     })
+    // })
    
 }
 
@@ -643,7 +659,7 @@ const updateClients = (clients)=>{
     if(clients && clients.length > 0){
         storedData.clients = clients;
         storage.setItem("data",JSON.stringify(storedData));
-        // showCustomers(clients);
+        showCustomers(clients);
     }
 }
 
@@ -742,7 +758,7 @@ const showHideDropDown = (dropDown,arrowDrop)=>{
         arrowDrop.innerHTML = "arrow_drop_down";
     }
 }
-const sortClients = (sortBy,source)=>{
+const sortCustomers = (sortBy,source)=>{
     sortOrder = 0;
     if(source.innerHTML == "arrow_drop_down") {
         source.innerHTML = "arrow_drop_up";
@@ -752,9 +768,9 @@ const sortClients = (sortBy,source)=>{
         source.innerHTML = "arrow_drop_down";
         sortOrder = 1;
     }
-    let clients = data.clients;
-    if(clients.length > 0){
-        clients = clients.sort((a,b)=>{
+    let customers = data.customers;
+    if(customers.length > 0){
+        customers = customers.sort((a,b)=>{
             let result = 0;
             switch(sortBy){
                 case "sort_company":
@@ -771,16 +787,16 @@ const sortClients = (sortBy,source)=>{
                     break;
                 case "sort_contact_email":
                 if(sortOrder == 0){
-                    result = (a.contact_email < b.contact_email) ? -1 : 1;
+                    result = (a.email < b.email) ? -1 : 1;
                 }
-                else result = (a.contact_email < b.contact_email) ? 1:-1;
+                else result = (a.email < b.email) ? 1:-1;
                 break;
             }
             return result;
         })
     }
     
-    showCustomers(clients);
+    showCustomers(customers);
 }
 //search client
 const searchCustomers = (keyword)=>{
@@ -801,7 +817,6 @@ const searchCustomers = (keyword)=>{
 const populateClientDetails = (form,client)=>{
     var detail = client.detail;
     form.email.value = client.email;
-    console.log("pop: ",detail);
     if(detail){
         form.company_name.value = detail.name;
         form.client_id.value = detail.id;
@@ -809,12 +824,37 @@ const populateClientDetails = (form,client)=>{
         form.contact_person.value = detail.contact_person;
         form.contact_email.value = detail.contact_email;
         form.phone.value= detail.phone;
+        form.region.value = detail.region;
     }
     
 }
-
+//load regions
+const loadRegions = (selectElement)=>{
+    if(selectElement){
+        Array.from(selectElement.childNodes).forEach(child=>{
+            selectElement.removeChild(child);
+        })
+        let regions = (storedData.regions) ? storedData.regions : ["Dar es Salaam"];
+        regions.forEach(region=>{
+            selectElement.options.add(new Option(region));
+        })
+    
+    }
+}
+const fetchRegions = ()=>{
+    fetch(regions_url).then(res=>res.json()).then(regions=>{
+        console.log("got it: ",regions);
+        if(regions && regions.length > 0){
+            storedData.regions = regions;
+            storage.setItem("data",JSON.stringify(storedData));
+        }
+    }).catch(e=>{
+        console.log("Could not get regions ",e);
+    })
+}
 //submit dlient form
 const submitClientDetail =(data,verb)=>{
+    console.log("submit: ",data);
     const headers = {
         'Content-type':'application/json',
         'Authorization':'Bearer '+currentUser.accessToken
@@ -876,7 +916,10 @@ if(window.location.pathname == "/dashboard/"){
          if(clientDetails) {
              greet("Hello "+clientDetails.contact_person.split(" ")[0],null);
              document.querySelector("#account-name").textContent = clientDetails.contact_person;
-             if(clientDetails.logo) document.querySelector("#avatar").src =clientDetails.logo;
+             if(clientDetails.logo) {
+                 document.querySelector("#avatar").src =clientDetails.logo;
+                 document.querySelector("#client_logo").src = clientDetails.logo;
+             }
          }
          else greet("Hello "+currentUser.email,null);
         showClientStats();
@@ -967,6 +1010,7 @@ if(window.location.pathname == "/account/"){
         }
         
         if(detailForm){
+            loadRegions(detailForm.region);
             if(currentUser){
                 populateClientDetails(detailForm,currentUser);
             }
@@ -979,9 +1023,11 @@ if(window.location.pathname == "/account/"){
                 let person = detailForm.contact_person.value;
                 let cemail = detailForm.contact_email.value;
                 let address= detailForm.address.value;
+                let region = detailForm.region.options[detailForm.region.options.selectedIndex].value;
                 let file = detailForm.company_logo.files[0];
                 let logoFile = null;
                 let data = {
+                    region:region,
                     company_name:name,
                     email:email,
                     phone:phone,

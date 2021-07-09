@@ -1,7 +1,7 @@
 const storage = window.localStorage;
 const clientSummaryCount = 5;
 var currentUser = (storage.getItem("currentUser")) ? JSON.parse(storage.getItem("currentUser")):null;
-var storedData = (storage.getItem("data")) ? JSON.parse(storage.getItem("data")):{client_roles:[],clients:[],roles:[]};
+var storedData = (storage.getItem("data")) ? JSON.parse(storage.getItem("data")):{regions:[],client_roles:[],clients:[],roles:[]};
 
 const DATA_COUNT = 12;
 const NUMBER_CFG = {count: DATA_COUNT, min: 0, max: 100};
@@ -18,6 +18,29 @@ localStorage.setItem = function(key, value) {
   originalSetItem.apply(this, arguments);
 };
 
+//load regions
+const loadRegions = (selectElement)=>{
+    if(selectElement){
+        Array.from(selectElement.childNodes).forEach(child=>{
+            selectElement.removeChild(child);
+        })
+        let regions = (storedData.regions) ? storedData.regions : ["Dar es Salaam"];
+        regions.forEach(region=>{
+            selectElement.options.add(new Option(region));
+        })
+    
+    }
+}
+const fetchRegions = ()=>{
+    fetch(regions_url).then(res=>res.json()).then(regions=>{
+        if(regions && regions.length > 0){
+            storedData.regions = regions;
+            storage.setItem("data",JSON.stringify(storedData));
+        }
+    }).catch(e=>{
+        console.log("Could not get regions");
+    })
+}
 //validate email address
 const isValidEmail = (email)=>{
     const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -292,14 +315,12 @@ const signoutUser = ()=>{
   
 };
 
-const generateRandomData = ()=>{
+const generateRandomData = (count)=>{
     var result = [];
-    for(let i=0; i<NUMBER_CFG.count;i++){
+    for(let i=0; i<count;i++){
         let random = Math.floor(Math.random() * (NUMBER_CFG.max - NUMBER_CFG.min + 1)) + NUMBER_CFG.min;
-        console.log("random: ",random);
         result.push(random);
     }
-    console.log("rand: ",result);
     return result;
 }
 
@@ -308,8 +329,6 @@ const showAdminStats =()=>{
     document.querySelector("#greetings").textContent = "Hello, Admin";
     const numberOfClients = document.getElementById("no_of_clients");
      numberOfClients.textContent = storedData.clients.length;
-    
-
     //show client summary
     showClientsSummary();
     // fetchRoles();
@@ -326,7 +345,7 @@ const showAdminStats =()=>{
         datasets: [
             {
             label: 'Sales',
-            data: generateRandomData(),
+            data: generateRandomData(NUMBER_CFG.count),
             borderColor: "#cc9900",
             backgroundColor: "#ffcc00",
             },
@@ -350,6 +369,13 @@ const showAdminStats =()=>{
     var myChart = drawChart(config,canvas);
 
 
+    fetchRegions();
+
+   getClients().then(clients=>{
+       mapChart();
+   }).catch(e=>{
+       console.log("hblah ",e)
+   })
 }
 
 //show admin dashboard
@@ -420,11 +446,12 @@ const editClientDetail = (client,source)=>{
     const editForm = document.querySelector("#edit_client_form");
     editForm.client_id.value = client.id;
     editForm.company_name.value = client.name;
-    editForm.address.value = client.address+", "+client.region;
+    editForm.address.value = client.address;
     editForm.email.value = client.email;
     editForm.contact_person.value = client.contact_person;
     editForm.phone.value = client.phone;
     editForm.contact_email.value = client.contact_email;
+    editForm.region.value = client.region;
     activateMenu('edit_client');
     document.getElementById(source).classList.add("hidden");
     document.querySelector("#edit_client_content").classList.remove("hidden");
@@ -499,7 +526,7 @@ const createClientSummaryRow = (row)=>{
 
         companyName.textContent = row.name;
         companyName.id = row.id;
-        companyAddress.textContent = row.address;
+        companyAddress.textContent = row.region;
         // companyPhone.textContent = row.phone;
         // contactName.textContent = row.contact_person;
         contactEmail.textContent = row.contact_email;
@@ -586,7 +613,8 @@ const fetchRoles = ()=>{
         .then(res=>{
             hideSpinner();
             if(res.status == 403){
-                showFeedback("Your session expired, please sign in");
+                showFeedback("Your session expired, please sign in",1);
+                signoutUser();
             }
             else {
                 res.json().then(result=>{
@@ -598,7 +626,7 @@ const fetchRoles = ()=>{
                    hideSpinner();
                    console.log("e:",e);
                    // showFeedback(e.msg,1)
-                   showFeedback("Your session expired, please sign in");
+                   showFeedback("Your session expired, please sign in",1);
                    reject(e);
                })
             }
@@ -722,6 +750,46 @@ const updateClientDetail = (detail)=>{
 //show pie chart
 const drawChart = (config,canvas)=>{
     return myChart = new Chart(canvas,config);
+}
+
+//draw map
+const mapChart = ()=>{
+//    let randomData = generateRandomData(am4geodata_tanzaniaHigh.features.length);
+//    let x = storedData.clients.
+   let myData = am4geodata_tanzaniaHigh;
+   let newFeatures = am4geodata_tanzaniaHigh.features.map((feature,index)=>{
+       var feat = feature;
+       feat.properties.value = 0;
+       storedData.clients.forEach(client=>{
+           if(feature.properties.name.toLowerCase() == client.region.toLowerCase()) feat.properties.value ++;
+       })
+       
+       feat.properties.fill = (feat.properties.value ==0) ? am4core.color("#ffcc00") : am4core.color("#cc9900");
+       return feat;
+   })
+   myData.features = newFeatures;
+    // Low-detail map
+    var chart = am4core.create("map-chart", am4maps.MapChart);
+    chart.geodata = myData;
+    chart.projection = new am4maps.projections.Miller();
+    var polygonSeries = chart.series.push(new am4maps.MapPolygonSeries());
+    polygonSeries.useGeodata = true;
+    polygonSeries.mapPolygons.template.events.on("doublehit", function(ev) {
+    chart.zoomToMapObject(ev.target);
+    });
+    polygonSeries.mapPolygons.template.events.on("hit", function(ev) {
+        chart.zoomToMapObject(ev.target,-1,true,1000);
+        });
+    var label = chart.chartContainer.createChild(am4core.Label);
+    label.text = "Clients Distribution";
+    // Configure series
+    var polygonTemplate = polygonSeries.mapPolygons.template;
+    polygonTemplate.tooltipText = "{name}:{value}";
+    polygonTemplate.propertyFields.fill = "fill";
+
+    // Create hover state and set alternative fill color
+    var hs = polygonTemplate.states.create("hover");
+        hs.properties.fill = am4core.color("#644c04");
 }
 
 //refresh user
@@ -862,7 +930,6 @@ const searchClients = (keyword)=>{
 const populateClientDetails = (form,client)=>{
     var detail = client.detail;
     form.email.value = client.email;
-    console.log("pop: ",detail);
     if(detail){
         form.company_name.value = detail.name;
         form.client_id.value = detail.id;
@@ -870,9 +937,11 @@ const populateClientDetails = (form,client)=>{
         form.contact_person.value = detail.contact_person;
         form.contact_email.value = detail.contact_email;
         form.phone.value= detail.phone;
+        form.region.value = detail.region
     }
     
 }
+
 
 //submit dlient form
 const submitClientDetail=(data)=>{
@@ -931,6 +1000,7 @@ if(window.location.pathname ==="/admin/"){
             document.getElementById("btnCancelAdd").addEventListener('click',()=>{
                 closeClientForm('add_client_content');
             });
+            loadRegions(detailForm.region);
             detailForm.addEventListener('submit',(e)=>{
                 e.preventDefault();
     
@@ -941,8 +1011,10 @@ if(window.location.pathname ==="/admin/"){
                 let cemail = detailForm.contact_email.value;
                 let address= detailForm.address.value;
                 let file = detailForm.company_logo.files[0];
+                let region = detailForm.region.options[detailForm.region.options.selectedIndex].value;
                 let logoFile = null;
                 let datas = {
+                    region:region,
                     company_name:name,
                     email:email,
                     phone:phone,
@@ -998,7 +1070,7 @@ if(window.location.pathname ==="/admin/"){
             document.getElementById("btnCancelEdit").addEventListener('click',()=>{
             closeClientForm('edit_client_content');
             });
-             
+            loadRegions(updateForm.region);
             let imagePreview = document.getElementById("client_image");
             let inputFile = document.getElementById("company_logo");
             inputFile.addEventListener('change',(e)=>{
@@ -1023,6 +1095,7 @@ if(window.location.pathname ==="/admin/"){
                 let person = updateForm.contact_person.value;
                 let cemail = updateForm.contact_email.value;
                 let address= updateForm.address.value;
+                let region = updateForm.region.options[updateForm.region.options.selectedIndex].value;
                 let file = updateForm.company_logo.files[0];
                 
 
@@ -1030,6 +1103,7 @@ if(window.location.pathname ==="/admin/"){
                 if(client.logo && client.logo.length !=0) imagePreview.src = client.logo;
                 let logoFile = client.logo;
                 let newData = {
+                    region:region,
                     id:id,
                     company_name:(name && name.length !==0) ? name: client.name,
                     email:(email && email.length !==0) ? email: client.email,
@@ -1129,5 +1203,4 @@ if(window.location.pathname ==="/admin/"){
         }
     }
 }
-
 

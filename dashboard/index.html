@@ -16,17 +16,23 @@
         <header>
             <img class="logo" src="/img/logo.png" alt="cleaford logo" />
             <div class="theme-band">
-                <div></div>
-                <div></div>
-                <div></div>
-                <div></div>
+                <div class="colors">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+                <div class="row-end"><img id="client_logo" src="/img/logo.png" /></div>
             </div>
         </header>
         <main>
             <div id="side-bar">
                 <span class="item active" id="dashboard">Dashboard</span>
                 <span class="item" id="customers">Customers</span>
-                <span class="item" id="consignments">Consignments</span>
+                <span class="item" id="operations">Operations</span>
+                <span class="item" id="finance">Finance</span>
+                <span class="item" id="hr">HR</span>
+                <span class="item" id="suppliers">Suppliers</span>
                 <span class="item" id="subscriptions">Subscriptions</span>
                 <span class="item" id="roles">Roles</span>
                 <span class="item" id="reports">Reports</span>
@@ -81,7 +87,31 @@
                         </div>
                     </div>
                 </div>
-            
+                <div class="can-hide hidden" id="customers_content">
+                   
+                   <div class="row-end"><button class="buttons-s no-corner" id="add_client" onclick="showCustomerDetailForm();">Add Customer</button></div>
+                   <div class="info">
+                       <span>Output: <button id="csv" class="export-buttons">CSV</button><button id="excel" class="export-buttons">Excel</button><button id="pdf" class="export-buttons">PDF</button></span>
+                   <input class="search" id="search_client" placeholder="search"/>
+                    </div>
+                    <div class="head-row" id="clients-head-row">
+                        <span>Company Name
+                            <span class="sort-arrow material-icons" id="sort_company" onclick="sortClients('sort_company',this);">arrow_drop_down</span>
+                        </span>
+                        <span>Address
+                            </span>
+                            <span>Location
+                            </span>
+                        <span>Telephone</span>
+                        <span>Contact Name
+                            <span class="sort-arrow material-icons" id="sort_contact_name" onclick="sortClients('sort_contact_name',this);">arrow_drop_down</span>
+                       
+                        </span>
+                        <span>Contact E-mail<span class="sort-arrow material-icons" id="sort_contact_email" onclick="sortClients('sort_contact_email',this);">arrow_drop_down</span>
+                    </span>
+                    </div>
+    
+                </div>
                 <div class="can-hide hidden" id="add_role_content">
                     <div class="row-space">
                         <div id="form-container" class="form-container">

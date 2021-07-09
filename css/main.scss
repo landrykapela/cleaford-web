@@ -60,6 +60,12 @@ header {
   @include flex(row, space-between, flex-start);
   padding: 0;
 }
+header img#client_logo{
+  width:auto;
+  height:35px;
+  object-fit: cover;
+  margin:0.25em;
+}
 header img.logo,.logo {
   width: calc(#{$sideBarSize});
   height: auto;
@@ -67,26 +73,30 @@ header img.logo,.logo {
   object-fit: contain;
 }
 header > div.theme-band{
-  @include flex(row,space-evenly,flex-start);
+  @include flex(column,flex-start,flex-start);
   border-bottom:4px $primaryColor solid;
   height:70px;
   flex-grow: 1;
 }
-header > div.theme-band > div{
+header > div.theme-band .colors {
+  @include flex(row,space-evenly ,center );
+  width: 100%;
+}
+header > div.theme-band .colors > span{
   display: block;
   height:25px;
   width:100%;
 }
-header > div.theme-band :nth-child(1){
+header > div.theme-band .colors :nth-child(1){
   @include setBg($primaryColor);
 }
-header > div.theme-band :nth-child(2){
+header > div.theme-band .colors :nth-child(2){
   @include setBg($secondaryColor);
 }
-header > div.theme-band :nth-child(3){
+header > div.theme-band .colors :nth-child(3){
   @include setBg($primaryDarkColor);
 }
-header > div.theme-band :nth-child(4){
+header > div.theme-band .colors :nth-child(4){
   @include setBg($faintDark);
 }
 //main
@@ -108,23 +118,29 @@ main > div.content{
 main > div.content .info{
   @include flex(row,space-between ,center );
   width: 100%;
+  margin:0.25em 0;
+  text-align: left;
 
 }
-main >div.content .info-stats{
+main > div.content .info-map{
+  height:300px;
+}
+main >div.content .info-stats,main >div.content .info-map{
   @include flex(row,space-between ,center );
   flex-wrap: wrap;
   width: calc(50% - 1em);
   margin:0.5em 0.25;
 }
 
-main >div.content .info-charts{
+main >div.content .info-charts, main > div.content .info-map{
   padding:0.5em;
   width: 40%;
+  margin-bottom:1em;
 }
 .info-charts > canvas{
-  max-height:160px;
+  max-height:200px;
 }
-.info-charts{
+.info-charts, .info-map{
   @include setBg($defaultColor);
   border:1px solid $primaryColor;
 }
@@ -149,6 +165,7 @@ main > div#dashboard_content{
   width:50px;
   height:50px;
   object-fit: contain;
+  margin-right:2em;
  
   // border:1px solid $faintDark;
 }
@@ -161,8 +178,10 @@ main > div#dashboard_content{
   position:fixed;
   top:140px;
   width: 100%;
+  right:1em;
   @include flex(column,flex-start,flex-start);
   @include setBg($faint);
+  border:0.5px solid $faintDark;
 }
 .drop-down > span{
   cursor: pointer;
@@ -200,6 +219,7 @@ text-align: left;
   padding-top:1em;
   min-height: 100vh;
   height:100%;
+  min-width: $sideBarSize;
 }
 #side-bar .item{
   width:calc(100% - 4em);
