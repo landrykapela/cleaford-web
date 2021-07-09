@@ -115,6 +115,21 @@ main > div.content{
   @include flex(column,flex-start,flex-start);
   min-height:100vh;
 }
+main > div.content .eticket{
+  @include setBg($defaultColor);
+  @include addRoundCorner(10px);
+  padding:0.5em;
+  @include flex(column,center,flex-start);
+  margin:0.5em auto;
+  width:calc(100% - 0em);
+  cursor: pointer;
+  flex-grow: 1;
+}
+main > div.content .eticket-active{
+  border-left:8px solid $faintDark;
+  width:calc(100% - 8px);
+}
+
 main > div.content .info{
   @include flex(row,space-between ,center );
   width: 100%;
@@ -169,7 +184,29 @@ main > div#dashboard_content{
  
   // border:1px solid $faintDark;
 }
+.preview{
+  width:120px;height:120px;border-radius: 50%;object-fit: contain;
+  // border:1px solid red;
+  margin:0.25em;
+}
 
+#my-detail{
+  width:60%;
+}
+#my-detail > div.form-container{
+  width: 100%;
+}
+.upload-image{
+  @include flex(row,space-evenly,center);
+  @include setBg($defaultColor);
+  @include addRoundCorner(5px);
+  width:calc(100% - 1em);
+  padding:0.5em;
+  margin-top:0.5em;
+}
+.upload-image >span{
+  margin-left:0.5em;
+}
 .menu{
   overflow: visible;
 }
@@ -252,13 +289,13 @@ footer{
   @include addRoundCorner(30px);
   @include setBg($faint);
   width:60%;
-  margin:2em auto;
+  margin:1em auto;
   color:$faintDark;
   padding:1em 0;
 }
 .form-container > span{
   // align-self: flex-start;
-  margin:1em;
+  margin:0.5em 1em;
 }
 
 //start buttons
@@ -279,7 +316,7 @@ footer{
   cursor: pointer;
   min-width:100px;
   font-family: $fontFamily,cursive;
-  // text-transform: uppercase;
+  text-align: center;
   font-weight: bold;
   font-size: $standardTextSize;
 }
@@ -500,7 +537,13 @@ form input[type="submit"] :disabled{
   color:$defaultColor;
 }
 .row{
-  @include flex(row,space-between ,flex-start )
+  @include flex(row,flex-start,center )
+}
+.row-center{
+  @include flex(row,center,center);
+}
+.row-even{
+  @include flex(row,space-evenly,flex-start);
 }
 .row-space{
   @include flex(row,space-between,flex-start);
@@ -511,8 +554,11 @@ form input[type="submit"] :disabled{
   width:100%;
 }
 .column{
-  @include flex(column,center,center);
+  @include flex(column,flex-start,flex-start);
   // border: 1px solid red;
+}
+.column-center{
+  @include flex(column,flex-start ,center );
 }
 .center-me{
   margin:0 auto;

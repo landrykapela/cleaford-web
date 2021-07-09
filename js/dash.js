@@ -130,6 +130,100 @@ const getActiveMenu =()=>{
     }
 }
 
+const activateEticket =(target)=>{
+    const eticketMenu = document.querySelector("#etickets");
+    const items = Array.from(eticketMenu.children);
+    items.forEach(i=>{
+
+    //unselect all sidebar menu items
+        if(i.classList.contains("eticket-active")){
+            i.classList.remove("eticket-active");
+        } 
+        //remove previously selected content
+        // Array.from(document.getElementsByClassName("can-hide"))
+        // .forEach(child=>{
+        //     if(child.id.includes("_content")) child.classList.add("hidden");
+        // })
+    });
+
+    //activate currently selected item and show it's content
+    items.forEach(item=>{  
+        if(item.id == target) {
+            item.classList.add("eticket-active");
+            // var cont = document.getElementById(target+"_content");
+            // if(cont) cont.classList.remove("hidden");
+        }      
+        // document.getElementById(target+"_content").classList.remove("hidden");
+    });
+    const menu = document.getElementById(target);
+    //get and display data as per selected menu item
+    // if(menu){
+    //     switch(menu.id){
+    //         case 'customers':
+    //             // getCustomers();//.then(customers=>{
+    //                 showCustomers(getCustomers())
+    //             // }).catch(er=>{
+    //             //     console.log("er:",er);
+    //             //     showFeedback(er,1);
+    //             // });
+    //             break;
+    //         case 'roles':
+    //             if(!storedData.client_roles || storedData.client_roles.length == 0){
+    //                 fetchClientRoles().then(result=>{
+    //                     console.log("res: ",result);
+    //                     if(result.code == 0) showClientRoles();
+    //                     else showFeedback(result.msg,1);
+    //                 }).catch(e=>{
+    //                     showFeedback(e.msg,1);
+    //                     console.log("let's see this...not ok",e);
+    //                 });
+    //             }
+    //             else showClientRoles();
+    //             break;
+    //         case 'dashboard':
+    //            showClientStats();
+                
+    //         break;
+    //     }
+    // }
+    // else{//menu menu item does not exist in the side bar (call may have come from button click)
+        
+    //     const content = document.getElementById(target+"_content");
+    //     switch(target){
+    //         case 'add_role':
+    //             document.querySelector("#roles").classList.add("active");
+    //             if(content) content.classList.remove("hidden");
+    //             break;
+    //         case 'edit_role':
+    //             document.querySelector("#roles").classList.add("active");
+    //             if(content) content.classList.remove("hidden");
+    //             break;
+    //         case 'add_customer':
+    //             document.querySelector("#customers").classList.add("active");
+    //             if(content) content.classList.remove("hidden");
+    //             break;
+    //         case 'edit_customer':
+    //             document.querySelector("#customers").classList.add("active");
+    //             if(content) content.classList.remove("hidden");
+    //             break;
+    //     }
+    // }
+  
+}
+const getActiveEticket =()=>{
+    if(sideBar){
+        let active = 'dashboard';
+        const items = Array.from(sideBar.children);
+        items.forEach(item=>{
+            if(item.classList.contains("active")){
+                active = item.id;
+            } 
+                
+        });
+        return active;
+    }
+}
+
 //show error
 const showFeedback =(msg,type)=>{
     const feedback = document.querySelector("#feedback");
@@ -852,6 +946,34 @@ const fetchRegions = ()=>{
         console.log("Could not get regions ",e);
     })
 }
+
+//upload user image
+const uploadUserImage = (image)=>{
+    let body = {image_file:image};
+    return new Promise((resolve,reject)=>{
+        let url = upload_user_image_url+"/"+currentUser.id;
+        const headers = {
+            'Content-type':'application/json',
+            'Authorization':'Bearer '+currentUser.accessToken
+        }
+        const options = {
+            method:"put",body:JSON.stringify(body),headers:headers
+        }
+        fetch(url,options).then(res=>{
+            if(res.status == 403){
+                reject({code:1,msg:"Session expired, please login"});
+            }
+            else{
+                res.json().then(result=>{
+                    resolve(result);
+                })
+                .catch(e=>{
+                    reject(e);
+                })
+            }
+        })
+    })
+}
 //submit dlient form
 const submitClientDetail =(data,verb)=>{
     console.log("submit: ",data);
@@ -882,7 +1004,12 @@ const submitClientDetail =(data,verb)=>{
                 showFeedback("Something went wrong, please try again later",1);
             })
         }
+    }).catch(err=>{
+        console.log("err: ",err);
+        showFeedback("Something went wrong, please try again later",1);
     })
+       
+    
 }
 //update client roles
 const updateClientRoles =(roles)=>{
@@ -917,8 +1044,14 @@ if(window.location.pathname == "/dashboard/"){
              greet("Hello "+clientDetails.contact_person.split(" ")[0],null);
              document.querySelector("#account-name").textContent = clientDetails.contact_person;
              if(clientDetails.logo) {
-                 document.querySelector("#avatar").src =clientDetails.logo;
+                 let source = (currentUser.avatar) ? currentUser.avatar :clientDetails.logo;
+                 console.log("srouce: ",source);
+                 document.querySelector("#avatar").src =source;
                  document.querySelector("#client_logo").src = clientDetails.logo;
+             }
+             else{
+                document.querySelector("#avatar").src = (currentUser.avatar) ? currentUser.avatar :"/img/favicon.png";
+                document.querySelector("#client_logo").src = "/img/logo.png";
              }
          }
          else greet("Hello "+currentUser.email,null);
@@ -1004,9 +1137,18 @@ if(window.location.pathname == "/account/"){
         const detailForm = document.querySelector("#client_profile_form");
         var clientDetails = currentUser.detail;
         if(clientDetails) {
-            // greet("Hello "+clientDetails.contact_person.split(" ")[0],null);
+            greet("Hello "+clientDetails.contact_person.split(" ")[0],null);
             document.querySelector("#account-name").textContent = clientDetails.contact_person;
-            if(clientDetails.logo) document.querySelector("#avatar").src =clientDetails.logo;
+            if(clientDetails.logo) {
+                let source = (currentUser.avatar) ? currentUser.avatar :clientDetails.logo;
+                console.log("srouce: ",source);
+                document.querySelector("#avatar").src =source;
+                document.querySelector("#client_logo").src = clientDetails.logo;
+            }
+            else{
+               document.querySelector("#avatar").src = (currentUser.avatar) ? currentUser.avatar :"/img/favicon.png";
+               document.querySelector("#client_logo").src = "/img/logo.png";
+            }
         }
         
         if(detailForm){
@@ -1059,6 +1201,44 @@ if(window.location.pathname == "/account/"){
     
             });
         }
+        
+        const uploadButton = document.querySelector("#upload-button");
+        if(uploadButton){
+            uploadButton.addEventListener("click",(e)=>{
+                const preview = document.querySelector("#account-image");
+                const inputImage = document.querySelector("#image-file");
+                inputImage.click();
 
+                inputImage.addEventListener('change',(e)=>{
+                    var file = inputImage.files[0];
+                    if(file){
+                        var reader = new FileReader();
+                        reader.addEventListener('load',()=>{
+                            if(reader.readyState == 2 && reader.result != null){
+
+                                preview.src = reader.result;
+                                uploadUserImage(reader.result)
+                                .then(response=>{
+                                    if(response.data != null){
+                                        currentUser.avatar = response.data.avatar;
+                                        storage.setItem("currentUser",JSON.stringify(currentUser));
+                                    }
+                                   showFeedback(response.msg,response.code);
+                                   console.log(response);
+                                })
+                                .catch(e=>{
+                                    console.log(e);
+                                    showFeedback(e.msg,e.code);
+                                })
+                            }
+                        },false);
+        
+                        reader.readAsDataURL(file);
+                    }
+                });
+
+                
+            })
+        }
 }
 

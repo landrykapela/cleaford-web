@@ -16,10 +16,13 @@
         <header>
             <img class="logo" src="/img/logo.png" alt="cleaford logo" />
             <div class="theme-band">
-                <div></div>
-                <div></div>
-                <div></div>
-                <div></div>
+                <div class="colors">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+                <div class="row-end"><img id="client_logo" src="/img/logo.png" /></div>
             </div>
         </header>
         <main>
@@ -48,50 +51,146 @@
                 </div>
                 
                 <div class="can-hide" id="setup_content">
-                    <div class="row-space">
-                        <div id="form-container" class="form-container">
-                            <span class="medium-text">Company Details</span>
-                            <form id="client_profile_form" method="POST" class="client_forms">
-                                <input type="hidden" id="client_id" name="client_id"/>
-                                <div class="form-group">
-                                    <label for="company_name">Company Name</label>
-                                    <input type="text" id="company_name" name="company_name"  required />
+                    <div class="row-even">
+                        <div class="column" id="etickets">
+                            <div class="eticket eticket-active" id="account_setup">
+                                <span class="medium-text">Account Information</span>
+                                <span class="">Company details</span>
+                            </div>
+                            <div class="eticket " id="account_notifications">
+                                <span class="medium-text">Notifications</span>
+                                <span class="">No new notifications</span>
+                            </div>
+                            <div class="eticket" id="account_subscriptions">
+                                <span class="medium-text">Subscriptions</span>
+                                <span class="">Your subscription details</span>
+                            </div>
+                            <div class="eticket" id="account_security">
+                                <span class="medium-text">Account Security</span>
+                                <span class="">Passwords and tokens</span>
+                            </div>
+                        </div>
+                        <div id="my-detail" class="column-center">
+                            <div class="upload-image">
+                                <img class="preview" alt="account image" src="/img/logo.png" id="account-image"/>
+                                <span class="medium-text">Change Profile Image</span>
+                                <input type="file" name="image-file" id="image-file" class="hidden"/>
+                                <span class="buttons" id="upload-button">Upload</span>
+                            </div>
+                            <div id="form-container" class="form-container">
+                                <span class="medium-text">Company Details</span>
+                                <form id="client_profile_form" method="POST" class="client_forms">
+                                    <input type="hidden" id="client_id" name="client_id"/>
+                                    <div class="form-group">
+                                        <label for="company_name">Company Name</label>
+                                        <input type="text" id="company_name" name="company_name"  required />
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="address">Company Address</label>
+                                        <textarea rows=5 id="address" name="address"></textarea>
+                                    </div> 
+                                    <div class="form-group">
+                                        <label for="region">Region</label>
+                                        <select id="region" name="region"></select>
+                                    </div> 
+                                    <div class="form-group">
+                                        <label for="email">Company E-mail</label>
+                                        <input type="email" id="email" name="email"/></div>
+                                    <div class="form-group">
+                                        <label for="phone">Company Telephone</label>
+                                        <input type="number" id="phone" name="phone" required/>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="contact_person">Contact Person</label>
+                                        <input type="text" id="contact_person" name="contact_person" required />
                                 </div>
                                 <div class="form-group">
-                                    <label for="address">Company Address</label>
-                                    <textarea rows=5 id="address" name="address"></textarea>
-                                </div> 
-                                <div class="form-group">
-                                    <label for="region">Region</label>
-                                    <select id="region" name="region"></select>
-                                </div> 
-                                <div class="form-group">
-                                    <label for="email">Company E-mail</label>
-                                    <input type="email" id="email" name="email"/></div>
-                                <div class="form-group">
-                                    <label for="phone">Company Telephone</label>
-                                    <input type="number" id="phone" name="phone" required/>
+                                    <label for="contact_email">Contact E-mail</label>
+                                    <input type="email" id="contact_email" name="contact_email" required />
                                 </div>
                                 <div class="form-group">
-                                    <label for="contact_person">Contact Person</label>
-                                    <input type="text" id="contact_person" name="contact_person" required />
-                            </div>
-                            <div class="form-group">
-                                <label for="contact_email">Contact E-mail</label>
-                                <input type="email" id="contact_email" name="contact_email" required />
-                            </div>
-                            <div class="form-group">
-                                <label for="company_logo">Company Logo</label>
-                                <input type="file" id="company_logo" name="company_logo"/>
+                                    <label for="company_logo">Company Logo</label>
+                                    <input type="file" id="company_logo" name="company_logo"/>
+                                    </div>
+                                <div class="form-group-no-border">
+                                    <input class="no-corner" type="submit" id="btnSubmit" name="btnSubmit" value="SUBMIT"/>
+                                    <button class="buttons no-corner" id="btnCancel" onclick="window.location.pathname='/dashboard/'">Cancel</button>
                                 </div>
-                            <div class="form-group-no-border">
-                                <input class="no-corner" type="submit" id="btnSubmit" name="btnSubmit" value="SUBMIT"/>
-                                <button class="buttons no-corner" id="btnCancel" onclick="window.location.pathname='/dashboard/'">Cancel</button>
+                                </form>
                             </div>
-                            </form>
                         </div>
                     </div>
                 </div>
+                <!-- <div class="can-hide" id="account_security_content">
+                    <div class="row-even">
+                        <div class="column">
+                            <div class="eticket" id="account_setup">
+                                <span class="medium-text">Account Information</span>
+                                <span class="">Company details</span>
+                            </div>
+                            <div class="eticket " id="account_notifications">
+                                <span class="medium-text">Notifications</span>
+                                <span class="">No new notifications</span>
+                            </div>
+                            <div class="eticket" id="account_subscriptions">
+                                <span class="medium-text">Subscriptions</span>
+                                <span class="">Your subscription details</span>
+                            </div>
+                            <div class="eticket eticket-active" id="account_security">
+                                <span class="medium-text">Account Security</span>
+                                <span class="">Passwords and tokens</span>
+                            </div>
+                        </div>
+                        <div id="my-detail" class="column-center">
+                            <div class="upload-image">
+                                <img class="preview" alt="account image" src="/img/logo.png" id="account-image"/>
+                                <span class="medium-text">Change Profile Image</span>
+                                <span class="buttons" id="upload-button">Upload</span>
+                            </div>
+                            <div id="form-container" class="form-container">
+                                <span class="medium-text">Company Details</span>
+                                <form id="client_profile_form" method="POST" class="client_forms">
+                                    <input type="hidden" id="client_id" name="client_id"/>
+                                    <div class="form-group">
+                                        <label for="company_name">Company Name</label>
+                                        <input type="text" id="company_name" name="company_name"  required />
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="address">Company Address</label>
+                                        <textarea rows=5 id="address" name="address"></textarea>
+                                    </div> 
+                                    <div class="form-group">
+                                        <label for="region">Region</label>
+                                        <select id="region" name="region"></select>
+                                    </div> 
+                                    <div class="form-group">
+                                        <label for="email">Company E-mail</label>
+                                        <input type="email" id="email" name="email"/></div>
+                                    <div class="form-group">
+                                        <label for="phone">Company Telephone</label>
+                                        <input type="number" id="phone" name="phone" required/>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="contact_person">Contact Person</label>
+                                        <input type="text" id="contact_person" name="contact_person" required />
+                                </div>
+                                <div class="form-group">
+                                    <label for="contact_email">Contact E-mail</label>
+                                    <input type="email" id="contact_email" name="contact_email" required />
+                                </div>
+                                <div class="form-group">
+                                    <label for="company_logo">Company Logo</label>
+                                    <input type="file" id="company_logo" name="company_logo"/>
+                                    </div>
+                                <div class="form-group-no-border">
+                                    <input class="no-corner" type="submit" id="btnSubmit" name="btnSubmit" value="SUBMIT"/>
+                                    <button class="buttons no-corner" id="btnCancel" onclick="window.location.pathname='/dashboard/'">Cancel</button>
+                                </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div> -->
                 <div class="can-hide hidden" id="activation_content">
                     
                 </div>
