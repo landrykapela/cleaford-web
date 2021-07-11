@@ -10,13 +10,7 @@
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Baloo+Thambi+2&display=swap" rel="stylesheet"> 
         <link href="/css/main.css" rel="stylesheet"/>
-        <style type="text/css">
-            .legend{color: black; width: 300px; font-family: arial; font-size: 14px;}    
-            .legend_color {display: table; width: 100%; background: white; list-style: none; margin: 0px; padding: 0px; }
-            .legend_color li{width: 20%;  height: 20px; display: table-cell;}
-            .legend_label {display: table; width: 100%;  padding: 0px; padding-left: 10%; padding-right: 10%; list-style: none; margin: 0px; box-sizing: border-box;}
-            .legend_label li{width: 25%;  height: 20px; display: table-cell; text-align: center;}
-            </style>
+       
     </head>
 
     <body>
@@ -154,6 +148,8 @@
                     </span>
                     <span>Address
                         </span>
+                        <span>Location
+                        </span>
                     <span>Telephone</span>
                     <span>Contact Name
                         <span class="sort-arrow material-icons" id="sort_contact_name" onclick="sortClients('sort_contact_name',this);">arrow_drop_down</span>
@@ -191,6 +187,10 @@
                             <textarea rows=5 id="address" name="address"></textarea>
                         </div> 
                         <div class="form-group">
+                            <label for="country">Country</label>
+                            <select id="country" name="country"></select>
+                        </div> 
+                        <div class="form-group hidden" id="region-group">
                             <label for="region">Region</label>
                             <select id="region" name="region"></select>
                         </div> 
@@ -247,6 +247,10 @@
                             <textarea rows=5 id="address" name="address"></textarea>
                         </div> 
                         <div class="form-group">
+                            <label for="country">Country</label>
+                            <select id="country" name="country"></select>
+                        </div> 
+                        <div class="form-group" id="region-group">
                             <label for="region">Region</label>
                             <select id="region" name="region"></select>
                         </div> 
@@ -322,7 +326,7 @@
         <script src="//cdn.amcharts.com/lib/4/core.js"></script>
 <script src="//cdn.amcharts.com/lib/4/charts.js"></script>
 <script src="//cdn.amcharts.com/lib/4/maps.js"></script>
-<script src="//cdn.amcharts.com/lib/4/geodata/tanzaniaHigh.js"></script>
+<script src="//cdn.amcharts.com/lib/4/geodata/worldLow.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script src="/js/config.js"></script>
         <script src="/js/main.js"></script>

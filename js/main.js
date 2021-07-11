@@ -2,7 +2,252 @@ const storage = window.localStorage;
 const clientSummaryCount = 5;
 var currentUser = (storage.getItem("currentUser")) ? JSON.parse(storage.getItem("currentUser")):null;
 var storedData = (storage.getItem("data")) ? JSON.parse(storage.getItem("data")):{regions:[],client_roles:[],clients:[],roles:[]};
-
+const countryList = [
+    "Afghanistan",
+    "Åland Islands",
+    "Albania",
+    "Algeria",
+    "American Samoa",
+    "Andorra",
+    "Angola",
+    "Anguilla",
+    "Antarctica",
+    "Antigua and Barbuda",
+    "Argentina",
+    "Armenia",
+    "Aruba",
+    "Australia",
+    "Austria",
+    "Azerbaijan",
+    "Bahamas (the)",
+    "Bahrain",
+    "Bangladesh",
+    "Barbados",
+    "Belarus",
+    "Belgium",
+    "Belize",
+    "Benin",
+    "Bermuda",
+    "Bhutan",
+    "Bolivia",
+    "Bonaire",
+    "Bosnia and Herzegovina",
+    "Botswana",
+    "Bouvet Island",
+    "Brazil",
+    "Brunei Darussalam",
+    "Bulgaria",
+    "Burkina Faso",
+    "Burundi",
+    "Cabo Verde",
+    "Cambodia",
+    "Cameroon",
+    "Canada",
+    "Cayman Islands",
+    "Central African Republic",
+    "Chad",
+    "Chile",
+    "China",
+    "Christmas Island",
+    "Cocos Islands",
+    "Colombia",
+    "Comoros",
+    "Congo (DRC)",
+    "Congo",
+    "Cook Islands",
+    "Costa Rica",
+    "Croatia",
+    "Cuba",
+    "Curaçao",
+    "Cyprus",
+    "Czechia",
+    "Côte d'Ivoire",
+    "Denmark",
+    "Djibouti",
+    "Dominica",
+    "Dominican Republic",
+    "Ecuador",
+    "Egypt",
+    "El Salvador",
+    "Equatorial Guinea",
+    "Eritrea",
+    "Estonia",
+    "Eswatini",
+    "Ethiopia",
+    "Falkland Islands",
+    "Faroe Islands",
+    "Fiji",
+    "Finland",
+    "France",
+    "French Guiana",
+    "French Polynesia",
+    "French Southern Territories ",
+    "Gabon",
+    "Gambia (the)",
+    "Georgia",
+    "Germany",
+    "Ghana",
+    "Gibraltar",
+    "Greece",
+    "Greenland",
+    "Grenada",
+    "Guadeloupe",
+    "Guam",
+    "Guatemala",
+    "Guernsey",
+    "Guinea",
+    "Guinea-Bissau",
+    "Guyana",
+    "Haiti",
+    "Honduras",
+    "Hong Kong",
+    "Hungary",
+    "Iceland",
+    "India",
+    "Indonesia",
+    "Iran",
+    "Iraq",
+    "Ireland",
+    "Isle of Man",
+    "Israel",
+    "Italy",
+    "Jamaica",
+    "Japan",
+    "Jersey",
+    "Jordan",
+    "Kazakhstan",
+    "Kenya",
+    "Kiribati",
+    "Korea",
+    "North Korea",
+    "Kuwait",
+    "Kyrgyzstan",
+    "Lao",
+    "Latvia",
+    "Lebanon",
+    "Lesotho",
+    "Liberia",
+    "Libya",
+    "Liechtenstein",
+    "Lithuania",
+    "Luxembourg",
+    "Macao",
+    "Madagascar",
+    "Malawi",
+    "Malaysia",
+    "Maldives",
+    "Mali",
+    "Malta",
+    "Marshall Islands",
+    "Martinique",
+    "Mauritania",
+    "Mauritius",
+    "Mayotte",
+    "Mexico",
+    "Micronesia",
+    "Moldova",
+    "Monaco",
+    "Mongolia",
+    "Montenegro",
+    "Montserrat",
+    "Morocco",
+    "Mozambique",
+    "Myanmar",
+    "Namibia",
+    "Nauru",
+    "Nepal",
+    "Netherlands",
+    "New Caledonia",
+    "New Zealand",
+    "Nicaragua",
+    "Niger (the)",
+    "Nigeria",
+    "Niue",
+    "Norfolk Island",
+    "Northern Mariana Islands",
+    "Norway",
+    "Oman",
+    "Pakistan",
+    "Palau",
+    "Palestine, State of",
+    "Panama",
+    "Papua New Guinea",
+    "Paraguay",
+    "Peru",
+    "Philippines",
+    "Pitcairn",
+    "Poland",
+    "Portugal",
+    "Puerto Rico",
+    "Qatar",
+    "Republic of North Macedonia",
+    "Romania",
+    "Russian Federation (the)",
+    "Rwanda",
+    "Réunion",
+    "Saint Barthélemy",
+    "Saint Kitts and Nevis",
+    "Saint Lucia",
+    "Saint Martin (French part)",
+    "Saint Pierre and Miquelon",
+    "Saint Vincent and the Grenadines",
+    "Samoa",
+    "San Marino",
+    "Sao Tome and Principe",
+    "Saudi Arabia",
+    "Senegal",
+    "Serbia",
+    "Seychelles",
+    "Sierra Leone",
+    "Singapore",
+    "Sint Maarten (Dutch part)",
+    "Slovakia",
+    "Slovenia",
+    "Solomon Islands",
+    "Somalia",
+    "South Africa",
+    "South Georgia",
+    "South Sudan",
+    "Spain",
+    "Sri Lanka",
+    "Sudan (the)",
+    "Suriname",
+    "Svalbard and Jan Mayen",
+    "Sweden",
+    "Switzerland",
+    "Syrian Arab Republic",
+    "Taiwan",
+    "Tajikistan",
+    "Tanzania",
+    "Thailand",
+    "Timor-Leste",
+    "Togo",
+    "Tokelau",
+    "Tonga",
+    "Trinidad and Tobago",
+    "Tunisia",
+    "Turkey",
+    "Turkmenistan",
+    "Turks and Caicos Islands",
+    "Tuvalu",
+    "Uganda",
+    "Ukraine",
+    "United Arab Emirates (the)",
+    "United Kingdom",
+    "United States of America",
+    "Uruguay",
+    "Uzbekistan",
+    "Vanuatu",
+    "Venezuela",
+    "Viet Nam",
+    "Virgin Islands (British)",
+    "Virgin Islands (U.S.)",
+    "Wallis and Futuna",
+    "Western Sahara",
+    "Yemen",
+    "Zambia",
+    "Zimbabwe"
+  ];
 const DATA_COUNT = 12;
 const NUMBER_CFG = {count: DATA_COUNT, min: 0, max: 100};
 const originalSetItem = localStorage.setItem;
@@ -17,6 +262,19 @@ localStorage.setItem = function(key, value) {
 
   originalSetItem.apply(this, arguments);
 };
+
+//load countries
+const loadCountries = (selectElement)=>{
+    if(selectElement){
+        Array.from(selectElement.childNodes).forEach(child=>{
+            selectElement.removeChild(child);
+        })
+        countryList.forEach(country=>{
+            selectElement.options.add(new Option(country));
+        })
+    
+    }
+}
 
 //load regions
 const loadRegions = (selectElement)=>{
@@ -483,6 +741,7 @@ const createClientRow = (row,holder)=>{
     else{
         const companyName = document.createElement("span");
         const companyAddress = document.createElement("span");
+        const companyLocation = document.createElement("span");
         const contactName = document.createElement("span");
         const contactEmail = document.createElement("span");
         const companyPhone = document.createElement("span");
@@ -490,12 +749,14 @@ const createClientRow = (row,holder)=>{
         companyName.textContent = row.name;
         companyName.id = row.id;
         companyAddress.textContent = row.address;
+        companyLocation.textContent = (row.country.toLowerCase() == 'tanzania') ? row.region:row.country;
         companyPhone.textContent = row.phone;
         contactName.textContent = row.contact_person;
         contactEmail.textContent = row.contact_email;
 
         rowHolder.appendChild(companyName);
         rowHolder.appendChild(companyAddress);
+        rowHolder.appendChild(companyLocation);
         rowHolder.appendChild(companyPhone);
         rowHolder.appendChild(contactName);
         rowHolder.appendChild(contactEmail);
@@ -519,16 +780,12 @@ const createClientSummaryRow = (row)=>{
     else{
         const companyName = document.createElement("span");
         const companyAddress = document.createElement("span");
-        // const contactName = document.createElement("span");
         const contactEmail = document.createElement("span");
-        // const companyPhone = document.createElement("span");
         const companyStatus = document.createElement("span");
 
         companyName.textContent = row.name;
         companyName.id = row.id;
-        companyAddress.textContent = row.region;
-        // companyPhone.textContent = row.phone;
-        // contactName.textContent = row.contact_person;
+        companyAddress.textContent = (row.country.toLowerCase() == 'tanzania') ? row.region:row.country;
         contactEmail.textContent = row.contact_email;
         companyStatus.textContent = row.status == 0 ? 'Pending Activation' : "Activated";
 
@@ -754,14 +1011,14 @@ const drawChart = (config,canvas)=>{
 
 //draw map
 const mapChart = ()=>{
-//    let randomData = generateRandomData(am4geodata_tanzaniaHigh.features.length);
+//    let randomData = generateRandomData(am4geodata_worldLow.features.length);
 //    let x = storedData.clients.
-   let myData = am4geodata_tanzaniaHigh;
-   let newFeatures = am4geodata_tanzaniaHigh.features.map((feature,index)=>{
+   let myData = am4geodata_worldLow;
+   let newFeatures = am4geodata_worldLow.features.map((feature,index)=>{
        var feat = feature;
        feat.properties.value = 0;
        storedData.clients.forEach(client=>{
-           if(feature.properties.name.toLowerCase() == client.region.toLowerCase()) feat.properties.value ++;
+           if(feature.properties.name.toLowerCase() == client.country.toLowerCase()) feat.properties.value ++;
        })
        
        feat.properties.fill = (feat.properties.value ==0) ? am4core.color("#ffcc00") : am4core.color("#cc9900");
@@ -921,7 +1178,8 @@ const searchClients = (keyword)=>{
             client.contact_person.toLowerCase().includes(keyword) || 
             client.contact_email.toLowerCase().includes(keyword) ||
             client.region.toLowerCase().includes(keyword) ||
-            client.address.toLowerCase().includes(keyword)
+            client.address.toLowerCase().includes(keyword)||
+            client.country.toLowerCase().includes(keyword)
         })
     }
     return clients;
@@ -937,7 +1195,12 @@ const populateClientDetails = (form,client)=>{
         form.contact_person.value = detail.contact_person;
         form.contact_email.value = detail.contact_email;
         form.phone.value= detail.phone;
-        form.region.value = detail.region
+        form.country.value = detail.country;
+        if(detail.country && detail.country.toLowerCase() == 'tanzania') {
+            document.querySelector("#region-group").classList.remove("hidden");
+            loadRegions(form.region);
+            form.region.value = detail.region;
+        }
     }
     
 }
@@ -997,10 +1260,20 @@ if(window.location.pathname ==="/admin/"){
        
         const detailForm = document.querySelector("#client_profile_form");
         if(detailForm){
+            loadCountries(detailForm.country);
             document.getElementById("btnCancelAdd").addEventListener('click',()=>{
                 closeClientForm('add_client_content');
             });
-            loadRegions(detailForm.region);
+            detailForm.country.addEventListener('change',(e)=>{
+                if(e.target.value.toLowerCase() == 'tanzania'){
+                    document.querySelector('#region-group').classList.remove("hidden");
+                    loadRegions(detailForm.region);
+                    
+                }
+                else{
+                    document.querySelector('#region-group').classList.add("hidden");
+                }
+            })
             detailForm.addEventListener('submit',(e)=>{
                 e.preventDefault();
     
@@ -1011,7 +1284,8 @@ if(window.location.pathname ==="/admin/"){
                 let cemail = detailForm.contact_email.value;
                 let address= detailForm.address.value;
                 let file = detailForm.company_logo.files[0];
-                let region = detailForm.region.options[detailForm.region.options.selectedIndex].value;
+                let country = detailForm.country.options[detailForm.country.options.selectedIndex].value;
+                let region = (country.toLowerCase() == "tanzania") ? detailForm.region.options[detailForm.region.options.selectedIndex].value:null;
                 let logoFile = null;
                 let datas = {
                     region:region,
@@ -1073,19 +1347,20 @@ if(window.location.pathname ==="/admin/"){
             loadRegions(updateForm.region);
             let imagePreview = document.getElementById("client_image");
             let inputFile = document.getElementById("company_logo");
-            inputFile.addEventListener('change',(e)=>{
-                var file = inputFile.files[0];
-                if(file){
-                    var reader = new FileReader();
-                    reader.addEventListener('load',()=>{
-                        // data.logo = reader.result;
-                        console.log(reader.result);
-                        imagePreview.src = reader.result;
-                    },false);
-
-                    reader.readAsDataURL(file);
-                }
-            })
+            if(inputFile){
+                inputFile.addEventListener('change',(e)=>{
+                    var file = inputFile.files[0];
+                    if(file){
+                        var reader = new FileReader();
+                        reader.addEventListener('load',()=>{
+                            imagePreview.src = reader.result;
+                        },false);
+    
+                        reader.readAsDataURL(file);
+                    }
+                })
+            }
+           
             updateForm.addEventListener('submit',(e)=>{
                 e.preventDefault();
                 let id = updateForm.client_id.value;

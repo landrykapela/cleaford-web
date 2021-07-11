@@ -2,7 +2,252 @@ const storage = window.localStorage;
 const clientSummaryCount = 5;
 var currentUser = (storage.getItem("currentUser")) ? JSON.parse(storage.getItem("currentUser")):null;
 var storedData = (storage.getItem("data")) ? JSON.parse(storage.getItem("data")):{roles:[],client_roles:[],customers:[],roles:[]};
-
+const countryList = [
+    "Afghanistan",
+    "Åland Islands",
+    "Albania",
+    "Algeria",
+    "American Samoa",
+    "Andorra",
+    "Angola",
+    "Anguilla",
+    "Antarctica",
+    "Antigua and Barbuda",
+    "Argentina",
+    "Armenia",
+    "Aruba",
+    "Australia",
+    "Austria",
+    "Azerbaijan",
+    "Bahamas (the)",
+    "Bahrain",
+    "Bangladesh",
+    "Barbados",
+    "Belarus",
+    "Belgium",
+    "Belize",
+    "Benin",
+    "Bermuda",
+    "Bhutan",
+    "Bolivia",
+    "Bonaire",
+    "Bosnia and Herzegovina",
+    "Botswana",
+    "Bouvet Island",
+    "Brazil",
+    "Brunei Darussalam",
+    "Bulgaria",
+    "Burkina Faso",
+    "Burundi",
+    "Cabo Verde",
+    "Cambodia",
+    "Cameroon",
+    "Canada",
+    "Cayman Islands",
+    "Central African Republic",
+    "Chad",
+    "Chile",
+    "China",
+    "Christmas Island",
+    "Cocos Islands",
+    "Colombia",
+    "Comoros",
+    "Congo (DRC)",
+    "Congo",
+    "Cook Islands",
+    "Costa Rica",
+    "Croatia",
+    "Cuba",
+    "Curaçao",
+    "Cyprus",
+    "Czechia",
+    "Côte d'Ivoire",
+    "Denmark",
+    "Djibouti",
+    "Dominica",
+    "Dominican Republic",
+    "Ecuador",
+    "Egypt",
+    "El Salvador",
+    "Equatorial Guinea",
+    "Eritrea",
+    "Estonia",
+    "Eswatini",
+    "Ethiopia",
+    "Falkland Islands",
+    "Faroe Islands",
+    "Fiji",
+    "Finland",
+    "France",
+    "French Guiana",
+    "French Polynesia",
+    "French Southern Territories ",
+    "Gabon",
+    "Gambia (the)",
+    "Georgia",
+    "Germany",
+    "Ghana",
+    "Gibraltar",
+    "Greece",
+    "Greenland",
+    "Grenada",
+    "Guadeloupe",
+    "Guam",
+    "Guatemala",
+    "Guernsey",
+    "Guinea",
+    "Guinea-Bissau",
+    "Guyana",
+    "Haiti",
+    "Honduras",
+    "Hong Kong",
+    "Hungary",
+    "Iceland",
+    "India",
+    "Indonesia",
+    "Iran",
+    "Iraq",
+    "Ireland",
+    "Isle of Man",
+    "Israel",
+    "Italy",
+    "Jamaica",
+    "Japan",
+    "Jersey",
+    "Jordan",
+    "Kazakhstan",
+    "Kenya",
+    "Kiribati",
+    "Korea",
+    "North Korea",
+    "Kuwait",
+    "Kyrgyzstan",
+    "Lao",
+    "Latvia",
+    "Lebanon",
+    "Lesotho",
+    "Liberia",
+    "Libya",
+    "Liechtenstein",
+    "Lithuania",
+    "Luxembourg",
+    "Macao",
+    "Madagascar",
+    "Malawi",
+    "Malaysia",
+    "Maldives",
+    "Mali",
+    "Malta",
+    "Marshall Islands",
+    "Martinique",
+    "Mauritania",
+    "Mauritius",
+    "Mayotte",
+    "Mexico",
+    "Micronesia",
+    "Moldova",
+    "Monaco",
+    "Mongolia",
+    "Montenegro",
+    "Montserrat",
+    "Morocco",
+    "Mozambique",
+    "Myanmar",
+    "Namibia",
+    "Nauru",
+    "Nepal",
+    "Netherlands",
+    "New Caledonia",
+    "New Zealand",
+    "Nicaragua",
+    "Niger (the)",
+    "Nigeria",
+    "Niue",
+    "Norfolk Island",
+    "Northern Mariana Islands",
+    "Norway",
+    "Oman",
+    "Pakistan",
+    "Palau",
+    "Palestine, State of",
+    "Panama",
+    "Papua New Guinea",
+    "Paraguay",
+    "Peru",
+    "Philippines",
+    "Pitcairn",
+    "Poland",
+    "Portugal",
+    "Puerto Rico",
+    "Qatar",
+    "Republic of North Macedonia",
+    "Romania",
+    "Russian Federation (the)",
+    "Rwanda",
+    "Réunion",
+    "Saint Barthélemy",
+    "Saint Kitts and Nevis",
+    "Saint Lucia",
+    "Saint Martin (French part)",
+    "Saint Pierre and Miquelon",
+    "Saint Vincent and the Grenadines",
+    "Samoa",
+    "San Marino",
+    "Sao Tome and Principe",
+    "Saudi Arabia",
+    "Senegal",
+    "Serbia",
+    "Seychelles",
+    "Sierra Leone",
+    "Singapore",
+    "Sint Maarten (Dutch part)",
+    "Slovakia",
+    "Slovenia",
+    "Solomon Islands",
+    "Somalia",
+    "South Africa",
+    "South Georgia",
+    "South Sudan",
+    "Spain",
+    "Sri Lanka",
+    "Sudan (the)",
+    "Suriname",
+    "Svalbard and Jan Mayen",
+    "Sweden",
+    "Switzerland",
+    "Syrian Arab Republic",
+    "Taiwan",
+    "Tajikistan",
+    "Tanzania",
+    "Thailand",
+    "Timor-Leste",
+    "Togo",
+    "Tokelau",
+    "Tonga",
+    "Trinidad and Tobago",
+    "Tunisia",
+    "Turkey",
+    "Turkmenistan",
+    "Turks and Caicos Islands",
+    "Tuvalu",
+    "Uganda",
+    "Ukraine",
+    "United Arab Emirates (the)",
+    "United Kingdom",
+    "United States of America",
+    "Uruguay",
+    "Uzbekistan",
+    "Vanuatu",
+    "Venezuela",
+    "Viet Nam",
+    "Virgin Islands (British)",
+    "Virgin Islands (U.S.)",
+    "Wallis and Futuna",
+    "Western Sahara",
+    "Yemen",
+    "Zambia",
+    "Zimbabwe"
+  ];
 const originalSetItem = localStorage.setItem;
 
 localStorage.setItem = function(key, value) {
@@ -66,30 +311,24 @@ const activateMenu =(target)=>{
     if(menu){
         switch(menu.id){
             case 'customers':
-                // getCustomers();//.then(customers=>{
-                    showCustomers(getCustomers())
-                // }).catch(er=>{
-                //     console.log("er:",er);
-                //     showFeedback(er,1);
-                // });
+                greet("Customers",{title:"Customers",description:"Customer List"});
+                getCustomers();
                 break;
             case 'roles':
                 if(!storedData.client_roles || storedData.client_roles.length == 0){
                     fetchClientRoles().then(result=>{
-                        console.log("res: ",result);
                         if(result.code == 0) showClientRoles();
                         else showFeedback(result.msg,1);
                     }).catch(e=>{
                         showFeedback(e.msg,1);
-                        console.log("let's see this...not ok",e);
                     });
                 }
                 else showClientRoles();
                 break;
             case 'dashboard':
                showClientStats();
-                
-            break;
+                break;
+           
         }
     }
     else{//menu menu item does not exist in the side bar (call may have come from button click)
@@ -105,8 +344,10 @@ const activateMenu =(target)=>{
                 if(content) content.classList.remove("hidden");
                 break;
             case 'add_customer':
+                greet("Customers",{title:"Customers",description:"Add Customer"});
                 document.querySelector("#customers").classList.add("active");
-                if(content) content.classList.remove("hidden");
+                if(content) content.classList.remove("hidden"); 
+               
                 break;
             case 'edit_customer':
                 document.querySelector("#customers").classList.add("active");
@@ -139,11 +380,7 @@ const activateEticket =(target)=>{
         if(i.classList.contains("eticket-active")){
             i.classList.remove("eticket-active");
         } 
-        //remove previously selected content
-        // Array.from(document.getElementsByClassName("can-hide"))
-        // .forEach(child=>{
-        //     if(child.id.includes("_content")) child.classList.add("hidden");
-        // })
+
     });
 
     //activate currently selected item and show it's content
@@ -156,59 +393,6 @@ const activateEticket =(target)=>{
         // document.getElementById(target+"_content").classList.remove("hidden");
     });
     const menu = document.getElementById(target);
-    //get and display data as per selected menu item
-    // if(menu){
-    //     switch(menu.id){
-    //         case 'customers':
-    //             // getCustomers();//.then(customers=>{
-    //                 showCustomers(getCustomers())
-    //             // }).catch(er=>{
-    //             //     console.log("er:",er);
-    //             //     showFeedback(er,1);
-    //             // });
-    //             break;
-    //         case 'roles':
-    //             if(!storedData.client_roles || storedData.client_roles.length == 0){
-    //                 fetchClientRoles().then(result=>{
-    //                     console.log("res: ",result);
-    //                     if(result.code == 0) showClientRoles();
-    //                     else showFeedback(result.msg,1);
-    //                 }).catch(e=>{
-    //                     showFeedback(e.msg,1);
-    //                     console.log("let's see this...not ok",e);
-    //                 });
-    //             }
-    //             else showClientRoles();
-    //             break;
-    //         case 'dashboard':
-    //            showClientStats();
-                
-    //         break;
-    //     }
-    // }
-    // else{//menu menu item does not exist in the side bar (call may have come from button click)
-        
-    //     const content = document.getElementById(target+"_content");
-    //     switch(target){
-    //         case 'add_role':
-    //             document.querySelector("#roles").classList.add("active");
-    //             if(content) content.classList.remove("hidden");
-    //             break;
-    //         case 'edit_role':
-    //             document.querySelector("#roles").classList.add("active");
-    //             if(content) content.classList.remove("hidden");
-    //             break;
-    //         case 'add_customer':
-    //             document.querySelector("#customers").classList.add("active");
-    //             if(content) content.classList.remove("hidden");
-    //             break;
-    //         case 'edit_customer':
-    //             document.querySelector("#customers").classList.add("active");
-    //             if(content) content.classList.remove("hidden");
-    //             break;
-    //     }
-    // }
-  
 }
 const getActiveEticket =()=>{
     if(sideBar){
@@ -306,6 +490,7 @@ const showClientStats =()=>{
         }
     }
     var myChart = drawChart(config,canvas);
+    getCustomers();
 }
 
 //show profile
@@ -371,12 +556,13 @@ const editClientDetail = (client,source)=>{
     const editForm = document.querySelector("#edit_client_form");
     editForm.client_id.value = client.id;
     editForm.company_name.value = client.name;
-    editForm.address.value = client.address+", "+client.region;
+    editForm.address.value =  client.address;
     editForm.email.value = client.email;
     editForm.contact_person.value = client.contact_person;
     editForm.phone.value = client.phone;
     editForm.contact_email.value = client.contact_email;
     editForm.region.value = client.region;
+    editForm.country.value = client.country;
     activateMenu('edit_client');
     document.getElementById(source).classList.add("hidden");
     document.querySelector("#edit_client_content").classList.remove("hidden");
@@ -416,7 +602,7 @@ const createCustomerRow = (row,holder)=>{
         companyName.textContent = row.name;
         companyName.id = row.id;
         companyAddress.textContent = row.address;
-        companyLocation.textContent = row.region;
+        companyLocation.textContent = (row.country.toLowerCase() == 'tanzania') ? row.region : row.country;
         companyPhone.textContent = row.phone;
         contactName.textContent = row.contact_person;
         contactEmail.textContent = row.email;
@@ -476,7 +662,7 @@ const createCustomerSummaryRow = (row)=>{
 }
 //showCustomers
 const showCustomers = (data)=>{
-    greet(currentUser.detail.contact_person.split(" ")[0],{title:'Customers',description:'Customers List'})
+    // greet("Customers",{title:'Customers',description:'Customers List'})
     const holder = document.querySelector("#customers_content");    
     if(!data || data.length == 0){
         createCustomerRow(null,holder);
@@ -582,7 +768,6 @@ const fetchClientRoles = ()=>{
             }
             else {
                 res.json().then(result=>{
-                    console.log("res2: ",result);
                     updateClientRoles(result.data);
                     resolve(result);
                 })
@@ -706,57 +891,37 @@ const closeClientForm=(source)=>{
 //fetch clients
 const getCustomers = ()=>{
     showSpinner();
-    var customers = [{
-        id:1,name:"Customer One",address:"456 Jambo Street",region:"Dar es Salaam",email:"info@customerone.com",contact_person:"Person One",phone:"0712123123"
-    },{
-        id:2,name:"Customer Two",address:"78 Rolls Plaza",region:"Arusha",email:"info@customertwo.com",contact_person:"Person Two",phone:"0712123123"
-    },
+    // var body=JSON.stringify({user:currentUser.id});
+    var headers = {'Content-type':'application/json','Authorization':"Bearer "+currentUser.accessToken};
+    var options = {method:"GET",headers:headers};
 
-    ]
-    storedData.customers = customers;
-    storage.setItem("data",JSON.stringify(storedData));
-    return customers
-    // return new Promise((resolve,reject)=>{
-    //     const headers = {'Content-type':'application/json','Authorization':'Bearer '+currentUser.accessToken};
-    //     fetch(clients_url,{method:"GET",headers:headers})
-    //     .then(response=>{
-    //         if(response.status == 403){
-    //             console.log("response: ",response)
-    //             showFeedback("Your session has expired. Please login again",1);
-    //             setTimeout(()=>{
-    //                 window.location.pathname = "/signin.html";
-    //             },3000);
-    //         }
-    //         else{
-    //         return response.json();
-    //         }
-    //         }).then(result=>{
-    //         hideSpinner();
-    //          storedData.clients = result.data;
-    //         // console.log("fetch: ",data.clients);
-    //         storage.setItem("data",JSON.stringify(storedData));
-    //         resolve(result.data);
-    //     })
-    //     .catch(e=>{
-    //         hideSpinner();
-    //         console.log("eer: ",e);
-    //         showFeedback("Your session has expired. Please login again",1);
-    //         reject(e);
-                
-    //     })
-    // })
+    fetch(customers_url+"/"+currentUser.id,options)
+    .then(res=>{
+        hideSpinner();
+        if(res.status == 403){
+            showFeedback("Session expired, please login",1);
+            signoutUser();
+        }
+        else{
+            console.log("ress: ",res.status);
+            return res.json();
+        }
+    }).then(result=>{
+        console.log("ressss2: ",result);
+        updateCustomers(result.data);
+    })
+   
    
 }
 
-//update clients
-const updateClients = (clients)=>{
-    if(clients && clients.length > 0){
-        storedData.clients = clients;
+//update customers
+const updateCustomers = (customers)=>{
+    if(customers && customers.length > 0){
+        storedData.customers = customers;
         storage.setItem("data",JSON.stringify(storedData));
-        showCustomers(clients);
+        showCustomers(customers);
     }
 }
-
 //update client detail
 const updateClientDetail = (detail)=>{
     if(detail){
@@ -902,7 +1067,8 @@ const searchCustomers = (keyword)=>{
             client.contact_person.toLowerCase().includes(keyword) || 
             client.contact_email.toLowerCase().includes(keyword) ||
             client.region.toLowerCase().includes(keyword) ||
-            client.address.toLowerCase().includes(keyword)
+            client.address.toLowerCase().includes(keyword) ||
+            client.country.toLowerCase().includes(keyword) 
         })
     }
     return clients;
@@ -918,7 +1084,12 @@ const populateClientDetails = (form,client)=>{
         form.contact_person.value = detail.contact_person;
         form.contact_email.value = detail.contact_email;
         form.phone.value= detail.phone;
-        form.region.value = detail.region;
+        form.country.value = detail.country;
+        if(detail.country && detail.country.toLowerCase() == 'tanzania') {
+            document.querySelector("#region-group").classList.remove("hidden");
+            loadRegions(form.region);
+            form.region.value = detail.region;
+        }
     }
     
 }
@@ -935,9 +1106,22 @@ const loadRegions = (selectElement)=>{
     
     }
 }
+
+//load countries
+const loadCountries = (selectElement)=>{
+    if(selectElement){
+        Array.from(selectElement.childNodes).forEach(child=>{
+            selectElement.removeChild(child);
+        })
+        countryList.forEach(country=>{
+            selectElement.options.add(new Option(country));
+        })
+    
+    }
+}
+
 const fetchRegions = ()=>{
     fetch(regions_url).then(res=>res.json()).then(regions=>{
-        console.log("got it: ",regions);
         if(regions && regions.length > 0){
             storedData.regions = regions;
             storage.setItem("data",JSON.stringify(storedData));
@@ -1008,6 +1192,41 @@ const submitClientDetail =(data,verb)=>{
         console.log("err: ",err);
         showFeedback("Something went wrong, please try again later",1);
     })
+           
+}
+//submit dlient form
+const submitCustomerDetail =(data,verb)=>{
+    console.log("submit: ",data);
+    const headers = {
+        'Content-type':'application/json',
+        'Authorization':'Bearer '+currentUser.accessToken
+    }
+    const options = {
+        method:verb,body:JSON.stringify(data),headers:headers
+    }
+    fetch(create_customer_url,options)
+    .then(res=>{
+        if(res.status == 403){
+            showFeedback("Session expired. Please signin",1);
+            signoutUser();
+            
+        }
+        else{
+            res.json().then(result=>{
+                console.log("result: ",result);
+                updateCustomers(result.data);
+                // showCustomers();
+                showFeedback(result.msg,result.code);
+            })
+            .catch(err=>{
+                console.log("err: ",err);
+                showFeedback("Something went wrong, please try again later",1);
+            })
+        }
+    }).catch(err=>{
+        console.log("err: ",err);
+        showFeedback("Something went wrong, please try again later",1);
+    })
        
     
 }
@@ -1043,10 +1262,11 @@ if(window.location.pathname == "/dashboard/"){
          if(clientDetails) {
              greet("Hello "+clientDetails.contact_person.split(" ")[0],null);
              document.querySelector("#account-name").textContent = clientDetails.contact_person;
+             let source = (currentUser.avatar) ? currentUser.avatar :clientDetails.logo;
+            //  document.querySelector("#account-image").src = source;
+             
              if(clientDetails.logo) {
-                 let source = (currentUser.avatar) ? currentUser.avatar :clientDetails.logo;
-                 console.log("srouce: ",source);
-                 document.querySelector("#avatar").src =source;
+                 document.querySelector("#avatar").src = source;
                  document.querySelector("#client_logo").src = clientDetails.logo;
              }
              else{
@@ -1055,42 +1275,9 @@ if(window.location.pathname == "/dashboard/"){
              }
          }
          else greet("Hello "+currentUser.email,null);
-        showClientStats();
-        //  let chartArea = document.getElementById("chart-area");
-        //     while(chartArea.hasChildNodes()){
-        //         chartArea.removeChild(chartArea.childNodes[0]);
-        //     }
-        //     const canvas = document.createElement("canvas");
-        //     chartArea.appendChild(canvas);
-        //     let summary = {
-        //         labels:["Clearing","Forwarding"],
-        //         datasets:[{
-        //             label:"Consigment Type",
-        //             data:[102,360],
-        //             backgroundColor:['#ffcc00','#cc9900'],
-        //             hoverOffset:4
-        //         }]
-        //     }
-        //     let config = {
-        //         type:'pie',data:summary,options:{
-        //             plugins:{
-        //                 legend:{
-        //                     display:true,
-        //                     position:'left'
-        //                 },
-        //                 title:{
-        //                     display:true,
-        //                     position:'top',text:'Consigment Type',
-        //                     align:'start',
-        //                     padding:{
-        //                         top:10,left:10,bottom:10
-        //                     }
-        //                 }
-        //             }
-        //         }
-        //     }
-        //     var myChart = drawChart(config,canvas);
-            fetchRoles().then(result=>{
+         showClientStats();
+         fetchRoles()
+            .then(result=>{
             })
             .catch(e=>{
                 showFeedback(e.msg,1);
@@ -1129,116 +1316,178 @@ if(window.location.pathname == "/dashboard/"){
             })
 
         }
+
+        //customer form
+        const customerForm = document.querySelector("#customer_profile_form");
+        if(customerForm){
+            customerForm.btnCancelAdd.addEventListener('click',()=>{
+                activateMenu('customers');
+            })
+
+            loadCountries(customerForm.country);
+            customerForm.country.addEventListener('change',(e)=>{
+                if(customerForm.country.value.toLowerCase() == "tanzania"){
+                    document.querySelector("#region-group").classList.remove("hidden");
+                    loadRegions(customerForm.region);
+                }
+                else{
+                    document.querySelector("#region-group").classList.add("hidden"); 
+                }
+            });
+
+            customerForm.addEventListener("submit",(e)=>{
+                e.preventDefault();
+
+            let name   = customerForm.company_name.value;
+            let email  = customerForm.email.value;
+            let phone  = customerForm.phone.value;
+            let person = customerForm.contact_person.value;
+            let cemail = customerForm.contact_email.value;
+            let address= customerForm.address.value;
+            let country = customerForm.country.options[customerForm.country.options.selectedIndex].value;
+            let region = (country.toLowerCase() == "tanzania") ? customerForm.region.options[customerForm.region.options.selectedIndex].value:null;
+            
+            let data = {
+                region:region,
+                country:country,
+                company_name:name,
+                email:email,
+                phone:phone,
+                contact_person:person,
+                contact_email:cemail,
+                address:address,
+                user:currentUser.id,
+                db:currentUser.db
+            };
+            let method = "POST";
+                     
+            submitCustomerDetail(data,method);
+
+            })
         }
+    }
 }
 
 //client profile
 if(window.location.pathname == "/account/"){
-        const detailForm = document.querySelector("#client_profile_form");
-        var clientDetails = currentUser.detail;
-        if(clientDetails) {
-            greet("Hello "+clientDetails.contact_person.split(" ")[0],null);
-            document.querySelector("#account-name").textContent = clientDetails.contact_person;
-            if(clientDetails.logo) {
-                let source = (currentUser.avatar) ? currentUser.avatar :clientDetails.logo;
-                console.log("srouce: ",source);
-                document.querySelector("#avatar").src =source;
-                document.querySelector("#client_logo").src = clientDetails.logo;
+    const detailForm = document.querySelector("#client_profile_form");
+    var clientDetails = currentUser.detail;
+    if(clientDetails) {
+        greet("Hello "+clientDetails.contact_person.split(" ")[0],null);
+        document.querySelector("#account-name").textContent = clientDetails.contact_person;
+        let source = (currentUser.avatar) ? currentUser.avatar :clientDetails.logo;
+        document.querySelector("#account-image").src = source;
+        if(clientDetails.logo) {
+            document.querySelector("#avatar").src = source;
+            document.querySelector("#client_logo").src = clientDetails.logo;
+        }
+        else{
+            document.querySelector("#avatar").src = (currentUser.avatar) ? currentUser.avatar :"/img/favicon.png";
+            document.querySelector("#client_logo").src = "/img/logo.png";
+        }
+    }
+    
+    if(detailForm){
+        loadCountries(detailForm.country);
+        detailForm.country.addEventListener('change',(e)=>{
+            if(e.target.value.toLowerCase() == "tanzania"){
+                document.querySelector("#region-group").classList.remove("hidden");
+                loadRegions(detailForm.region);
             }
             else{
-               document.querySelector("#avatar").src = (currentUser.avatar) ? currentUser.avatar :"/img/favicon.png";
-               document.querySelector("#client_logo").src = "/img/logo.png";
+                document.querySelector("#region-group").classList.add("hidden");
             }
+        })
+        if(currentUser){
+            populateClientDetails(detailForm,currentUser);
         }
-        
-        if(detailForm){
-            loadRegions(detailForm.region);
-            if(currentUser){
-                populateClientDetails(detailForm,currentUser);
+        detailForm.addEventListener('submit',(e)=>{
+            e.preventDefault();
+
+            let name   = detailForm.company_name.value;
+            let email  = detailForm.email.value;
+            let phone  = detailForm.phone.value;
+            let person = detailForm.contact_person.value;
+            let cemail = detailForm.contact_email.value;
+            let address= detailForm.address.value;
+            let country = detailForm.country.options[detailForm.country.options.selectedIndex].value;
+            let region = (country.toLowerCase() == "tanzania") ? detailForm.region.options[detailForm.region.options.selectedIndex].value:null;
+            
+            let file = detailForm.company_logo.files[0];
+            let logoFile = clientDetails.logo;
+            let data = {
+                region:region,
+                country:country,
+                company_name:name,
+                email:email,
+                phone:phone,
+                contact_person:person,
+                contact_email:cemail,
+                address:address,
+                logo:logoFile,
+                user:currentUser.id,
+                db:currentUser.db
+            };
+            let method = "POST";
+            if(currentUser.detail) {
+                data.id = currentUser.detail.id;
+                method = "PUT";
             }
-            detailForm.addEventListener('submit',(e)=>{
-                e.preventDefault();
+            if(file){
+                var reader = new FileReader();
+                reader.addEventListener('load',()=>{
+                    data.logo = reader.result;
+                    submitClientDetail(data,method);
+                },false);
+
+                reader.readAsDataURL(file);
+            }
+            else{
+                submitClientDetail(data,method);
+            }
+            
+
+        });
+    }
     
-                let name   = detailForm.company_name.value;
-                let email  = detailForm.email.value;
-                let phone  = detailForm.phone.value;
-                let person = detailForm.contact_person.value;
-                let cemail = detailForm.contact_email.value;
-                let address= detailForm.address.value;
-                let region = detailForm.region.options[detailForm.region.options.selectedIndex].value;
-                let file = detailForm.company_logo.files[0];
-                let logoFile = null;
-                let data = {
-                    region:region,
-                    company_name:name,
-                    email:email,
-                    phone:phone,
-                    contact_person:person,
-                    contact_email:cemail,
-                    address:address,
-                    logo:logoFile,
-                    user:currentUser.id,
-                    db:currentUser.db
-                };
-                let method = "POST";
-                if(currentUser.detail) {
-                    data.id = currentUser.detail.id;
-                    method = "PUT";
-                }
+    const uploadButton = document.querySelector("#upload-button");
+    if(uploadButton){
+        uploadButton.addEventListener("click",(e)=>{
+            const preview = document.querySelector("#account-image");
+            const inputImage = document.querySelector("#image-file");
+            inputImage.click();
+
+            inputImage.addEventListener('change',(e)=>{
+                var file = inputImage.files[0];
                 if(file){
                     var reader = new FileReader();
                     reader.addEventListener('load',()=>{
-                        data.logo = reader.result;
-                        submitClientDetail(data,method);
+                        if(reader.readyState == 2 && reader.result != null){
+
+                            preview.src = reader.result;
+                            uploadUserImage(reader.result)
+                            .then(response=>{
+                                if(response.data != null){
+                                    currentUser.avatar = response.data.avatar;
+                                    storage.setItem("currentUser",JSON.stringify(currentUser));
+                                }
+                                showFeedback(response.msg,response.code);
+                                console.log(response);
+                            })
+                            .catch(e=>{
+                                console.log(e);
+                                showFeedback(e.msg,e.code);
+                            })
+                        }
                     },false);
     
                     reader.readAsDataURL(file);
                 }
-                else{
-                    submitClientDetail(data,method);
-                }
-                
-    
             });
-        }
-        
-        const uploadButton = document.querySelector("#upload-button");
-        if(uploadButton){
-            uploadButton.addEventListener("click",(e)=>{
-                const preview = document.querySelector("#account-image");
-                const inputImage = document.querySelector("#image-file");
-                inputImage.click();
 
-                inputImage.addEventListener('change',(e)=>{
-                    var file = inputImage.files[0];
-                    if(file){
-                        var reader = new FileReader();
-                        reader.addEventListener('load',()=>{
-                            if(reader.readyState == 2 && reader.result != null){
+            
+        })
+    }
 
-                                preview.src = reader.result;
-                                uploadUserImage(reader.result)
-                                .then(response=>{
-                                    if(response.data != null){
-                                        currentUser.avatar = response.data.avatar;
-                                        storage.setItem("currentUser",JSON.stringify(currentUser));
-                                    }
-                                   showFeedback(response.msg,response.code);
-                                   console.log(response);
-                                })
-                                .catch(e=>{
-                                    console.log(e);
-                                    showFeedback(e.msg,e.code);
-                                })
-                            }
-                        },false);
-        
-                        reader.readAsDataURL(file);
-                    }
-                });
-
-                
-            })
-        }
 }
 
