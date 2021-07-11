@@ -1007,12 +1007,11 @@ const getCustomers = ()=>{
             signoutUser();
         }
         else{
-            console.log("ress: ",res.status);
-            return res.json();
+             res.json().then(result=>{
+                updateCustomers(result.data);
+                // closeCustomerForm('add_customer_content');
+            })
         }
-    }).then(result=>{
-        console.log("ressss2: ",result);
-        updateCustomers(result.data);
     })
    
    
@@ -1320,7 +1319,7 @@ const submitCustomerDetail =(data,verb)=>{
             res.json().then(result=>{
                 console.log("result: ",result);
                 updateCustomers(result.data);
-                // showCustomers();
+                showCustomers();
                 showFeedback(result.msg,result.code);
             })
             .catch(err=>{
