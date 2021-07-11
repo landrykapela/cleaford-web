@@ -278,14 +278,14 @@ const arrayToCSV = (sourceArray)=>{
     return output;
 }
 
-const csvExport = document.querySelector("#csv");
-if(csv){
-    csv.addEventListener('click',(e)=>{
-        var anchor = document.querySelector("#downloadcsv");
-        anchor.href = URL.createObjectURL(new Blob([arrayToCSV(storedData.customers)],"text/plain"));
-        anchor.click();
-    })
-}
+// const csvExport = document.querySelector("#csv");
+// if(csvExport){
+//     csvExport.addEventListener('click',(e)=>{
+//         var anchor = document.querySelector("#downloadcsv");
+//         anchor.href = URL.createObjectURL(new Blob([arrayToCSV(storedData.customers)],"text/plain"));
+//         anchor.click();
+//     })
+// }
 
 if(window.location.pathname == "/signin.html"){
     storage.setItem("data",JSON.stringify({}));
@@ -473,8 +473,7 @@ const signoutUser = ()=>{
 //show admin stats
 const showClientStats =()=>{
     if(currentUser.detail){
-
-    getCustomers();
+        getCustomers();
         greet("Hello "+currentUser.detail.contact_person.split(" ")[0],null);
         const numberOfCustomers = document.getElementById("no_of_customers");
         numberOfCustomers.textContent = (storedData.customers) ? storedData.customers.length:23;       
@@ -519,6 +518,9 @@ const showClientStats =()=>{
         }
     }
     var myChart = drawChart(config,canvas);
+
+    showCustomersSummary();
+    mapChart();
 }
 
 //show profile
@@ -721,38 +723,38 @@ const createCustomerRow = (row,holder)=>{
     holder.appendChild(rowHolder);
 }
 const createCustomerSummaryRow = (row)=>{
-    const holder = document.querySelector("#client_table_summary");
+    const holder = document.querySelector("#customer_table_summary");
     const rowHolder = document.createElement("div");
     rowHolder.classList.add("body-row");
     if(row == null){
-        const data = document.createTextNode("No clients");
+        const data = document.createTextNode("No customers");
         rowHolder.appendChild(data);
     }
     else{
         const companyName = document.createElement("span");
-        const companyAddress = document.createElement("span");
-        // const contactName = document.createElement("span");
-        const contactEmail = document.createElement("span");
-        // const companyPhone = document.createElement("span");
-        const companyStatus = document.createElement("span");
+        // const companyAddress = document.createElement("span");
+        const companyLocation = document.createElement("span");
+        // const contactEmail = document.createElement("span");
+        const contactPhone = document.createElement("span");
+        // const companyStatus = document.createElement("span");
 
         companyName.textContent = row.name;
         companyName.id = row.id;
-        companyAddress.textContent = row.address;
-        // companyPhone.textContent = row.phone;
-        // contactName.textContent = row.contact_person;
-        contactEmail.textContent = row.contact_email;
-        companyStatus.textContent = row.status == 0 ? 'Pending Activation' : "Activated";
+        // companyAddress.textContent = row.address;
+        companyLocation.textContent = (row.country.toLowerCase() == "tanzania") ? row.region: row.country;
+        // contactEmail.textContent = row.contact_email;
+        contactPhone.textContent = row.phone;
+        // companyStatus.textContent = row.status == 0 ? 'Pending Activation' : "Activated";
 
         rowHolder.appendChild(companyName);
-        rowHolder.appendChild(contactEmail);
-        rowHolder.appendChild(companyAddress);
-        rowHolder.appendChild(companyStatus);
-        // rowHolder.appendChild(contactName);
+        // rowHolder.appendChild(companyAddress);
+        rowHolder.appendChild(companyLocation);
+        // rowHolder.appendChild(contactEmail);
+        rowHolder.appendChild(contactPhone);
 
         //add click listener
         companyName.addEventListener('click',()=>{
-            editCustomerDetal(row,'dashboard_content');
+            editCustomerDetail(row,'dashboard_content');
         })
     }
 
@@ -968,19 +970,20 @@ const createMoreLink = (target,holder)=>{
     
 }
 const showCustomersSummary = ()=>{
-    if(storedData.clients.length == 0) {
-        createCustomerSummaryRow(null);
-    }
-    else {
-        const holder = document.querySelector("#client_table_summary");
+    const holder = document.querySelector("#customer_table_summary");
         Array.from(holder.children).forEach(child=>{
             if(child.classList.contains("body-row")) holder.removeChild(child);
         })
-        var topClients = storedData.clients.filter((row,index)=>{
+    if(storedData.customers.length == 0) {
+        createCustomerSummaryRow(null);
+    }
+    else {
+        
+        var topCustomers = storedData.customers.filter((row,index)=>{
             return index <= clientSummaryCount;
             
         });
-        topClients.forEach(row=>{
+        topCustomers.forEach(row=>{
                 createCustomerSummaryRow(row);     
         })
        
@@ -1034,6 +1037,48 @@ const updateClientDetail = (detail)=>{
         refreshUser();
     }
 }
+
+//show customer distribution map
+//draw map
+const mapChart = ()=>{
+    //    let randomData = generateRandomData(am4geodata_worldLow.features.length);
+    //    let x = storedData.clients.
+       let myData = am4geodata_worldLow;
+       let newFeatures = am4geodata_worldLow.features.map((feature,index)=>{
+           var feat = feature;
+           feat.properties.value = 0;
+           storedData.customers.forEach(customer=>{
+               if(feature.properties.name.toLowerCase() == customer.country.toLowerCase()) feat.properties.value ++;
+           })
+           
+           feat.properties.fill = (feat.properties.value ==0) ? am4core.color("#ffcc00") : am4core.color("#cc9900");
+           return feat;
+       })
+       myData.features = newFeatures;
+        // Low-detail map
+        var chart = am4core.create("map-chart", am4maps.MapChart);
+        chart.geodata = myData;
+        chart.projection = new am4maps.projections.Miller();
+        var polygonSeries = chart.series.push(new am4maps.MapPolygonSeries());
+        polygonSeries.useGeodata = true;
+        polygonSeries.mapPolygons.template.events.on("doublehit", function(ev) {
+        chart.zoomToMapObject(ev.target);
+        });
+        polygonSeries.mapPolygons.template.events.on("hit", function(ev) {
+            chart.zoomToMapObject(ev.target,-1,true,1000);
+            });
+        var label = chart.chartContainer.createChild(am4core.Label);
+        label.text = "Customers Distribution";
+        // Configure series
+        var polygonTemplate = polygonSeries.mapPolygons.template;
+        polygonTemplate.tooltipText = "{name}:{value}";
+        polygonTemplate.propertyFields.fill = "fill";
+    
+        // Create hover state and set alternative fill color
+        var hs = polygonTemplate.states.create("hover");
+            hs.properties.fill = am4core.color("#644c04");
+    }
+    
 
 //show pie chart
 const drawChart = (config,canvas)=>{
