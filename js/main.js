@@ -1177,7 +1177,6 @@ const searchClients = (keyword)=>{
             return client.name.toLowerCase().includes(keyword) || 
             client.contact_person.toLowerCase().includes(keyword) || 
             client.contact_email.toLowerCase().includes(keyword) ||
-            client.region.toLowerCase().includes(keyword) ||
             client.address.toLowerCase().includes(keyword)||
             client.country.toLowerCase().includes(keyword)
         })

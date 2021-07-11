@@ -89,9 +89,9 @@
                 </div>
                 <div class="can-hide hidden" id="customers_content">
                    <div class="row-end"><button class="buttons-s no-corner" id="add_customer" onclick="showCustomerDetailForm();">Add Customer</button></div>
-                   <div class="info">
+                   <div class="info"><a class="hidden" download="customer_list.csv" id="downloadcsv"></a>
                        <span>Output: <button id="csv" class="export-buttons">CSV</button><button id="excel" class="export-buttons">Excel</button><button id="pdf" class="export-buttons">PDF</button></span>
-                   <input class="search" id="search_client" placeholder="search"/>
+                   <input class="search" id="search_customers" placeholder="search"/>
                     </div>
                     <div class="head-row" id="clients-head-row">
                         <span>Company Name
@@ -182,6 +182,52 @@
                         </div>
                     </div>
                 </div>
+                <div class="can-hide hidden" id="edit_customer_content">
+                    <div class="row-space">
+                        <div id="form-container" class="form-container">
+                            <span class="medium-text">Customer Details</span>
+                            <form id="edit_customer_form" method="POST" class="client_forms">
+                                <input type="hidden" name="customer_id" id="customer_id"/>
+                                <div class="form-group">
+                                    <label for="company_name">Company Name</label>
+                                    <input type="text" id="company_name" name="company_name"  required />
+                                </div>
+                                <div class="form-group">
+                                    <label for="address">Company Address</label>
+                                    <textarea rows=5 id="address" name="address"></textarea>
+                                </div> 
+                                <div class="form-group">
+                                    <label for="country">Country</label>
+                                    <select id="country" name="country"></select>
+                                </div> 
+                                <div class="form-group hidden" id="e-region-group" name="e-region-group">
+                                    <label for="region">Region</label>
+                                    <select id="region" name="region"></select>
+                                </div> 
+                                <div class="form-group">
+                                    <label for="email">Company E-mail</label>
+                                    <input type="email" id="email" name="email"/></div>
+                                <div class="form-group">
+                                    <label for="phone">Company Telephone</label>
+                                    <input type="number" id="phone" name="phone" required/>
+                                </div>
+                                <div class="form-group">
+                                    <label for="contact_person">Contact Person</label>
+                                    <input type="text" id="contact_person" name="contact_person" required />
+                               </div>
+                               <div class="form-group">
+                                   <label for="contact_email">Contact E-mail</label>
+                                   <input type="email" id="contact_email" name="contact_email" required />
+                               </div>
+                              
+                              <div class="form-group-no-border">
+                                <input class="no-corner" type="submit" id="btnSubmit" name="btnSubmit" value="SUBMIT"/>
+                                <input type="reset" class="buttons no-corner" id="btnCancelEdit" name="btnCancelEdit" value="Cancel"/>
+                            </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
                 <div class="can-hide hidden" id="roles_content">
                     <div class="row-end"><button class="buttons-s no-corner" id="add_role" onclick="showRoleForm();">Add Role</button></div>
                     <div class="head-row" id="roles-head-row">
@@ -198,5 +244,6 @@
    <script src="/js/config.js"></script>
    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script src="/js/dash.js"></script>
+        <script src="/js/common.js"></script>
     </body>
 </html>

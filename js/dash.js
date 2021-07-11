@@ -260,6 +260,33 @@ localStorage.setItem = function(key, value) {
 };
 
 
+const arrayToCSV = (sourceArray)=>{
+    let source = (typeof sourceArray != 'object') ? JSON.parse(sourceArray) : sourceArray;
+    let output = "";
+    Object.keys(source[0]).forEach(key=>{
+        output += key+",";
+    })
+    output += "\r\n";
+    source.forEach(object=>{
+        let line = "";
+        Object.values(object).forEach(value=>{
+            line += value+","
+        })
+        line += "\r\n";
+        output += line;
+    });
+    return output;
+}
+
+const csvExport = document.querySelector("#csv");
+if(csv){
+    csv.addEventListener('click',(e)=>{
+        var anchor = document.querySelector("#downloadcsv");
+        anchor.href = URL.createObjectURL(new Blob([arrayToCSV(storedData.customers)],"text/plain"));
+        anchor.click();
+    })
+}
+
 if(window.location.pathname == "/signin.html"){
     storage.setItem("data",JSON.stringify({}));
     storage.setItem("currentUser",null);
@@ -312,7 +339,7 @@ const activateMenu =(target)=>{
         switch(menu.id){
             case 'customers':
                 greet("Customers",{title:"Customers",description:"Customer List"});
-                getCustomers();
+                showCustomers(storedData.customers);
                 break;
             case 'roles':
                 if(!storedData.client_roles || storedData.client_roles.length == 0){
@@ -446,6 +473,8 @@ const signoutUser = ()=>{
 //show admin stats
 const showClientStats =()=>{
     if(currentUser.detail){
+
+    getCustomers();
         greet("Hello "+currentUser.detail.contact_person.split(" ")[0],null);
         const numberOfCustomers = document.getElementById("no_of_customers");
         numberOfCustomers.textContent = (storedData.customers) ? storedData.customers.length:23;       
@@ -490,7 +519,6 @@ const showClientStats =()=>{
         }
     }
     var myChart = drawChart(config,canvas);
-    getCustomers();
 }
 
 //show profile
@@ -552,22 +580,92 @@ const activateAccount = (user)=>{
     })
 }
 
-const editClientDetail = (client,source)=>{
-    const editForm = document.querySelector("#edit_client_form");
-    editForm.client_id.value = client.id;
-    editForm.company_name.value = client.name;
-    editForm.address.value =  client.address;
-    editForm.email.value = client.email;
-    editForm.contact_person.value = client.contact_person;
-    editForm.phone.value = client.phone;
-    editForm.contact_email.value = client.contact_email;
-    editForm.region.value = client.region;
-    editForm.country.value = client.country;
-    activateMenu('edit_client');
+const editCustomerDetail = (customer,source)=>{
+    const editForm = document.querySelector("#edit_customer_form");
+    editForm.customer_id.value = customer.id;
+    editForm.company_name.value = customer.name;
+    editForm.address.value =  customer.address;
+    editForm.email.value = customer.email;
+    editForm.contact_person.value = customer.contact_person;
+    editForm.phone.value = customer.phone;
+    editForm.contact_email.value = customer.contact_email;
+    loadCountries(editForm.country);
+    editForm.country.value = customer.country;
+    if(customer.country.toLowerCase() == 'tanzania'){
+        document.querySelector("#e-region-group").classList.remove("hidden");
+        loadRegions(editForm.region);
+        editForm.region.value = customer.region;
+    }
+    else document.querySelector("#e-region-group").classList.add("hidden");
+
+    editForm.country.addEventListener("change",(e)=>{
+        if(e.target.value.toLowerCase() == 'tanzania'){
+            document.querySelector("#e-region-group").classList.remove("hidden");
+            loadRegions(editForm.region);
+            editForm.region.value = customer.region;
+        }
+        else document.querySelector("#e-region-group").classList.add("hidden");
+    })
+    activateMenu('edit_customer');
     document.getElementById(source).classList.add("hidden");
-    document.querySelector("#edit_client_content").classList.remove("hidden");
+    document.querySelector("#edit_customer_content").classList.remove("hidden");
     document.getElementById("btnCancelEdit").addEventListener('click',()=>{
-        closeClientForm('edit_client_content');
+        closeCustomerForm('edit_customer_content');
+    });
+
+    editForm.addEventListener("submit",(e)=>{
+        e.preventDefault();
+        let id = customer.id;
+        let name = (editForm.company_name.value) ? editForm.company_name.value : customer.name;
+        let address = (editForm.address.value) ? editForm.address.value : customer.address;
+        let email = (editForm.email.value) ? editForm.email.value : customer.email;
+        let phone = (editForm.phone.value) ? editForm.phone.value : customer.phone;
+        let country = (editForm.country.value) ? editForm.country.value : customer.country;
+        let region = (country.toLowerCase() == 'tanzania') ? editForm.region.value : null;
+        let contact_person = (editForm.contact_person.value) ? editForm.contact_person.value : customer.contact_person;
+        let contact_email = (editForm.contact_email.value) ? editForm.contact_email.value : customer.contact_email;
+        let data = {
+            user:currentUser.id,
+            name:name,
+            address:address,
+            email:email,
+            phone:phone,
+            country:country,
+            region:region,
+            contact_person:contact_person,
+            contact_email:contact_email
+        };
+        let headers = {
+            'Content-Type':'application/json',
+            'Authorization': 'Bearer '+currentUser.accessToken
+        }
+        let options = {
+            method:"PUT",
+            body:JSON.stringify(data),
+            headers:headers
+        }
+
+        let update_customer_url = create_customer_url+"/"+id;
+        fetch(update_customer_url,options)
+            .then(res=>{
+                if(res.status == 403){
+                    showFeedback("Session expired, please login",1);
+                    signoutUser();
+                }
+                else{
+                    res.json().then(result=>{
+                        updateCustomers(result.data);
+                        showFeedback(result.msg,result.code);
+                        closeCustomerForm('edit_customer_content')
+                    })
+                    .catch(err=>{
+                        showFeedback(err.msg,err.code);
+                    })
+                }
+            })
+            .catch(e=>{
+                showFeedback(e.msg,e.code);
+            })
     })
 }
 
@@ -616,7 +714,7 @@ const createCustomerRow = (row,holder)=>{
 
         //add click listener
         companyName.addEventListener('click',()=>{
-            editClientDetail(row,'customers_content');
+            editCustomerDetail(row,'customers_content');
         })
     }
 
@@ -654,7 +752,7 @@ const createCustomerSummaryRow = (row)=>{
 
         //add click listener
         companyName.addEventListener('click',()=>{
-            editClientDetail(row,'dashboard_content');
+            editCustomerDetal(row,'dashboard_content');
         })
     }
 
@@ -662,8 +760,11 @@ const createCustomerSummaryRow = (row)=>{
 }
 //showCustomers
 const showCustomers = (data)=>{
-    // greet("Customers",{title:'Customers',description:'Customers List'})
-    const holder = document.querySelector("#customers_content");    
+    // activateMenu('customers');
+    const holder = document.querySelector("#customers_content");  
+    Array.from(holder.children).forEach(child=>{
+        if(child.classList.contains("body-row")) holder.removeChild(child);
+    })  
     if(!data || data.length == 0){
         createCustomerRow(null,holder);
     }
@@ -674,6 +775,7 @@ const showCustomers = (data)=>{
         data.forEach(row=>{
             createCustomerRow(row,holder);
         });
+        arrayToCSV(data);
     }
 }
 //display system roles
@@ -718,6 +820,8 @@ const showClientRoles = ()=>{
         holder.appendChild(rowHolder);
        
     }
+
+
 }
 
 //fetch roles
@@ -883,10 +987,10 @@ const showCustomersSummary = ()=>{
     }
 }
 //show clientForm
-const closeClientForm=(source)=>{
+const closeCustomerForm=(source)=>{
     document.getElementById(source).classList.add("hidden");
-    document.getElementById("clients_content").classList.remove("hidden");
-    showCustomers(storedData.clients);
+    document.getElementById("customers_content").classList.remove("hidden");
+    showCustomers(storedData.customers);
 }
 //fetch clients
 const getCustomers = ()=>{
@@ -1060,23 +1164,24 @@ const sortCustomers = (sortBy,source)=>{
 //search client
 const searchCustomers = (keyword)=>{
     keyword = keyword.toLowerCase();
-    let clients = data.clients;
-    if(clients.length > 0){
-        clients = clients.filter(client=>{
-            return client.name.toLowerCase().includes(keyword) || 
-            client.contact_person.toLowerCase().includes(keyword) || 
-            client.contact_email.toLowerCase().includes(keyword) ||
-            client.region.toLowerCase().includes(keyword) ||
-            client.address.toLowerCase().includes(keyword) ||
-            client.country.toLowerCase().includes(keyword) 
+    let customers = storedData.customers;
+    let filtered = [];
+    if(customers.length > 0){
+        filtered = customers.filter(customer=>{
+            return customer.name.toLowerCase().includes(keyword) || 
+            customer.contact_person.toLowerCase().includes(keyword) || 
+            customer.contact_email.toLowerCase().includes(keyword) ||
+            customer.email.toLowerCase().includes(keyword) ||
+            customer.address.toLowerCase().includes(keyword) ||
+            customer.country.toLowerCase().includes(keyword) 
         })
     }
-    return clients;
+    return filtered;
 }
 //populate client details
-const populateClientDetails = (form,client)=>{
-    var detail = client.detail;
-    form.email.value = client.email;
+const populateCustomerDetails = (form,customer)=>{
+    var detail = customer.detail;
+    form.email.value = customer.email;
     if(detail){
         form.company_name.value = detail.name;
         form.client_id.value = detail.id;
@@ -1116,7 +1221,7 @@ const loadCountries = (selectElement)=>{
         countryList.forEach(country=>{
             selectElement.options.add(new Option(country));
         })
-    
+        
     }
 }
 
@@ -1399,7 +1504,7 @@ if(window.location.pathname == "/account/"){
             }
         })
         if(currentUser){
-            populateClientDetails(detailForm,currentUser);
+            populateCustomerDetails(detailForm,currentUser);
         }
         detailForm.addEventListener('submit',(e)=>{
             e.preventDefault();
