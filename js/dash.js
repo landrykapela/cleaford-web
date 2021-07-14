@@ -1561,7 +1561,9 @@ if(window.location.pathname == "/account/"){
         initializeMap(document.getElementById("map-add"),detailForm.address,detailForm);
         detailForm.addEventListener('submit',(e)=>{
             e.preventDefault();
-
+            var spinner = document.getElementById("button-spinner");
+            spinner.classList.remove("hidden");
+            detailForm.btnSubmit.classList.add("hidden");
             let name   = detailForm.company_name.value;
             let email  = detailForm.email.value;
             let phone  = detailForm.phone.value;

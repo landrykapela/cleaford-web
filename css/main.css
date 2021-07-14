@@ -89,7 +89,7 @@ main {
 
 main > div.content {
   flex-grow: 1;
-  background-color: #d3d3d3 !important;
+  background-color: #ffffff !important;
   padding: 0.5em 1em;
   display: flex;
   flex-direction: column;
@@ -564,10 +564,12 @@ main > div.content .summary-table > span.summary-head {
 
 .body-row {
   color: #9c9898;
+  cursor: pointer;
 }
 
-.body-row :nth-child(1) {
-  cursor: pointer;
+.body-row:hover {
+  background-color: #9c9898 !important;
+  color: #666262;
 }
 
 .head-row, .body-row {
@@ -805,6 +807,16 @@ a.nav-item:hover {
   display: block;
   width: 50px;
   height: 50px;
+  border-radius: 50%;
+  border: 1px solid #ffcc00;
+  border-top: none;
+  animation: spin 1s linear 0s infinite forwards;
+}
+
+.button-spinner {
+  display: block;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   border: 1px solid #ffcc00;
   border-top: none;
