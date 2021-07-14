@@ -1341,6 +1341,8 @@ const uploadUserImage = (image)=>{
 }
 //submit dlient form
 const submitClientDetail =(data,verb)=>{
+    var spinner = document.getElementById("button-spinner");
+    var submit = document.getElementById("btnSubmit");
     const headers = {
         'Content-type':'application/json',
         'Authorization':'Bearer '+currentUser.accessToken
@@ -1365,6 +1367,10 @@ const submitClientDetail =(data,verb)=>{
             .catch(err=>{
                 console.log("err: ",err);
                 showFeedback("Something went wrong, please try again later",1);
+            })
+            .finally(()=>{
+                submit.classList.remove("hidden");
+                spinner.classList.add("hidden");
             })
         }
     }).catch(err=>{

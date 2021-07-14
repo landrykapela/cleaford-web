@@ -302,6 +302,18 @@ main > div#dashboard_content {
   width: calc(100% - 4em - 10px);
 }
 
+#side-bar .item-expandable {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+
+#side-bar .item-expandable > span {
+  margin-left: 0.5em;
+  font-size: medium;
+}
+
 footer {
   text-align: center;
   color: #ffffff;

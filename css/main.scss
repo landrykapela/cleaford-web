@@ -2,6 +2,7 @@
 $primaryColor: #ffcc00;
 $primaryDarkColor: #cc9900;
 $secondaryColor: #d3d3d3;
+$faintLight:#666262;
 $faint: #9c9898;
 $faintDark:#666262;
 $defaultColor: #ffffff;
@@ -275,7 +276,13 @@ text-align: left;
   width:calc(100% - 4em - 10px);
   // padding-left: 1em;
 }
-
+#side-bar .item-expandable{
+  @include flex(column,flex-start,flex-start);
+}
+#side-bar .item-expandable > span{
+  margin-left:0.5em;
+  font-size:medium;
+}
 //end side bar
 
 //footer
