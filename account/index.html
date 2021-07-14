@@ -27,9 +27,15 @@
         </header>
         <main>
             <div id="side-bar">
-                <span class="item active" id="setup">Account Setup</span>
-                <span class="item" id="activation">Account Activation</span>
-                <span class="item" id="billing">Billing</span>
+                <span class="item active" id="dashboard">Dashboard</span>
+                <span class="item" id="customers">Customers</span>
+                <span class="item" id="operations">Operations</span>
+                <span class="item" id="finance">Finance</span>
+                <span class="item" id="hr">HR</span>
+                <span class="item" id="suppliers">Suppliers</span>
+                <span class="item" id="subscriptions">Subscriptions</span>
+                <span class="item" id="roles">Roles</span>
+                <span class="item" id="reports">Reports</span>
             </div>
             <div class="content">
                 <div class="info">
@@ -85,19 +91,20 @@
                                         <label for="company_name">Company Name</label>
                                         <input type="text" id="company_name" name="company_name"  required />
                                     </div>
-                                    <div class="form-group">
-                                        <label for="address">Company Address</label>
-                                        <textarea rows=5 id="address" name="address"></textarea>
-                                    </div> 
-                                   
-                                    <div class="form-group">
-                                        <label for="country">Country</label>
-                                        <select id="country" name="country"></select>
-                                    </div> 
-                                    <div class="form-group hidden" id="region-group">
-                                        <label for="region">Region</label>
-                                        <select id="region" name="region"></select>
-                                    </div> 
+                                     <div class="form-group">
+                                    <label for="address">Company Address</label>
+                                    <input type="text" id="address" name="address" />
+                                    <!-- <textarea rows=5 id="address" name="address"></textarea> -->
+                                </div> 
+                                <div class="form-group-no-border map" id="map-add"></div>
+                                <div class="form-group">
+                                    <label for="country">Country</label>
+                                    <input type="text" id="country" name="country"/>
+                                </div> 
+                                <div class="form-group">
+                                    <label for="region">City/Region</label>
+                                    <input type="text" id="region" name="region"/>
+                                </div> 
                                     <div class="form-group">
                                         <label for="email">Company E-mail</label>
                                         <input type="email" id="email" name="email"/></div>
@@ -205,6 +212,8 @@
         <span id="spinner" class="hidden"></span>
         <footer>&copy; 2021, Cleaford. All rights reserved</footer>
    <script src="/js/config.js"></script>
+   <script src="https://maps.googleapis.com/maps/api/js?libraries=places&key=AIzaSyAWALPfQrbJypNehyEnoFKFKs1nDOoqOGk"></script>
+   
         <script src="/js/dash.js"></script>
     </body>
 </html>

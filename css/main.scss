@@ -146,7 +146,10 @@ main >div.content .info-stats,main >div.content .info-map{
   width: calc(50% - 1em);
   margin:0.5em 0.25;
 }
-
+main > div.content #map-chart2{
+  width:calc(100% - 1em);
+  height:300px;
+}
 main >div.content .info-charts, main > div.content .info-map{
   padding:0.5em;
   width: 40%;
@@ -243,6 +246,10 @@ text-align: left;
   width: 100%;
 }
 //end of content
+#side-bar,.content{
+  min-height: 100vh;
+  height:100%;
+}
 //side bar
 #side-bar,.drop-down{
   @include setBg($faint);
@@ -254,8 +261,6 @@ text-align: left;
 }
 #side-bar{
   padding-top:1em;
-  min-height: 100vh;
-  height:100%;
   min-width: $sideBarSize;
 }
 #side-bar .item{
@@ -412,6 +417,9 @@ form input[type="submit"] :disabled{
     width: 24px;
     height:24px;
   }
+  .map{
+    height:300px;
+  }
   .search{
     width: calc(100px - 0.5em);
     padding:0.25em;
@@ -562,13 +570,13 @@ form input[type="submit"] :disabled{
 .column-center{
   @include flex(column,flex-start ,center );
 }
-.center-me{
+.center-self{
   margin:0 auto;
 }
 
 #login-container{
   margin:2em auto;
-  @include flex(row,center ,center );
+  @include flex(row,space-between ,center );
   width:80%;
   height:90vh;
   @include addRoundCorner(10px);

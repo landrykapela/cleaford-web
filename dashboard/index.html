@@ -87,17 +87,8 @@
                         </div>
                     </div>
                     <div class="row-space">
-                        <div class="summary-table shadow" id="customer_table_summary">
-                            <span class="summary-head">TOP CUSTOMERS</span>
-                            <div class="head-row">
-                                <span>Name</span>
-                                <span>Email</span>
-                                <span>Location</span>
-                                <!-- <span>Phone</span> -->
-                            </div>
-                           
-                        </div>
-                        <div class="info-map" id="map-chart">
+                        
+                        <div class="info-map" id="map-chart2">
                            
                         </div>
                     </div>
@@ -163,15 +154,17 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="address">Company Address</label>
-                                    <textarea rows=5 id="address" name="address"></textarea>
+                                    <input type="text" id="address" name="address" />
+                                    <!-- <textarea rows=5 id="address" name="address"></textarea> -->
                                 </div> 
+                                <div class="form-group-no-border map" id="map-add"></div>
                                 <div class="form-group">
                                     <label for="country">Country</label>
-                                    <select id="country" name="country"></select>
+                                    <input type="text" id="country" name="country"/>
                                 </div> 
-                                <div class="form-group hidden" id="region-group">
-                                    <label for="region">Region</label>
-                                    <select id="region" name="region"></select>
+                                <div class="form-group">
+                                    <label for="region">City/Region</label>
+                                    <input type="text" id="region" name="region"/>
                                 </div> 
                                 <div class="form-group">
                                     <label for="email">Company E-mail</label>
@@ -209,15 +202,17 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="address">Company Address</label>
-                                    <textarea rows=5 id="address" name="address"></textarea>
+
+                                    <input type="text" id="address" name="address" />
                                 </div> 
+                                <div class="form-group-no-border map" id="map-edit"></div>
                                 <div class="form-group">
                                     <label for="country">Country</label>
-                                    <select id="country" name="country"></select>
+                                    <input type="text" id="country" name="country"/>
                                 </div> 
-                                <div class="form-group hidden" id="e-region-group" name="e-region-group">
-                                    <label for="region">Region</label>
-                                    <select id="region" name="region"></select>
+                                <div class="form-group">
+                                    <label for="region">City/Region</label>
+                                    <input type="text" id="region" name="region"/>
                                 </div> 
                                 <div class="form-group">
                                     <label for="email">Company E-mail</label>
@@ -263,6 +258,7 @@
 <script src="//cdn.amcharts.com/lib/4/maps.js"></script>
 <script src="//cdn.amcharts.com/lib/4/geodata/worldLow.js"></script>
    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-        <script src="/js/dash.js"></script>
-    </body>
+   <script src="https://maps.googleapis.com/maps/api/js?libraries=places&key=AIzaSyAWALPfQrbJypNehyEnoFKFKs1nDOoqOGk"></script>
+   <script src="/js/dash.js"></script>
+         </body>
 </html>

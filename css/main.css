@@ -141,6 +141,11 @@ main > div.content .info-stats, main > div.content .info-map {
   margin: 0.5em 0.25;
 }
 
+main > div.content #map-chart2 {
+  width: calc(100% - 1em);
+  height: 300px;
+}
+
 main > div.content .info-charts, main > div.content .info-map {
   padding: 0.5em;
   width: 40%;
@@ -262,6 +267,11 @@ main > div#dashboard_content {
   width: 100%;
 }
 
+#side-bar, .content {
+  min-height: 100vh;
+  height: 100%;
+}
+
 #side-bar, .drop-down {
   background-color: #9c9898 !important;
   display: flex;
@@ -276,8 +286,6 @@ main > div#dashboard_content {
 
 #side-bar {
   padding-top: 1em;
-  min-height: 100vh;
-  height: 100%;
   min-width: 200px;
 }
 
@@ -453,6 +461,10 @@ form input[type=submit] :disabled {
 .form-group > img.icon {
   width: 24px;
   height: 24px;
+}
+
+.map {
+  height: 300px;
 }
 
 .search {
@@ -666,7 +678,7 @@ main > div.content .summary-table > span.summary-head {
   align-items: center;
 }
 
-.center-me {
+.center-self {
   margin: 0 auto;
 }
 
@@ -674,7 +686,7 @@ main > div.content .summary-table > span.summary-head {
   margin: 2em auto;
   display: flex;
   flex-direction: row;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
   width: 80%;
   height: 90vh;

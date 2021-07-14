@@ -277,16 +277,6 @@ const arrayToCSV = (sourceArray)=>{
     });
     return output;
 }
-
-// const csvExport = document.querySelector("#csv");
-// if(csvExport){
-//     csvExport.addEventListener('click',(e)=>{
-//         var anchor = document.querySelector("#downloadcsv");
-//         anchor.href = URL.createObjectURL(new Blob([arrayToCSV(storedData.customers)],"text/plain"));
-//         anchor.click();
-//     })
-// }
-
 if(window.location.pathname == "/signin.html"){
     storage.setItem("data",JSON.stringify({}));
     storage.setItem("currentUser",null);
@@ -473,10 +463,61 @@ const signoutUser = ()=>{
 //show admin stats
 const showClientStats =()=>{
     if(currentUser.detail){
-        getCustomers();
-        greet("Hello "+currentUser.detail.contact_person.split(" ")[0],null);
-        const numberOfCustomers = document.getElementById("no_of_customers");
-        numberOfCustomers.textContent = (storedData.customers) ? storedData.customers.length:23;       
+        getCustomers().then(result=>{
+            updateCustomers(result.data);
+            greet("Hello "+currentUser.detail.contact_person.split(" ")[0],null);
+            const numberOfCustomers = document.getElementById("no_of_customers");
+            numberOfCustomers.textContent = (storedData.customers) ? storedData.customers.length:0; 
+
+            //show charts and maps
+            let chartArea = document.getElementById("chart-area");
+            while(chartArea.hasChildNodes()){
+                chartArea.removeChild(chartArea.childNodes[0]);
+            }
+            const canvas = document.createElement("canvas");
+            chartArea.appendChild(canvas);
+            let summary = {
+                labels:["Clearing","Forwarding"],
+                datasets:[{
+                    label:"Consigment Type",
+                    data:[22,36],
+                    backgroundColor:['#ffcc00','#cc9900'],
+                    hoverOffset:4
+                }]
+            }
+            let config = {
+                type:'pie',data:summary,options:{
+                    plugins:{
+                        legend:{
+                            display:true,
+                            position:'left'
+                        },
+                        title:{
+                            display:true,
+                            position:'top',text:'Consigment Type',
+                            align:'start',
+                            padding:{
+                                top:10,left:10,bottom:10
+                            }
+                        }
+                    }
+                }
+            }
+            var myChart = drawChart(config,canvas);
+        
+            // showCustomersSummary();
+            mapChart();
+        }).catch(er=>{
+            if(er.code == -1){
+                showFeedback(er.msg,1);
+                signoutUser();
+            }
+            else{
+                console.log("stw: ",er);
+                showFeedback("something wrong",1);
+            }
+        })
+              
     }
     else{
         greet("Hello "+currentUser.email,null);
@@ -484,43 +525,7 @@ const showClientStats =()=>{
     //show client summary
     fetchClientRoles();
     fetchRegions();
-    let chartArea = document.getElementById("chart-area");
-    while(chartArea.hasChildNodes()){
-        chartArea.removeChild(chartArea.childNodes[0]);
-    }
-    const canvas = document.createElement("canvas");
-    chartArea.appendChild(canvas);
-    let summary = {
-        labels:["Clearing","Forwarding"],
-        datasets:[{
-            label:"Consigment Type",
-            data:[22,36],
-            backgroundColor:['#ffcc00','#cc9900'],
-            hoverOffset:4
-        }]
-    }
-    let config = {
-        type:'pie',data:summary,options:{
-            plugins:{
-                legend:{
-                    display:true,
-                    position:'left'
-                },
-                title:{
-                    display:true,
-                    position:'top',text:'Consigment Type',
-                    align:'start',
-                    padding:{
-                        top:10,left:10,bottom:10
-                    }
-                }
-            }
-        }
-    }
-    var myChart = drawChart(config,canvas);
-
-    showCustomersSummary();
-    mapChart();
+   
 }
 
 //show profile
@@ -582,6 +587,43 @@ const activateAccount = (user)=>{
     })
 }
 
+const initializeMap =(mapHolder,searchInput,targetForm,center={lat:-6.7924, lng:39.2083})=>{   
+    const map = new google.maps.Map(mapHolder,{center:center,zoom:13});
+    var fields = ["formatted_address","geometry","name","place_id"];
+    var options = {strictBounds:false,fields:fields,type:"establishment"};
+    var autocomplete = new google.maps.places.Autocomplete(searchInput,options);
+    autocomplete.bindTo("bounds",map);
+    const marker = new google.maps.Marker({
+        map,
+        anchorPoint: new google.maps.Point(0, -29),
+      });
+    autocomplete.addListener("place_changed",()=>{
+        const place = autocomplete.getPlace();
+        var geocoder = new google.maps.Geocoder();
+        geocoder.geocode({placeId:place.place_id},(result)=>{
+            var addrComponents = result[0].address_components;
+            var city = addrComponents.filter(cp=>{
+                return cp.types.includes("locality") || cp.types.includes("administrative_area_level_1");
+            })
+            var country = addrComponents.filter(cp=>{
+                return cp.types.includes("country");
+            })
+            targetForm.region.value = city[0].long_name;
+            targetForm.country.value =country[0].long_name;
+        })
+        if(place.geometry.viewport){
+            map.fitBounds(place.geometry.viewport);
+        }
+        else{
+            map.setCenter(place.geometry.location);
+            map.setZoom(17);
+            
+        }
+        marker.setPosition(place.geometry.location);
+        marker.setVisible(true);
+    })
+
+}
 const editCustomerDetail = (customer,source)=>{
     const editForm = document.querySelector("#edit_customer_form");
     editForm.customer_id.value = customer.id;
@@ -591,23 +633,10 @@ const editCustomerDetail = (customer,source)=>{
     editForm.contact_person.value = customer.contact_person;
     editForm.phone.value = customer.phone;
     editForm.contact_email.value = customer.contact_email;
-    loadCountries(editForm.country);
+    editForm.region.value = customer.region;
     editForm.country.value = customer.country;
-    if(customer.country.toLowerCase() == 'tanzania'){
-        document.querySelector("#e-region-group").classList.remove("hidden");
-        loadRegions(editForm.region);
-        editForm.region.value = customer.region;
-    }
-    else document.querySelector("#e-region-group").classList.add("hidden");
+    initializeMap(document.getElementById("map-edit"),editForm.address,editForm);
 
-    editForm.country.addEventListener("change",(e)=>{
-        if(e.target.value.toLowerCase() == 'tanzania'){
-            document.querySelector("#e-region-group").classList.remove("hidden");
-            loadRegions(editForm.region);
-            editForm.region.value = customer.region;
-        }
-        else document.querySelector("#e-region-group").classList.add("hidden");
-    })
     activateMenu('edit_customer');
     document.getElementById(source).classList.add("hidden");
     document.querySelector("#edit_customer_content").classList.remove("hidden");
@@ -623,7 +652,7 @@ const editCustomerDetail = (customer,source)=>{
         let email = (editForm.email.value) ? editForm.email.value : customer.email;
         let phone = (editForm.phone.value) ? editForm.phone.value : customer.phone;
         let country = (editForm.country.value) ? editForm.country.value : customer.country;
-        let region = (country.toLowerCase() == 'tanzania') ? editForm.region.value : null;
+        let region = (editForm.region.value) ? editForm.region.value: customer.region;
         let contact_person = (editForm.contact_person.value) ? editForm.contact_person.value : customer.contact_person;
         let contact_email = (editForm.contact_email.value) ? editForm.contact_email.value : customer.contact_email;
         let data = {
@@ -701,8 +730,8 @@ const createCustomerRow = (row,holder)=>{
 
         companyName.textContent = row.name;
         companyName.id = row.id;
-        companyAddress.textContent = row.address;
-        companyLocation.textContent = (row.country.toLowerCase() == 'tanzania') ? row.region : row.country;
+        companyAddress.textContent = row.address.split(",")[0];
+        companyLocation.textContent = (row.region) ? (row.region+", "+row.country) : row.country;
         companyPhone.textContent = row.phone;
         contactName.textContent = row.contact_person;
         contactEmail.textContent = row.email;
@@ -777,7 +806,7 @@ const showCustomers = (data)=>{
         data.forEach(row=>{
             createCustomerRow(row,holder);
         });
-        arrayToCSV(data);
+        // arrayToCSV(data);
     }
 }
 //display system roles
@@ -997,25 +1026,30 @@ const closeCustomerForm=(source)=>{
 }
 //fetch clients
 const getCustomers = ()=>{
-    showSpinner();
-    // var body=JSON.stringify({user:currentUser.id});
-    var headers = {'Content-type':'application/json','Authorization':"Bearer "+currentUser.accessToken};
-    var options = {method:"GET",headers:headers};
-
-    fetch(customers_url+"/"+currentUser.id,options)
-    .then(res=>{
-        hideSpinner();
-        if(res.status == 403){
-            showFeedback("Session expired, please login",1);
-            signoutUser();
-        }
-        else{
-             res.json().then(result=>{
-                updateCustomers(result.data);
-                // closeCustomerForm('add_customer_content');
-            })
-        }
+    return new Promise((resolve,reject)=>{
+        showSpinner();
+        // var body=JSON.stringify({user:currentUser.id});
+        var headers = {'Content-type':'application/json','Authorization':"Bearer "+currentUser.accessToken};
+        var options = {method:"GET",headers:headers};
+    
+        fetch(customers_url+"/"+currentUser.id,options)
+        .then(res=>{
+            hideSpinner();
+            if(res.status == 403){
+                reject({code:-1,msg:"Session expired, please login"});
+                // signoutUser();
+            }
+            else{
+                 res.json().then(result=>{
+                   resolve(result);
+                })
+                .catch(err=>{
+                    reject(err)
+                })
+            }
+        })
     })
+    
    
    
 }
@@ -1047,7 +1081,8 @@ const mapChart = ()=>{
        let newFeatures = am4geodata_worldLow.features.map((feature,index)=>{
            var feat = feature;
            feat.properties.value = 0;
-           storedData.customers.forEach(customer=>{
+           let customers = (storedData.customers) ? storedData.customers : [];
+           customers.forEach(customer=>{
                if(feature.properties.name.toLowerCase() == customer.country.toLowerCase()) feat.properties.value ++;
            })
            
@@ -1056,7 +1091,7 @@ const mapChart = ()=>{
        })
        myData.features = newFeatures;
         // Low-detail map
-        var chart = am4core.create("map-chart", am4maps.MapChart);
+        var chart = am4core.create("map-chart2", am4maps.MapChart);
         chart.geodata = myData;
         chart.projection = new am4maps.projections.Miller();
         var polygonSeries = chart.series.push(new am4maps.MapPolygonSeries());
@@ -1229,16 +1264,13 @@ const populateCustomerDetails = (form,customer)=>{
     if(detail){
         form.company_name.value = detail.name;
         form.client_id.value = detail.id;
-        form.address.textContent = detail.address;
+        form.address.value = detail.address;
         form.contact_person.value = detail.contact_person;
         form.contact_email.value = detail.contact_email;
         form.phone.value= detail.phone;
         form.country.value = detail.country;
-        if(detail.country && detail.country.toLowerCase() == 'tanzania') {
-            document.querySelector("#region-group").classList.remove("hidden");
-            loadRegions(form.region);
-            form.region.value = detail.region;
-        }
+        form.region.value = detail.region;
+       
     }
     
 }
@@ -1309,7 +1341,6 @@ const uploadUserImage = (image)=>{
 }
 //submit dlient form
 const submitClientDetail =(data,verb)=>{
-    console.log("submit: ",data);
     const headers = {
         'Content-type':'application/json',
         'Authorization':'Bearer '+currentUser.accessToken
@@ -1326,11 +1357,10 @@ const submitClientDetail =(data,verb)=>{
         }
         else{
             res.json().then(result=>{
-                console.log("result: ",result);
                 currentUser.detail = result.data;
                 updateClientDetail(result.data);
-                showDashboard();
                 showFeedback(result.msg,result.code);
+                showDashboard();
             })
             .catch(err=>{
                 console.log("err: ",err);
@@ -1362,10 +1392,9 @@ const submitCustomerDetail =(data,verb)=>{
         }
         else{
             res.json().then(result=>{
-                console.log("result: ",result);
                 updateCustomers(result.data);
-                showCustomers();
                 showFeedback(result.msg,result.code);
+                closeCustomerForm('add_customer_content')
             })
             .catch(err=>{
                 console.log("err: ",err);
@@ -1376,8 +1405,6 @@ const submitCustomerDetail =(data,verb)=>{
         console.log("err: ",err);
         showFeedback("Something went wrong, please try again later",1);
     })
-       
-    
 }
 //update client roles
 const updateClientRoles =(roles)=>{
@@ -1473,16 +1500,7 @@ if(window.location.pathname == "/dashboard/"){
                 activateMenu('customers');
             })
 
-            loadCountries(customerForm.country);
-            customerForm.country.addEventListener('change',(e)=>{
-                if(customerForm.country.value.toLowerCase() == "tanzania"){
-                    document.querySelector("#region-group").classList.remove("hidden");
-                    loadRegions(customerForm.region);
-                }
-                else{
-                    document.querySelector("#region-group").classList.add("hidden"); 
-                }
-            });
+            initializeMap(document.getElementById("map-add"),customerForm.address,customerForm);
 
             customerForm.addEventListener("submit",(e)=>{
                 e.preventDefault();
@@ -1493,9 +1511,8 @@ if(window.location.pathname == "/dashboard/"){
             let person = customerForm.contact_person.value;
             let cemail = customerForm.contact_email.value;
             let address= customerForm.address.value;
-            let country = customerForm.country.options[customerForm.country.options.selectedIndex].value;
-            let region = (country.toLowerCase() == "tanzania") ? customerForm.region.options[customerForm.region.options.selectedIndex].value:null;
-            
+            let country = customerForm.country.value;
+            let region = customerForm.region.value;
             let data = {
                 region:region,
                 country:country,
@@ -1537,19 +1554,11 @@ if(window.location.pathname == "/account/"){
     }
     
     if(detailForm){
-        loadCountries(detailForm.country);
-        detailForm.country.addEventListener('change',(e)=>{
-            if(e.target.value.toLowerCase() == "tanzania"){
-                document.querySelector("#region-group").classList.remove("hidden");
-                loadRegions(detailForm.region);
-            }
-            else{
-                document.querySelector("#region-group").classList.add("hidden");
-            }
-        })
+        
         if(currentUser){
             populateCustomerDetails(detailForm,currentUser);
         }
+        initializeMap(document.getElementById("map-add"),detailForm.address,detailForm);
         detailForm.addEventListener('submit',(e)=>{
             e.preventDefault();
 
@@ -1559,8 +1568,8 @@ if(window.location.pathname == "/account/"){
             let person = detailForm.contact_person.value;
             let cemail = detailForm.contact_email.value;
             let address= detailForm.address.value;
-            let country = detailForm.country.options[detailForm.country.options.selectedIndex].value;
-            let region = (country.toLowerCase() == "tanzania") ? detailForm.region.options[detailForm.region.options.selectedIndex].value:null;
+            let country = detailForm.country.value;
+            let region = detailForm.region.value;
             
             let file = detailForm.company_logo.files[0];
             let logoFile = clientDetails.logo;

@@ -275,6 +275,47 @@ const loadCountries = (selectElement)=>{
     
     }
 }
+//initialize google maps
+
+const initializeMap =(mapHolder,searchInput,targetForm,center={lat:-6.7924, lng:39.2083})=>{   
+    const map = new google.maps.Map(mapHolder,{center:center,zoom:13});
+    var fields = ["formatted_address","geometry","name","place_id"];
+    var options = {strictBounds:false,fields:fields,type:"establishment"};
+    var autocomplete = new google.maps.places.Autocomplete(searchInput,options);
+    autocomplete.bindTo("bounds",map);
+    const marker = new google.maps.Marker({
+        map,
+        anchorPoint: new google.maps.Point(0, -29),
+      });
+    autocomplete.addListener("place_changed",()=>{
+        const place = autocomplete.getPlace();
+        
+        var geocoder = new google.maps.Geocoder();
+        geocoder.geocode({placeId:place.place_id},(result)=>{
+            var addrComponents = result[0].address_components;
+            var city = addrComponents.filter(cp=>{
+                return cp.types.includes("locality") || cp.types.includes("administrative_area_level_1");
+            })
+            var country = addrComponents.filter(cp=>{
+                return cp.types.includes("country");
+            })
+            targetForm.region.value = city[0].long_name;
+            targetForm.country.value =country[0].long_name;
+        })
+        
+        if(place.geometry.viewport){
+            map.fitBounds(place.geometry.viewport);
+        }
+        else{
+            map.setCenter(place.geometry.location);
+            map.setZoom(17);
+            
+        }
+        marker.setPosition(place.geometry.location);
+        marker.setVisible(true);
+    })
+
+}
 
 //load regions
 const loadRegions = (selectElement)=>{
@@ -491,7 +532,6 @@ if(signupForm){
         }})
         .then(res=>res.json())
         .then(result=>{
-            console.log("test: ",result);
             currentUser = result.data;
             currentUser.accessToken = result.accessToken;
             delete currentUser.password;
@@ -701,21 +741,141 @@ const activateAccount = (user)=>{
 
 
 const editClientDetail = (client,source)=>{
-    const editForm = document.querySelector("#edit_client_form");
-    editForm.client_id.value = client.id;
-    editForm.company_name.value = client.name;
-    editForm.address.value = client.address;
-    editForm.email.value = client.email;
-    editForm.contact_person.value = client.contact_person;
-    editForm.phone.value = client.phone;
-    editForm.contact_email.value = client.contact_email;
-    editForm.region.value = client.region;
+    const updateForm = document.querySelector("#edit_client_form");
+
+    if(updateForm){
+    updateForm.client_id.value = client.id;
+    updateForm.company_name.value = client.name;
+    updateForm.address.value = client.address;
+    updateForm.email.value = client.email;
+    updateForm.contact_person.value = client.contact_person;
+    updateForm.phone.value = client.phone;
+    updateForm.contact_email.value = client.contact_email;
+    updateForm.region.value = client.region;
+    updateForm.country.value = client.country;
+
+    let imagePreview = document.getElementById("client_image");
+    if(client.logo && client.logo.length != 0) imagePreview.src = client.logo;
+    initializeMap(document.getElementById("map-edit"),updateForm.address,updateForm);
     activateMenu('edit_client');
     document.getElementById(source).classList.add("hidden");
     document.querySelector("#edit_client_content").classList.remove("hidden");
     document.getElementById("btnCancelEdit").addEventListener('click',()=>{
         closeClientForm('edit_client_content');
     })
+
+         document.getElementById("btnCancelEdit").addEventListener('click',()=>{
+         closeClientForm('edit_client_content');
+         });
+         initializeMap(document.getElementById("map-edit"),updateForm.address,updateForm);
+         let inputFile = document.getElementById("company_logo");
+         if(inputFile){
+             inputFile.addEventListener('change',(e)=>{
+                 var file = inputFile.files[0];
+                 if(file){
+                     var reader = new FileReader();
+                     reader.addEventListener('load',()=>{
+                        if(reader.readyState == 2 && reader.result != null){
+
+                            preview.src = reader.result;
+                        }
+                     },false);
+ 
+                     reader.readAsDataURL(file);
+                 }
+             })
+         }
+        
+         updateForm.addEventListener('submit',(e)=>{
+             e.preventDefault();
+             let id = updateForm.client_id.value;
+             let name   = updateForm.company_name.value;
+             let email  = updateForm.email.value;
+             let phone  = updateForm.phone.value;
+             let person = updateForm.contact_person.value;
+             let cemail = updateForm.contact_email.value;
+             let address= updateForm.address.value;
+             let region = updateForm.region.value;
+             let country = updateForm.country.value;
+             let file = updateForm.company_logo.files[0];
+             
+
+             let client = storedData.clients.filter(c=>c.id == id);
+             let logoFile = client.logo;
+             let newData = {
+                 region:region,
+                 country:country,
+                 id:id,
+                 company_name:(name && name.length !==0) ? name: client.name,
+                 email:(email && email.length !==0) ? email: client.email,
+                 phone:(phone && phone.length !==0) ? phone: client.phone,
+                 contact_person:(person && person.length !==0) ? person: client.contact_person,
+                 contact_email:(cemail && cemail.length !==0) ? cemail: client.contact_email,
+                 address:(address && address.length !==0) ? address: client.address,
+                 logo:logoFile,
+                 user:currentUser.id
+             };
+ 
+             if(file){
+                 var reader = new FileReader();
+                 reader.addEventListener('load',()=>{
+                     newData.logo = reader.result;
+                     imagePreview.src = newData.logo;
+                 },false);
+ 
+                 reader.readAsDataURL(file);
+             }
+ 
+             const headers = {
+                 'Content-type':'application/json',
+                 'Authorization':'Bearer '+currentUser.accessToken
+             }
+             const options = {
+                 method:"PUT",body:JSON.stringify(newData),headers:headers
+             }
+            //  .then(res=>{
+            //     if(res.status == 403){
+            //         showFeedback("Session expired, please login",1);
+            //         signoutUser();
+            //     }
+            //     else{
+            //         res.json().then(result=>{
+            //             updateCustomers(result.data);
+            //             showFeedback(result.msg,result.code);
+            //             closeCustomerForm('edit_customer_content')
+            //         })
+            //         .catch(err=>{
+            //             showFeedback(err.msg,err.code);
+            //         })
+            //     }
+            // })
+            // .catch(e=>{
+            //     showFeedback(e.msg,e.code);
+            // })
+
+
+             fetch(create_client_url,options)
+             .then(res=>{
+                 if(res.status == 403){
+                     showFeedback("Session expired. Please signin",1);
+                     signoutUser();
+                 }
+                 else{
+                     res.json().then(result=>{
+                         console.log("test: ",result);
+                        updateClients(result.data);
+                            showFeedback(result.msg,result.code);
+                             closeClientForm('edit_client_content');
+                        
+                     })
+                     .catch(err=>{
+                         showFeedback(err,1);
+                     })
+                 }
+             })
+         });
+     }
+
 }
 
 //show spinner
@@ -955,38 +1115,36 @@ const getClients = ()=>{
         const headers = {'Content-type':'application/json','Authorization':'Bearer '+currentUser.accessToken};
         fetch(clients_url,{method:"GET",headers:headers})
         .then(response=>{
+            hideSpinner();
             if(response.status == 403){
-                console.log("response: ",response)
                 showFeedback("Your session has expired. Please login again",1);
-                setTimeout(()=>{
-                    storage.setItem("currentUser",JSON.stringify({}));
-                    storage.setItem("data",JSON.stringify({}));
-                    window.location.pathname = "/signin.html";
-                },3000);
+                signoutUser();
+                reject({code:1,msg:"Your session has expired. Please login again"});
             }
             else{
-            return response.json();
+                response.json()
+                    .then(result=>{
+                        storedData.clients = result.data;
+                        // console.log("fetch: ",data.clients);
+                        storage.setItem("data",JSON.stringify(storedData));
+                        resolve(result.data);
+                    })
+                    .catch(e=>{
+                        console.log("eer: ",e);
+                        showFeedback(e.msg,e.code);
+                        reject(e);    
+                    });
             }
-            }).then(result=>{
-            hideSpinner();
-             storedData.clients = result.data;
-            // console.log("fetch: ",data.clients);
-            storage.setItem("data",JSON.stringify(storedData));
-            resolve(result.data);
         })
         .catch(e=>{
-            hideSpinner();
-            console.log("eer: ",e);
-            showFeedback("Your session has expired. Please login again",1);
             reject(e);
-                
         })
     })
-   
 }
 
 //update clients
 const updateClients = (clients)=>{
+    console.log("test: ",clients);
     if(clients && clients.length > 0){
         storedData.clients = clients;
         storage.setItem("data",JSON.stringify(storedData));
@@ -1259,20 +1417,12 @@ if(window.location.pathname ==="/admin/"){
        
         const detailForm = document.querySelector("#client_profile_form");
         if(detailForm){
-            loadCountries(detailForm.country);
+            
             document.getElementById("btnCancelAdd").addEventListener('click',()=>{
                 closeClientForm('add_client_content');
             });
-            detailForm.country.addEventListener('change',(e)=>{
-                if(e.target.value.toLowerCase() == 'tanzania'){
-                    document.querySelector('#region-group').classList.remove("hidden");
-                    loadRegions(detailForm.region);
-                    
-                }
-                else{
-                    document.querySelector('#region-group').classList.add("hidden");
-                }
-            })
+
+            initializeMap(document.getElementById("map-add"),detailForm.address,detailForm);
             detailForm.addEventListener('submit',(e)=>{
                 e.preventDefault();
     
@@ -1283,11 +1433,12 @@ if(window.location.pathname ==="/admin/"){
                 let cemail = detailForm.contact_email.value;
                 let address= detailForm.address.value;
                 let file = detailForm.company_logo.files[0];
-                let country = detailForm.country.options[detailForm.country.options.selectedIndex].value;
-                let region = (country.toLowerCase() == "tanzania") ? detailForm.region.options[detailForm.region.options.selectedIndex].value:null;
+                let country = detailForm.country.value;
+                let region = detailForm.region.value;
                 let logoFile = null;
                 let datas = {
                     region:region,
+                    country:country,
                     company_name:name,
                     email:email,
                     phone:phone,
@@ -1323,6 +1474,7 @@ if(window.location.pathname ==="/admin/"){
                     }
                     else{
                         res.json().then(result=>{
+                            showFeedback(result.msg,result.code);
                             closeClientForm('add_client_content');
                             updateClients(result.data);
                         })
@@ -1336,97 +1488,7 @@ if(window.location.pathname ==="/admin/"){
                 })
             });
         }
-        //update client
-        const updateForm = document.querySelector("#edit_client_form");
        
-        if(updateForm){
-            document.getElementById("btnCancelEdit").addEventListener('click',()=>{
-            closeClientForm('edit_client_content');
-            });
-            loadRegions(updateForm.region);
-            let imagePreview = document.getElementById("client_image");
-            let inputFile = document.getElementById("company_logo");
-            if(inputFile){
-                inputFile.addEventListener('change',(e)=>{
-                    var file = inputFile.files[0];
-                    if(file){
-                        var reader = new FileReader();
-                        reader.addEventListener('load',()=>{
-                            imagePreview.src = reader.result;
-                        },false);
-    
-                        reader.readAsDataURL(file);
-                    }
-                })
-            }
-           
-            updateForm.addEventListener('submit',(e)=>{
-                e.preventDefault();
-                let id = updateForm.client_id.value;
-                let name   = updateForm.company_name.value;
-                let email  = updateForm.email.value;
-                let phone  = updateForm.phone.value;
-                let person = updateForm.contact_person.value;
-                let cemail = updateForm.contact_email.value;
-                let address= updateForm.address.value;
-                let region = updateForm.region.options[updateForm.region.options.selectedIndex].value;
-                let file = updateForm.company_logo.files[0];
-                
-
-                let client = storedData.clients.filter(c=>c.id == id);
-                if(client.logo && client.logo.length !=0) imagePreview.src = client.logo;
-                let logoFile = client.logo;
-                let newData = {
-                    region:region,
-                    id:id,
-                    company_name:(name && name.length !==0) ? name: client.name,
-                    email:(email && email.length !==0) ? email: client.email,
-                    phone:(phone && phone.length !==0) ? phone: client.phone,
-                    contact_person:(person && person.length !==0) ? person: client.contact_person,
-                    contact_email:(cemail && cemail.length !==0) ? cemail: client.contact_email,
-                    address:(address && address.length !==0) ? address: client.address,
-                    logo:logoFile,
-                    user:currentUser.id
-                };
-    
-                if(file){
-                    var reader = new FileReader();
-                    reader.addEventListener('load',()=>{
-                        newData.logo = reader.result;
-                        imagePreview.src = newData.logo;
-                    },false);
-    
-                    reader.readAsDataURL(file);
-                }
-    
-                const headers = {
-                    'Content-type':'application/json',
-                    'Authorization':'Bearer '+currentUser.accessToken
-                }
-                const options = {
-                    method:"PUT",body:JSON.stringify(newData),headers:headers
-                }
-                
-                fetch(create_client_url,options)
-                .then(res=>{
-                    if(res.status == 403){
-                        showFeedback("Session expired. Please signin",1);
-                        signoutUser();
-                        return;
-                    }
-                    return res.json()
-                }).then(result=>{
-                   showFeedback(result.msg,result.code);
-                        closeClientForm('edit_client_content');
-                        updateClients(result.data);
-                   
-                })
-                .catch(err=>{
-                    showFeedback(err,1);
-                })
-            });
-        }
-
         //add role
         const roleForm = document.querySelector("#add_role_form");
         if(roleForm){
