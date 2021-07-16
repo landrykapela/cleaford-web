@@ -33,296 +33,259 @@
                 <span class="item" id="subscriptions">Subscriptions</span>
                 <span class="item" id="roles">Roles</span>
                 <span class="item" id="reports">Reports</span>
+                <span class="item" id="settings">Settings</span>
             </div>
-           
-            <div class="content" id="dashboard_content">
-                <div class="info"><p class="medium-text" id="greetings"></p>
-                    <div class="menu">
-                    <div class="account-menu">
-                        <img class="user-avatar" src="/img/favicon.png" alt="user avatar"/>
-                        <span id="account-name">Mr. Cleaford</span>
-                        <span class="material-icons large-text arrow" id="arrow-drop0">arrow_drop_down</span>                       
-                    </div>
-                    <div class="drop-down hidden" id="drop-down0">
-                        <span class="drop-item" id="settings0">Settings</span>
-                        <span class="drop-item" id="signout0">Logout</span>
-                    </div>
-                </div>
-                </div>
-                <div class="row-space">
-                    <div class="info-stats">
-                        <div class="stat-card">
-                            <span>Client's registered</span>
-                            <span class="stat-value" id="no_of_clients"></span>
-                        </div>
-                        <div class="stat-card">
-                            <span>Active Clients</span>
-                            <span class="stat-value" id="no_of_clients">3</span>
-                        </div>
-                        <div class="stat-card">
-                            <span>Monthly Subscriptions</span>
-                            <span class="stat-value" id="no_of_clients">26</span>
-                        </div>
-                        <div class="stat-card">
-                            <span>Client's registered</span>
-                            <span class="stat-value" id="no_of_clients"></span>
-                        </div>
-                        <div class="stat-card">
-                            <span>Client's registered</span>
-                            <span class="stat-value" id="no_of_clients"></span>
-                        </div>
-                        <div class="stat-card">
-                            <span>Client's registered</span>
-                            <span class="stat-value" id="no_of_clients"></span>
-                        </div>
-                    </div>
-                    <div class="info-charts" id="chart-area">
-                    </div>
-                </div>
-                <div class="row-space">
-                    <div class="summary-table shadow" id="client_table_summary">
-                        <span class="summary-head">TOP CLIENTS</span>
-                        <div class="head-row">
-                            <span>Name</span>
-                            <span>Email</span>
-                            <span>Location</span>
-                            <span>Status</span>
-                        </div>
-                       
-                    </div>
-                    <div class="info-map" id="map-chart">
-                       
-                    </div>
-                </div>
-            </div>
-            <div class="content hidden" id="roles_content">
+           <div class="content">
                 <div class="info">
                     <div>
-                        <span class="medium-text">Roles</span><br />
-                        <span>Roles | Manage Roles</span>
+                        <span class="medium-text" id="greetings"></span><br />
+                        <span id="crumbs"></span>
                     </div>
                     <div class="menu">
-                        <div class="account-menu">
-                            <img class="user-avatar" src="/img/favicon.png" alt="user avatar"/>
-                            <span id="account-name">Mr. Cleaford</span>
-                            <span class="material-icons large-text arrow" id="arrow-drop4">arrow_drop_down</span>                       
-                        </div>
-                        <div class="drop-down hidden" id="drop-down4">
-                            <span class="drop-item" id="settings4">Settings</span>
-                            <span class="drop-item" id="signout4">Logout</span>
-                        </div>
+                    <div class="account-menu">
+                        <img class="user-avatar" src="/img/favicon.png" alt="user avatar"/>
+                        <span id="account-name">Mr. Cleaford</span>
+                        <span class="material-icons large-text arrow" id="arrow-drop">arrow_drop_down</span>                       
+                    </div>
+                    <div class="drop-down hidden" id="drop-down">
+                        <span class="drop-item" id="profile">Profile</span>
+                        <span class="drop-item" id="signout">Logout</span>
                     </div>
                 </div>
-                <div class="row-end"><button class="buttons-s no-corner" id="add_role" onclick="showRoleForm();">Add Role</button></div>
+                </div>
+                <div class="can-hide" id="dashboard_content">
                
-                <div class="head-row" id="roles-head-row">
-                    <span>Role</span>
-                    <span>Description</span>
-                    <!-- <span>Permissions</span> -->
+                    <div class="row-even wrap">
+                            <div class="stat-card">
+                                <span>Registered Clients</span>
+                                <span class="stat-value" id="no_of_clients"></span>
+                            </div>
+                            <div class="stat-card">
+                                <span>Active Clients</span>
+                                <span class="stat-value" id="no_of_clients">3</span>
+                            </div>
+                            <div class="stat-card">
+                                <span>Unconfirmed Accounts</span>
+                                <span class="stat-value" id="no_of_clients">2</span>
+                            </div>
+                            <div class="stat-card">
+                                <span>Monthly Subscriptions</span>
+                                <span class="stat-value" id="no_of_clients">26</span>
+                            </div>
+                            <div class="stat-card">
+                                <span>Pending Invoices</span>
+                                <span class="stat-value" id="no_of_clients">7</span>
+                            </div>
+                          
+                            <div class="stat-card">
+                                <span>Client's registered</span>
+                                <span class="stat-value" id="no_of_clients">16</span>
+                            </div>
+                            <div class="stat-card">
+                                <span>Client's registered</span>
+                                <span class="stat-value" id="no_of_clients">21</span>
+                            </div>
+                            <div class="stat-card">
+                                <span>Active Clients</span>
+                                <span class="stat-value" id="no_of_clients">3</span>
+                            </div>
+                            <div class="stat-card">
+                                <span>Monthly Subscriptions</span>
+                                <span class="stat-value" id="no_of_clients">26</span>
+                            </div>
+                            <div class="stat-card">
+                                <span>Monthly Income</span>
+                                <span class="stat-value" id="no_of_clients">12,000k</span>
+                            </div>
+                            
+                    </div>
+                    <div class="row-even">
+                        <div class="info-charts" id="chart-area">
+                        </div>
+                       
+                        <div class="info-map" id="map-chart">
+                           
+                        </div>
+                    </div>
+                    <div class="row-space">
+                        <div class="summary-table" id="client_table_summary">
+                            <span class="summary-head">TOP CLIENTS</span>
+                            <div class="head-row">
+                                <span>Name</span>
+                                <span>Email</span>
+                                <span>Location</span>
+                                <span>Status</span>
+                            </div>
+                           
+                        </div>
+                    </div>
+                </div>
+                <div class="can-hide hidden" id="roles_content">
                     
-                </div>
-
-            </div>
-            <div class="content hidden" id="clients_content">
-                <div class="info"><div><span class="medium-text">Clients</span><br /><span>Clients | view clients</span></div>
-                    <div class="menu">
-                        <div class="account-menu">
-                            <img class="user-avatar" src="/img/favicon.png" alt="user avatar"/>
-                            <span id="account-name">Mr. Cleaford</span>
-                            <span class="material-icons large-text arrow" id="arrow-drop1">arrow_drop_down</span>                       
-                        </div>
-                        <div class="drop-down hidden" id="drop-down1">
-                            <span class="drop-item" id="settings1">Settings</span>
-                            <span class="drop-item" id="signout1">Logout</span>
-                        </div>
-                    </div>
-                </div>
-               <div class="row-end"><button class="buttons-s no-corner" id="add_client" onclick="showClientDetailForm();">Add Client</button></div>
-               <div class="info">
-                   <span>Output: <button id="csv" class="export-buttons">CSV</button><button id="excel" class="export-buttons">Excel</button><button id="pdf" class="export-buttons">PDF</button></span>
-               <input class="search" id="search_client" placeholder="search"/>
-                </div>
-                <div class="head-row" id="clients-head-row">
-                    <span>Company Name
-                        <span class="sort-arrow material-icons" id="sort_company" onclick="sortClients('sort_company',this);">arrow_drop_down</span>
-                    </span>
-                    <span>Address
-                        </span>
-                        <span>Location
-                        </span>
-                    <span>Telephone</span>
-                    <span>Contact Name
-                        <span class="sort-arrow material-icons" id="sort_contact_name" onclick="sortClients('sort_contact_name',this);">arrow_drop_down</span>
+                    <div class="row-end"><button class="buttons-s no-corner" id="add_role" onclick="showRoleForm();">Add Role</button></div>
                    
-                    </span>
-                    <span>Contact E-mail<span class="sort-arrow material-icons" id="sort_contact_email" onclick="sortClients('sort_contact_email',this);">arrow_drop_down</span>
-                </span>
-                </div>
-
-            </div>
-            <div class="content hidden" id="subscriptions_content"></div>
-            <div class="content hidden" id="add_client_content">
-                <div class="info"><div><span class="medium-text">Clients</span><br /><span>Clients | Add client</span></div>
-                    <div class="menu">
-                    <div class="account-menu">
-                        <img class="user-avatar" src="/img/favicon.png" alt="user avatar"/>
-                        <span id="account-name">Mr. Cleaford</span>
-                        <span class="material-icons large-text arrow" id="arrow-drop2">arrow_drop_down</span>                       
-                    </div>
-                    <div class="drop-down hidden" id="drop-down2">
-                        <span class="drop-item" id="settings2">Settings</span>
-                        <span class="drop-item" id="signout2">Logout</span>
-                    </div>
-                </div>
-                </div>
-                <div id="form-container" class="form-container">
-                    <span class="medium-text">Company Details</span>
-                    <form id="client_profile_form" method="POST" class="client_forms">
-                        <div class="form-group">
-                            <label for="company_name">Company Name</label>
-                            <input type="text" id="company_name" name="company_name"  required />
-                        </div>
-                        <div class="form-group">
-                            <label for="address">Company Address</label>
-                            <input type="text" id="address" name="address" />
-                            <!-- <textarea rows=5 id="address" name="address"></textarea> -->
-                        </div> 
-                        <div class="form-group-no-border map" id="map-add"></div>
-                        <div class="form-group">
-                            <label for="country">Country</label>
-                            <input type="text" id="country" name="country"/>
-                        </div> 
-                        <div class="form-group">
-                            <label for="region">City/Region</label>
-                            <input type="text" id="region" name="region"/>
-                        </div> 
-                        <div class="form-group">
-                            <label for="email">Company E-mail</label>
-                            <input type="email" id="email" name="email"/></div>
-                        <div class="form-group">
-                            <label for="phone">Company Telephone</label>
-                            <input type="number" id="phone" name="phone" required/>
-                        </div>
-                        <div class="form-group">
-                            <label for="contact_person">Contact Person</label>
-                            <input type="text" id="contact_person" name="contact_person" required />
-                       </div>
-                       <div class="form-group">
-                           <label for="contact_email">Contact E-mail</label>
-                           <input type="email" id="contact_email" name="contact_email" required />
-                       </div>
-                       <div class="form-group">
-                           <label for="company_logo">Company Logo</label>
-                           <input type="file" id="company_logo" name="company_logo"/>
-                        </div>
-                      <div class="form-group-no-border">
-                        <input class="no-corner" type="submit" id="btnSubmit" name="btnSubmit" value="SUBMIT"/>
-                        <input type="reset" class="buttons no-corner" id="btnCancelAdd" name="btnCancelAdd" value="Cancel"/>
-                    </div>
-                    </form>
-                </div>
-            </div>
-            <div class="content hidden" id="edit_client_content">
-                <div class="info"><div><span class="medium-text">Clients</span><br /><span>Clients | Edit Client</span></div>
-                    <div class="menu">
-                    <div class="account-menu">
-                        <img class="user-avatar" src="/img/favicon.png" alt="user avatar"/>
-                        <span id="account-name">Mr. Cleaford</span>
-                        <span class="material-icons large-text arrow" id="arrow-drop3">arrow_drop_down</span>                       
-                    </div>
-                    <div class="drop-down hidden" id="drop-down3">
-                        <span class="drop-item" id="settings3">Settings</span>
-                        <span class="drop-item" id="signout3">Logout</span>
-                    </div>
-                </div>
-                </div>
-                <div id="form-container" class="form-container">
-                    <span class="medium-text">Edit Client Details</span>
-                    <form id="edit_client_form" method="POST" class="client_forms">
-                        <input type="hidden" name="client_id" id="client_id"/>
-                        <div class="form-group">
-                            <label for="company_name">Company Name</label>
-                            <input type="text" id="company_name" name="company_name"  required />
-                        </div>
-                        <div class="form-group">
-                            <label for="address">Company Address</label>
-                            <input type="text" id="address" name="address" />
-                            <!-- <textarea rows=5 id="address" name="address"></textarea> -->
-                        </div> 
-                        <div class="form-group-no-border map" id="map-edit"></div>
-                        <div class="form-group">
-                            <label for="country">Country</label>
-                            <input type="text" id="country" name="country"/>
-                        </div> 
-                        <div class="form-group">
-                            <label for="region">City/Region</label>
-                            <input type="text" id="region" name="region"/>
-                        </div> 
-                        <div class="form-group">
-                            <label for="email">Company E-mail</label>
-                            <input type="email" id="email" name="email"/></div>
-                        <div class="form-group">
-                            <label for="phone">Company Telephone</label>
-                            <input type="number" id="phone" name="phone" required/>
-                        </div>
-                        <div class="form-group">
-                            <label for="contact_person">Contact Person</label>
-                            <input type="text" id="contact_person" name="contact_person" required />
-                       </div>
-                       <div class="form-group">
-                           <label for="contact_email">Contact E-mail</label>
-                           <input type="email" id="contact_email" name="contact_email" required />
-                       </div>
-                       <div class="form-group">
-                           <img src="/img/logo.png" class="user-avatar" id="client_image" name="client_image"/>
-                       </div>
-                       <div class="form-group">
-                           <label for="company_logo">Company Logo</label>
-                           <input type="file" id="company_logo" name="company_logo"/>
-                        </div>
-                      <div class="form-group-no-border">
-                        <input class="no-corner" type="submit" id="btnSubmit" name="btnSubmit" value="UPDATE"/>
-                        <input type="reset" class="buttons no-corner" id="btnCancelEdit" name="btnCancelEdit" value="Cancel" />
-                    </div>
-                    </form>
-                </div>
-            </div>
-            <div class="content hidden" id="add_role_content">
-                <div class="info"><div><span class="medium-text">Roles</span><br /><span>Roles | Add Role</span></div>
-                    <div class="menu">
-                    <div class="account-menu">
-                        <img class="user-avatar" src="/img/favicon.png" alt="user avatar"/>
-                        <span id="account-name">Mr. Cleaford</span>
-                        <span class="material-icons large-text arrow" id="arrow-drop5">arrow_drop_down</span>                       
-                    </div>
-                    <div class="drop-down hidden" id="drop-down5">
-                        <span class="drop-item" id="settings5">Settings</span>
-                        <span class="drop-item" id="signout5">Logout</span>
-                    </div>
-                </div>
-                </div>
-                <div id="form-container" class="form-container">
-                    <span class="medium-text">Add New Role</span>
-                    <form id="add_role_form" method="POST" class="client_forms">
-                        <div class="form-group">
-                            <label for="name">Name</label>
-                            <input type="text" id="name" name="name"  required />
-                        </div>
-                        <div class="form-group">
-                            <label for="description">Description</label>
-                            <textarea rows=5 id="description" name="description"></textarea>
-                        </div> 
-                        <div class="form-group">
-                            <label for="permission">Permissions</label>
-                            <input type="text" id="permission" name="permission" placeholder="separate with commas"/></div>
+                    <div class="head-row" id="roles-head-row">
+                        <span>Role</span>
+                        <span>Description</span>
+                        <!-- <span>Permissions</span> -->
                         
-                      <div class="form-group-no-border">
-                        <input class="no-corner" type="submit" id="btnSubmit" name="btnSubmit" value="SUBMIT"/>
-                        <input type="reset" class="buttons no-corner" id="btnCancelAddRole" name="btnCancelAddRole" value="Cancel"/>
                     </div>
-                    </form>
+    
                 </div>
-            </div>
+                <div class="can-hide hidden" id="clients_content">
+                 
+                   <div class="row-end"><button class="buttons-s no-corner" id="add_client" onclick="showClientDetailForm();">Add Client</button></div>
+                   <div class="info">
+                       <span>Output: <button id="csv" class="export-buttons">CSV</button><button id="excel" class="export-buttons">Excel</button><button id="pdf" class="export-buttons">PDF</button></span>
+                   <input class="search" id="search_client" placeholder="search"/>
+                    </div>
+                    <div class="summary-table" id="clients_table">
+                        <div class="head-row" id="clients-head-row">
+                            <span>Company Name
+                                <span class="sort-arrow material-icons" id="sort_company" onclick="sortClients('sort_company',this);">arrow_drop_down</span>
+                            </span>
+                            <span>Address
+                                </span>
+                                <span>Location
+                                </span>
+                            <span>Telephone</span>
+                            <span>Contact Name
+                                <span class="sort-arrow material-icons" id="sort_contact_name" onclick="sortClients('sort_contact_name',this);">arrow_drop_down</span>
+                        
+                            </span>
+                            <span>Contact E-mail<span class="sort-arrow material-icons" id="sort_contact_email" onclick="sortClients('sort_contact_email',this);">arrow_drop_down</span>
+                        </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="can-hide hidden" id="subscriptions_content"></div>
+                <div class="can-hide hidden" id="add_client_content">
+                    <div id="form-container" class="form-container">
+                        <span class="medium-text">Company Details</span>
+                        <form id="client_profile_form" method="POST" class="client_forms">
+                            <div class="form-group">
+                                <label for="company_name">Company Name</label>
+                                <input type="text" id="company_name" name="company_name"  required />
+                            </div>
+                            <div class="form-group">
+                                <label for="address">Company Address</label>
+                                <input type="text" id="address" name="address" />
+                                <!-- <textarea rows=5 id="address" name="address"></textarea> -->
+                            </div> 
+                            <div class="form-group-no-border map" id="map-add"></div>
+                            <div class="form-group">
+                                <label for="country">Country</label>
+                                <input type="text" id="country" name="country"/>
+                            </div> 
+                            <div class="form-group">
+                                <label for="region">City/Region</label>
+                                <input type="text" id="region" name="region"/>
+                            </div> 
+                            <div class="form-group">
+                                <label for="email">Company E-mail</label>
+                                <input type="email" id="email" name="email"/></div>
+                            <div class="form-group">
+                                <label for="phone">Company Telephone</label>
+                                <input type="number" id="phone" name="phone" required/>
+                            </div>
+                            <div class="form-group">
+                                <label for="contact_person">Contact Person</label>
+                                <input type="text" id="contact_person" name="contact_person" required />
+                           </div>
+                           <div class="form-group">
+                               <label for="contact_email">Contact E-mail</label>
+                               <input type="email" id="contact_email" name="contact_email" required />
+                           </div>
+                           <div class="form-group">
+                               <label for="company_logo">Company Logo</label>
+                               <input type="file" id="company_logo" name="company_logo"/>
+                            </div>
+                          <div class="form-group-no-border">
+                            <input class="no-corner" type="submit" id="btnSubmit" name="btnSubmit" value="SUBMIT"/>
+                            <input type="reset" class="buttons no-corner" id="btnCancelAdd" name="btnCancelAdd" value="Cancel"/>
+                        </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="can-hide hidden" id="edit_client_content">
+                   
+                    <div id="form-container" class="form-container">
+                        <span class="medium-text">Edit Client Details</span>
+                        <form id="edit_client_form" method="POST" class="client_forms">
+                            <input type="hidden" name="client_id" id="client_id"/>
+                            <div class="form-group">
+                                <label for="company_name">Company Name</label>
+                                <input type="text" id="company_name" name="company_name"  required />
+                            </div>
+                            <div class="form-group">
+                                <label for="address">Company Address</label>
+                                <input type="text" id="address" name="address" />
+                                <!-- <textarea rows=5 id="address" name="address"></textarea> -->
+                            </div> 
+                            <div class="form-group-no-border map" id="map-edit"></div>
+                            <div class="form-group">
+                                <label for="country">Country</label>
+                                <input type="text" id="country" name="country"/>
+                            </div> 
+                            <div class="form-group">
+                                <label for="region">City/Region</label>
+                                <input type="text" id="region" name="region"/>
+                            </div> 
+                            <div class="form-group">
+                                <label for="email">Company E-mail</label>
+                                <input type="email" id="email" name="email"/></div>
+                            <div class="form-group">
+                                <label for="phone">Company Telephone</label>
+                                <input type="number" id="phone" name="phone" required/>
+                            </div>
+                            <div class="form-group">
+                                <label for="contact_person">Contact Person</label>
+                                <input type="text" id="contact_person" name="contact_person" required />
+                           </div>
+                           <div class="form-group">
+                               <label for="contact_email">Contact E-mail</label>
+                               <input type="email" id="contact_email" name="contact_email" required />
+                           </div>
+                           <div class="form-group">
+                               <img src="/img/logo.png" class="user-avatar" id="client_image" name="client_image"/>
+                           </div>
+                           <div class="form-group">
+                               <label for="company_logo">Company Logo</label>
+                               <input type="file" id="company_logo" name="company_logo"/>
+                            </div>
+                          <div class="form-group-no-border">
+                            <input class="no-corner" type="submit" id="btnSubmit" name="btnSubmit" value="UPDATE"/>
+                            <input type="reset" class="buttons no-corner" id="btnCancelEdit" name="btnCancelEdit" value="Cancel" />
+                        </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="can-hide hidden" id="add_role_content">
+                   
+                    <div id="form-container" class="form-container">
+                        <span class="medium-text">Add New Role</span>
+                        <form id="add_role_form" method="POST" class="client_forms">
+                            <div class="form-group">
+                                <label for="name">Name</label>
+                                <input type="text" id="name" name="name"  required />
+                            </div>
+                            <div class="form-group">
+                                <label for="description">Description</label>
+                                <textarea rows=5 id="description" name="description"></textarea>
+                            </div> 
+                            <div class="form-group">
+                                <label for="permission">Permissions</label>
+                                <input type="text" id="permission" name="permission" placeholder="separate with commas"/></div>
+                            
+                          <div class="form-group-no-border">
+                            <input class="no-corner" type="submit" id="btnSubmit" name="btnSubmit" value="SUBMIT"/>
+                            <input type="reset" class="buttons no-corner" id="btnCancelAddRole" name="btnCancelAddRole" value="Cancel"/>
+                        </div>
+                        </form>
+                    </div>
+                </div>
+           </div>
+            
         </main>
         <div id="feedback" class="hidden"></div>
         <span id="spinner" class="hidden"></span>

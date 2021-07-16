@@ -349,9 +349,6 @@ if(window.location.pathname == "/signin.html"){
     storage.setItem("currentUser",JSON.stringify({}));
     storage.setItem("data",JSON.stringify({}));
 }
-//arrow drop
-
-let arrowDropCount = document.getElementsByClassName("arrow").length;
 
 //handle sidebar nav
 const sideBar = document.querySelector("#side-bar");
@@ -366,6 +363,15 @@ if(sideBar){
     })
     
 }
+//shwo greeting
+const greet=(name,detail=null)=>{
+    document.querySelector("#greetings").textContent = name;
+    if(detail){
+        document.querySelector("#crumbs").textContent = detail.title+" | "+detail.description;
+    }
+    else document.querySelector("#crumbs").textContent ="";
+         
+}
 const activateMenu =(target)=>{
     // alert(target);
     const items = Array.from(sideBar.children);
@@ -376,9 +382,9 @@ const activateMenu =(target)=>{
             i.classList.remove("active");
         } 
         //remove previously selected content
-        Array.from(document.getElementsByTagName("MAIN")[0].children)
+        Array.from(document.getElementsByClassName("can-hide"))
         .forEach(child=>{
-            if(child.id.includes("_content")) child.classList.add("hidden");
+            child.classList.add("hidden");
         })
     });
 
@@ -396,6 +402,7 @@ const activateMenu =(target)=>{
     if(menu){
         switch(menu.id){
             case 'clients':
+                greet("Clients",{title:"Clients",description:"List of clients"});
                 getClients().then(clients=>{
                     showClients(clients)
                 }).catch(er=>{
@@ -404,6 +411,7 @@ const activateMenu =(target)=>{
                 });
                 break;
             case 'roles':
+                greet("Roles",{title:"Roles",description:"Manage roles"});
                 if(!storedData.roles || storedData.roles.length == 0){
                     fetchRoles().then(roles=>{
                         updateRoles(roles);
@@ -414,6 +422,7 @@ const activateMenu =(target)=>{
                 else showRoles();
                 break;
             case 'dashboard':
+                greet("Hello Admin",null);
                 if(window.location.pathname=="/admin/") showAdminStats();
                 else showDashboard();
             break;
@@ -599,10 +608,12 @@ if(loginForm){
         let email = loginForm.email.value;
         let password = loginForm.password.value;
         let user = {email:email,password:password};
+        submit.classList.add("hidden");
+        if(spinner) spinner.classList.remove("hidden");
         fetch(signin_url,{method:"POST",body:JSON.stringify(user),headers:{'Content-type':'application/json'}})
         .then(res=>res.json()).then(response=>{
-            submit.classList.add("hidden");
-            if(spinner) spinner.classList.remove("hidden");
+            submit.classList.remove("hidden");
+            if(spinner) spinner.classList.add("hidden");
             if(response.error){
                 showFeedback(response.error,1);
             }
@@ -618,7 +629,7 @@ if(loginForm){
         })
         .catch(err=>{
             submit.classList.remove("hidden");
-            spinner.classList.add("hidden");
+            if(spinner) spinner.classList.add("hidden");
             let error = (err.error) ? err.error : "Connection Problems. Please try again later";
             showFeedback(error,1);
         });
@@ -1014,7 +1025,7 @@ const createClientSummaryRow = (row)=>{
 }
 //showClients
 const showClients = (data)=>{
-    const holder = document.querySelector("#clients_content");   
+    const holder = document.querySelector("#clients_table");   
     Array.from(holder.children).forEach(child=>{
         if(child.classList.contains("body-row")) holder.removeChild(child);
     }) 
@@ -1260,50 +1271,55 @@ const mapChart = ()=>{
 const refreshUser=()=>{
     console.log("refreshed user");
 }
+const showUserProfile=()=>{
+    if(currentUser.id === 0){
+        alert("settings admin");
+    }
+    else{
+        showProfile();
+    }
+}
 
 //handle arrow drop down and menus
-for(let i=0;i<arrowDropCount;i++){
-    let id = "arrow-drop"+i;
-    let signoutId = "#signout"+i;
-    let settingsId = "#settings"+i;
-    const settings = document.querySelector(settingsId);
-    const signout = document.querySelector(signoutId);
-    const arrowDrop = document.getElementById(id);
-    if(arrowDrop){
-        const dropDown = document.querySelector("#drop-down"+i);
-        arrowDrop.addEventListener('click',(e)=>{
-            showHideDropDown(dropDown,arrowDrop);
-        });
-    }
-    if(signout){
-        signout.addEventListener('click',(e)=>{
-            e.preventDefault();
-            if(confirm("Are you sure you want to sign out?")){
-                signoutUser();
-            }
-            else{
-                console.log("no singout");
-            }
-        });
-    }
-    if(settings){
-        settings.addEventListener('click',(e)=>{
-            showSettings();
-        })
-    }
 
+let signoutId = "#signout";
+let profileId = "#profile";
+const settings = document.querySelector(profileId);
+const signout = document.querySelector(signoutId);
+const arrowDrop = document.getElementById("arrow-drop");
+if(arrowDrop){
+    const dropDown = document.querySelector("#drop-down");
+    arrowDrop.addEventListener('click',(e)=>{
+        showHideDropDown(dropDown,arrowDrop);
+    });
 }
+if(signout){
+    signout.addEventListener('click',(e)=>{
+        e.preventDefault();
+        if(confirm("Are you sure you want to sign out?")){
+            signoutUser();
+        }
+        else{
+            console.log("no singout");
+        }
+    });
+}
+if(profile){
+    profile.addEventListener('click',(e)=>{
+        showUserProfile();
+    })
+}
+
 //listen to window events
 document.addEventListener('mouseup',(e)=>{
-    for(let i=0; i< arrowDropCount;i++){
-        var dropDown = document.getElementById("drop-down"+i);
-        var arrowDrop = document.getElementById("arrow-drop"+i);
-        if(!dropDown.contains(e.target)) {
-            dropDown.classList.add("hidden");
-            arrowDrop.innerHTML = "arrow_drop_down";
-        }
-        // showHideDropDown(dropDown,arrowDrop);
+    
+    var dropDown = document.getElementById("drop-down");
+    var arrowDrop = document.getElementById("arrow-drop");
+    if(!dropDown.contains(e.target)) {
+        dropDown.classList.add("hidden");
+        arrowDrop.innerHTML = "arrow_drop_down";
     }
+      
 })
 // document.addEventListener('updateData',(e)=>{
 //     if(window.location.pathname == '/admin/'){
@@ -1317,14 +1333,7 @@ document.addEventListener('mouseup',(e)=>{
 window.addEventListener('poststate',(e)=>{
     console.log("poststate: ",e.state);
 })
-const showSettings=()=>{
-    if(currentUser.id === 0){
-        alert("settings admin");
-    }
-    else{
-        showProfile();
-    }
-}
+
 const showHideDropDown = (dropDown,arrowDrop)=>{
     if(dropDown.classList.contains("hidden")) {
         dropDown.classList.remove("hidden");

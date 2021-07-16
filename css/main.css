@@ -3,6 +3,11 @@ html {
   scroll-behavior: smooth;
 }
 
+.wrap {
+  max-width: 100%;
+  flex-wrap: wrap !important;
+}
+
 .shadow {
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
@@ -12,7 +17,7 @@ body {
   margin: 0;
   font-family: "Baloo Thambi 2", cursive;
   font-size: 16px;
-  color: #9c9898;
+  color: #a8a2a2;
   width: 100%;
   height: 100%;
 }
@@ -33,8 +38,9 @@ header img#client_logo {
 }
 
 header img.logo, .logo {
-  width: calc(200px);
+  width: calc(200px - 1em);
   height: auto;
+  margin: 0.5em;
   object-fit: contain;
 }
 
@@ -43,7 +49,7 @@ header > div.theme-band {
   flex-direction: column;
   justify-content: flex-start;
   align-items: flex-start;
-  border-bottom: 4px #ffcc00 solid;
+  border-bottom: 2px #ffcc00 solid;
   height: 70px;
   flex-grow: 1;
 }
@@ -58,7 +64,7 @@ header > div.theme-band .colors {
 
 header > div.theme-band .colors > span {
   display: block;
-  height: 25px;
+  height: 10px;
   width: 100%;
 }
 
@@ -80,11 +86,13 @@ header > div.theme-band .colors :nth-child(4) {
 
 main {
   margin: 0 auto;
-  height: 100%;
+  min-height: 100%;
+  height: auto;
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
   align-items: flex-start;
+  background-color: #a8a2a2 !important;
 }
 
 main > div.content {
@@ -142,19 +150,19 @@ main > div.content .info-stats, main > div.content .info-map {
   margin: 0.5em 0.25;
 }
 
-main > div.content #map-chart2 {
-  width: calc(100% - 1em);
-  height: 300px;
+main > div.content #map-chart {
+  max-height: 300px;
 }
 
 main > div.content .info-charts, main > div.content .info-map {
   padding: 0.5em;
-  width: 40%;
-  margin-bottom: 1em;
+  width: calc(50% - 1.5em);
+  margin-top: 1em;
+  height: 300px;
 }
 
 .info-charts > canvas {
-  max-height: 200px;
+  height: 100%;
 }
 
 .info-charts, .info-map {
@@ -237,7 +245,7 @@ main > div#dashboard_content {
   flex-direction: column;
   justify-content: flex-start;
   align-items: flex-start;
-  background-color: #9c9898 !important;
+  background-color: #a8a2a2 !important;
   border: 0.5px solid #666262;
 }
 
@@ -269,12 +277,11 @@ main > div#dashboard_content {
 }
 
 #side-bar, .content {
-  min-height: 100vh;
   height: 100%;
 }
 
 #side-bar, .drop-down {
-  background-color: #9c9898 !important;
+  background-color: #a8a2a2 !important;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -329,7 +336,7 @@ footer {
   justify-content: flex-start;
   align-items: center;
   border-radius: 30px;
-  background-color: #9c9898 !important;
+  background-color: #a8a2a2 !important;
   width: 60%;
   margin: 1em auto;
   color: #666262;
@@ -376,7 +383,7 @@ footer {
 }
 
 .secondary-button {
-  background-color: #9c9898 !important;
+  background-color: #a8a2a2 !important;
   width: 70px;
   color: #ffffff;
   border-radius: unset !important;
@@ -488,7 +495,7 @@ form input[type=submit] :disabled {
 
 .form-container > form {
   background-color: #ffffff !important;
-  color: #9c9898;
+  color: #a8a2a2;
   border-radius: 20px;
   width: calc(100% - 2.2em);
   margin: 0 auto;
@@ -527,14 +534,14 @@ form.client_forms .form-group textarea, form.client_forms .form-group input[type
 }
 
 main > div.content .summary-table {
-  margin-top: 0.5em;
+  margin: 0.5em auto;
   padding: 0 0.5em 0.5em 0.5em;
-  width: calc(50% - 2em);
+  width: calc(100% - 2em);
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   align-items: space-evenly;
-  background-color: #ffffff !important;
+  background-color: #f0ebeb9d !important;
 }
 
 main > div.content .summary-table > span.summary-head {
@@ -556,9 +563,9 @@ main > div.content .summary-table > span.summary-head {
 }
 
 .head-row {
-  background-color: #666262 !important;
   margin-top: 0.5em;
-  border: 1px solid #666262;
+  color: #666262;
+  font-weight: bold;
 }
 
 .summary-table .head-row {
@@ -577,12 +584,14 @@ main > div.content .summary-table > span.summary-head {
 }
 
 .body-row {
-  color: #9c9898;
+  color: #a8a2a2;
   cursor: pointer;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  margin-top: 0.5em;
 }
 
 .body-row:hover {
-  background-color: #9c9898 !important;
+  background-color: #a8a2a2 !important;
   color: #666262;
 }
 
@@ -592,7 +601,6 @@ main > div.content .summary-table > span.summary-head {
   justify-content: space-evenly;
   align-items: center;
   width: calc(100% - 0.5em - 2px);
-  border: 1px solid #9c9898;
   padding: 0.25em;
 }
 
@@ -606,9 +614,10 @@ main > div.content .summary-table > span.summary-head {
 }
 
 .stat-card {
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
   width: 160px;
   height: 70px;
-  margin: 0.25em 0;
+  margin: 0.5em;
   background-color: #ffffff !important;
   border-radius: 5px;
   padding: 0.5em;
@@ -616,6 +625,16 @@ main > div.content .summary-table > span.summary-head {
   flex-direction: row;
   justify-content: space-between;
   align-items: flex-end;
+  cursor: pointer;
+}
+
+.stat-card:hover {
+  background-color: #ffcc00 !important;
+  color: #ffffff;
+}
+
+.stat-card:hover .stat-value {
+  color: #666262;
 }
 
 .stat-card :nth-child(1) {

@@ -2,8 +2,8 @@
 $primaryColor: #ffcc00;
 $primaryDarkColor: #cc9900;
 $secondaryColor: #d3d3d3;
-$faintLight:#666262;
-$faint: #9c9898;
+$faint:#a8a2a2;
+$faintLight: #f0ebeb9d;
 $faintDark:#666262;
 $defaultColor: #ffffff;
 $failColor:#e63030;
@@ -38,12 +38,17 @@ $sideBarSize: 200px;
   flex-direction: $d;
   justify-content: $j;
   align-items: $a;
+  // flex-wrap: wrap;
 }
 @mixin setBg($color: $defaultColor) {
   background-color: $color !important;
 }
 html {
   scroll-behavior: smooth;
+}
+.wrap{
+  max-width: 100%;
+  flex-wrap: wrap !important;
 }
 .shadow{
   @include shade();
@@ -70,14 +75,14 @@ header img#client_logo{
   margin:0.25em;
 }
 header img.logo,.logo {
-  width: calc(#{$sideBarSize});
+  width: calc(#{$sideBarSize} - 1em);
   height: auto;
-  // margin:0.25em;
+  margin:0.5em;
   object-fit: contain;
 }
 header > div.theme-band{
   @include flex(column,flex-start,flex-start);
-  border-bottom:4px $primaryColor solid;
+  border-bottom:2px $primaryColor solid;
   height:70px;
   flex-grow: 1;
 }
@@ -87,7 +92,7 @@ header > div.theme-band .colors {
 }
 header > div.theme-band .colors > span{
   display: block;
-  height:25px;
+  height:10px;
   width:100%;
 }
 header > div.theme-band .colors :nth-child(1){
@@ -105,10 +110,11 @@ header > div.theme-band .colors :nth-child(4){
 //main
 main{
   margin:0 auto;
-  height:100%;
-  // height:auto;
+  min-height:100%;
+  height:auto;
   @include flex(row,flex-start,flex-start );
-  // @include setBg($primaryDarkColor);
+  @include setBg($faint);
+  // overflow-y: scroll;
 }
 //content
 main > div.content{
@@ -150,17 +156,18 @@ main >div.content .info-stats,main >div.content .info-map{
   width: calc(50% - 1em);
   margin:0.5em 0.25;
 }
-main > div.content #map-chart2{
-  width:calc(100% - 1em);
-  height:300px;
+main > div.content #map-chart{
+  // width:calc(10% - 1em);
+  max-height:300px;
 }
 main >div.content .info-charts, main > div.content .info-map{
   padding:0.5em;
-  width: 40%;
-  margin-bottom:1em;
+  width: calc(50% - 1.5em);
+  margin-top:1em;
+  height: 300px;
 }
 .info-charts > canvas{
-  max-height:200px;
+  height:100%;
 }
 .info-charts, .info-map{
   @include setBg($defaultColor);
@@ -251,7 +258,7 @@ text-align: left;
 }
 //end of content
 #side-bar,.content{
-  min-height: 100vh;
+  // min-height: 100vh;
   height:100%;
 }
 //side bar
@@ -468,11 +475,12 @@ form input[type="submit"] :disabled{
   }
   //tables
   main > div.content .summary-table{
-    margin-top:0.5em;
+    margin:0.5em auto;
     padding:0 0.5em 0.5em 0.5em;
-    width:calc(50% - 2em);
+    width:calc(100% - 2em);
+    // border:1px solid red;
     @include flex(column,flex-start,space-evenly);
-    @include setBg($defaultColor);
+    @include setBg($faintLight);
   }
   main > div.content .summary-table > span.summary-head{
     @include setBg($primaryColor);
@@ -488,9 +496,10 @@ form input[type="submit"] :disabled{
     // padding:0.25em;
   }
   .head-row{
-    @include setBg($faintDark);
+    // @include setBg($faintDark);
     margin-top:0.5em;
-    border:1px solid $faintDark;
+    color: $faintDark;
+    font-weight: bold;
   }
   .summary-table .head-row{
     margin-top:0.25em;
@@ -506,6 +515,8 @@ form input[type="submit"] :disabled{
   .body-row{
     color:$faint;
     cursor: pointer;
+    @include shade();
+    margin-top:0.5em;
   }
  .body-row:hover{
    @include setBg($faint);
@@ -514,7 +525,7 @@ form input[type="submit"] :disabled{
   .head-row,.body-row{
     @include flex(row,space-evenly,center );
     width: calc(100% - 0.5em - 2px);
-    border:1px solid $faint;
+    // border:1px solid $faint;
     padding:0.25em;
   }
 //feedback
@@ -527,14 +538,22 @@ form input[type="submit"] :disabled{
   color: $defaultColor;
 }
 .stat-card{
-  // border: 1px solid red;
+  @include shade(); 
   width:160px;
   height: 70px;
-  margin:0.25em 0;
+  margin:0.5em;
   @include setBg($defaultColor);
   @include addRoundCorner(5px);
   padding:0.5em;
-  @include flex(row,space-between,flex-end)
+  @include flex(row,space-between,flex-end);
+  cursor: pointer;
+}
+.stat-card:hover{
+  @include setBg($primaryColor);
+  color: $defaultColor;
+}
+.stat-card:hover .stat-value{
+  color:$faintDark;
 }
 .stat-card :nth-child(1){
   font-size: small;
