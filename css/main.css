@@ -40,7 +40,7 @@ header img#client_logo {
 header img.logo, .logo {
   width: calc(200px - 1em);
   height: auto;
-  margin: 0.5em;
+  margin: 0 0.5em;
   object-fit: contain;
 }
 
@@ -93,6 +93,10 @@ main {
   justify-content: flex-start;
   align-items: flex-start;
   background-color: #a8a2a2 !important;
+}
+
+main#signin_page, main#signup_page {
+  background-color: #ffffff !important;
 }
 
 main > div.content {
@@ -297,7 +301,7 @@ main > div#dashboard_content {
   min-width: 200px;
 }
 
-#side-bar .item {
+#side-bar .menu-item, #side-bar .item-expandable {
   width: calc(100% - 4em);
   padding: 0.5em 2em;
   margin: 0 auto;
@@ -315,6 +319,14 @@ main > div#dashboard_content {
   flex-direction: column;
   justify-content: flex-start;
   align-items: flex-start;
+}
+
+#side-bar .item-expandable :nth-child(1) {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
 }
 
 #side-bar .item-expandable > span {
@@ -489,7 +501,7 @@ form input[type=submit] :disabled {
 }
 
 .search {
-  width: calc(100px - 0.5em);
+  width: calc(120px - 0.5em);
   padding: 0.25em;
 }
 
@@ -584,6 +596,7 @@ main > div.content .summary-table > span.summary-head {
 }
 
 .body-row {
+  background-color: #ffffff !important;
   color: #a8a2a2;
   cursor: pointer;
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
@@ -781,16 +794,36 @@ a.nav-item:hover {
   color: #cc9900;
 }
 
-.action-buttons {
+.action-button {
   display: flex;
   flex-direction: row;
-  justify-content: space-evenly;
-  align-items: flex-end;
+  justify-content: flex-start;
+  align-items: center;
+  background-color: #666262 !important;
+  border-radius: 5px;
+  height: 35px;
+  cursor: pointer;
+  overflow: hidden;
 }
 
-.action-buttons > span {
+.action-button > span {
+  padding: 0.25em;
+  color: #ffffff;
+}
+
+.action-button :nth-child(2) {
   cursor: pointer;
-  padding: 0.5em;
+  padding: 0 0.5em;
+  height: 100%;
+  color: #666262;
+  border-radius: 5px;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  background-color: #f0ebeb9d !important;
+  flex-grow: 1;
+  align-self: center;
 }
 
 .action-buttons > span:hover {

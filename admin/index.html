@@ -16,7 +16,7 @@
     <body>
         <header>
             <img class="logo" src="/img/logo.png" alt="cleaford logo" />
-            <div class="theme-band">
+            <div class="theme-band" id="theme-band">
                 <div class="colors">
                     <span></span>
                     <span></span>
@@ -28,12 +28,21 @@
         </header>
         <main>
             <div id="side-bar">
-                <span class="item active" id="dashboard">Dashboard</span>
-                <span class="item" id="clients">Clients</span>
-                <span class="item" id="subscriptions">Subscriptions</span>
-                <span class="item" id="roles">Roles</span>
-                <span class="item" id="reports">Reports</span>
-                <span class="item" id="settings">Settings</span>
+                <span class="manu_item active" id="dashboard">Dashboard</span>
+                <span class="manu_item" id="clients">Clients</span>
+                <span class="manu_item" id="reports">Reports</span>
+                <span class="manu_item-expandable" id="settings">
+                    <div>
+                        <span>Settings</span>
+                        <span class="material-icons" id="settings_drop">arrow_drop_down</span>
+                    </div>
+                </span>
+                <div id="settings_submenu" class="submenu hidden">  
+                    <span class="manu_item" id="subscriptions">Subscriptions</span>
+                    <span class="manu_item" id="features">Features</span>
+                    <span class="manu_item" id="roles">Roles</span>
+                </div>  
+               
             </div>
            <div class="content">
                 <div class="info">
@@ -122,19 +131,24 @@
                 </div>
                 <div class="can-hide hidden" id="roles_content">
                     
-                    <div class="row-end"><button class="buttons-s no-corner" id="add_role" onclick="showRoleForm();">Add Role</button></div>
-                   
-                    <div class="head-row" id="roles-head-row">
-                        <span>Role</span>
-                        <span>Description</span>
-                        <!-- <span>Permissions</span> -->
-                        
+                    <div class="row-end"><span class="action-button" id="add_role" onclick="showRoleForm();"><span class="material-icons">add</span><span>Add Role</button></div>
+                    <div class="summary-table" id="roles-table">
+                        <div class="head-row" id="roles-head-row">
+                            <span>Role</span>
+                            <span>Description</span>
+                            <!-- <span>Permissions</span> -->
+                            
+                        </div>
                     </div>
-    
                 </div>
                 <div class="can-hide hidden" id="clients_content">
                  
-                   <div class="row-end"><button class="buttons-s no-corner" id="add_client" onclick="showClientDetailForm();">Add Client</button></div>
+                   <div class="row-end">
+                       <span class="action-button" id="add_client" onclick="showClientDetailForm();">
+                            <span class="material-icons">add</span>
+                            <span>Add Client</span>
+                        </span>
+                    </div>
                    <div class="info">
                        <span>Output: <button id="csv" class="export-buttons">CSV</button><button id="excel" class="export-buttons">Excel</button><button id="pdf" class="export-buttons">PDF</button></span>
                    <input class="search" id="search_client" placeholder="search"/>

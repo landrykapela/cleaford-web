@@ -2,252 +2,7 @@ const storage = window.localStorage;
 const clientSummaryCount = 5;
 var currentUser = (storage.getItem("currentUser")) ? JSON.parse(storage.getItem("currentUser")):null;
 var storedData = (storage.getItem("data")) ? JSON.parse(storage.getItem("data")):{regions:[],client_roles:[],clients:[],roles:[]};
-const countryList = [
-    "Afghanistan",
-    "Åland Islands",
-    "Albania",
-    "Algeria",
-    "American Samoa",
-    "Andorra",
-    "Angola",
-    "Anguilla",
-    "Antarctica",
-    "Antigua and Barbuda",
-    "Argentina",
-    "Armenia",
-    "Aruba",
-    "Australia",
-    "Austria",
-    "Azerbaijan",
-    "Bahamas (the)",
-    "Bahrain",
-    "Bangladesh",
-    "Barbados",
-    "Belarus",
-    "Belgium",
-    "Belize",
-    "Benin",
-    "Bermuda",
-    "Bhutan",
-    "Bolivia",
-    "Bonaire",
-    "Bosnia and Herzegovina",
-    "Botswana",
-    "Bouvet Island",
-    "Brazil",
-    "Brunei Darussalam",
-    "Bulgaria",
-    "Burkina Faso",
-    "Burundi",
-    "Cabo Verde",
-    "Cambodia",
-    "Cameroon",
-    "Canada",
-    "Cayman Islands",
-    "Central African Republic",
-    "Chad",
-    "Chile",
-    "China",
-    "Christmas Island",
-    "Cocos Islands",
-    "Colombia",
-    "Comoros",
-    "Congo (DRC)",
-    "Congo",
-    "Cook Islands",
-    "Costa Rica",
-    "Croatia",
-    "Cuba",
-    "Curaçao",
-    "Cyprus",
-    "Czechia",
-    "Côte d'Ivoire",
-    "Denmark",
-    "Djibouti",
-    "Dominica",
-    "Dominican Republic",
-    "Ecuador",
-    "Egypt",
-    "El Salvador",
-    "Equatorial Guinea",
-    "Eritrea",
-    "Estonia",
-    "Eswatini",
-    "Ethiopia",
-    "Falkland Islands",
-    "Faroe Islands",
-    "Fiji",
-    "Finland",
-    "France",
-    "French Guiana",
-    "French Polynesia",
-    "French Southern Territories ",
-    "Gabon",
-    "Gambia (the)",
-    "Georgia",
-    "Germany",
-    "Ghana",
-    "Gibraltar",
-    "Greece",
-    "Greenland",
-    "Grenada",
-    "Guadeloupe",
-    "Guam",
-    "Guatemala",
-    "Guernsey",
-    "Guinea",
-    "Guinea-Bissau",
-    "Guyana",
-    "Haiti",
-    "Honduras",
-    "Hong Kong",
-    "Hungary",
-    "Iceland",
-    "India",
-    "Indonesia",
-    "Iran",
-    "Iraq",
-    "Ireland",
-    "Isle of Man",
-    "Israel",
-    "Italy",
-    "Jamaica",
-    "Japan",
-    "Jersey",
-    "Jordan",
-    "Kazakhstan",
-    "Kenya",
-    "Kiribati",
-    "Korea",
-    "North Korea",
-    "Kuwait",
-    "Kyrgyzstan",
-    "Lao",
-    "Latvia",
-    "Lebanon",
-    "Lesotho",
-    "Liberia",
-    "Libya",
-    "Liechtenstein",
-    "Lithuania",
-    "Luxembourg",
-    "Macao",
-    "Madagascar",
-    "Malawi",
-    "Malaysia",
-    "Maldives",
-    "Mali",
-    "Malta",
-    "Marshall Islands",
-    "Martinique",
-    "Mauritania",
-    "Mauritius",
-    "Mayotte",
-    "Mexico",
-    "Micronesia",
-    "Moldova",
-    "Monaco",
-    "Mongolia",
-    "Montenegro",
-    "Montserrat",
-    "Morocco",
-    "Mozambique",
-    "Myanmar",
-    "Namibia",
-    "Nauru",
-    "Nepal",
-    "Netherlands",
-    "New Caledonia",
-    "New Zealand",
-    "Nicaragua",
-    "Niger (the)",
-    "Nigeria",
-    "Niue",
-    "Norfolk Island",
-    "Northern Mariana Islands",
-    "Norway",
-    "Oman",
-    "Pakistan",
-    "Palau",
-    "Palestine, State of",
-    "Panama",
-    "Papua New Guinea",
-    "Paraguay",
-    "Peru",
-    "Philippines",
-    "Pitcairn",
-    "Poland",
-    "Portugal",
-    "Puerto Rico",
-    "Qatar",
-    "Republic of North Macedonia",
-    "Romania",
-    "Russian Federation (the)",
-    "Rwanda",
-    "Réunion",
-    "Saint Barthélemy",
-    "Saint Kitts and Nevis",
-    "Saint Lucia",
-    "Saint Martin (French part)",
-    "Saint Pierre and Miquelon",
-    "Saint Vincent and the Grenadines",
-    "Samoa",
-    "San Marino",
-    "Sao Tome and Principe",
-    "Saudi Arabia",
-    "Senegal",
-    "Serbia",
-    "Seychelles",
-    "Sierra Leone",
-    "Singapore",
-    "Sint Maarten (Dutch part)",
-    "Slovakia",
-    "Slovenia",
-    "Solomon Islands",
-    "Somalia",
-    "South Africa",
-    "South Georgia",
-    "South Sudan",
-    "Spain",
-    "Sri Lanka",
-    "Sudan (the)",
-    "Suriname",
-    "Svalbard and Jan Mayen",
-    "Sweden",
-    "Switzerland",
-    "Syrian Arab Republic",
-    "Taiwan",
-    "Tajikistan",
-    "Tanzania",
-    "Thailand",
-    "Timor-Leste",
-    "Togo",
-    "Tokelau",
-    "Tonga",
-    "Trinidad and Tobago",
-    "Tunisia",
-    "Turkey",
-    "Turkmenistan",
-    "Turks and Caicos Islands",
-    "Tuvalu",
-    "Uganda",
-    "Ukraine",
-    "United Arab Emirates (the)",
-    "United Kingdom",
-    "United States of America",
-    "Uruguay",
-    "Uzbekistan",
-    "Vanuatu",
-    "Venezuela",
-    "Viet Nam",
-    "Virgin Islands (British)",
-    "Virgin Islands (U.S.)",
-    "Wallis and Futuna",
-    "Western Sahara",
-    "Yemen",
-    "Zambia",
-    "Zimbabwe"
-  ];
+
 const DATA_COUNT = 12;
 const NUMBER_CFG = {count: DATA_COUNT, min: 0, max: 100};
 const originalSetItem = localStorage.setItem;
@@ -263,17 +18,36 @@ localStorage.setItem = function(key, value) {
   originalSetItem.apply(this, arguments);
 };
 
-//load countries
-const loadCountries = (selectElement)=>{
-    if(selectElement){
-        Array.from(selectElement.childNodes).forEach(child=>{
-            selectElement.removeChild(child);
+//set color theme
+const setTheme = (color,customizableItems)=>{
+    if(customizableItems && customizableItems.length > 0){
+        customizableItems.forEach(item=>{
+            if(item.toLowerCase() == "theme-band"){
+                document.getElementsByClassName("theme-band")[0].style.borderBottomColor = color;
+            }
+            else{
+                var myItems = Array.from(document.getElementsByClassName(item));
+                myItems.forEach(i=>{
+                    i.style.backgroundColor = color;
+                })
+            }
         })
-        countryList.forEach(country=>{
-            selectElement.options.add(new Option(country));
-        })
-    
     }
+}
+if(window.location.pathname != "/signin.html" && window.location.pathname != "/signing.html"){
+
+    // setTheme("blue",["theme-band"]);
+    //listen to window events
+    document.addEventListener('mouseup',(e)=>{
+    
+    var dropDown = document.getElementById("drop-down");
+    var arrowDrop = document.getElementById("arrow-drop");
+    if(!dropDown.contains(e.target)) {
+        dropDown.classList.add("hidden");
+        arrowDrop.innerHTML = "arrow_drop_down";
+    }
+      
+})
 }
 //initialize google maps
 
@@ -317,19 +91,7 @@ const initializeMap =(mapHolder,searchInput,targetForm,center={lat:-6.7924, lng:
 
 }
 
-//load regions
-const loadRegions = (selectElement)=>{
-    if(selectElement){
-        Array.from(selectElement.childNodes).forEach(child=>{
-            selectElement.removeChild(child);
-        })
-        let regions = (storedData.regions) ? storedData.regions : ["Dar es Salaam"];
-        regions.forEach(region=>{
-            selectElement.options.add(new Option(region));
-        })
-    
-    }
-}
+
 const fetchRegions = ()=>{
     fetch(regions_url).then(res=>res.json()).then(regions=>{
         if(regions && regions.length > 0){
@@ -372,6 +134,24 @@ const greet=(name,detail=null)=>{
     else document.querySelector("#crumbs").textContent ="";
          
 }
+const showHideSubmenu = (menuId)=>{
+    var subMenu = document.getElementById(menuId+"_submenu");
+    var dropArrow = document.getElementById(menuId+"_drop");
+    if(subMenu.classList.contains("hidden")) {
+        subMenu.classList.remove("hidden");
+        dropArrow.textContent = "arrow_drop_up";
+    }
+    else {
+        subMenu.classList.add("hidden");
+        dropArrow.textContent = "arrow_drop_down";
+    }
+    Array.from(subMenu.children).forEach(sub=>{
+        sub.addEventListener('click',(e)=>{
+            e.target.classList.add("active");
+        })
+    })
+        
+}
 const activateMenu =(target)=>{
     // alert(target);
     const items = Array.from(sideBar.children);
@@ -380,12 +160,21 @@ const activateMenu =(target)=>{
     //unselect all sidebar menu items
         if(i.classList.contains("active")){
             i.classList.remove("active");
-        } 
-        //remove previously selected content
-        Array.from(document.getElementsByClassName("can-hide"))
-        .forEach(child=>{
-            child.classList.add("hidden");
-        })
+        }
+        if(i.classList.contains("item-expandable")){
+            showHideSubmenu(i.id);
+        }
+        else{
+            if(i.classList.contains("submenu")){
+                
+            }
+            //remove previously selected content
+            Array.from(document.getElementsByClassName("can-hide"))
+            .forEach(child=>{
+                child.classList.add("hidden");
+            })
+        }
+       
     });
 
     //activate currently selected item and show it's content
@@ -968,8 +757,8 @@ const createClientRow = (row,holder)=>{
 
         companyName.textContent = row.name;
         companyName.id = row.id;
-        companyAddress.textContent = row.address;
-        companyLocation.textContent = (row.country.toLowerCase() == 'tanzania') ? row.region:row.country;
+        companyAddress.textContent = row.address.substr(9,20);
+        companyLocation.textContent = row.region+", "+row.country;
         companyPhone.textContent = row.phone;
         contactName.textContent = row.contact_person;
         contactEmail.textContent = row.contact_email;
@@ -1005,7 +794,7 @@ const createClientSummaryRow = (row)=>{
 
         companyName.textContent = row.name;
         companyName.id = row.id;
-        companyAddress.textContent = (row.country.toLowerCase() == 'tanzania') ? row.region:row.country;
+        companyAddress.textContent = region+", "+row.country;
         contactEmail.textContent = row.contact_email;
         companyStatus.textContent = row.status == 0 ? 'Pending Activation' : "Activated";
 
@@ -1041,7 +830,7 @@ const showClients = (data)=>{
 }
 //display system roles
 const showRoles = ()=>{
-    const holder = document.getElementById("roles_content");
+    const holder = document.getElementById("roles-table");
     Array.from(holder.children).forEach(child=>{
         if(child.classList.contains('body-row')) holder.removeChild(child);
     })
@@ -1284,7 +1073,7 @@ const showUserProfile=()=>{
 
 let signoutId = "#signout";
 let profileId = "#profile";
-const settings = document.querySelector(profileId);
+const profile = document.querySelector(profileId);
 const signout = document.querySelector(signoutId);
 const arrowDrop = document.getElementById("arrow-drop");
 if(arrowDrop){
@@ -1310,17 +1099,7 @@ if(profile){
     })
 }
 
-//listen to window events
-document.addEventListener('mouseup',(e)=>{
-    
-    var dropDown = document.getElementById("drop-down");
-    var arrowDrop = document.getElementById("arrow-drop");
-    if(!dropDown.contains(e.target)) {
-        dropDown.classList.add("hidden");
-        arrowDrop.innerHTML = "arrow_drop_down";
-    }
-      
-})
+
 // document.addEventListener('updateData',(e)=>{
 //     if(window.location.pathname == '/admin/'){
 //         if(getActiveMenu() == 'dashboard') showAdminStats();
@@ -1411,11 +1190,8 @@ const populateClientDetails = (form,client)=>{
         form.contact_email.value = detail.contact_email;
         form.phone.value= detail.phone;
         form.country.value = detail.country;
-        if(detail.country && detail.country.toLowerCase() == 'tanzania') {
-            document.querySelector("#region-group").classList.remove("hidden");
-            loadRegions(form.region);
-            form.region.value = detail.region;
-        }
+        form.region.value = detail.region;
+      
     }
     
 }

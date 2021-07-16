@@ -77,7 +77,7 @@ header img#client_logo{
 header img.logo,.logo {
   width: calc(#{$sideBarSize} - 1em);
   height: auto;
-  margin:0.5em;
+  margin:0 0.5em;
   object-fit: contain;
 }
 header > div.theme-band{
@@ -115,6 +115,9 @@ main{
   @include flex(row,flex-start,flex-start );
   @include setBg($faint);
   // overflow-y: scroll;
+}
+main#signin_page,main#signup_page{
+  @include setBg($defaultColor);
 }
 //content
 main > div.content{
@@ -274,7 +277,7 @@ text-align: left;
   padding-top:1em;
   min-width: $sideBarSize;
 }
-#side-bar .item{
+#side-bar .menu-item,#side-bar .item-expandable{
   width:calc(100% - 4em);
   padding:0.5em 2em;
   margin:0 auto;
@@ -288,6 +291,10 @@ text-align: left;
 }
 #side-bar .item-expandable{
   @include flex(column,flex-start,flex-start);
+}
+#side-bar .item-expandable :nth-child(1){
+  @include flex(row,space-between,center);
+  width: 100%;
 }
 #side-bar .item-expandable > span{
   margin-left:0.5em;
@@ -438,7 +445,7 @@ form input[type="submit"] :disabled{
     height:300px;
   }
   .search{
-    width: calc(100px - 0.5em);
+    width: calc(120px - 0.5em);
     padding:0.25em;
   }
   .form-container > form{
@@ -513,6 +520,7 @@ form input[type="submit"] :disabled{
     text-align: left;
   }
   .body-row{
+    @include setBg($defaultColor);
     color:$faint;
     cursor: pointer;
     @include shade();
@@ -664,15 +672,29 @@ a.nav-item:hover {
 
 
 //buttons
-.action-buttons{
-  @include flex(row,space-evenly,flex-end);
-  // border:1px solid red;
-  // flex-grow: 1;
+.action-button{
+  @include flex(row,flex-start,center);
+  @include setBg($faintDark);
+  @include addRoundCorner(5px);
+  height:35px;
+ cursor: pointer;
+ overflow:hidden;
 }
-.action-buttons > span{
+.action-button > span{
+  padding:0.25em;
+  color:$defaultColor;
+}
+.action-button :nth-child(2){
   cursor: pointer;
-  padding:0.5em;
-  // color:$faint;
+  padding:0 0.5em;
+  height:100%;
+  color:$faintDark;
+  @include addRoundCorner(5px);
+  @include flex(row,center,center);
+  @include setBg($faintLight);
+  flex-grow: 1;
+  align-self: center;
+  
 }
 .action-buttons > span:hover{
   color:$secondaryColor;
