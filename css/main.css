@@ -110,6 +110,7 @@ main > div.content .eticket {
   width: calc(100% - 0em);
   cursor: pointer;
   flex-grow: 1;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 
 main > div.content .eticket-active {
@@ -400,16 +401,17 @@ form#signup {
 }
 
 form textarea, form input[type=number], form input[type=text], form input[type=email], form input[type=password], form input[type=select], form input[type=submit] {
+  flex-grow: 1;
   padding: 0.5em 0.5em;
   margin: 0.5em 0;
 }
 
 input[type=email]:invalid, input[type=password]:invalid {
-  outline-color: #e63030c9;
+  outline-color: #e63030;
 }
 
 input[type=email]:valid, input[type=password]:valid {
-  outline-color: #ffcc00;
+  outline-color: #0f810f;
 }
 
 form input[type=submit] :disabled {
@@ -456,7 +458,7 @@ form input[type=submit] :disabled {
   color: #cc9900;
 }
 
-.form-group > input[type=email], .form-group > input[type=password] {
+.form-group > input[type=text], .form-group > input[type=email], .form-group > input[type=password] {
   outline-color: none;
   outline-width: 0;
   outline-width: none;
@@ -516,7 +518,7 @@ form.client_forms > div.form-group :nth-child(2) {
   border: 1px #ffcc00 solid;
 }
 
-form.client_forms .form-group input[type=email], form.client_forms .form-group input[type=password], form.client_forms .form-group input[type=number], form.client_forms .form-group input[type=text] {
+form.client_forms .form-group textarea, form.client_forms .form-group input[type=email], form.client_forms .form-group input[type=password], form.client_forms .form-group input[type=number], form.client_forms .form-group input[type=text] {
   padding: 0.5em 1.5em;
 }
 
@@ -595,13 +597,12 @@ main > div.content .summary-table > span.summary-head {
 }
 
 #feedback {
-  position: fixed;
-  top: 0;
   margin: 0 auto;
   width: calc(100% - 4em);
   padding: 0.5em 2em;
   margin-bottom: 1em;
   text-align: center;
+  color: #ffffff;
 }
 
 .stat-card {
@@ -632,13 +633,15 @@ main > div.content .summary-table > span.summary-head {
 }
 
 .fail {
-  background-color: #e63030c9 !important;
-  color: #ffffff;
+  background-color: #e63030ab !important;
+  border: 1px solid #e63030;
+  color: #ffffff !important;
 }
 
 .success {
-  background-color: #0f810f !important;
-  color: #ffffff;
+  background-color: #3cbe3c9a !important;
+  border: 1px solid #0f810f;
+  color: #0f810f !important;
 }
 
 .row {
@@ -741,7 +744,7 @@ main > div.content .summary-table > span.summary-head {
 }
 
 .fail-text {
-  color: #e63030c9 !important;
+  color: #e63030 !important;
   font-size: small !important;
 }
 
@@ -841,6 +844,10 @@ a.nav-item:hover {
 
 .hidden {
   display: none !important;
+}
+
+.material-icons {
+  cursor: pointer;
 }
 
 @keyframes spin {

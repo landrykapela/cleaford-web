@@ -6,7 +6,9 @@ $faintLight:#666262;
 $faint: #9c9898;
 $faintDark:#666262;
 $defaultColor: #ffffff;
-$failColor:#e63030c9;
+$failColor:#e63030;
+$failColorFaint:#e63030ab;
+$successColorFaint:#3cbe3c9a;
 $successColor:#0f810f;
 $buttonBorderSize:4px;
 $buttonBorderRadius:8px;
@@ -125,6 +127,7 @@ main > div.content .eticket{
   width:calc(100% - 0em);
   cursor: pointer;
   flex-grow: 1;
+  @include shade();
 }
 main > div.content .eticket-active{
   border-left:8px solid $faintDark;
@@ -364,7 +367,7 @@ form#signup{
   width:50%;
 }
 form textarea,form input[type="number"],form input[type="text"], form input[type="email"],form input[type="password"],form input[type="select"],form input[type="submit"]{
-  // min-width:300px;
+  flex-grow: 1;
   padding:0.5em 0.5em;
   margin:0.5em 0;
 }
@@ -372,7 +375,7 @@ input[type="email"]:invalid, input[type="password"]:invalid{
   outline-color: $failColor;
 }
 input[type="email"]:valid, input[type="password"]:valid{
-  outline-color: $primaryColor;
+  outline-color: $successColor;
 }
 form input[type="submit"]{
   @extend .buttons-s;
@@ -408,7 +411,7 @@ form input[type="submit"] :disabled{
   .form-group > input[type="checkbox"]:checked{
     color: $primaryDarkColor;
   }
-  .form-group > input[type="email"],.form-group > input[type="password"]{
+  .form-group > input[type="text"],.form-group > input[type="email"],.form-group > input[type="password"]{
     outline-color: none;
     outline-width: 0;
     outline-width: none;
@@ -455,7 +458,7 @@ form input[type="submit"] :disabled{
   padding:0.25em 0.5em;
   @include addBorder(1px,$primaryColor ,solid )
   }
-  form.client_forms .form-group input[type="email"],form.client_forms .form-group input[type="password"],form.client_forms .form-group input[type="number"],form.client_forms .form-group input[type="text"]{
+  form.client_forms .form-group textarea,form.client_forms .form-group input[type="email"],form.client_forms .form-group input[type="password"],form.client_forms .form-group input[type="number"],form.client_forms .form-group input[type="text"]{
 
   padding:0.5em 1.5em;
   }
@@ -516,13 +519,12 @@ form input[type="submit"] :disabled{
   }
 //feedback
 #feedback{
-  position:fixed;
-  top:0;
   margin: 0 auto;
   width:calc(100% - 4em);
   padding:0.5em 2em;
   margin-bottom: 1em;
   text-align: center;
+  color: $defaultColor;
 }
 .stat-card{
   // border: 1px solid red;
@@ -548,12 +550,14 @@ form input[type="submit"] :disabled{
   color: $primaryColor;
 }
 .fail{
-@include setBg($failColor);
-  color:$defaultColor;
+@include setBg($failColorFaint);
+  border:1px solid $failColor;
+  color:$defaultColor !important;
 }
 .success{
-@include setBg($successColor);
-  color:$defaultColor;
+@include setBg($successColorFaint);
+  border: 1px solid $successColor;
+  color:$successColor !important;
 }
 .row{
   @include flex(row,flex-start,center )
@@ -717,7 +721,10 @@ a.nav-item:hover {
 .hidden{
   display:none !important;
 }
-
+//material icons
+.material-icons{
+  cursor: pointer;
+}
 //animations
 @keyframes spin{
   from{

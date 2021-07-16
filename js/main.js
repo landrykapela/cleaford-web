@@ -520,8 +520,24 @@ if(signupForm){
             signupForm.btnSubmit.disabled = true;
         }
     });
+    var showHide = document.querySelector("#show_password");
+    showHide.addEventListener("click",(e)=>{
+        var value = e.target.textContent;
+        if(value.toLowerCase() === "visibility"){
+            signupForm.password.type = "text";
+            signupForm.cpassword.type = "text";
+            e.target.textContent = "visibility_off";
+        }
+        else{
+            signupForm.password.type = "password";
+            signupForm.cpassword.type = "password";
+            e.target.textContent = "visibility";
+        }
+    })
     signupForm.addEventListener('submit',(e)=>{
         e.preventDefault();
+        var spinner = document.getElementById("button-spinner");
+        var submit = document.getElementById("btnSubmit");
         let email = signupForm.email.value;
         let password = signupForm.password.value;
         let body = {email:email,password:password};
@@ -532,12 +548,27 @@ if(signupForm){
         }})
         .then(res=>res.json())
         .then(result=>{
-            currentUser = result.data;
-            currentUser.accessToken = result.accessToken;
-            delete currentUser.password;
-            storage.setItem("currentUser",JSON.stringify(currentUser));
-            showProfile();
-            showFeedback(result.msg,result.code);
+            console.log(result);
+            submit.classList.add("hidden");
+            if(spinner) spinner.classList.remove("hidden");
+            if(result.code == 0){
+                currentUser = result.data;
+                delete currentUser.password;
+                storage.setItem("currentUser",JSON.stringify(currentUser));
+                showProfile();
+                showFeedback(result.msg,result.code);
+            }
+            else if(result.code == -1){
+                showFeedback(result.msg,0);
+                submit.classList.remove("hidden");
+                if(spinner) spinner.classList.add("hidden");
+            }
+            else{
+                showFeedback(result.msg,1);
+                submit.classList.remove("hidden");
+                if(spinner) spinner.classList.add("hidden");
+            }
+            
         }).catch(e=>{
             console.log("signup: ",e);
             showFeedback("Something went wrong, please try again later",1);
@@ -549,13 +580,29 @@ if(signupForm){
 //signin
 const loginForm = document.querySelector("#signin_form");
 if(loginForm){
+    var showHide = document.querySelector("#show_password");
+    showHide.addEventListener("click",(e)=>{
+        var value = e.target.textContent;
+        if(value.toLowerCase() === "visibility"){
+            loginForm.password.type = "text";
+            e.target.textContent = "visibility_off";
+        }
+        else{
+            loginForm.password.type = "password";
+            e.target.textContent = "visibility";
+        }
+    })
     loginForm.addEventListener('submit',(e)=>{
         e.preventDefault();
+        var spinner = document.getElementById("button-spinner");
+        var submit = document.getElementById("btnSubmit");
         let email = loginForm.email.value;
         let password = loginForm.password.value;
         let user = {email:email,password:password};
         fetch(signin_url,{method:"POST",body:JSON.stringify(user),headers:{'Content-type':'application/json'}})
         .then(res=>res.json()).then(response=>{
+            submit.classList.add("hidden");
+            if(spinner) spinner.classList.remove("hidden");
             if(response.error){
                 showFeedback(response.error,1);
             }
@@ -570,6 +617,8 @@ if(loginForm){
             }
         })
         .catch(err=>{
+            submit.classList.remove("hidden");
+            spinner.classList.add("hidden");
             let error = (err.error) ? err.error : "Connection Problems. Please try again later";
             showFeedback(error,1);
         });

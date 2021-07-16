@@ -17,21 +17,23 @@
         <div class="round-corner row shadow" id="login-container">
 
             <div id="my-container"></div>
-            <div class="column center-me">
+            <div class="column-center center-self">
             <img class="logo" src="img/logo.png"/><br />
             
             <form id="signup_form" method="POST">
+                <div id="feedback" class="hidden"></div>
                 <div class="form-group">
                     <img class="icon" src="img/mail-dark.png"/>
                     <input type="email" id="email" name="email" placeholder="e-mail"/>
                 </div>
                 <div class="form-group">
                     <img class="icon" src="img/passkey-dark.png"/>
-                <input type="password" id="password" name="password" placeholder="password"/>
+                    <input type="password" id="password" name="password" min="8" required placeholder="password"/>
+                    <span class="icon material-icons" id="show_password">visibility</span>
             </div>
             <div class="form-group">
                 <img class="icon" src="img/passkey-dark.png"/>
-                <input type="password" id="cpassword" name="cpassword" placeholder="confirm password"/>
+                <input type="password" id="cpassword" name="cpassword" min="8" required placeholder="confirm password"/>
              </div>
              <div class="form-group-no-border">
                  <span class="fail-text hidden" id="field-error"></span>
@@ -39,15 +41,17 @@
             
             <div class="form-group-no-border">
                 <input class="buttons-s" type="submit" id="btnSubmit" name="btnSubmit" value="Create Account"/>
-                <button class="buttons" onclick="window.location.pathname='/signin.html'">Login</button>
-                </div>
-                
+                <span class="button-spinner hidden"></span>
+            </div>
+            <div class="form-group-no-border">
+                 <span>Are you a registered user?&nbsp; <a href="/signin.html">Sign in</a></span>
+                </div>    
             </form>
         </div>
         </div>
         </main>
 
-        <div id="feedback" class="hidden"></div>
+        
         <script src="js/config.js"></script>
         <script src="js/main.js"></script>
     </body>
