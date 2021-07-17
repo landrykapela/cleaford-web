@@ -302,36 +302,40 @@ main > div#dashboard_content {
 }
 
 #side-bar .menu-item, #side-bar .item-expandable {
-  width: calc(100% - 4em);
-  padding: 0.5em 2em;
+  width: calc(100% - 2em);
+  padding: 0.5em 1em;
   margin: 0 auto;
   cursor: pointer;
 }
 
-#side-bar .active {
+#side-bar > span.active {
   background-color: #d3d3d3 !important;
   border-left: 10px solid #666262;
-  width: calc(100% - 4em - 10px);
+  width: calc(100% - 2em - 10px);
 }
 
-#side-bar .item-expandable {
+#side-bar .submenu {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   align-items: flex-start;
+  margin-left: 1em;
+  width: calc(100% - 1em);
+  font-size: medium;
 }
 
-#side-bar .item-expandable :nth-child(1) {
+#side-bar .submenu > span.active {
+  background-color: #d3d3d3 !important;
+  border-left: 5px solid #666262;
+  width: calc(100%);
+  padding: 0.25em;
+}
+
+#side-bar .item-expandable {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  width: 100%;
-}
-
-#side-bar .item-expandable > span {
-  margin-left: 0.5em;
-  font-size: medium;
 }
 
 footer {

@@ -2,252 +2,7 @@ const storage = window.localStorage;
 const clientSummaryCount = 5;
 var currentUser = (storage.getItem("currentUser")) ? JSON.parse(storage.getItem("currentUser")):null;
 var storedData = (storage.getItem("data")) ? JSON.parse(storage.getItem("data")):{roles:[],client_roles:[],customers:[],roles:[]};
-const countryList = [
-    "Afghanistan",
-    "Åland Islands",
-    "Albania",
-    "Algeria",
-    "American Samoa",
-    "Andorra",
-    "Angola",
-    "Anguilla",
-    "Antarctica",
-    "Antigua and Barbuda",
-    "Argentina",
-    "Armenia",
-    "Aruba",
-    "Australia",
-    "Austria",
-    "Azerbaijan",
-    "Bahamas (the)",
-    "Bahrain",
-    "Bangladesh",
-    "Barbados",
-    "Belarus",
-    "Belgium",
-    "Belize",
-    "Benin",
-    "Bermuda",
-    "Bhutan",
-    "Bolivia",
-    "Bonaire",
-    "Bosnia and Herzegovina",
-    "Botswana",
-    "Bouvet Island",
-    "Brazil",
-    "Brunei Darussalam",
-    "Bulgaria",
-    "Burkina Faso",
-    "Burundi",
-    "Cabo Verde",
-    "Cambodia",
-    "Cameroon",
-    "Canada",
-    "Cayman Islands",
-    "Central African Republic",
-    "Chad",
-    "Chile",
-    "China",
-    "Christmas Island",
-    "Cocos Islands",
-    "Colombia",
-    "Comoros",
-    "Congo (DRC)",
-    "Congo",
-    "Cook Islands",
-    "Costa Rica",
-    "Croatia",
-    "Cuba",
-    "Curaçao",
-    "Cyprus",
-    "Czechia",
-    "Côte d'Ivoire",
-    "Denmark",
-    "Djibouti",
-    "Dominica",
-    "Dominican Republic",
-    "Ecuador",
-    "Egypt",
-    "El Salvador",
-    "Equatorial Guinea",
-    "Eritrea",
-    "Estonia",
-    "Eswatini",
-    "Ethiopia",
-    "Falkland Islands",
-    "Faroe Islands",
-    "Fiji",
-    "Finland",
-    "France",
-    "French Guiana",
-    "French Polynesia",
-    "French Southern Territories ",
-    "Gabon",
-    "Gambia (the)",
-    "Georgia",
-    "Germany",
-    "Ghana",
-    "Gibraltar",
-    "Greece",
-    "Greenland",
-    "Grenada",
-    "Guadeloupe",
-    "Guam",
-    "Guatemala",
-    "Guernsey",
-    "Guinea",
-    "Guinea-Bissau",
-    "Guyana",
-    "Haiti",
-    "Honduras",
-    "Hong Kong",
-    "Hungary",
-    "Iceland",
-    "India",
-    "Indonesia",
-    "Iran",
-    "Iraq",
-    "Ireland",
-    "Isle of Man",
-    "Israel",
-    "Italy",
-    "Jamaica",
-    "Japan",
-    "Jersey",
-    "Jordan",
-    "Kazakhstan",
-    "Kenya",
-    "Kiribati",
-    "Korea",
-    "North Korea",
-    "Kuwait",
-    "Kyrgyzstan",
-    "Lao",
-    "Latvia",
-    "Lebanon",
-    "Lesotho",
-    "Liberia",
-    "Libya",
-    "Liechtenstein",
-    "Lithuania",
-    "Luxembourg",
-    "Macao",
-    "Madagascar",
-    "Malawi",
-    "Malaysia",
-    "Maldives",
-    "Mali",
-    "Malta",
-    "Marshall Islands",
-    "Martinique",
-    "Mauritania",
-    "Mauritius",
-    "Mayotte",
-    "Mexico",
-    "Micronesia",
-    "Moldova",
-    "Monaco",
-    "Mongolia",
-    "Montenegro",
-    "Montserrat",
-    "Morocco",
-    "Mozambique",
-    "Myanmar",
-    "Namibia",
-    "Nauru",
-    "Nepal",
-    "Netherlands",
-    "New Caledonia",
-    "New Zealand",
-    "Nicaragua",
-    "Niger (the)",
-    "Nigeria",
-    "Niue",
-    "Norfolk Island",
-    "Northern Mariana Islands",
-    "Norway",
-    "Oman",
-    "Pakistan",
-    "Palau",
-    "Palestine, State of",
-    "Panama",
-    "Papua New Guinea",
-    "Paraguay",
-    "Peru",
-    "Philippines",
-    "Pitcairn",
-    "Poland",
-    "Portugal",
-    "Puerto Rico",
-    "Qatar",
-    "Republic of North Macedonia",
-    "Romania",
-    "Russian Federation (the)",
-    "Rwanda",
-    "Réunion",
-    "Saint Barthélemy",
-    "Saint Kitts and Nevis",
-    "Saint Lucia",
-    "Saint Martin (French part)",
-    "Saint Pierre and Miquelon",
-    "Saint Vincent and the Grenadines",
-    "Samoa",
-    "San Marino",
-    "Sao Tome and Principe",
-    "Saudi Arabia",
-    "Senegal",
-    "Serbia",
-    "Seychelles",
-    "Sierra Leone",
-    "Singapore",
-    "Sint Maarten (Dutch part)",
-    "Slovakia",
-    "Slovenia",
-    "Solomon Islands",
-    "Somalia",
-    "South Africa",
-    "South Georgia",
-    "South Sudan",
-    "Spain",
-    "Sri Lanka",
-    "Sudan (the)",
-    "Suriname",
-    "Svalbard and Jan Mayen",
-    "Sweden",
-    "Switzerland",
-    "Syrian Arab Republic",
-    "Taiwan",
-    "Tajikistan",
-    "Tanzania",
-    "Thailand",
-    "Timor-Leste",
-    "Togo",
-    "Tokelau",
-    "Tonga",
-    "Trinidad and Tobago",
-    "Tunisia",
-    "Turkey",
-    "Turkmenistan",
-    "Turks and Caicos Islands",
-    "Tuvalu",
-    "Uganda",
-    "Ukraine",
-    "United Arab Emirates (the)",
-    "United Kingdom",
-    "United States of America",
-    "Uruguay",
-    "Uzbekistan",
-    "Vanuatu",
-    "Venezuela",
-    "Viet Nam",
-    "Virgin Islands (British)",
-    "Virgin Islands (U.S.)",
-    "Wallis and Futuna",
-    "Western Sahara",
-    "Yemen",
-    "Zambia",
-    "Zimbabwe"
-  ];
+
 const originalSetItem = localStorage.setItem;
 
 localStorage.setItem = function(key, value) {
@@ -283,8 +38,6 @@ if(window.location.pathname == "/signin.html"){
 }
 //arrow drop
 
-let arrowDropCount = document.getElementsByClassName("arrow").length;
-
 //handle sidebar nav
 const sideBar = document.querySelector("#side-bar");
 if(sideBar){
@@ -292,60 +45,96 @@ if(sideBar){
     items.forEach(item=>{
         if(item){
             item.addEventListener('click',(e)=>{
-                activateMenu(e.target.id);
+                if(item.nextElementSibling && item.nextElementSibling.classList.contains("submenu")){
+                   showHideSubmenu(item.id);
+                   
+                }
+                else activateMenu(e.target.id);
+                
             })
         }
     })
     
 }
-const activateMenu =(target)=>{
-    // alert(target);
-    const items = Array.from(sideBar.children);
-    items.forEach(i=>{
+const showHideSubmenu = (menuId)=>{
+    var subMenu = document.getElementById(menuId+"_submenu");
+    var dropArrow = document.getElementById(menuId+"_drop");
 
-    //unselect all sidebar menu items
+    if(subMenu.classList.contains("hidden")) {
+        subMenu.classList.remove("hidden");
+        dropArrow.textContent = "arrow_drop_up";
+        activateMenu(subMenu.firstElementChild.id);
+    }
+    else{
+        subMenu.classList.add("hidden");
+        dropArrow.textContent = "arrow_drop_down";
+    }
+
+
+        
+}
+const activateMenu =(target)=>{
+    const items = Array.from(document.getElementsByClassName("menu-item"));
+
+    items.forEach(i=>{
+        //unselect all sidebar menu items
         if(i.classList.contains("active")){
             i.classList.remove("active");
-        } 
-        //remove previously selected content
+        }
+        
         Array.from(document.getElementsByClassName("can-hide"))
-        .forEach(child=>{
-            if(child.id.includes("_content")) child.classList.add("hidden");
-        })
+            .forEach(child=>{
+                child.classList.add("hidden");
+            })
+       
     });
-
+   
     //activate currently selected item and show it's content
     items.forEach(item=>{  
         if(item.id == target) {
             item.classList.add("active");
             var cont = document.getElementById(target+"_content");
             if(cont) cont.classList.remove("hidden");
-        }      
-        // document.getElementById(target+"_content").classList.remove("hidden");
+        }           
     });
+
     const menu = document.getElementById(target);
-    //get and display data as per selected menu item
+    
     if(menu){
         switch(menu.id){
-            case 'customers':
-                greet("Customers",{title:"Customers",description:"Customer List"});
-                showCustomers(storedData.customers);
+            case 'clients':
+                greet("Clients",{title:"Clients",description:"List of clients"});
+                getClients().then(clients=>{
+                    showClients(clients)
+                }).catch(er=>{
+                    console.log("er:",er);
+                    showFeedback(er,1);
+                });
+                break;
+            case 'subscriptions':
+                greet("Settings",{title:"Subscription",description:"Manage subscriptions"});
+                
+                break;
+            case 'features':
+                greet("Settings",{title:"Features",description:"Manage features"});
+                
                 break;
             case 'roles':
-                if(!storedData.client_roles || storedData.client_roles.length == 0){
-                    fetchClientRoles().then(result=>{
-                        if(result.code == 0) showClientRoles();
-                        else showFeedback(result.msg,1);
+                greet("Settings",{title:"Roles",description:"Manage roles"});
+                if(!storedData.roles || storedData.roles.length == 0){
+                    fetchRoles().then(roles=>{
+                        updateRoles(roles);
                     }).catch(e=>{
-                        showFeedback(e.msg,1);
+                        showFeedback(e,1);
                     });
                 }
-                else showClientRoles();
+                else showRoles();
                 break;
             case 'dashboard':
-               showClientStats();
-                break;
-           
+                greet("Hello Admin",null);
+                if(window.location.pathname=="/admin/") showAdminStats();
+                else showDashboard();
+            break;
         }
     }
     else{//menu menu item does not exist in the side bar (call may have come from button click)
@@ -360,19 +149,18 @@ const activateMenu =(target)=>{
                 document.querySelector("#roles").classList.add("active");
                 if(content) content.classList.remove("hidden");
                 break;
-            case 'add_customer':
-                greet("Customers",{title:"Customers",description:"Add Customer"});
-                document.querySelector("#customers").classList.add("active");
-                if(content) content.classList.remove("hidden"); 
-               
+            case 'add_client':
+                document.querySelector("#clients").classList.add("active");
+                if(content) content.classList.remove("hidden");
                 break;
-            case 'edit_customer':
-                document.querySelector("#customers").classList.add("active");
+            case 'edit_client':
+                document.querySelector("#clients").classList.add("active");
                 if(content) content.classList.remove("hidden");
                 break;
         }
     }
   
+    
 }
 const getActiveMenu =()=>{
     if(sideBar){
@@ -1274,32 +1062,8 @@ const populateCustomerDetails = (form,customer)=>{
     }
     
 }
-//load regions
-const loadRegions = (selectElement)=>{
-    if(selectElement){
-        Array.from(selectElement.childNodes).forEach(child=>{
-            selectElement.removeChild(child);
-        })
-        let regions = (storedData.regions) ? storedData.regions : ["Dar es Salaam"];
-        regions.forEach(region=>{
-            selectElement.options.add(new Option(region));
-        })
-    
-    }
-}
 
-//load countries
-const loadCountries = (selectElement)=>{
-    if(selectElement){
-        Array.from(selectElement.childNodes).forEach(child=>{
-            selectElement.removeChild(child);
-        })
-        countryList.forEach(country=>{
-            selectElement.options.add(new Option(country));
-        })
-        
-    }
-}
+
 
 const fetchRegions = ()=>{
     fetch(regions_url).then(res=>res.json()).then(regions=>{

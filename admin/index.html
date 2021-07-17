@@ -28,20 +28,18 @@
         </header>
         <main>
             <div id="side-bar">
-                <span class="manu_item active" id="dashboard">Dashboard</span>
-                <span class="manu_item" id="clients">Clients</span>
-                <span class="manu_item" id="reports">Reports</span>
-                <span class="manu_item-expandable" id="settings">
-                    <div>
+                <span class="menu-item active" id="dashboard">Dashboard</span>
+                <span class="menu-item" id="clients">Clients</span>
+                <span class="menu-item" id="reports">Reports</span>
+                <div  class="item-expandable" id="settings">
                         <span>Settings</span>
-                        <span class="material-icons" id="settings_drop">arrow_drop_down</span>
-                    </div>
-                </span>
-                <div id="settings_submenu" class="submenu hidden">  
-                    <span class="manu_item" id="subscriptions">Subscriptions</span>
-                    <span class="manu_item" id="features">Features</span>
-                    <span class="manu_item" id="roles">Roles</span>
-                </div>  
+                        <span class="material-icons" id="settings_drop">arrow_drop_down</span>     
+                </div>
+                <div id="settings_submenu" class="submenu hidden">
+                    <span class="menu-item" id="subscriptions">Subscriptions</span>
+                    <span class="menu-item" id="roles">Roles</span>
+                    <span class="menu-item" id="features">Features</span>
+                </div>
                
             </div>
            <div class="content">
@@ -172,7 +170,9 @@
                         </div>
                     </div>
                 </div>
-                <div class="can-hide hidden" id="subscriptions_content"></div>
+                <div class="can-hide hidden" id="subscriptions_content">
+
+                </div>
                 <div class="can-hide hidden" id="add_client_content">
                     <div id="form-container" class="form-container">
                         <span class="medium-text">Company Details</span>

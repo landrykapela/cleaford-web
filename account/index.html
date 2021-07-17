@@ -27,32 +27,55 @@
         </header>
         <main>
             <div id="side-bar">
-                <span class="item active" id="dashboard">Dashboard</span>
-                <span class="item" id="customers">Customers</span>
-                <span class="item item-expandable" id="operations">Operations
-                    <span id="exports">Exports</span>
-                    <span id="imports">Imports</span>
-                </span>
-                <span class="item item-expandable" id="finance">Finance
-                    <span id="invoices">Invoices</span>
-                    <span id="vouchers">Vouchers</span>
-                    <span id="receipts">Receipts</span>
-                    <span id="petty_cash">Petty Cash</span>
-                    <span id="cost_items">Cost Items</span>
-                </span>
-                <span class="item item-expandable" id="hr">HR
-
-                    <span id="payroll">Employees</span>
-                    <span id="payroll">Payroll</span>
-                </span>
-                <span class="item item-expandable" id="suppliers">Suppliers
-                    <span id="vendors">Vendors</span>
-                    <span id="suppliers">Suppliers</span>
-                    <span id="regulators">Regulators<span>
-                </span>
-                <span class="item" id="subscriptions">Subscriptions</span>
-                <span class="item" id="roles">Roles</span>
-                <span class="item" id="reports">Reports</span>
+                <span class="menu-item active" id="dashboard">Dashboard</span>
+                <span class="menu-item" id="customers">Customers</span>
+                <div class="item-expandable" id="operations">
+                    <span>Operations</span>
+                    <span class="material-icons" id="operations_drop">arrow_drop_down</span>
+                </div>
+                <div class="submenu hidden" id="operations_submenu">
+                    <span id="exports" class="menu-item">Exports</span>
+                    <span id="imports" class="menu-item">Imports<span>
+                </div>
+                <div class="item-expandable" id="finance">
+                    <span>Finance</span>
+                    <span class="material-icons" id="finance_drop">arrow_drop_down</span>
+                </div>
+                <div class="submenu hidden" id="finance_submenu">
+                    <span id="invoices" class="menu-item">Invoices</span>
+                    <span id="vouchers" class="menu-item">Vouchers</span>
+                    <span id="receipts" class="menu-item">Receipts</span>
+                    <span id="petty_cash" class="menu-item">Petty Cash</span>
+                    <span id="cost_items" class="menu-item">Cost Items</span>
+                </div>
+              
+                <div class="item-expandable" id="hr">
+                    <span>Human Resource</span>
+                    <span class="material-icons" id="hr_drop">arrow_drop_down</span>
+                </div>
+                <div class="submenu hidden" id="hr_submenu">
+                    <span id="employees" class="menu-item">Employees</span>
+                    <span id="payroll" class="menu-item">Payroll</span>
+                </div>
+                <div class="item-expandable" id="suppliers">
+                    <span>Suppliers</span>
+                    <span class="material-icons" id="suppliers_drop">arrow_drop_down</span>
+                </div>
+                <div class="submenu hidden" id="suppliers_submenu">
+                    <span id="vendors" class="menu-item">Vendors</span>
+                    <span id="suppliers" class="menu-item">Suppliers</span>
+                    <span id="regulators" class="menu-item">Regulators<span>
+                </div>
+                <div class="item-expandable" id="settings">
+                    <span>Settings</span>
+                    <span class="material-icons" id="settings_drop">arrow_drop_down</span>
+                </div>
+                <div class="submenu hidden" id="settings_submenu">
+                    <span id="subscriptions" class="menu-item">subscriptions</span>
+                    <span id="roles" class="menu-item">Roles</span>
+                    <span id="users" class="menu-item">Users<span>
+                </div>
+               
             </div>
             <div class="content">
                 <div class="info">

@@ -119,7 +119,12 @@ if(sideBar){
     items.forEach(item=>{
         if(item){
             item.addEventListener('click',(e)=>{
-                activateMenu(e.target.id);
+                if(item.nextElementSibling && item.nextElementSibling.classList.contains("submenu")){
+                   showHideSubmenu(item.id);
+                   
+                }
+                else activateMenu(e.target.id);
+                
             })
         }
     })
@@ -137,57 +142,47 @@ const greet=(name,detail=null)=>{
 const showHideSubmenu = (menuId)=>{
     var subMenu = document.getElementById(menuId+"_submenu");
     var dropArrow = document.getElementById(menuId+"_drop");
+
     if(subMenu.classList.contains("hidden")) {
         subMenu.classList.remove("hidden");
         dropArrow.textContent = "arrow_drop_up";
+        activateMenu(subMenu.firstElementChild.id);
     }
-    else {
+    else{
         subMenu.classList.add("hidden");
         dropArrow.textContent = "arrow_drop_down";
     }
-    Array.from(subMenu.children).forEach(sub=>{
-        sub.addEventListener('click',(e)=>{
-            e.target.classList.add("active");
-        })
-    })
+
+
         
 }
 const activateMenu =(target)=>{
-    // alert(target);
-    const items = Array.from(sideBar.children);
-    items.forEach(i=>{
+    const items = Array.from(document.getElementsByClassName("menu-item"));
 
-    //unselect all sidebar menu items
+    items.forEach(i=>{
+        //unselect all sidebar menu items
         if(i.classList.contains("active")){
             i.classList.remove("active");
         }
-        if(i.classList.contains("item-expandable")){
-            showHideSubmenu(i.id);
-        }
-        else{
-            if(i.classList.contains("submenu")){
-                
-            }
-            //remove previously selected content
-            Array.from(document.getElementsByClassName("can-hide"))
+        
+        Array.from(document.getElementsByClassName("can-hide"))
             .forEach(child=>{
                 child.classList.add("hidden");
             })
-        }
        
     });
-
+   
     //activate currently selected item and show it's content
     items.forEach(item=>{  
         if(item.id == target) {
             item.classList.add("active");
             var cont = document.getElementById(target+"_content");
             if(cont) cont.classList.remove("hidden");
-        }      
-        // document.getElementById(target+"_content").classList.remove("hidden");
+        }           
     });
+
     const menu = document.getElementById(target);
-    //get and display data as per selected menu item
+    
     if(menu){
         switch(menu.id){
             case 'clients':
@@ -199,8 +194,16 @@ const activateMenu =(target)=>{
                     showFeedback(er,1);
                 });
                 break;
+            case 'subscriptions':
+                greet("Settings",{title:"Subscription",description:"Manage subscriptions"});
+                
+                break;
+            case 'features':
+                greet("Settings",{title:"Features",description:"Manage features"});
+                
+                break;
             case 'roles':
-                greet("Roles",{title:"Roles",description:"Manage roles"});
+                greet("Settings",{title:"Roles",description:"Manage roles"});
                 if(!storedData.roles || storedData.roles.length == 0){
                     fetchRoles().then(roles=>{
                         updateRoles(roles);
@@ -240,6 +243,7 @@ const activateMenu =(target)=>{
         }
     }
   
+    
 }
 const getActiveMenu =()=>{
     if(sideBar){

@@ -278,28 +278,33 @@ text-align: left;
   min-width: $sideBarSize;
 }
 #side-bar .menu-item,#side-bar .item-expandable{
-  width:calc(100% - 4em);
-  padding:0.5em 2em;
+  width:calc(100% - 2em);
+  padding:0.5em 1em;
   margin:0 auto;
   cursor: pointer;
 }
-#side-bar .active{
+#side-bar >span.active{
   @include setBg($secondaryColor);
   border-left: 10px solid $faintDark;
-  width:calc(100% - 4em - 10px);
+  width:calc(100% - 2em - 10px);
   // padding-left: 1em;
 }
-#side-bar .item-expandable{
+#side-bar .submenu{
   @include flex(column,flex-start,flex-start);
+  margin-left:1em;
+  width:calc(100% - 1em);
+  font-size: medium;
 }
-#side-bar .item-expandable :nth-child(1){
+#side-bar .submenu >span.active{
+  @include setBg($secondaryColor);
+  border-left: 5px solid $faintDark;
+  width:calc(100%);
+  padding:0.25em;
+}
+#side-bar .item-expandable{
   @include flex(row,space-between,center);
-  width: 100%;
 }
-#side-bar .item-expandable > span{
-  margin-left:0.5em;
-  font-size:medium;
-}
+
 //end side bar
 
 //footer
