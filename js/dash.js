@@ -56,6 +56,40 @@ if(sideBar){
     })
     
 }
+//update user profile image
+const updateUserProfile = ()=>{
+    const preview = document.querySelector("#account-image");
+    const inputImage = document.querySelector("#image-file");
+    inputImage.click();
+
+    inputImage.addEventListener('change',(e)=>{
+        var file = inputImage.files[0];
+        if(file){
+            var reader = new FileReader();
+            reader.addEventListener('load',()=>{
+                if(reader.readyState == 2 && reader.result != null){
+
+                    preview.src = reader.result;
+                    uploadUserImage(reader.result)
+                    .then(response=>{
+                        if(response.data != null){
+                            currentUser.avatar = response.data.avatar;
+                            storage.setItem("currentUser",JSON.stringify(currentUser));
+                        }
+                        showFeedback(response.msg,response.code);
+                        console.log(response);
+                    })
+                    .catch(e=>{
+                        console.log(e);
+                        showFeedback(e.msg,e.code);
+                    })
+                }
+            },false);
+
+            reader.readAsDataURL(file);
+        }
+    });
+}
 const showHideSubmenu = (menuId)=>{
     var subMenu = document.getElementById(menuId+"_submenu");
     var dropArrow = document.getElementById(menuId+"_drop");
@@ -72,6 +106,37 @@ const showHideSubmenu = (menuId)=>{
 
 
         
+}
+//display system roles
+const showClientRoles = ()=>{
+    const holder = document.getElementById("roles-table");
+    Array.from(holder.children).forEach(child=>{
+        if(child.classList.contains('body-row') || child.id=="add_role_form") holder.removeChild(child);
+    })
+    var roles = storedData.client_roles;
+    if(roles && roles.length > 0){
+        roles.forEach(role=>{
+            const rowHolder = document.createElement("div");
+            rowHolder.classList.add("body-row");
+            const roleId = document.createElement("span");
+            roleId.textContent = role.name;
+            const roleName = document.createElement("span");
+            roleName.textContent = role.description;
+            rowHolder.appendChild(roleId);
+            rowHolder.appendChild(roleName);
+            holder.appendChild(rowHolder);
+        })
+    }
+    else{
+        const rowHolder = document.createElement("div");
+        rowHolder.classList.add("body-row");
+        const nodata = document.createElement("span");
+        nodata.textContent = "No data";
+        rowHolder.appendChild(nodata);
+        holder.appendChild(rowHolder);
+       
+    }
+    showRoleForm(holder);
 }
 const activateMenu =(target)=>{
     const items = Array.from(document.getElementsByClassName("menu-item"));
@@ -115,6 +180,10 @@ const activateMenu =(target)=>{
                 greet("Settings",{title:"Subscription",description:"Manage subscriptions"});
                 
                 break;
+            case 'profile':
+                greet("Profile",{title:"Profile",description:"Account information"});
+                showProfile();
+                break;
             case 'features':
                 greet("Settings",{title:"Features",description:"Manage features"});
                 
@@ -128,7 +197,7 @@ const activateMenu =(target)=>{
                         showFeedback(e,1);
                     });
                 }
-                else showRoles();
+                else showClientRoles();
                 break;
             case 'dashboard':
                 greet("Hello Admin",null);
@@ -319,7 +388,16 @@ const showClientStats =()=>{
 
 //show profile
 const showProfile = ()=>{
-    window.location.pathname = "/account/";
+    document.getElementById("profile_content").classList.remove("hidden");
+    
+    if(currentUser){
+        document.querySelector("#account-name").textContent = currentUser.email;
+        let source = (currentUser.avatar) ? currentUser.avatar :"/img/favicon.png";
+        document.querySelector("#account-image").src = source;
+        document.querySelector("#avatar").src = source;
+    }
+   
+        
 }
 //show dashboard
 const showDashboard = ()=>{
@@ -581,7 +659,7 @@ const createCustomerSummaryRow = (row)=>{
 //showCustomers
 const showCustomers = (data)=>{
     // activateMenu('customers');
-    const holder = document.querySelector("#customers_content");  
+    const holder = document.querySelector("#customers_table_summary");  
     Array.from(holder.children).forEach(child=>{
         if(child.classList.contains("body-row")) holder.removeChild(child);
     })  
@@ -597,51 +675,6 @@ const showCustomers = (data)=>{
         });
         // arrayToCSV(data);
     }
-}
-//display system roles
-const showClientRoles = ()=>{
-    greet("Roles",{title:"Roles",description:"Add Role"});
-    const holder = document.getElementById("roles_content");
-    Array.from(holder.children).forEach(child=>{
-        if(child.classList.contains('body-row')) holder.removeChild(child);
-    })
-    var roles = storedData.client_roles;
-    if(roles && roles.length > 0){
-        roles = roles.map(role=>{
-            let newRole = role;
-            storedData.roles.forEach(r=>{
-                if(role.level == r.id) newRole.level_name = r.name;
-               
-            });
-            return newRole;
-        })
-        roles.forEach(role=>{
-            const rowHolder = document.createElement("div");
-            rowHolder.classList.add("body-row");
-            const roleId = document.createElement("span");
-            roleId.textContent = role.name;
-            const roleName = document.createElement("span");
-            roleName.textContent = role.description;
-            const roleLevel = document.createElement("span");
-            roleLevel.textContent = role.level_name;
-
-            rowHolder.appendChild(roleId);
-            rowHolder.appendChild(roleName);
-            rowHolder.appendChild(roleLevel);
-            holder.appendChild(rowHolder);
-        })
-    }
-    else{
-        const rowHolder = document.createElement("div");
-        rowHolder.classList.add("body-row");
-        const nodata = document.createElement("span");
-        nodata.textContent = "No data";
-        rowHolder.appendChild(nodata);
-        holder.appendChild(rowHolder);
-       
-    }
-
-
 }
 
 //fetch roles
@@ -749,25 +782,51 @@ const cancelAddRoleForm = ()=>{
     roleForm.classList.add("hidden");
 }
 //show role form
-const showRoleForm = ()=>{
-    greet("Roles",{title:"Roles",description:"Add Role"});
-    const roleList = document.querySelector("#roles_content");
-    const roleForm = document.querySelector("#add_role_content");
-    roleList.classList.add("hidden");
-    roleForm.classList.remove("hidden");
-    if(window.location.pathname == "/dashboard/"){
-        const selectLevel = document.querySelector("#level");
-        while(selectLevel.hasChildNodes()){
-            selectLevel.removeChild(selectLevel.childNodes[0]);
-        }
-        storedData.roles.forEach(role=>{
-            selectLevel.options.add(new Option(role.name,role.id));
-        })
-        const cancelBut = document.querySelector("#btnCancelAddRole");
-        cancelBut.addEventListener('click',(e)=>{
-            cancelAddRoleForm();
-        })
-    }
+const showRoleForm = (holder)=>{
+    const form = document.createElement("form");
+    form.method = "post";
+    form.id = "add_role_form";
+    const inputName = document.createElement("input");
+    inputName.type = "text";
+    inputName.classList.add("form-control");
+    inputName.id="role_name";
+    inputName.name = "role_name";
+    inputName.placeholder = "Role name";
+    form.appendChild(inputName);
+
+    const inputDescription = document.createElement("select");
+    inputDescription.classList.add("form-control");
+    inputDescription.id="role_level";
+    inputDescription.name = "role_level";
+    form.appendChild(inputDescription);
+
+    var roles = (storedData.roles) ? storedData.roles:[];
+    roles.forEach(role=>{
+        inputDescription.options.add(new Option(role.name,role.id));
+    })
+
+    const inputSubmit = document.createElement("input");
+    inputSubmit.type = "submit";
+    inputSubmit.classList.add("button-s");
+    inputSubmit.classList.add("no-corner");
+    inputSubmit.id="btnSubmitRole";
+    inputSubmit.name = "btnSubmitRole";
+    inputSubmit.value = "Add Role";
+    form.appendChild(inputSubmit);
+    holder.appendChild(form);
+    // holder.appendChild(rowHolder);
+
+     form.addEventListener('submit',(e)=>{
+             e.preventDefault();
+        let roles = (storedData.roles) ? storedData.roles : [];
+        let name = inputName.value.trim();
+        let description = inputDescription.options[inputDescription.options.selectedIndex].value.trim();
+        // let permission = "1,2";//roleForm.permission.value.trim();
+        const data = {name:name,level:description};
+       
+       registerClientRole(data);
+    })
+
 }
 const createMoreLink = (target,holder)=>{
     const button = document.createElement("button");
@@ -913,16 +972,55 @@ const refreshUser=()=>{
     console.log("refreshed user");
 }
 
+//confirm dialog
+const confirmDialog =(msg,actionText,action)=>{
+    var alert = document.getElementById("alert_dialog");
+    alert.classList.remove("hidden");
+    var dialog = document.createElement("div");
+    dialog.classList.add("dialog");
+    var dialogTitle = document.createElement("div");
+    dialogTitle.classList.add("dialog-title");
+    dialogTitle.textContent = actionText.toUpperCase();
+    var cancelButt = document.createElement("span");
+    var okButt = document.createElement("span");
+    var msgText = document.createElement("p");
+    msgText.textContent = msg;
+    msgText.style.textAlign="center";
+    cancelButt.classList.add('dialog-button');
+    cancelButt.textContent = "CANCEL";
+    okButt.classList.add("dialog-button");
+    okButt.classList.add("primary-dark-text");
+    okButt.textContent = actionText.toUpperCase();
+    dialog.appendChild(dialogTitle);
+    dialog.appendChild(msgText);
+
+    var buttonRow = document.createElement("div");
+    buttonRow.classList.add("row-end");
+    buttonRow.appendChild(okButt);
+    buttonRow.appendChild(cancelButt);
+    dialog.appendChild(buttonRow);
+    alert.appendChild(dialog);
+
+    okButt.addEventListener('click',(e)=>{
+        action();
+    });
+    cancelButt.addEventListener('click',(e)=>{
+        alert.classList.add("hidden");
+        while(alert.hasChildNodes()){
+            alert.removeChild(alert.childNodes[0]);
+        }
+    })
+}
 //handle arrow drop down and menus
 
     let id = "arrow-drop";
     let signoutId = "#signout";
-    let settingsId = "#settings";
-    const settings = document.querySelector(settingsId);
+    let profileId = "#profile";
+    const profile = document.querySelector(profileId);
     const signout = document.querySelector(signoutId);
     const arrowDrop = document.getElementById(id);
+    const dropDown = document.querySelector("#drop-down");
     if(arrowDrop){
-        const dropDown = document.querySelector("#drop-down");
         arrowDrop.addEventListener('click',(e)=>{
             showHideDropDown(dropDown,arrowDrop);
         });
@@ -930,16 +1028,14 @@ const refreshUser=()=>{
     if(signout){
         signout.addEventListener('click',(e)=>{
             e.preventDefault();
-            if(confirm("Are you sure you want to sign out?")){
+            confirmDialog("Are you sure you want to sign out?","signout",()=>{
                 signoutUser();
-            }
-            else{
-                console.log("no singout");
-            }
+            });
         });
     }
-    if(settings){
-        settings.addEventListener('click',(e)=>{
+    if(profile){
+        profile.addEventListener('click',(e)=>{
+            dropDown.classList.add("hidden");
             showSettings();
         })
     }
@@ -954,8 +1050,16 @@ document.addEventListener('mouseup',(e)=>{
             dropDown.classList.add("hidden");
             arrowDrop.innerHTML = "arrow_drop_down";
         }
-        // showHideDropDown(dropDown,arrowDrop);
-  
+        //hide dialogs
+        var alerts = Array.from(document.getElementsByClassName("alert"));
+        alerts.forEach(alert=>{
+            if(!alert.contains(e.target)){
+                alert.classList.add("hidden");
+                while(alert.hasChildNodes()){
+                    alert.removeChild(alert.childNodes[0]);
+                }
+            }
+        })
 })
 document.addEventListener('updateData',(e)=>{
     if(window.location.pathname == '/admin/'){
@@ -972,12 +1076,13 @@ window.addEventListener('poststate',(e)=>{
     console.log("poststate: ",e.state);
 })
 const showSettings =()=>{
-    if(currentUser.id === 0){
-        alert("settings admin");
-    }
-    else{
-        showProfile();
-    }
+    // if(currentUser.id === 0){
+    //     alert("settings admin");
+    // }
+    // else{
+    //     showProfile();
+    // }
+    activateMenu('profile');
 }
 const showHideDropDown = (dropDown,arrowDrop)=>{
     if(dropDown.classList.contains("hidden")) {
@@ -1182,7 +1287,7 @@ const updateClientRoles =(roles)=>{
     if(roles && roles.length > 0){
         storedData.client_roles = roles;
         storage.setItem("data",JSON.stringify(storedData));
-        // showClientRoles();
+        showClientRoles();
     }
 }
 //search
@@ -1230,40 +1335,6 @@ if(window.location.pathname == "/dashboard/"){
                 showFeedback(e.msg,1);
             })
 
-            //add client role
-             //add role
-        const roleForm = document.querySelector("#add_role_form");
-        if(roleForm){
-            const cancelForm = document.querySelector("#btnCancelAddRole");
-            if(cancelForm){
-                cancelForm.addEventListener('click',(e)=>{
-                    cancelAddRoleForm();
-                });
-            }
-
-            roleForm.addEventListener('submit',(e)=>{
-                e.preventDefault();
-                let roles = (storedData.client_roles) ? storedData.client_roles : [];
-                let name = roleForm.name.value.trim();
-                let description = roleForm.description.value.trim();
-                let level = roleForm.level.options[roleForm.level.options.selectedIndex].value;
-                const data = {name:name,description:description,level:level};
-                registerClientRole(data).then(result=>{
-                    console.log("sasaje: ",result);
-                    if(result.data && result.data.length > 0) {
-                        updateClientRoles(result.data);
-                        cancelAddRoleForm();
-                    }
-                    showFeedback(result.msg,result.code);
-                })
-                .catch(e=>{
-                    console.log("eee: ",e);
-                    showFeedback("Oops! Something might have gone wrong. Please try again later",1);
-                })
-            })
-
-        }
-
         //customer form
         const customerForm = document.querySelector("#customer_profile_form");
         if(customerForm){
@@ -1310,18 +1381,7 @@ if(window.location.pathname == "/account/"){
     const detailForm = document.querySelector("#client_profile_form");
     var clientDetails = currentUser.detail;
     if(clientDetails) {
-        greet("Hello "+clientDetails.contact_person.split(" ")[0],null);
-        document.querySelector("#account-name").textContent = clientDetails.contact_person;
-        let source = (currentUser.avatar) ? currentUser.avatar :clientDetails.logo;
-        document.querySelector("#account-image").src = source;
-        if(clientDetails.logo) {
-            document.querySelector("#avatar").src = source;
-            document.querySelector("#client_logo").src = clientDetails.logo;
-        }
-        else{
-            document.querySelector("#avatar").src = (currentUser.avatar) ? currentUser.avatar :"/img/favicon.png";
-            document.querySelector("#client_logo").src = "/img/logo.png";
-        }
+        
     }
     
     if(detailForm){
@@ -1381,44 +1441,14 @@ if(window.location.pathname == "/account/"){
         });
     }
     
-    const uploadButton = document.querySelector("#upload-button");
-    if(uploadButton){
-        uploadButton.addEventListener("click",(e)=>{
-            const preview = document.querySelector("#account-image");
-            const inputImage = document.querySelector("#image-file");
-            inputImage.click();
-
-            inputImage.addEventListener('change',(e)=>{
-                var file = inputImage.files[0];
-                if(file){
-                    var reader = new FileReader();
-                    reader.addEventListener('load',()=>{
-                        if(reader.readyState == 2 && reader.result != null){
-
-                            preview.src = reader.result;
-                            uploadUserImage(reader.result)
-                            .then(response=>{
-                                if(response.data != null){
-                                    currentUser.avatar = response.data.avatar;
-                                    storage.setItem("currentUser",JSON.stringify(currentUser));
-                                }
-                                showFeedback(response.msg,response.code);
-                                console.log(response);
-                            })
-                            .catch(e=>{
-                                console.log(e);
-                                showFeedback(e.msg,e.code);
-                            })
-                        }
-                    },false);
-    
-                    reader.readAsDataURL(file);
-                }
-            });
-
-            
-        })
-    }
+   
 
 }
 
+//upload user photo
+const uploadButton = document.querySelector("#upload-button");
+if(uploadButton){
+    uploadButton.addEventListener("click",(e)=>{
+       updateUserProfile();
+    })
+}

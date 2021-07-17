@@ -69,11 +69,15 @@ header {
   @include flex(row, space-between, flex-start);
   padding: 0;
 }
+header #menu{
+  margin:0.5em;
+  display: none;
+}
 header img#client_logo{
   width:auto;
-  height:35px;
+  height:50px;
   object-fit: cover;
-  margin:0.25em;
+  margin:0.25em 1em;
 }
 header img.logo,.logo {
   width: calc(#{$sideBarSize} - 1em);
@@ -259,6 +263,7 @@ text-align: left;
   cursor: pointer;
 }
 .content .can-hide{
+  margin:1em auto;
   width: 100%;
 }
 //end of content
@@ -289,7 +294,7 @@ text-align: left;
 #side-bar >span.active{
   @include setBg($secondaryColor);
   border-left: 10px solid $faintDark;
-  width:calc(100% - 2em - 10px);
+  width:calc(100% - 2em);
   padding-left: calc(1em - 10px);
 }
 #side-bar .submenu{
@@ -385,6 +390,13 @@ footer{
   font-size: small;
   align-self: flex-end;
 }
+.dialog-button{
+  cursor: pointer;
+  font-size: larger;
+  font-weight: bold;
+  color:$faintDark;
+  margin:1em;
+}
 //end buttons
 //forms
 form {
@@ -414,6 +426,10 @@ form input[type="submit"]{
 form input[type="submit"] :disabled{
   background-color: $faintDark !important;
   cursor: not-allowed;
+}
+form input[type="submit"]{
+  max-width: 150px;
+  margin-right:2em;
 }
   .form-group,.form-group-no-border{
     padding:0.25em 0.5em;
@@ -552,6 +568,15 @@ form input[type="submit"] :disabled{
     // border:1px solid $faint;
     padding:0.25em;
   }
+  .summary-table form{
+    @include flex(row,space-evenly,center);
+    width:90%;
+    margin:0 auto;
+  }
+  .summary-table form input[type="text"]{
+    padding:0.5em;
+    margin:0 0.5em;
+  }
 //feedback
 #feedback{
   margin: 0 auto;
@@ -574,7 +599,7 @@ form input[type="submit"] :disabled{
 }
 .stat-card:hover{
   @include setBg($primaryColor);
-  color: $defaultColor;
+  color: $faintDark;
 }
 .stat-card:hover .stat-value{
   color:$faintDark;
@@ -646,6 +671,33 @@ form input[type="submit"] :disabled{
   display: block;
 }
 
+.alert{
+  z-index: 999999999999;
+  width:100vw;
+  height:100vh;
+  // background-color: red;
+  @include flex(column,center,center);
+  position:fixed;
+  top:0;
+  margin:0 auto;
+}
+.alert .dialog-title{
+  width:calc(100% - 1em);
+  @include setBg($faintDark);
+  color:$defaultColor;
+  padding:0.5em;
+}
+.alert .dialog{
+  width:40%;
+  @include addRoundCorner(10px);
+  @include shade();
+  @include setBg($defaultColor);
+  height:200px;
+  margin:0 auto;
+  padding-top:0;
+  overflow:hidden;
+
+}
 //end layouts
 
 // texts formats
@@ -692,9 +744,11 @@ a.nav-item:hover {
   @include flex(row,flex-start,center);
   @include setBg($faintDark);
   @include addRoundCorner(5px);
+  border:0.5px solid $faintDark;
   height:35px;
- cursor: pointer;
- overflow:hidden;
+  cursor: pointer;
+  overflow:hidden;
+
 }
 .action-button > span{
   padding:0.25em;

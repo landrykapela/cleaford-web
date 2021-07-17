@@ -22,7 +22,7 @@
                     <span></span>
                     <span></span>
                 </div>
-                <div class="row-end"><img id="client_logo" src="/img/logo.png" /></div>
+                <div class="row-end"><span id="menu" class="material-icons">menu</span><img id="client_logo" src="/img/logo.png" /></div>
             </div>
         </header>
         <main>
@@ -97,7 +97,7 @@
                             <span class="material-icons large-text arrow" id="arrow-drop">arrow_drop_down</span>                       
                         </div>
                         <div class="drop-down hidden" id="drop-down">
-                            <span class="drop-item" id="settings">Settings</span>
+                            <span class="drop-item" id="profile">Profile</span>
                             <span class="drop-item" id="signout">Logout</span>
                         </div>
                     </div>
@@ -154,28 +154,33 @@
                     </div>
                 </div>
                 <div class="can-hide hidden" id="customers_content">
-                   <div class="row-end"><button class="buttons-s no-corner" id="add_customer" onclick="showCustomerDetailForm();">Add Customer</button></div>
+                   <div class="row-end">
+                    <span class="action-button" id="add_client" onclick="showCustomerDetailForm();">
+                        <span class="material-icons">add</span>
+                        <span>Add Customer</span>
+                    </span> </div>
                    <div class="info"><a class="hidden" download="customer_list.csv" id="downloadcsv"></a>
                        <span>Output: <button id="csv" class="export-buttons">CSV</button><button id="excel" class="export-buttons">Excel</button><button id="pdf" class="export-buttons">PDF</button></span>
                    <input class="search" id="search_customers" placeholder="search"/>
                     </div>
-                    <div class="head-row" id="clients-head-row">
-                        <span>Company Name
-                            <span class="sort-arrow material-icons" id="sort_company" onclick="sortClients('sort_company',this);">arrow_drop_down</span>
-                        </span>
-                        <span>Address
+                    <div class="summary-table" id="customers_table_summary">
+                        <div class="head-row" id="clients-head-row">
+                            <span>Company Name
+                                <span class="sort-arrow material-icons" id="sort_company" onclick="sortClients('sort_company',this);">arrow_drop_down</span>
                             </span>
-                            <span>Location
+                            <span>Address
+                                </span>
+                                <span>Location
+                                </span>
+                            <span>Telephone</span>
+                            <span>Contact Name
+                                <span class="sort-arrow material-icons" id="sort_contact_name" onclick="sortClients('sort_contact_name',this);">arrow_drop_down</span>
+                        
                             </span>
-                        <span>Telephone</span>
-                        <span>Contact Name
-                            <span class="sort-arrow material-icons" id="sort_contact_name" onclick="sortClients('sort_contact_name',this);">arrow_drop_down</span>
-                       
+                            <span>Contact E-mail<span class="sort-arrow material-icons" id="sort_contact_email" onclick="sortClients('sort_contact_email',this);">arrow_drop_down</span>
                         </span>
-                        <span>Contact E-mail<span class="sort-arrow material-icons" id="sort_contact_email" onclick="sortClients('sort_contact_email',this);">arrow_drop_down</span>
-                    </span>
+                        </div>
                     </div>
-    
                 </div>
                 <div class="can-hide hidden" id="add_role_content">
                     <div class="row-space">
@@ -298,18 +303,93 @@
                         </div>
                     </div>
                 </div>
-                <div class="can-hide hidden" id="roles_content">
-                    <div class="row-end"><button class="buttons-s no-corner" id="add_role" onclick="showRoleForm();">Add Role</button></div>
-                    <div class="head-row" id="roles-head-row">
-                        <span>Role</span>
-                        <span>Description</span>
-                        <span>Level</span>    
+                <div class="can-hide hidden" id="profile_content">
+                    <div class="row-even">
+                        <div class="column" id="etickets">
+                            <div class="eticket eticket-active" id="account_setup">
+                                <span class="medium-text">Account Information</span>
+                                <span class="">User details</span>
+                            </div>
+                            <div class="eticket " id="account_notifications">
+                                <span class="medium-text">Notifications</span>
+                                <span class="">No new notifications</span>
+                            </div>
+                            
+                            <div class="eticket" id="account_security">
+                                <span class="medium-text">Account Security</span>
+                                <span class="">Passwords and tokens</span>
+                            </div>
+                        </div>
+                        <div id="my-detail" class="column-center">
+                            <div class="upload-image">
+                                <img class="preview" alt="account image" src="/img/logo.png" id="account-image"/>
+                                <span class="medium-text">Change Profile Image</span>
+                                <input type="file" name="image-file" id="image-file" class="hidden"/>
+                                <span class="buttons" id="upload-button">Upload</span>
+                            </div>
+                            <div id="form-container" class="form-container">
+                                <span class="medium-text">Personal Information</span>
+                                <form id="user_profile_form" method="POST" class="client_forms">
+                                    <input type="hidden" id="user_id" name="user_id"/>
+                                    <div class="form-group">
+                                        <label for="fname">First Name</label>
+                                        <input type="text" id="fname" name="fname"  required />
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="lname">Last Name</label>
+                                        <input type="text" id="lname" name="lname"  required />
+                                    </div>
+                                     <div class="form-group">
+                                    <label for="address">Address</label>
+                                    <input type="text" id="address" name="address" />
+                                    <!-- <textarea rows=5 id="address" name="address"></textarea> -->
+                                </div> 
+                                <div class="form-group-no-border map" id="map-add"></div>
+                                <div class="form-group">
+                                    <label for="country">Country</label>
+                                    <input type="text" id="country" name="country"/>
+                                </div> 
+                                <div class="form-group">
+                                    <label for="region">City/Region</label>
+                                    <input type="text" id="region" name="region"/>
+                                </div> 
+                                    <div class="form-group">
+                                        <label for="email">E-mail</label>
+                                        <input type="email" id="email" name="email"/></div>
+                                    <div class="form-group">
+                                        <label for="phone">Phone</label>
+                                        <input type="number" id="phone" name="phone" required/>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="password">Password</label>
+                                        <input type="password" id="password" name="password" required />
+                                </div>
+                               
+                                <div class="form-group-no-border">
+                                    <input class="no-corner" type="submit" id="btnSubmit" name="btnSubmit" value="SUBMIT"/>
+                                    <span id="button-spinner" class="button-spinner hidden"></span>
+                                    <button class="buttons no-corner" id="btnCancel" onclick="window.location.pathname='/dashboard/'">Cancel</button>
+                                </div>
+                                </form>
+                            </div>
+                        </div>
                     </div>
-
+                </div>
+                <div class="can-hide hidden" id="roles_content">
+                    <div class="summary-table" id="roles-table"> 
+                        <div class="head-row" id="roles-head-row">
+                            <span>Role</span>
+                            <span>Description</span>
+                            <span>Level</span>    
+                        </div>
+                    </div>
                 </div>
             </div>
         </main>
         <div id="feedback" class="hidden"></div>
+        <div class="alert hidden" id="alert_dialog">
+            
+        </div>
         <footer>&copy; 2021, Cleaford. All rights reserved</footer>
    <script src="/js/config.js"></script>
    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

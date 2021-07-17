@@ -64,6 +64,8 @@
                     </div>
                 </div>
                 </div>
+                <div class="row-space">
+                    <div id="feedback" class="hidden"></div></div>
                 <div class="can-hide" id="dashboard_content">
                
                     <div class="row-even wrap">
@@ -133,7 +135,6 @@
                 </div>
                 <div class="can-hide hidden" id="roles_content">
                     
-                    <div class="row-end"><span class="action-button" id="add_role" onclick="showRoleForm();"><span class="material-icons">add</span><span>Add Role</button></div>
                     <div class="summary-table" id="roles-table">
                         <div class="head-row" id="roles-head-row">
                             <span>Role</span>
@@ -218,7 +219,7 @@
                                <label for="company_logo">Company Logo</label>
                                <input type="file" id="company_logo" name="company_logo"/>
                             </div>
-                          <div class="form-group-no-border">
+                          <div class="form-group-no-border row-end">
                             <input class="no-corner" type="submit" id="btnSubmit" name="btnSubmit" value="SUBMIT"/>
                             <input type="reset" class="buttons no-corner" id="btnCancelAdd" name="btnCancelAdd" value="Cancel"/>
                         </div>
@@ -278,35 +279,14 @@
                         </form>
                     </div>
                 </div>
-                <div class="can-hide hidden" id="add_role_content">
-                   
-                    <div id="form-container" class="form-container">
-                        <span class="medium-text">Add New Role</span>
-                        <form id="add_role_form" method="POST" class="client_forms">
-                            <div class="form-group">
-                                <label for="name">Name</label>
-                                <input type="text" id="name" name="name"  required />
-                            </div>
-                            <div class="form-group">
-                                <label for="description">Description</label>
-                                <textarea rows=5 id="description" name="description"></textarea>
-                            </div> 
-                            <div class="form-group">
-                                <label for="permission">Permissions</label>
-                                <input type="text" id="permission" name="permission" placeholder="separate with commas"/></div>
-                            
-                          <div class="form-group-no-border">
-                            <input class="no-corner" type="submit" id="btnSubmit" name="btnSubmit" value="SUBMIT"/>
-                            <input type="reset" class="buttons no-corner" id="btnCancelAddRole" name="btnCancelAddRole" value="Cancel"/>
-                        </div>
-                        </form>
-                    </div>
-                </div>
+                
            </div>
             
         </main>
-        <div id="feedback" class="hidden"></div>
         <span id="spinner" class="hidden"></span>
+        <div class="alert hidden" id="alert_dialog">
+            
+        </div>
         <footer>&copy; 2021, Cleaford. All rights reserved</footer>
         <script src="//cdn.amcharts.com/lib/4/core.js"></script>
 <script src="//cdn.amcharts.com/lib/4/charts.js"></script>

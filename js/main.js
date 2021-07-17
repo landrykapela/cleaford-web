@@ -1,6 +1,7 @@
 const storage = window.localStorage;
 const clientSummaryCount = 5;
-var currentUser = (storage.getItem("currentUser")) ? JSON.parse(storage.getItem("currentUser")):null;
+var userObj = storage.getItem("currentUser");
+var currentUser = (userObj !== null && userObj !== undefined && userObj !=="") ? JSON.parse(userObj):null;
 var storedData = (storage.getItem("data")) ? JSON.parse(storage.getItem("data")):{regions:[],client_roles:[],clients:[],roles:[]};
 
 const DATA_COUNT = 12;
@@ -33,6 +34,46 @@ const setTheme = (color,customizableItems)=>{
             }
         })
     }
+}
+
+//confirm dialog
+const confirmDialog =(msg,actionText,action)=>{
+    var alert = document.getElementById("alert_dialog");
+    alert.classList.remove("hidden");
+    var dialog = document.createElement("div");
+    dialog.classList.add("dialog");
+    var dialogTitle = document.createElement("div");
+    dialogTitle.classList.add("dialog-title");
+    dialogTitle.textContent = actionText.toUpperCase();
+    var cancelButt = document.createElement("span");
+    var okButt = document.createElement("span");
+    var msgText = document.createElement("p");
+    msgText.textContent = msg;
+    msgText.style.textAlign="center";
+    cancelButt.classList.add('dialog-button');
+    cancelButt.textContent = "CANCEL";
+    okButt.classList.add("dialog-button");
+    okButt.classList.add("primary-dark-text");
+    okButt.textContent = actionText.toUpperCase();
+    dialog.appendChild(dialogTitle);
+    dialog.appendChild(msgText);
+
+    var buttonRow = document.createElement("div");
+    buttonRow.classList.add("row-end");
+    buttonRow.appendChild(okButt);
+    buttonRow.appendChild(cancelButt);
+    dialog.appendChild(buttonRow);
+    alert.appendChild(dialog);
+
+    okButt.addEventListener('click',(e)=>{
+        action();
+    });
+    cancelButt.addEventListener('click',(e)=>{
+        alert.classList.add("hidden");
+        while(alert.hasChildNodes()){
+            alert.removeChild(alert.childNodes[0]);
+        }
+    })
 }
 if(window.location.pathname != "/signin.html" && window.location.pathname != "/signing.html"){
 
@@ -233,7 +274,8 @@ const activateMenu =(target)=>{
                 if(content) content.classList.remove("hidden");
                 break;
             case 'add_client':
-                document.querySelector("#clients").classList.add("active");
+                greet("Clients",{title:"Clients",description:"Add client"});
+                               document.querySelector("#clients").classList.add("active");
                 if(content) content.classList.remove("hidden");
                 break;
             case 'edit_client':
@@ -407,8 +449,8 @@ if(loginForm){
         .then(res=>res.json()).then(response=>{
             submit.classList.remove("hidden");
             if(spinner) spinner.classList.add("hidden");
-            if(response.error){
-                showFeedback(response.error,1);
+            if(response.code == 1){
+                showFeedback(response.msg,1);
             }
             else{
                 currentUser = response.data;
@@ -421,9 +463,10 @@ if(loginForm){
             }
         })
         .catch(err=>{
+            console.log("eee: ",err);
             submit.classList.remove("hidden");
             if(spinner) spinner.classList.add("hidden");
-            let error = (err.error) ? err.error : "Connection Problems. Please try again later";
+            let error = (err.msg) ? err.msg : "Connection Problems. Please try again later";
             showFeedback(error,1);
         });
     });
@@ -836,7 +879,7 @@ const showClients = (data)=>{
 const showRoles = ()=>{
     const holder = document.getElementById("roles-table");
     Array.from(holder.children).forEach(child=>{
-        if(child.classList.contains('body-row')) holder.removeChild(child);
+        if(child.classList.contains('body-row') || child.id=="add_role_form") holder.removeChild(child);
     })
     var roles = storedData.roles;
     if(roles && roles.length > 0){
@@ -861,6 +904,7 @@ const showRoles = ()=>{
         holder.appendChild(rowHolder);
        
     }
+    showRoleForm(holder);
 }
 const updateRoles = (roles)=>{
     if(roles && roles.length > 0){
@@ -911,11 +955,80 @@ const cancelAddRoleForm = ()=>{
     roleForm.classList.add("hidden");
 }
 //show role form
-const showRoleForm = ()=>{
-    const roleList = document.querySelector("#roles_content");
-    const roleForm = document.querySelector("#add_role_content");
-    roleList.classList.add("hidden");
-    roleForm.classList.remove("hidden");
+const showRoleForm = (holder)=>{
+    const form = document.createElement("form");
+    form.method = "post";
+    form.id = "add_role_form";
+    const inputName = document.createElement("input");
+    inputName.type = "text";
+    inputName.classList.add("form-control");
+    inputName.id="role_name";
+    inputName.name = "role_name";
+    inputName.placeholder = "Role name";
+    form.appendChild(inputName);
+
+    const inputDescription = document.createElement("input");
+    inputDescription.type = "text";
+    inputDescription.classList.add("form-control");
+    inputDescription.id="role_description";
+    inputDescription.name = "role_description";
+    inputDescription.placeholder = "Role description";
+    form.appendChild(inputDescription);
+
+    const inputSubmit = document.createElement("input");
+    inputSubmit.type = "submit";
+    inputSubmit.classList.add("button-s");
+    inputSubmit.classList.add("no-corner");
+    inputSubmit.id="btnSubmitRole";
+    inputSubmit.name = "btnSubmitRole";
+    inputSubmit.value = "Add Role";
+    form.appendChild(inputSubmit);
+    holder.appendChild(form);
+    // holder.appendChild(rowHolder);
+
+     form.addEventListener('submit',(e)=>{
+             e.preventDefault();
+        let roles = (storedData.roles) ? storedData.roles : [];
+        let name = inputName.value.trim();
+        let description = inputDescription.value.trim();
+        let permission = "1,2";//roleForm.permission.value.trim();
+        const data = {name:name,description:description,permission:permission};
+        const headers = {
+            'Content-type':'application/json', 'Authorization': 'Bearer '+currentUser.accessToken
+        }
+        const options ={
+            body:JSON.stringify(data),
+            method:"POST",
+            headers:headers
+        }
+        fetch(create_role_url,options).then(res=>{
+            if(res.status == 403){
+                showFeedback("Your session has expired, please login",1);
+                signoutUser();
+            }
+            else{
+                res.json()
+                .then(result=>{
+                    if(result.data !== null && result.data.length > 0) {
+                        roles = result.data;
+                        showFeedback(result.msg,0);
+                        updateRoles(roles);
+                        
+                    }
+                    // cancelAddRoleForm();
+                }).catch(e=>{
+                    showFeedback(e.msg,1);
+                })
+            }
+
+        })
+        .catch(e=>{
+            console.log("e: ",e);
+            showFeedback(e,1);
+        })
+    
+    })
+
     
 }
 const createMoreLink = (target,holder)=>{
@@ -1089,12 +1202,9 @@ if(arrowDrop){
 if(signout){
     signout.addEventListener('click',(e)=>{
         e.preventDefault();
-        if(confirm("Are you sure you want to sign out?")){
+        confirmDialog("Are you sure you want to sign out?","signout",()=>{
             signoutUser();
-        }
-        else{
-            console.log("no singout");
-        }
+        })
     });
 }
 if(profile){
@@ -1327,54 +1437,7 @@ if(window.location.pathname ==="/admin/"){
             });
         }
        
-        //add role
-        const roleForm = document.querySelector("#add_role_form");
-        if(roleForm){
-            const cancelForm = document.querySelector("#btnCancelAddRole");
-            if(cancelForm){
-                cancelForm.addEventListener('click',(e)=>{
-                    cancelAddRoleForm();
-                });
-            }
-
-            roleForm.addEventListener('submit',(e)=>{
-                e.preventDefault();
-                let roles = (storedData.roles) ? storedData.roles : [];
-                let name = roleForm.name.value.trim();
-                let description = roleForm.description.value.trim();
-                let permission = roleForm.permission.value.trim();
-                const data = {name:name,description:description,permission:permission};
-                const headers = {
-                    'Content-type':'application/json', 'Authorization': 'Bearer '+currentUser.accessToken
-                }
-                const options ={
-                    body:JSON.stringify(data),
-                    method:"POST",
-                    headers:headers
-                }
-                fetch(create_role_url,options).then(res=>{
-                    if(res.status == 403){
-                        showFeedback("Your session has expired, please login",1);
-                        signoutUser();
-                    }
-                    return res.json();
-
-                })
-                .then(result=>{
-                    console.log(result);
-                    if(result.data !== null && result.data.length > 0) {
-                        roles = result.data;
-                        storedData.roles = roles;
-                        storage.setItem("data",JSON.stringify(storedData));
-                        showFeedback(result.msg,0);
-                    }
-                    cancelAddRoleForm();
-                }).catch(e=>{
-                    showFeedback(e.msg,1);
-                })
-            })
-
-        }
+       
     }
 }
 
