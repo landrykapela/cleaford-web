@@ -275,6 +275,7 @@ const showClientStats =()=>{
             }
             let config = {
                 type:'pie',data:summary,options:{
+                    responsive:true,
                     plugins:{
                         legend:{
                             display:true,

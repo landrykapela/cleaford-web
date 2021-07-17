@@ -166,7 +166,8 @@ main > div.content .info-charts, main > div.content .info-map {
 }
 
 .info-charts > canvas {
-  height: 100%;
+  height: 100% !important;
+  width: 100% !important;
 }
 
 .info-charts, .info-map {
@@ -312,6 +313,7 @@ main > div#dashboard_content {
   background-color: #d3d3d3 !important;
   border-left: 10px solid #666262;
   width: calc(100% - 2em - 10px);
+  padding-left: calc(1em - 10px);
 }
 
 #side-bar .submenu {
@@ -336,6 +338,21 @@ main > div#dashboard_content {
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
+}
+
+#side-bar > span.menu-item {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+#side-bar .item-expandable :nth-child(1), #side-bar > span.menu-item > span.material-icons {
+  margin-right: 0.25em;
+}
+
+#side-bar .item-expandable :nth-child(2) {
+  flex-grow: 1;
 }
 
 footer {

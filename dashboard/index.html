@@ -12,7 +12,7 @@
         <link href="/css/main.css" rel="stylesheet"/>
     </head>
 
-    <body style="text-align: center;">
+    <body>
         <header>
             <img class="logo" src="/img/logo.png" alt="cleaford logo" />
             <div class="theme-band">
@@ -27,10 +27,14 @@
         </header>
         <main>
             <div id="side-bar">
-                <span class="menu-item active" id="dashboard">Dashboard</span>
-                <span class="menu-item" id="customers">Customers</span>
+                <span class="menu-item active" id="dashboard">
+                    <span class="material-icons">dashboard</span>
+                    Dashboard
+                </span> 
+                <span class="menu-item" id="customers">
+                    <span class="material-icons">people</span>Customers</span>
                 <div class="item-expandable" id="operations">
-                    <span>Operations</span>
+                    <span class="material-icons">work</span><span>Operations</span>
                     <span class="material-icons" id="operations_drop">arrow_drop_down</span>
                 </div>
                 <div class="submenu hidden" id="operations_submenu">
@@ -38,7 +42,7 @@
                     <span id="imports" class="menu-item">Imports<span>
                 </div>
                 <div class="item-expandable" id="finance">
-                    <span>Finance</span>
+                    <span class="material-icons">account_balance</span><span>Finance</span>
                     <span class="material-icons" id="finance_drop">arrow_drop_down</span>
                 </div>
                 <div class="submenu hidden" id="finance_submenu">
@@ -50,7 +54,8 @@
                 </div>
               
                 <div class="item-expandable" id="hr">
-                    <span>Human Resource</span>
+                    <span class="material-icons">groups</span>
+                    <span>HR</span>
                     <span class="material-icons" id="hr_drop">arrow_drop_down</span>
                 </div>
                 <div class="submenu hidden" id="hr_submenu">
@@ -58,6 +63,7 @@
                     <span id="payroll" class="menu-item">Payroll</span>
                 </div>
                 <div class="item-expandable" id="suppliers">
+                    <span class="material-icons">local_shipping</span>
                     <span>Suppliers</span>
                     <span class="material-icons" id="suppliers_drop">arrow_drop_down</span>
                 </div>
@@ -67,6 +73,7 @@
                     <span id="regulators" class="menu-item">Regulators<span>
                 </div>
                 <div class="item-expandable" id="settings">
+                    <span class="material-icons">settings</span>
                     <span>Settings</span>
                     <span class="material-icons" id="settings_drop">arrow_drop_down</span>
                 </div>
@@ -96,40 +103,53 @@
                     </div>
                 </div>
                 <div class="can-hide" id="dashboard_content">
-                    <div class="row-space">
-                        <div class="info-stats">
-                            <div class="stat-card">
-                                <span>Customers registered</span>
-                                <span class="stat-value" id="no_of_customers">0</span>
-                            </div>
-                            <div class="stat-card">
-                                <span>Consignments processed</span>
-                                <span class="stat-value" id="no_of_clients">155</span>
-                            </div>
-                            <div class="stat-card">
-                                <span>Ready for shipping</span>
-                                <span class="stat-value" id="no_of_clients">4</span>
-                            </div>
-                            <div class="stat-card">
-                                <span>Ready for release</span>
-                                <span class="stat-value" id="no_of_clients">5</span>
-                            </div>
-                            <div class="stat-card">
-                                <span>Pending approval</span>
-                                <span class="stat-value" id="no_of_clients">3</span>
-                            </div>
-                            <div class="stat-card">
-                                <span>Client's registered</span>
-                                <span class="stat-value" id="no_of_clients">120</span>
-                            </div>
+                    <div class="row-even wrap">
+                        <div class="stat-card">
+                            <span>Customers registered</span>
+                            <span class="stat-value" id="no_of_customers">0</span>
                         </div>
+                        <div class="stat-card">
+                            <span>Consignments processed</span>
+                            <span class="stat-value" id="no_of_clients">155</span>
+                        </div>
+                        <div class="stat-card">
+                            <span>Ready for shipping</span>
+                            <span class="stat-value" id="no_of_clients">4</span>
+                        </div>
+                        <div class="stat-card">
+                            <span>Ready for release</span>
+                            <span class="stat-value" id="no_of_clients">5</span>
+                        </div>
+                        <div class="stat-card">
+                            <span>Pending approval</span>
+                            <span class="stat-value" id="no_of_clients">3</span>
+                        </div>
+                        <div class="stat-card">
+                            <span>Pending Invoices</span>
+                            <span class="stat-value" id="no_of_clients">120</span>
+                        </div>
+                        <div class="stat-card">
+                            <span>Pending Invoices</span>
+                            <span class="stat-value" id="no_of_clients">120</span>
+                        </div>
+                        <div class="stat-card">
+                            <span>Pending Invoices</span>
+                            <span class="stat-value" id="no_of_clients">120</span>
+                        </div>
+                        <div class="stat-card">
+                            <span>Pending Invoices</span>
+                            <span class="stat-value" id="no_of_clients">120</span>
+                        </div>
+                        <div class="stat-card">
+                            <span>Pending Invoices</span>
+                            <span class="stat-value" id="no_of_clients">120</span>
+                        </div>
+                     
+                    </div>
+                    <div class="row-even">
                         <div class="info-charts" id="chart-area">
                         </div>
-                    </div>
-                    <div class="row-center">
-                        
                         <div class="info-map" id="map-chart2">
-                           
                         </div>
                     </div>
                 </div>
