@@ -505,9 +505,9 @@ const signoutUser = ()=>{
             {method:"POST",body:JSON.stringify({email:currentUser.email}),headers:{'Content-type':'application/json'}})
         .then(res=>res.json())
             .then(result=>{
-                storage.setItem("currentUser",JSON.stringify({}));
-                storage.setItem("data",JSON.stringify({}));
-            window.location.pathname = "/signin.html";
+                storage.setItem("currentUser",JSON.stringify(null));
+                storage.setItem("data",JSON.stringify(null));
+                window.location.pathname = "/signin.html";
         })
         .catch(e=>{
             console.log(e);
@@ -1189,7 +1189,7 @@ const showFeatures = ()=>{
     Array.from(holder.children).forEach(child=>{
         if(child.classList.contains('body-row') || child.id=="add_feature_form") holder.removeChild(child);
     })
-    var features = storedData.features;
+    var features = (storedData.features) ? storedData.features : [];
     if(features && features.length > 0){
         features.forEach(feature=>{
             const rowHolder = document.createElement("div");
