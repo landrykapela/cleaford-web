@@ -529,6 +529,7 @@ const showConsignment = ()=>{
     var notifierForm = document.getElementById("notifier_form");
     var customerSelect = document.getElementById("customer_select");
     if(customerSelect){
+        while(customerSelect.hasChildNodes())customerSelect.removeChild(customerSelect.childNodes[0]);
         var customers = (storedData.customers) ? storedData.customers : [];
         customers.forEach(customer=>{
             customerSelect.options.add(new Option(customer.name,customer.id));
