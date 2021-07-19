@@ -181,9 +181,7 @@ const showClientRoles = ()=>{
 
 //delete client role
 const deleteClientRole =(role_id)=>{
-    var roles = storedData.client_roles.filter(r=>{
-        return r.id != role_id;
-    });
+  
     fetch(client_roles+"/"+currentUser.id+"/"+role_id,{
         method:"DELETE",headers:{'Content-type':'application/json','Authorization':'Bearer '+currentUser.accessToken}
     })
@@ -1165,6 +1163,9 @@ const confirmDialog =(msg,actionText,action)=>{
     okButt.addEventListener('click',(e)=>{
         action();
         alert.classList.add("hidden");
+        while(alert.hasChildNodes()){
+            alert.removeChild(alert.childNodes[0]);
+        }
     });
     cancelButt.addEventListener('click',(e)=>{
         alert.classList.add("hidden");
