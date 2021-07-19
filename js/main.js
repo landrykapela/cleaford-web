@@ -1027,8 +1027,8 @@ const showFeatureEditForm = (holder,feature)=>{
         inputParent.name = "feature_parent";
         inputParent.options.add(new Option("--select parent feature--",-1));
         form.appendChild(inputParent);
-        
-        storedData.features.forEach(ft=>{
+        var features = (storedData.features) ? storedData.features :[];
+        features.forEach(ft=>{
             inputParent.options.add(new Option(ft.name,ft.id));
         });
 
@@ -1119,8 +1119,8 @@ const showFeatureForm = (holder)=>{
     inputParent.name = "feature_parent";
     inputParent.options.add(new Option("--select parent feature--",-1));
     form.appendChild(inputParent);
-
-    storedData.features.forEach(f=>{
+    var features = (storedData.features) ? storedData.features :[];
+    features.forEach(f=>{
         if(f.parent == -1) {
             inputParent.options.add(new Option(f.name,f.id));
         }
