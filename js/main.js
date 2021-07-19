@@ -810,7 +810,7 @@ const createClientRow = (row,holder)=>{
 
         companyName.textContent = row.name;
         companyName.id = row.id;
-        companyAddress.textContent = row.address.substr(9,20);
+        companyAddress.textContent = (row.address <20) ? row.address : (row.address.substr(0,19)+"...");
         companyLocation.textContent = row.region+", "+row.country;
         companyPhone.textContent = row.phone;
         contactName.textContent = row.contact_person;
@@ -847,7 +847,7 @@ const createClientSummaryRow = (row)=>{
 
         companyName.textContent = row.name;
         companyName.id = row.id;
-        companyAddress.textContent = region+", "+row.country;
+        companyAddress.textContent = row.region+", "+row.country;
         contactEmail.textContent = row.contact_email;
         companyStatus.textContent = row.status == 0 ? 'Pending Activation' : "Activated";
 
@@ -857,13 +857,14 @@ const createClientSummaryRow = (row)=>{
         rowHolder.appendChild(companyStatus);
         // rowHolder.appendChild(contactName);
 
-        //add click listener
-        companyName.addEventListener('click',()=>{
-            editClientDetail(row,'dashboard_content');
-        })
+       
     }
 
     holder.appendChild(rowHolder);
+     //add click listener
+     rowHolder.addEventListener('click',()=>{
+        editClientDetail(row,'dashboard_content');
+    })
 }
 //showClients
 const showClients = (data)=>{

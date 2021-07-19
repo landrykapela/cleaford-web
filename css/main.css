@@ -156,7 +156,7 @@ main > div.content .info-stats, main > div.content .info-map {
   align-items: center;
   flex-wrap: wrap;
   width: calc(50% - 1em);
-  margin: 0.5em 0.25;
+  margin: 1em 0.25;
 }
 
 main > div.content #map-chart {
@@ -703,7 +703,7 @@ main > div.content .summary-table > span.summary-head {
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
   width: 160px;
   height: 70px;
-  margin: 0.5em;
+  margin: 2em 0.5em;
   background-color: #ffffff !important;
   border-radius: 5px;
   padding: 0.5em;
@@ -747,6 +747,10 @@ main > div.content .summary-table > span.summary-head {
   background-color: #3cbe3c9a !important;
   border: 1px solid #0f810f;
   color: #0f810f !important;
+}
+
+.no-overflow {
+  overflow-x: hidden !important;
 }
 
 .row {
@@ -842,7 +846,7 @@ main > div.content .summary-table > span.summary-head {
   margin: 0 auto;
 }
 
-.alert .dialog-title {
+.alert .dialog-title, .progress-title {
   width: calc(100% - 1em);
   background-color: #666262 !important;
   color: #ffffff;
@@ -858,6 +862,24 @@ main > div.content .summary-table > span.summary-head {
   margin: 0 auto;
   padding-top: 0;
   overflow: hidden;
+}
+
+.progress-card {
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  border-radius: 5px;
+  width: 200px;
+}
+
+.progress-title {
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+  margin: 0;
+}
+
+.progress-step, .progress-step-complete {
+  font-size: large;
+  border-radius: 50%;
+  padding: 0.5em;
 }
 
 .medium-text {

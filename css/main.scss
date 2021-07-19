@@ -162,7 +162,7 @@ main >div.content .info-stats,main >div.content .info-map{
   @include flex(row,space-between ,center );
   flex-wrap: wrap;
   width: calc(50% - 1em);
-  margin:0.5em 0.25;
+  margin:1em 0.25;
 }
 main > div.content #map-chart{
   // width:calc(10% - 1em);
@@ -600,7 +600,7 @@ form input[type="submit"]{
   @include shade(); 
   width:160px;
   height: 70px;
-  margin:0.5em;
+  margin:2em 0.5em;
   @include setBg($defaultColor);
   @include addRoundCorner(5px);
   padding:0.5em;
@@ -637,8 +637,11 @@ form input[type="submit"]{
   border: 1px solid $successColor;
   color:$successColor !important;
 }
+.no-overflow{
+  overflow-x: hidden !important;
+}
 .row{
-  @include flex(row,flex-start,center )
+  @include flex(row,flex-start,center );
 }
 .row-center{
   @include flex(row,center,center);
@@ -693,7 +696,7 @@ form input[type="submit"]{
   top:0;
   margin:0 auto;
 }
-.alert .dialog-title{
+.alert .dialog-title,.progress-title{
   width:calc(100% - 1em);
   @include setBg($faintDark);
   color:$defaultColor;
@@ -708,6 +711,24 @@ form input[type="submit"]{
   margin:0 auto;
   padding-top:0;
   overflow:hidden;
+
+}
+
+.progress-card{
+  @include shade();
+  @include addRoundCorner(5px);
+  width:200px;
+}
+.progress-title{
+  @include addRoundCornerTop(5px,5px );
+  margin:0;
+}
+.progress-step,.progress-step-complete{
+  font-size:large;
+  border-radius: 50%;
+  padding:0.5em;
+}
+.progress-step{
 
 }
 //end layouts
