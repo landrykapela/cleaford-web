@@ -620,6 +620,13 @@ main > div.content .summary-table > span.summary-head {
   font-weight: bold;
 }
 
+.head-row > span.actions {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+
 .summary-table .head-row {
   margin-top: 0.25em;
 }
@@ -633,6 +640,14 @@ main > div.content .summary-table > span.summary-head {
   padding: 0.25em;
   font-size: small;
   text-align: left;
+}
+
+.body-row > span.actions {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  align-items: center;
+  flex-shrink: 1;
 }
 
 .body-row {
@@ -666,9 +681,13 @@ main > div.content .summary-table > span.summary-head {
   margin: 0 auto;
 }
 
-.summary-table form input[type=text] {
+.summary-table form input[type=text], .summary-table form select {
   padding: 0.5em;
   margin: 0 0.5em;
+}
+
+.actions:hover {
+  color: #ffcc00;
 }
 
 #feedback {
@@ -783,6 +802,10 @@ main > div.content .summary-table > span.summary-head {
 
 .center-self {
   margin: 0 auto;
+}
+
+.gap {
+  row-gap: 2em;
 }
 
 #login-container {

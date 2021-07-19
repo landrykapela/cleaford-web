@@ -102,8 +102,10 @@
                         </div>
                     </div>
                 </div>
+
+                <div id="feedback" class="hidden"></div>
                 <div class="can-hide" id="dashboard_content">
-                    <div class="row-even wrap">
+                    <div class="row wrap row-gap">
                         <div class="stat-card">
                             <span>Customers registered</span>
                             <span class="stat-value" id="no_of_customers">0</span>
@@ -182,32 +184,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="can-hide hidden" id="add_role_content">
-                    <div class="row-space">
-                        <div id="form-container" class="form-container">
-                            <span class="medium-text">Add New Role</span>
-                            <form id="add_role_form" method="POST" class="client_forms">
-                                <div class="form-group">
-                                    <label for="name">Name</label>
-                                    <input type="text" id="name" name="name"  required />
-                                </div>
-                                <div class="form-group">
-                                    <label for="description">Description</label>
-                                    <textarea rows=5 id="description" name="description"></textarea>
-                                </div> 
-                                <div class="form-group">
-                                    <label for="level">Select Operation Level</label>
-                                    <select id="level" name="level"></select>    
-                                </div>
-                                
-                            <div class="form-group-no-border">
-                                <input class="no-corner" type="submit" id="btnSubmit" name="btnSubmit" value="SUBMIT"/>
-                                <input type="reset" class="buttons no-corner" id="btnCancelAddRole" name="btnCancelAddRole" value="Cancel"/>
-                            </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
+               
                 <div class="can-hide hidden" id="add_customer_content">
                     <div class="row-space">
                         <div id="form-container" class="form-container">
@@ -381,12 +358,12 @@
                             <span>Role</span>
                             <span>Description</span>
                             <span>Level</span>    
+                            <span class="actions">Action</span> 
                         </div>
                     </div>
                 </div>
             </div>
         </main>
-        <div id="feedback" class="hidden"></div>
         <div class="alert hidden" id="alert_dialog">
             
         </div>

@@ -115,6 +115,13 @@ const showClientRoles = ()=>{
     })
     var roles = storedData.client_roles;
     if(roles && roles.length > 0){
+        roles = roles.map(r=>{
+            storedData.roles.forEach(ro=>{
+                if(r.level == ro.id) r.role_level = ro.name;
+                
+            });
+            return r;
+        })
         roles.forEach(role=>{
             const rowHolder = document.createElement("div");
             rowHolder.classList.add("body-row");
@@ -122,9 +129,42 @@ const showClientRoles = ()=>{
             roleId.textContent = role.name;
             const roleName = document.createElement("span");
             roleName.textContent = role.description;
+            const roleLevel = document.createElement("span");
+            roleLevel.textContent = role.role_level;
+
+            const editBut = document.createElement("span");
+            editBut.id = "edit_role_"+role.id;
+            editBut.classList.add("material-icons");
+            editBut.textContent = "edit";
+
+            const delBut = document.createElement("span");
+            delBut.id = "del_role_"+role.id;
+            delBut.classList.add("material-icons");
+            delBut.textContent = "delete";
+
+            const actionSpan = document.createElement("span");
+            actionSpan.classList.add("actions");
+            actionSpan.appendChild(editBut);
+            actionSpan.appendChild(delBut);
+
+            
             rowHolder.appendChild(roleId);
             rowHolder.appendChild(roleName);
+            rowHolder.appendChild(roleLevel);
+            rowHolder.appendChild(actionSpan);
             holder.appendChild(rowHolder);
+
+            //add delete button click listener
+            delBut.addEventListener("click",(e)=>{
+                confirmDialog("Are you sure you want to delete this role?","Delete",()=>{
+                    deleteClientRole(role.id);
+                })
+            })
+
+            //add eidt button click listener
+            editBut.addEventListener("click",(e)=>{
+                showRoleEditForm(holder,role);
+            })
         })
     }
     else{
@@ -137,6 +177,34 @@ const showClientRoles = ()=>{
        
     }
     showRoleForm(holder);
+}
+
+//delete client role
+const deleteClientRole =(role_id)=>{
+    var roles = storedData.client_roles.filter(r=>{
+        return r.id != role_id;
+    });
+    fetch(client_roles+"/"+currentUser.id+"/"+role_id,{
+        method:"DELETE",headers:{'Content-type':'application/json','Authorization':'Bearer '+currentUser.accessToken}
+    })
+    .then(res=>{
+        if(res.status == 403){
+            showFeedback("Your session has expired, please login",1);
+        }
+        else{
+            res.json().then(result=>{
+                updateClientRoles(result.data);
+                showFeedback(result.msg,result.code);
+            }).catch(e=>{
+                showFeedback(e,1);
+            })
+        }
+    }).catch(e=>{
+        console.log(e);
+        showFeedback("Something went wrong! Please try again later",1)
+    })
+    // updateClientRoles(roles);
+    // showClientRoles()
 }
 const activateMenu =(target)=>{
     const items = Array.from(document.getElementsByClassName("menu-item"));
@@ -792,17 +860,18 @@ const showRoleForm = (holder)=>{
     inputName.id="role_name";
     inputName.name = "role_name";
     inputName.placeholder = "Role name";
+    inputName.required = true;
     form.appendChild(inputName);
 
-    const inputDescription = document.createElement("select");
-    inputDescription.classList.add("form-control");
-    inputDescription.id="role_level";
-    inputDescription.name = "role_level";
-    form.appendChild(inputDescription);
+    const inputLevel = document.createElement("select");
+    inputLevel.classList.add("form-control");
+    inputLevel.id="role_level";
+    inputLevel.name = "role_level";
+    form.appendChild(inputLevel);
 
     var roles = (storedData.roles) ? storedData.roles:[];
     roles.forEach(role=>{
-        inputDescription.options.add(new Option(role.name,role.id));
+        inputLevel.options.add(new Option(role.name,role.id));
     })
 
     const inputSubmit = document.createElement("input");
@@ -820,12 +889,104 @@ const showRoleForm = (holder)=>{
              e.preventDefault();
         let roles = (storedData.roles) ? storedData.roles : [];
         let name = inputName.value.trim();
-        let description = inputDescription.options[inputDescription.options.selectedIndex].value.trim();
+        let level = inputLevel.options[inputLevel.options.selectedIndex].value;
+        let selectedRole = roles.filter(r=>{
+            return r.id == level;
+        })
+        let description = selectedRole[0].description;
         // let permission = "1,2";//roleForm.permission.value.trim();
-        const data = {name:name,level:description};
+        const data = {name:name,level:level,description:description};
        
-       registerClientRole(data);
+        if(name && name.length !=0) registerClientRole(data);
+        // else inputName.classList.add("fail");
     })
+
+}
+
+//show edit role form
+const showRoleEditForm = (holder,role)=>{
+    var form = document.getElementById("edit_role_form");
+    if(form && form != null && form != undefined){
+        form.role_name.value = role.name;
+        form.role_level.value = role.level;
+    }
+    else{
+        const form = document.createElement("form");
+        form.method = "post";
+        form.id = "edit_role_form";
+        const inputName = document.createElement("input");
+        inputName.type = "text";
+        inputName.classList.add("form-control");
+        inputName.id="role_name";
+        inputName.name = "role_name";
+        inputName.value = role.name;
+        form.appendChild(inputName);
+
+        const inputLevel = document.createElement("select");
+        inputLevel.classList.add("form-control");
+        inputLevel.id="role_level";
+        inputLevel.name = "role_level";
+        // var roles = (storedData.roles) ? storedData.roles:[];
+        storedData.roles.forEach(r=>{
+            inputLevel.options.add(new Option(r.name,r.id));
+        })
+
+        inputLevel.value = role.level;
+        form.appendChild(inputLevel);
+
+    
+        const inputSubmit = document.createElement("input");
+        inputSubmit.type = "submit";
+        inputSubmit.classList.add("button-s");
+        inputSubmit.classList.add("no-corner");
+        inputSubmit.id="btnSubmitRole";
+        inputSubmit.name = "btnSubmitRole";
+        inputSubmit.value = "Update Role";
+        form.appendChild(inputSubmit);
+
+        const close = document.createElement("span");
+        close.classList.add("material-icons");
+        close.textContent = "close";
+        form.appendChild(close);
+        
+       
+        var addForm = document.getElementById("add_role_form");
+        if(addForm) addForm.classList.add("hidden");
+        holder.appendChild(form);
+         //hide edit form and display add role form
+         close.addEventListener("click",(e)=>{
+            holder.removeChild(form);
+            addForm.classList.remove("hidden");
+        });
+
+        form.addEventListener('submit',(e)=>{
+             e.preventDefault();
+            let roles = (storedData.roles) ? storedData.roles : [];
+            let name = inputName.value.trim();
+            let level = inputLevel.options[inputLevel.options.selectedIndex].value;
+            let selectedRole = roles.filter(r=>{
+                return r.id == level;
+            })
+            let description = selectedRole[0].description;
+            // let permission = "1,2";//roleForm.permission.value.trim();
+            const data = {name:name,level:level,description:description};
+            
+            updateClientRole(data,role.id,currentUser.id).then(result=>{
+                showFeedback(result.msg,result.code);
+                console.log("mydata: ",result.data);
+                updateClientRoles(result.data);
+            }).catch(err=>{
+                showFeedback(err,1);
+
+            }).finally(()=>{
+                holder.removeChild(form);
+                // holder.appendChild(addForm);
+            })
+    })
+    }
+   
+
+    
 
 }
 const createMoreLink = (target,holder)=>{
@@ -1003,6 +1164,7 @@ const confirmDialog =(msg,actionText,action)=>{
 
     okButt.addEventListener('click',(e)=>{
         action();
+        alert.classList.add("hidden");
     });
     cancelButt.addEventListener('click',(e)=>{
         alert.classList.add("hidden");
@@ -1284,11 +1446,50 @@ const submitCustomerDetail =(data,verb)=>{
 }
 //update client roles
 const updateClientRoles =(roles)=>{
+    console.log("updating...")
     if(roles && roles.length > 0){
         storedData.client_roles = roles;
         storage.setItem("data",JSON.stringify(storedData));
         showClientRoles();
     }
+}
+
+//update client role
+const updateClientRole = (data,roleId,userId)=>{
+    return new Promise((resolve,reject)=>{
+        let url = client_roles+"/"+userId+"/"+roleId;
+        const body = JSON.stringify({name:data.name,description:data.description,level:data.level});
+        const headers = {
+            'Content-type':'application/json',
+            'Authorization':'Bearer '+currentUser.accessToken
+        }
+        const options = {
+            method:"PUT",
+            body:body,
+            headers:headers
+        }
+        console.log("body:",body);
+        fetch(url,options).then(res=>{
+            if(res.status == 403) {
+                showFeedback("Your session expired, please login",1);
+                // signoutUser();
+            }
+            else{
+                res.json().then(result=>{
+                    showFeedback(result.msg,result.code);
+                    if(result.code == 0) updateClientRoles(result.data);
+                    resolve(result);
+                })
+                .catch(err=>{
+                    reject(err);
+                })
+            }
+        })
+        .catch(err=>{
+            reject(err);
+        })
+        
+    })
 }
 //search
 const search = document.querySelector("#search_customers");

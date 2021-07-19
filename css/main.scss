@@ -49,7 +49,7 @@ html {
 .wrap{
   max-width: 100%;
   flex-wrap: wrap !important;
-  // flex-flow: row-reverse;
+  // flex-wrap:wrap-reverse
 }
 .shadow{
   @include shade();
@@ -540,6 +540,9 @@ form input[type="submit"]{
     color: $faintDark;
     font-weight: bold;
   }
+  .head-row > span.actions{
+    @include flex(row,center,center);
+  }
   .summary-table .head-row{
     margin-top:0.25em;
   }
@@ -550,6 +553,10 @@ form input[type="submit"]{
     padding:0.25em;
     font-size: small;
     text-align: left;
+  }
+  .body-row > span.actions{
+    @include flex(row,space-evenly ,center );
+    flex-shrink: 1;
   }
   .body-row{
     @include setBg($defaultColor);
@@ -573,9 +580,12 @@ form input[type="submit"]{
     width:90%;
     margin:0 auto;
   }
-  .summary-table form input[type="text"]{
+  .summary-table form input[type="text"],.summary-table form select{
     padding:0.5em;
     margin:0 0.5em;
+  }
+  .actions:hover{
+    color:$primaryColor;
   }
 //feedback
 #feedback{
@@ -654,7 +664,9 @@ form input[type="submit"]{
 .center-self{
   margin:0 auto;
 }
-
+.gap{
+  row-gap:2em;
+}
 #login-container{
   margin:2em auto;
   @include flex(row,space-between ,center );
