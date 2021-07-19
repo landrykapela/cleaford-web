@@ -126,11 +126,11 @@
                             <span>Pending approval</span>
                             <span class="stat-value" id="no_of_clients">3</span>
                         </div>
-                      <!--   <div class="stat-card">
+                      <div class="stat-card">
                             <span>Pending Invoices</span>
                             <span class="stat-value" id="no_of_clients">120</span>
                         </div>
-                        <div class="stat-card">
+                      <!--     <div class="stat-card">
                             <span>Pending Invoices</span>
                             <span class="stat-value" id="no_of_clients">120</span>
                         </div> 
@@ -157,7 +157,7 @@
                 </div>
                 <div class="can-hide hidden" id="customers_content">
                    <div class="row-end">
-                    <span class="action-button" id="add_customer" onclick="showCustomerDetailForm();">
+                    <span class="action-button" id="add_customer" onclick="showCustomerDetailForm('customers_content');">
                         <span class="material-icons">add</span>
                         <span>Add Customer</span>
                     </span> </div>
@@ -185,13 +185,100 @@
                     </div>
                 </div>
                 <div class="can-hide hidden" id="exports_content">
-                   <div class="row">
+                   <div class="row-top">
                        <div class="column progress-card">
                            <span class="progress-title">Progress</span>
+                           <div class="row">
+                            <span class="progress-step-complete">1</span>   
+                            <span>Consignment Details</span>
+                           </div>
+                           <div class="row">
+                            <span class="progress-step-complete">2</span>   
+                            <span>Shipping Instructions</span>
+                           </div> 
+                           <div class="row">
+                               <span class="progress-step">3</span>
+                               <span>Container Packaging</span>
+                            </div> 
+                            <div class="row">
+                                <span class="progress-step">4</span>
+                                <span>Ports Confirmation</span>
+                             </div>                       
+                             <div class="row">
+                                <span class="progress-step">5</span>
+                                <span>Ship Booking</span>
+                             </div> 
                        </div>
-                       <div class="column consigment-forms">
-
+                       <div class="column consignment-details">
+                            <div class="consignment-forms">
+                                <span class="summary-head">Consignee Details</span>
+                                <form id="consignee_form" method="post">
+                                    <div class="row">
+                                        <label for="consignee_tin">TIN</label>
+                                        <input type="text" id="consignee_tin" name="consignee_tin" placeholder="TIN Number"/>
+                                    </div>
+                                    <div class="row">
+                                        <label for="consignee_name">Full Name</label>
+                                        <input type="text" id="consignee_name" name="consignee_name" placeholder="Consignee full name"/>
+                                    </div>
+                                    <div class="row">
+                                        <label for="consignee_phone">Telephone</label>
+                                        <input type="text" id="consignee_phone" name="consignee_phone" placeholder="Phone number"/>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <label for="consignee_address">Address</label>
+                                        <textarea id="consignee_address" name="consignee_address" rows="5"></textarea>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="consignment-forms">
+                                    <span class="summary-head">Exporter Details</span>
+                                    <form  id="exporter_form" method="post">
+                                        <div class="row">
+                                            <label for="customer_select">Select Customer</label>
+                                            <select id="customer_select" name="customer_select"></select>
+                                        </div>
+                                        <div class="row">
+                                            <label for="exporter_tin">TIN</label>
+                                            <input type="text" id="exporter_tin" name="exporter_tin" placeholder="TIN Number"/>
+                                        </div>
+                                        <div class="row">
+                                            <label for="exporter_name">Full Name</label>
+                                            <input type="text" id="exporter_name" name="exporter_name" placeholder="Exporter full name"/>
+                                        </div>
+                                        <div class="row">
+                                            <label for="exporter_phone">Telephone</label>
+                                            <input type="text" id="exporter_phone" name="exporter_phone" placeholder="Phone number"/>
+                                        </div>
+                                        
+                                        <div class="row">
+                                            <label for="exporter_address">Address</label>
+                                            <textarea id="exporter_address" name="exporter_address" rows="5"></textarea>
+                                        </div>
+                                    </form>
+                            </div>
+                            <div class="consignment-forms">
+                                <span class="summary-head">Notifier Details</span>
+                                <form id="notifier_form" method="post">
+                                    
+                                    <div class="row">
+                                        <label for="notify_name">Full Name</label>
+                                        <input type="text" id="notify_name" name="notify_name" placeholder="Notifier full name"/>
+                                    </div>
+                                    <div class="row">
+                                        <label for="notify_phone">Telephone</label>
+                                        <input type="text" id="notify_phone" name="notify_phone" placeholder="Phone number"/>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <label for="notify_address">Address</label>
+                                        <textarea id="notify_address" name="notify_address" rows="5"></textarea>
+                                    </div>
+                                </form>
+                        </div>
                        </div>
+                       
                    </div>
                  </div>
                 <div class="can-hide hidden" id="add_customer_content">

@@ -521,12 +521,12 @@ form input[type="submit"]{
     @include flex(column,flex-start,space-evenly);
     @include setBg($faintLight);
   }
-  main > div.content .summary-table > span.summary-head{
-    @include setBg($primaryColor);
+  main > div.content .summary-table > span.summary-head,.consignment-forms .summary-head{
+    @include setBg($primaryDarkColor);
     text-align: left;
     padding:0.5em;
     align-self: center;
-    width:calc(100%);
+    width:calc(100% - 1em);
   }
   .summary-head, .head-row{
     @include flex(row,flex-start,center);
@@ -598,8 +598,8 @@ form input[type="submit"]{
 }
 .stat-card{
   @include shade(); 
-  width:160px;
-  height: 70px;
+  width:calc(15% - 1em);
+  height: clamp(50px,70px,150px);
   margin:2em 0.5em;
   @include setBg($defaultColor);
   @include addRoundCorner(5px);
@@ -640,8 +640,12 @@ form input[type="submit"]{
 .no-overflow{
   overflow-x: hidden !important;
 }
+.row-top{
+  @include flex(row,flex-start,flex-start);
+}
 .row{
   @include flex(row,flex-start,center );
+  width: 100%;
 }
 .row-center{
   @include flex(row,center,center);
@@ -666,6 +670,33 @@ form input[type="submit"]{
 }
 .center-self{
   margin:0 auto;
+}
+.consignment-details{
+  width:100%;
+}
+.consignment-forms{
+  margin:0 2em 2em 2em;
+  @include shade();
+  width:60%;
+}
+.consignment-forms > form{
+  width:calc(100% - 2em);
+  margin-top:-0.5em;
+  @include addRoundCornerTop(5px,5px );
+  // border:1px solid red;
+  @include setBg($defaultColor);
+}
+.consignment-forms label{
+  text-align: right;
+  padding:0.25em 0.5em;
+  width:calc(40% - 1em);
+}
+.consignment-forms input,.consignment-forms textarea, .consignment-forms select{
+  flex-grow: 1;
+  // outline-color: $faintLight;
+  @include addRoundCornerTop(4px,4px );
+  width:calc(100% - 1em);
+  padding:0.25em 0.5em;
 }
 .gap{
   row-gap:2em;
@@ -717,19 +748,34 @@ form input[type="submit"]{
 .progress-card{
   @include shade();
   @include addRoundCorner(5px);
-  width:200px;
+  width:30%;
+}
+.progress-card > div.row{
+  padding:0.5em;
 }
 .progress-title{
   @include addRoundCornerTop(5px,5px );
   margin:0;
 }
 .progress-step,.progress-step-complete{
-  font-size:large;
+  font-size:medium;
+  font-weight: bold;
   border-radius: 50%;
-  padding:0.5em;
+  padding:0.25em;
+  width:10px;
+  height:10px;
+  text-align: center;
+  margin:0.25em;
+  @include flex(row,center ,center );
+}
+.progress-step-complete{
+  border:1px solid $primaryDarkColor;
+  color:$defaultColor;
+  @include setBg($primaryDarkColor);
 }
 .progress-step{
-
+  border:1px solid $faintDark;
+  color:$faintDark;
 }
 //end layouts
 

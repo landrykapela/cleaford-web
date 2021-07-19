@@ -250,10 +250,14 @@ const activateMenu =(target)=>{
                 greet("Profile",{title:"Profile",description:"Account information"});
                 showProfile();
                 break;
-            case 'features':
-                greet("Settings",{title:"Features",description:"Manage features"});
+            case 'users':
+                greet("Settings",{title:"Users",description:"Manage users"});
                 
                 break;
+                case 'exports':
+                    greet("Operations",{title:"Export",description:"Export consignments"});
+                    showConsignment();
+                    break;
             case 'roles':
                 greet("Settings",{title:"Roles",description:"Manage roles"});
                 if(!storedData.roles || storedData.roles.length == 0){
@@ -267,9 +271,8 @@ const activateMenu =(target)=>{
                 break;
             case 'dashboard':
                 greet("Hello Admin",null);
-                if(window.location.pathname=="/admin/") showAdminStats();
-                else showDashboard();
-            break;
+                showDashboard();
+                break;
         }
     }
     else{//menu menu item does not exist in the side bar (call may have come from button click)
@@ -470,11 +473,12 @@ const showDashboard = ()=>{
     window.location.pathname = "/dashboard/";
 }
 //cpature client details
-const showCustomerDetailForm = ()=>{
-    const clientList = document.querySelector("#customers_content");
+const showCustomerDetailForm = (source)=>{
+    const sourceContent = document.getElementById(source);
     const clientForm = document.querySelector("#add_customer_content");
-    clientList.classList.add("hidden");
+    sourceContent.classList.add("hidden");
     clientForm.classList.remove("hidden");
+    greet("Customers",{title:"Customers",description:"Add customer"});
 }
 const viewClientProfile = (user)=>{
     const placeholder = document.querySelector("#placeholder");
@@ -512,14 +516,52 @@ const activateAccount = (user)=>{
         }
         return res.json()})
     .then(result=>{
-        showCustomerDetailForm();
+        showCustomerDetailForm('');
     })
     .catch(er=>{
         console.log("errr: ",er);
         showFeedback(err.msg,1);
     })
 }
-
+const showConsignment = ()=>{
+    var consigneeForm = document.getElementById("consignee_form");
+    var exporterForm = document.getElementById("exporter_form");
+    var notifierForm = document.getElementById("notifier_form");
+    var customerSelect = document.getElementById("customer_select");
+    if(customerSelect){
+        var customers = (storedData.customers) ? storedData.customers : [];
+        customers.forEach(customer=>{
+            customerSelect.options.add(new Option(customer.name,customer.id));
+        });
+        customerSelect.options.add(new Option("--add new customer",-1));
+        var selectedCustomer = (customers.length) ? customers[0]: null;
+        if(selectedCustomer !==null){
+            exporterForm.exporter_phone.value = selectedCustomer.phone;
+            exporterForm.exporter_name.value = selectedCustomer.name;
+            exporterForm.exporter_address.value = selectedCustomer.address;
+            notifierForm.notify_name.value = selectedCustomer.contact_person;
+            notifierForm.notify_address.value = selectedCustomer.address;
+            notifierForm.notify_phone.value = selectedCustomer.phone
+       
+        }
+        customerSelect.addEventListener("change",(e)=>{
+            if(e.target.value == -1) showCustomerDetailForm('exports_content');
+            else{
+                selectedCustomer = customers.filter(c=>{
+                    return c.id == customerSelect.options[customerSelect.options.selectedIndex].value;
+                })[0];
+    
+                exporterForm.exporter_phone.value = selectedCustomer.phone;
+                exporterForm.exporter_name.value = selectedCustomer.name;
+                exporterForm.exporter_address.value = selectedCustomer.address+"\n\r"+selectedCustomer.region+","+selectedCustomer.country;
+                notifierForm.notify_name.value = selectedCustomer.contact_person;
+                notifierForm.notify_address.value = selectedCustomer.address+"\n\r"+selectedCustomer.region+","+selectedCustomer.country;
+                notifierForm.notify_phone.value = selectedCustomer.phone
+            }
+            
+        });
+    }
+}
 const initializeMap =(mapHolder,searchInput,targetForm,center={lat:-6.7924, lng:39.2083})=>{   
     const map = new google.maps.Map(mapHolder,{center:center,zoom:13});
     var fields = ["formatted_address","geometry","name","place_id"];
