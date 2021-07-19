@@ -157,7 +157,7 @@
                 </div>
                 <div class="can-hide hidden" id="customers_content">
                    <div class="row-end">
-                    <span class="action-button" id="add_client" onclick="showCustomerDetailForm();">
+                    <span class="action-button" id="add_customer" onclick="showCustomerDetailForm();">
                         <span class="material-icons">add</span>
                         <span>Add Customer</span>
                     </span> </div>
@@ -224,7 +224,7 @@
                                    <input type="email" id="contact_email" name="contact_email" required />
                                </div>
                               
-                              <div class="form-group-no-border">
+                              <div class="form-group-no-border row-end">
                                 <input class="no-corner" type="submit" id="btnSubmit" name="btnSubmit" value="SUBMIT"/>
                                 <input type="reset" class="buttons no-corner" id="btnCancelAdd" name="btnCancelAdd" value="Cancel"/>
                             </div>
@@ -272,7 +272,7 @@
                                    <input type="email" id="contact_email" name="contact_email" required />
                                </div>
                               
-                              <div class="form-group-no-border">
+                              <div class="form-group-no-border row-end">
                                 <input class="no-corner" type="submit" id="btnSubmit" name="btnSubmit" value="SUBMIT"/>
                                 <input type="reset" class="buttons no-corner" id="btnCancelEdit" name="btnCancelEdit" value="Cancel"/>
                             </div>
@@ -298,7 +298,7 @@
                             </div>
                         </div>
                         <div id="my-detail" class="column-center">
-                            <div class="upload-image">
+                            <div class="upload-image shadow">
                                 <img class="preview" alt="account image" src="/img/logo.png" id="account-image"/>
                                 <span class="medium-text">Change Profile Image</span>
                                 <input type="file" name="image-file" id="image-file" class="hidden"/>
@@ -342,7 +342,7 @@
                                         <input type="password" id="password" name="password" required />
                                 </div>
                                
-                                <div class="form-group-no-border">
+                                <div class="form-group-no-border row-end">
                                     <input class="no-corner" type="submit" id="btnSubmit" name="btnSubmit" value="SUBMIT"/>
                                     <span id="button-spinner" class="button-spinner hidden"></span>
                                     <button class="buttons no-corner" id="btnCancel" onclick="window.location.pathname='/dashboard/'">Cancel</button>

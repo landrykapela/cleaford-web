@@ -687,7 +687,7 @@ form input[type="submit"]{
   z-index: 999999999999;
   width:100vw;
   height:100vh;
-  // background-color: red;
+  background-color: rgba(109, 110, 95, 0.616);
   @include flex(column,center,center);
   position:fixed;
   top:0;

@@ -664,7 +664,7 @@ const createCustomerRow = (row,holder)=>{
         companyName.textContent = row.name;
         companyName.id = row.id;
         companyAddress.textContent = row.address.split(",")[0];
-        companyLocation.textContent = (row.region) ? (row.region+", "+row.country) : row.country;
+        companyLocation.textContent = row.region+", "+row.country;
         companyPhone.textContent = row.phone;
         contactName.textContent = row.contact_person;
         contactEmail.textContent = row.email;
@@ -675,14 +675,13 @@ const createCustomerRow = (row,holder)=>{
         rowHolder.appendChild(companyPhone);
         rowHolder.appendChild(contactName);
         rowHolder.appendChild(contactEmail);
-
-        //add click listener
-        companyName.addEventListener('click',()=>{
-            editCustomerDetail(row,'customers_content');
-        })
     }
 
     holder.appendChild(rowHolder);
+     //add click listener
+     rowHolder.addEventListener('click',()=>{
+        editCustomerDetail(row,'customers_content');
+    })
 }
 const createCustomerSummaryRow = (row)=>{
     const holder = document.querySelector("#customer_table_summary");

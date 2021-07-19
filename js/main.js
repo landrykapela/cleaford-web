@@ -2,8 +2,7 @@ const storage = window.localStorage;
 const clientSummaryCount = 5;
 var userObj = storage.getItem("currentUser");
 var currentUser = (userObj !== null && userObj !== undefined && userObj !=="") ? JSON.parse(userObj):null;
-var storedData = (storage.getItem("data")) ? JSON.parse(storage.getItem("data")):{regions:[],client_roles:[],clients:[],roles:[]};
-
+var storedData = (storage.getItem("data")) ? JSON.parse(storage.getItem("data")):{regions:[],client_roles:[],clients:[],roles:[],features:[]};
 const DATA_COUNT = 12;
 const NUMBER_CFG = {count: DATA_COUNT, min: 0, max: 100};
 const originalSetItem = localStorage.setItem;
@@ -64,6 +63,7 @@ const confirmDialog =(msg,actionText,action)=>{
     buttonRow.appendChild(cancelButt);
     dialog.appendChild(buttonRow);
     alert.appendChild(dialog);
+    document.body.style.overflow = 'hidden';
 
     okButt.addEventListener('click',(e)=>{
         action();
@@ -71,12 +71,15 @@ const confirmDialog =(msg,actionText,action)=>{
         while(alert.hasChildNodes()){
             alert.removeChild(alert.childNodes[0]);
         }
+        document.body.style.overflow = 'unset';
+        
     });
     cancelButt.addEventListener('click',(e)=>{
         alert.classList.add("hidden");
         while(alert.hasChildNodes()){
             alert.removeChild(alert.childNodes[0]);
         }
+        document.body.style.overflow = 'unset';
     })
 }
 if(window.location.pathname != "/signin.html" && window.location.pathname != "/signing.html"){
@@ -135,7 +138,6 @@ const initializeMap =(mapHolder,searchInput,targetForm,center={lat:-6.7924, lng:
     })
 
 }
-
 
 const fetchRegions = ()=>{
     fetch(regions_url).then(res=>res.json()).then(regions=>{
@@ -245,7 +247,7 @@ const activateMenu =(target)=>{
                 break;
             case 'features':
                 greet("Settings",{title:"Features",description:"Manage features"});
-                
+                showFeatures();
                 break;
             case 'roles':
                 greet("Settings",{title:"Roles",description:"Manage roles"});
@@ -567,7 +569,7 @@ const showAdminStats =()=>{
     var myChart = drawChart(config,canvas);
 
 
-    fetchRegions();
+    fetchFeatures();
 
    getClients().then(clients=>{
        mapChart();
@@ -656,7 +658,7 @@ const editClientDetail = (client,source)=>{
 
     let imagePreview = document.getElementById("client_image");
     if(client.logo && client.logo.length != 0) imagePreview.src = client.logo;
-    initializeMap(document.getElementById("map-edit"),updateForm.address,updateForm);
+    // initializeMap(document.getElementById("map-edit"),updateForm.address,updateForm);
     activateMenu('edit_client');
     document.getElementById(source).classList.add("hidden");
     document.querySelector("#edit_client_content").classList.remove("hidden");
@@ -667,7 +669,7 @@ const editClientDetail = (client,source)=>{
          document.getElementById("btnCancelEdit").addEventListener('click',()=>{
          closeClientForm('edit_client_content');
          });
-         initializeMap(document.getElementById("map-edit"),updateForm.address,updateForm);
+        //  initializeMap(document.getElementById("map-edit"),updateForm.address,updateForm);
          let inputFile = document.getElementById("company_logo");
          if(inputFile){
              inputFile.addEventListener('change',(e)=>{
@@ -977,6 +979,373 @@ const showRoleEditForm = (holder,role)=>{
     }
    
 }
+//show edit role form
+const showFeatureEditForm = (holder,feature)=>{
+    var form = document.getElementById("edit_feature_form");
+    if(form && form != null && form != undefined){
+        form.feature_name.value = feature.name;
+        form.feature_desc.value = feature.description;
+        form.feature_label.value = feature.label;
+        var parent = storedData.features.filter(ft=>{
+            return ft.id == feature.id;
+        });
+        form.feature_parent.value = parent[0].parent;
+    }
+    else{
+        const form = document.createElement("form");
+        form.method = "post";
+        form.id = "edit_feature_form";
+        const inputName = document.createElement("input");
+        inputName.type = "text";
+        inputName.classList.add("form-control");
+        inputName.id="feature_name";
+        inputName.name = "feature_name";
+        inputName.value = feature.name;
+        form.appendChild(inputName);
+
+        const inputDesc = document.createElement("input");
+        inputDesc.type = "text";
+        inputDesc.classList.add("form-control");
+        inputDesc.id="feature_desc";
+        inputDesc.name = "feature_desc";
+        inputDesc.value = feature.description;
+        form.appendChild(inputDesc);
+
+
+        const inputLabel = document.createElement("input");
+        inputLabel.type = "text";
+        inputLabel.classList.add("form-control");
+        inputLabel.id="feature_label";
+        inputLabel.name = "feature_label";
+        inputLabel.value = feature.label.toLowerCase();
+        form.appendChild(inputLabel);
+    
+    
+        const inputParent = document.createElement("select");
+        inputParent.classList.add("form-control");
+        inputParent.id="feature_parent";
+        inputParent.name = "feature_parent";
+        inputParent.options.add(new Option("--select parent feature--",-1));
+        form.appendChild(inputParent);
+        
+        storedData.features.forEach(ft=>{
+            inputParent.options.add(new Option(ft.name,ft.id));
+        });
+
+        inputParent.value = feature.parent;
+    
+        const inputSubmit = document.createElement("input");
+        inputSubmit.type = "submit";
+        inputSubmit.classList.add("button-s");
+        inputSubmit.classList.add("no-corner");
+        inputSubmit.id="btnSubmitRole";
+        inputSubmit.name = "btnSubmitRole";
+        inputSubmit.value = "Update Role";
+        form.appendChild(inputSubmit);
+
+        const close = document.createElement("span");
+        close.classList.add("material-icons");
+        close.textContent = "close";
+        form.appendChild(close);
+        
+       
+        var addForm = document.getElementById("add_feature_form");
+        if(addForm) addForm.classList.add("hidden");
+        holder.appendChild(form);
+         //hide edit form and display add role form
+         close.addEventListener("click",(e)=>{
+            holder.removeChild(form);
+            addForm.classList.remove("hidden");
+        });
+
+        form.addEventListener('submit',(e)=>{
+             e.preventDefault();
+             
+            let name = inputName.value.trim();
+            let description = inputDesc.value.trim();
+            let label= inputLabel.value.trim();
+            let parent = inputParent.options[inputParent.options.selectedIndex].value;
+            const data = {name:name,description:description,label:label,parent:parent};
+            
+            updateFeature(data,feature.id).then(result=>{
+                showFeedback(result.msg,result.code);
+                updateFeatures(result.data);
+            }).catch(err=>{
+                showFeedback(err,1);
+
+            }).finally(()=>{
+                holder.removeChild(form);
+                // holder.appendChild(addForm);
+            })
+    })
+    }
+   
+}
+
+//show role form
+const showFeatureForm = (holder)=>{
+    const form = document.createElement("form");
+    form.method = "post";
+    form.id = "add_feature_form";
+    const inputName = document.createElement("input");
+    inputName.type = "text";
+    inputName.classList.add("form-control");
+    inputName.id="feature_name";
+    inputName.name = "feature_name";
+    inputName.placeholder = "Feature name";
+    form.appendChild(inputName);
+
+    const inputDescription = document.createElement("input");
+    inputDescription.type = "text";
+    inputDescription.classList.add("form-control");
+    inputDescription.id="feature_description";
+    inputDescription.name = "feature_description";
+    inputDescription.placeholder = "Feature description";
+    form.appendChild(inputDescription);
+
+
+    const inputLabel = document.createElement("input");
+    inputLabel.type = "text";
+    inputLabel.classList.add("form-control");
+    inputLabel.id="feature_label";
+    inputLabel.name = "feature_label";
+    inputLabel.placeholder = "Enter a label";
+    form.appendChild(inputLabel);
+
+
+    const inputParent = document.createElement("select");
+    inputParent.classList.add("form-control");
+    inputParent.id="feature_parent";
+    inputParent.name = "feature_parent";
+    inputParent.options.add(new Option("--select parent feature--",-1));
+    form.appendChild(inputParent);
+
+    storedData.features.forEach(f=>{
+        if(f.parent == -1) {
+            inputParent.options.add(new Option(f.name,f.id));
+        }
+    })
+
+    const inputSubmit = document.createElement("input");
+    inputSubmit.type = "submit";
+    inputSubmit.classList.add("button-s");
+    inputSubmit.classList.add("no-corner");
+    inputSubmit.id="btnSubmitFeature";
+    inputSubmit.name = "btnSubmitFeature";
+    inputSubmit.value = "Add Feature";
+    form.appendChild(inputSubmit);
+    holder.appendChild(form);
+    // holder.appendChild(rowHolder);
+
+     form.addEventListener('submit',(e)=>{
+             e.preventDefault();
+        // let roles = (storedData.roles) ? storedData.roles : [];
+        let name = inputName.value.trim();
+        let description = inputDescription.value.trim();
+        let label = inputLabel.value.trim();
+        let parent = inputParent.options[inputParent.options.selectedIndex].value;
+        const data = {name:name,description:description,label:label,parent:parent};
+        console.log("parent: ",data);
+        const headers = {
+            'Content-type':'application/json', 'Authorization': 'Bearer '+currentUser.accessToken
+        }
+        const options ={
+            body:JSON.stringify(data),
+            method:"POST",
+            headers:headers
+        }
+        fetch(features_url,options).then(res=>{
+            if(res.status == 403){
+                showFeedback("Your session has expired, please login",1);
+                signoutUser();
+            }
+            else{
+                res.json()
+                .then(result=>{
+                    if(result.data !== null && result.data.length > 0) {
+                        showFeedback(result.msg,0);
+                        updateFeatures(result.data);
+                        
+                    }
+                    // cancelAddRoleForm();
+                }).catch(e=>{
+                    showFeedback(e.msg,1);
+                })
+            }
+
+        })
+        .catch(e=>{
+            console.log("e: ",e);
+            showFeedback(e,1);
+        })
+    
+    })
+
+    
+}
+//display subscription features
+const showFeatures = ()=>{
+    const holder = document.getElementById("features-table");
+    Array.from(holder.children).forEach(child=>{
+        if(child.classList.contains('body-row') || child.id=="add_feature_form") holder.removeChild(child);
+    })
+    var features = storedData.features;
+    if(features && features.length > 0){
+        features.forEach(feature=>{
+            const rowHolder = document.createElement("div");
+            rowHolder.classList.add("body-row");
+            const featureName = document.createElement("span");
+            featureName.textContent = feature.name;
+            const featureDesc = document.createElement("span");
+            featureDesc.textContent = feature.description;
+
+            const featureLabel = document.createElement("span");
+            featureLabel.textContent = feature.label;
+            rowHolder.appendChild(featureName);
+            rowHolder.appendChild(featureDesc);
+            rowHolder.appendChild(featureLabel);
+
+            const editBut = document.createElement("span");
+            editBut.id = "edit_feature_"+feature.id;
+            editBut.classList.add("material-icons");
+            editBut.textContent = "edit";
+
+            const delBut = document.createElement("span");
+            delBut.id = "del_feature_"+feature.id;
+            delBut.classList.add("material-icons");
+            delBut.textContent = "delete";
+
+            const actionSpan = document.createElement("span");
+            actionSpan.classList.add("actions");
+            actionSpan.appendChild(editBut);
+            actionSpan.appendChild(delBut);
+            rowHolder.appendChild(actionSpan);
+            holder.appendChild(rowHolder);
+
+             //add delete button click listener
+             delBut.addEventListener("click",(e)=>{
+                confirmDialog("Are you sure you want to delete this feature?","Delete",()=>{
+                    deleteFeature(feature.id);
+                })
+            })
+
+            //add eidt button click listener
+            editBut.addEventListener("click",(e)=>{
+                showFeatureEditForm(holder,feature);
+            })
+        })
+    }
+    else{
+        const rowHolder = document.createElement("div");
+        rowHolder.classList.add("body-row");
+        const nodata = document.createElement("span");
+        nodata.textContent = "No data";
+        rowHolder.appendChild(nodata);
+        holder.appendChild(rowHolder);
+       
+    }
+    showFeatureForm(holder);
+}
+const deleteFeature=(featureId)=>{
+    fetch(features_url+"/"+featureId,{
+        method:"DELETE",headers:{'Content-type':'application/json','Authorization':'Bearer '+currentUser.accessToken}
+    })
+    .then(res=>{
+        if(res.status == 403){
+            showFeedback("Your session has expired, please login",1);
+        }
+        else{
+            res.json().then(result=>{
+                updateFeatures(result.data);
+                showFeedback(result.msg,result.code);
+            }).catch(e=>{
+                showFeedback(e,1);
+            })
+        }
+    }).catch(e=>{
+        console.log(e);
+        showFeedback("Something went wrong! Please try again later",1)
+    })
+}
+const updateFeatures = (features)=>{
+    if(features && features.length > 0){
+        storedData.features = features;
+        storage.setItem("data",JSON.stringify(storedData));
+        showFeatures();
+    }
+}
+
+//fetch features
+const fetchFeatures = ()=>{
+    showSpinner();
+    return new Promise((resolve,reject)=>{
+        var headers = {
+            'Content-Type':'application/json',
+            'Authorization':'Bearer '+currentUser.accessToken
+        }
+        
+        fetch(features_url,{method:"GET",headers:headers})
+        .then(res=>{
+            hideSpinner();
+            if(res.status == 403){
+                showFeedback("Your session expired, please sign in",1);
+                signoutUser();
+            }
+            else {
+                res.json().then(result=>{
+                    updateFeatures(result.data);
+                    resolve(result);
+               })
+               .catch(e=>{
+                   hideSpinner();
+                   console.log("e:",e);
+                   // showFeedback(e.msg,1)
+                   showFeedback("Your session expired, please sign in",1);
+                   reject(e);
+               })
+            }
+        })
+        .catch(er=>{
+            showFeedback(er.msg,er.code);
+        })
+    })
+}
+//update Feature
+const updateFeature = (data,featureId)=>{
+    return new Promise((resolve,reject)=>{
+        let url = features_url+"/"+featureId;
+        const body = JSON.stringify({name:data.name,description:data.description,label:data.label,parent:data.parent});
+        const headers = {
+            'Content-type':'application/json',
+            'Authorization':'Bearer '+currentUser.accessToken
+        }
+        const options = {
+            method:"PUT",
+            body:body,
+            headers:headers
+        }
+        fetch(url,options).then(res=>{
+            if(res.status == 403) {
+                showFeedback("Your session expired, please login",1);
+                // signoutUser();
+            }
+            else{
+                res.json().then(result=>{
+                    showFeedback(result.msg,result.code);
+                    if(result.code == 0) updateFeatures(result.data);
+                    resolve(result);
+                })
+                .catch(err=>{
+                    reject(err);
+                })
+            }
+        })
+        .catch(err=>{
+            reject(err);
+        })
+        
+    })
+}
 //display system roles
 const showRoles = ()=>{
     const holder = document.getElementById("roles-table");
@@ -1078,6 +1447,7 @@ const updateRole = (data,roleId)=>{
         
     })
 }
+
 //fetch roles
 const fetchRoles = ()=>{
     showSpinner();
@@ -1535,7 +1905,7 @@ if(window.location.pathname ==="/admin/"){
                 closeClientForm('add_client_content');
             });
 
-            initializeMap(document.getElementById("map-add"),detailForm.address,detailForm);
+            // initializeMap(document.getElementById("map-add"),detailForm.address,detailForm);
             detailForm.addEventListener('submit',(e)=>{
                 e.preventDefault();
     
