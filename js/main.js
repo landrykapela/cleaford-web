@@ -243,7 +243,9 @@ const activateMenu =(target)=>{
                 break;
             case 'subscriptions':
                 greet("Settings",{title:"Subscription",description:"Manage subscriptions"});
-                
+                var features = (storedData.features) ? storedData.features :[];
+                displayFeaturesGrid(features,document.querySelector("#features-grid"));
+                displayFeaturesGrid(features,document.querySelector("#package_features"));
                 break;
             case 'features':
                 greet("Settings",{title:"Features",description:"Manage features"});
@@ -571,11 +573,11 @@ const showAdminStats =()=>{
 
     fetchFeatures();
 
-   getClients().then(clients=>{
-       mapChart();
-   }).catch(e=>{
-       console.log("hblah ",e)
-   })
+    getClients().then(clients=>{
+        mapChart();
+    }).catch(e=>{
+        console.log("hblah ",e)
+    })
 }
 
 //show admin dashboard
@@ -882,6 +884,8 @@ const showClients = (data)=>{
         });
     }
 }
+//get features
+
 //delete client role
 const deleteRole =(role_id)=>{
     
@@ -1275,7 +1279,52 @@ const updateFeatures = (features)=>{
         showFeatures();
     }
 }
+const displayFeaturesGrid = (features,container)=>{
+    while(container.hasChildNodes()){
+        container.removeChild(container.childNodes[0]);
+    }
+    const form = document.getElementById("package_form");
+    var selected_features = [];
+    features.forEach(feature=>{
+        if(feature.parent == -1){
+            const row = document.createElement("div");
+            row.classList.add("row-space");
+            const checkBox = document.createElement("span");
+            checkBox.textContent = "check_box_outline_blank";
+            checkBox.classList.add("material-icons");
+            checkBox.classList.add("checkbox");
+            checkBox.id = "check_"+feature.id;
+            const label = document.createElement("span");
+            label.textContent = feature.name;
+            row.appendChild(label);
+            row.appendChild(checkBox);
+            container.appendChild(row);
 
+            checkBox.addEventListener('click',(e)=>{
+                if(e.target.textContent == "check_box"){
+                    e.target.textContent = "check_box_outline_blank";
+                    label.classList.remove("bold");
+                    selected_features = selected_features.filter(f=>{
+                        return f.id != feature.id;
+                    })
+                }
+                else {
+                    e.target.textContent = "check_box";
+                    label.classList.add("bold");
+                    selected_features.push(feature.id);
+                }
+            })
+        }
+       
+    });
+
+    if(form){
+        
+    }
+}
+const fetchPaymentTerms = ()=>{
+    
+}
 //fetch features
 const fetchFeatures = ()=>{
     showSpinner();

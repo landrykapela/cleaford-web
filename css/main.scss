@@ -521,7 +521,7 @@ form input[type="submit"]{
     @include flex(column,flex-start,space-evenly);
     @include setBg($faintLight);
   }
-  main > div.content .summary-table > span.summary-head,.consignment-forms .summary-head{
+  main > div.content .summary-table > span.summary-head,.subscription-forms .summary-head,.consignment-forms .summary-head{
     @include setBg($primaryDarkColor);
     text-align: left;
     padding:0.5em;
@@ -674,11 +674,17 @@ form input[type="submit"]{
 .consignment-details{
   width:100%;
 }
-.consignment-forms{
+.consignment-forms,.subscription-forms{
   margin:0 2em 2em 2em;
   @include shade();
-  width:60%;
 }
+.consignment-forms{
+ width:60%;
+}
+.subscription-forms{
+  width:50%;
+}
+
 .consignment-forms > form{
   width:calc(100% - 2em);
   margin-top:-0.5em;
@@ -686,17 +692,37 @@ form input[type="submit"]{
   // border:1px solid red;
   @include setBg($defaultColor);
 }
-.consignment-forms label{
+.consignment-forms label,.subscription-forms label{
   text-align: right;
   padding:0.25em 0.5em;
   width:calc(40% - 1em);
 }
-.consignment-forms input,.consignment-forms textarea, .consignment-forms select{
+.subscription-forms input,.subscription-forms textarea, .subscription-forms select,.consignment-forms input,.consignment-forms textarea, .consignment-forms select{
   flex-grow: 1;
   // outline-color: $faintLight;
   @include addRoundCornerTop(4px,4px );
   width:calc(100% - 1em);
   padding:0.25em 0.5em;
+}
+.subscription-forms p,.subscription-forms .features{
+  margin:0.5em;
+  width:calc(100% - 1em);
+  padding-bottom: 1em;
+}
+.subscription-forms .features > div.row-space{
+  flex-grow:1 !important;
+  // border:2px solid red;
+}
+.subscription-forms .features .checkbox{
+  align-self: flex-end;
+  color:$primaryColor;
+}
+#packages{
+  width:40%;
+}
+#packages .subscription-forms{
+  margin:0 auto;
+  width:calc(100% - 1em);
 }
 .gap{
   row-gap:2em;
@@ -780,6 +806,9 @@ form input[type="submit"]{
 //end layouts
 
 // texts formats
+.bold{
+  font-weight: bold;
+}
 .medium-text {
   font-size: 1.5rem;
 }
