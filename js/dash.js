@@ -125,6 +125,7 @@ const showClientRoles = ()=>{
         roles.forEach(role=>{
             const rowHolder = document.createElement("div");
             rowHolder.classList.add("body-row");
+            rowHolder.classList.add("shadow-minor");
             const roleId = document.createElement("span");
             roleId.textContent = role.name;
             const roleName = document.createElement("span");
@@ -170,6 +171,7 @@ const showClientRoles = ()=>{
     else{
         const rowHolder = document.createElement("div");
         rowHolder.classList.add("body-row");
+        rowHolder.classList.add("shadow-minor");
         const nodata = document.createElement("span");
         nodata.textContent = "No data";
         rowHolder.appendChild(nodata);
@@ -692,6 +694,7 @@ const hideSpinner=()=>{
 const createCustomerRow = (row,holder)=>{
     const rowHolder = document.createElement("div");
     rowHolder.classList.add("body-row");
+    rowHolder.classList.add("shadow-minor");
     if(row == null){
         const data = document.createTextNode("No clients");
         rowHolder.appendChild(data);
@@ -730,6 +733,7 @@ const createCustomerSummaryRow = (row)=>{
     const holder = document.querySelector("#customer_table_summary");
     const rowHolder = document.createElement("div");
     rowHolder.classList.add("body-row");
+    rowHolder.classList.add("shadow-minor");
     if(row == null){
         const data = document.createTextNode("No customers");
         rowHolder.appendChild(data);
@@ -783,6 +787,13 @@ const showCustomers = (data)=>{
         });
         // arrayToCSV(data);
     }
+}
+
+//show consignment form
+const showConsignmentForm=(source)=>{
+    document.querySelector("#add_export").classList.add("hidden");
+    document.getElementById(source).classList.add("hidden");
+    document.getElementById("instruction_form").classList.remove("hidden");
 }
 
 //fetch roles

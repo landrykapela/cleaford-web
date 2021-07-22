@@ -106,27 +106,27 @@
                 <div id="feedback" class="hidden"></div>
                 <div class="can-hide" id="dashboard_content">
                     <div class="row-space no-overflow">
-                        <div class="stat-card">
+                        <div class="stat-card shadow">
                             <span>Customers registered</span>
                             <span class="stat-value" id="no_of_customers">0</span>
                         </div>
-                        <div class="stat-card">
+                        <div class="stat-card shadow">
                             <span>Consignments processed</span>
                             <span class="stat-value" id="no_of_clients">155</span>
                         </div>
-                        <div class="stat-card">
+                        <div class="stat-card shadow">
                             <span>Ready for shipping</span>
                             <span class="stat-value" id="no_of_clients">4</span>
                         </div>
-                        <div class="stat-card">
+                        <div class="stat-card shadow">
                             <span>Ready for release</span>
                             <span class="stat-value" id="no_of_clients">5</span>
                         </div>
-                        <div class="stat-card">
+                        <div class="stat-card shadow">
                             <span>Pending approval</span>
                             <span class="stat-value" id="no_of_clients">3</span>
                         </div>
-                      <div class="stat-card">
+                      <div class="stat-card shadow">
                             <span>Pending Invoices</span>
                             <span class="stat-value" id="no_of_clients">120</span>
                         </div>
@@ -140,7 +140,7 @@
                 </div>
                 <div class="can-hide hidden" id="customers_content">
                    <div class="row-end">
-                    <span class="action-button" id="add_customer" onclick="showCustomerDetailForm('customers_content');">
+                    <span class="action-button shadow-minor" id="add_customer" onclick="showCustomerDetailForm('customers_content');">
                         <span class="material-icons">add</span>
                         <span>Add Customer</span>
                     </span> </div>
@@ -168,16 +168,50 @@
                     </div>
                 </div>
                 <div class="can-hide hidden" id="exports_content">
-                   <div class="row-top">
-                       <div class="column progress-card">
+                    <div class="row-end"><span class="action-button shadow-minor" id="add_export" onclick="showConsignmentForm('export_list');">
+                        <span class="material-icons">add</span>
+                        <span>Add Consignment</span>
+                    </span> </div>
+                    <div class="row-top summary-table" id="export_list">
+                        <span class="head-row">
+                            <span>S/L</span>
+                            <span>Vessel Name</span>
+                            <span>ETA</span>
+                            <span>Destination</span>
+                            <span>TANCIS Status</span>
+                        </span>
+                        <span class="consignment-row shadow-minor status-indicator-1">
+                            <span>WEC LINE</span>
+                            <span>Northern Decision</span>
+                            <span>7/16/2021</span>
+                            <span>ANTWERP</span>
+                            <span>Docs not approved</span>
+                        </span>
+                        <span class="consignment-row shadow-minor status-indicator-3">
+                            <span>WEC LINE</span>
+                            <span>Northern Decision</span>
+                            <span>7/16/2021</span>
+                            <span>ANTWERP</span>
+                            <span>Docs not approved</span>
+                        </span>
+                        <span class="consignment-row shadow-minor status-indicator-3">
+                            <span>MAERSK</span>
+                            <span>LACONIA</span>
+                            <span>8/1/2021</span>
+                            <span>GDANSK</span>
+                            <span>Docs not approved</span>
+                        </span>
+                    </div>
+                    <div class="row-top hidden" id="export_form">
+                       <div class="column progress-card shadow">
                            <span class="progress-title">Progress</span>
                            <div class="row">
                             <span class="progress-step-complete">1</span>   
-                            <span>Consignment Details</span>
+                            <span>Shipping Instructions</span>
                            </div>
                            <div class="row">
                             <span class="progress-step-complete">2</span>   
-                            <span>Shipping Instructions</span>
+                            <span>Consignment Details</span>
                            </div> 
                            <div class="row">
                                <span class="progress-step">3</span>
@@ -193,7 +227,7 @@
                              </div> 
                        </div>
                        <div class="column consignment-details">
-                            <div class="consignment-forms">
+                            <div class="consignment-forms shadow">
                                 <span class="summary-head">Consignee Details</span>
                                 <form id="consignee_form" method="post">
                                     <div class="row">
@@ -215,7 +249,7 @@
                                     </div>
                                 </form>
                             </div>
-                            <div class="consignment-forms">
+                            <div class="consignment-forms shadow">
                                     <span class="summary-head">Exporter Details</span>
                                     <form  id="exporter_form" method="post">
                                         <div class="row">
@@ -241,7 +275,7 @@
                                         </div>
                                     </form>
                             </div>
-                            <div class="consignment-forms">
+                            <div class="consignment-forms shadow">
                                 <span class="summary-head">Notifier Details</span>
                                 <form id="notifier_form" method="post">
                                     
@@ -261,8 +295,42 @@
                                 </form>
                         </div>
                        </div>
-                       
                    </div>
+                   <div class="row-top hidden" id="instruction_form">
+                    <div class="column instructions">
+                        <form>
+                        <span class="medium-text">Shipping Instructions</span>
+                        <div class="column">
+                            <label for="date">Date</label>   
+                            <input type="date" name="date" id="date" />
+                        </div>
+                        <div class="column">
+                            <label for="period">Shipping Period</label>   
+                            <input type="text" name="period" id="period" placeholder=""/>
+                        </div> 
+                        <div class="column">
+                            <label for="container_type">Type of Container</label>   
+                            <input type="text" name="container_type" id="container_type"/>
+                        </div>
+                        <div class="column">
+                            <label for="container_count">Type of Container</label>   
+                            <input type="number" name="container_number" id="container_number"/>
+                        </div>                      
+                        <div class="column">
+                            <label for="container_condition">Container Condition</label>   
+                            <input type="text" name="container_condition" id="container_condition"/>
+                        </div>
+                    </div>
+                         <div class="document_preview">
+                             <div class="row-end">
+                                 <span class="buttons">Upload</span>
+                                 <span class="buttons-s">Download</span>
+                             </div>
+                             <div id="preview-doc">
+                             </div>
+                         </div>
+                    
+                </div>
                  </div>
                 <div class="can-hide hidden" id="add_customer_content">
                     <div class="row-space">

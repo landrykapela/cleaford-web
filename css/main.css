@@ -12,6 +12,10 @@ html {
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 
+.shadow-minor {
+  box-shadow: 0 2px 3px 0 rgba(0, 0, 0, 0.2), 0 3px 5px 0 rgba(0, 0, 0, 0.19);
+}
+
 body {
   padding: 0;
   margin: 0;
@@ -127,7 +131,6 @@ main > div.content .eticket {
   width: calc(100% - 0em);
   cursor: pointer;
   flex-grow: 1;
-  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 
 main > div.content .eticket-active {
@@ -403,7 +406,8 @@ footer {
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  min-width: 100px;
+  min-width: 70px;
+  margin-left: 1em;
   font-family: "Baloo Thambi 2", cursive;
   text-align: center;
   font-weight: bold;
@@ -454,7 +458,7 @@ form#signup {
   width: 50%;
 }
 
-form textarea, form input[type=number], form input[type=text], form input[type=email], form input[type=password], form input[type=select], form input[type=submit] {
+form textarea, form input[type=date], form input[type=number], form input[type=text], form input[type=email], form input[type=password], form input[type=select], form input[type=submit] {
   flex-grow: 1;
   padding: 0.5em 0.5em;
   margin: 0.5em 0;
@@ -517,7 +521,7 @@ form input[type=submit] {
   color: #cc9900;
 }
 
-.form-group > input[type=text], .form-group > input[type=email], .form-group > input[type=password] {
+.form-group > input[type=date], .form-group > input[type=text], .form-group > input[type=email], .form-group > input[type=password] {
   outline-color: none;
   outline-width: 0;
   outline-width: none;
@@ -631,7 +635,7 @@ main > div.content .summary-table > span.summary-head, .subscription-forms .summ
   margin-top: 0.25em;
 }
 
-.head-row > span, .body-row > span {
+.head-row > span, .body-row > span, .consignment-row > span {
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
@@ -642,7 +646,7 @@ main > div.content .summary-table > span.summary-head, .subscription-forms .summ
   text-align: left;
 }
 
-.body-row > span.actions {
+.body-row > span.actions, .consignment-row > span.actions {
   display: flex;
   flex-direction: row;
   justify-content: space-evenly;
@@ -650,20 +654,19 @@ main > div.content .summary-table > span.summary-head, .subscription-forms .summ
   flex-shrink: 1;
 }
 
-.body-row {
+.body-row, .consignment-row {
   background-color: #ffffff !important;
   color: #a8a2a2;
   cursor: pointer;
-  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
   margin-top: 0.5em;
 }
 
-.body-row:hover {
-  background-color: #a8a2a2 !important;
+.body-row:hover, .consignment-row:hover {
+  background-color: #f0ebeb9d !important;
   color: #666262;
 }
 
-.head-row, .body-row {
+.head-row, .body-row, .consignment-row {
   display: flex;
   flex-direction: row;
   justify-content: space-evenly;
@@ -700,7 +703,6 @@ main > div.content .summary-table > span.summary-head, .subscription-forms .summ
 }
 
 .stat-card {
-  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
   width: calc(15% - 1em);
   height: clamp(50px,70px,150px);
   margin: 2em 0.5em;
@@ -822,7 +824,6 @@ main > div.content .summary-table > span.summary-head, .subscription-forms .summ
 
 .consignment-forms, .subscription-forms {
   margin: 0 2em 2em 2em;
-  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 
 .consignment-forms {
@@ -882,6 +883,55 @@ main > div.content .summary-table > span.summary-head, .subscription-forms .summ
   width: calc(100% - 1em);
 }
 
+.consignment-row {
+  border-radius: 10px;
+  padding: 0.5em 0;
+}
+
+.instructions {
+  width: 100%;
+}
+
+.instructions form {
+  align-items: flex-start;
+  width: 90%;
+}
+
+.instructions form input {
+  align-self: flex-start;
+  border: 1px solid #cc9900;
+  border-radius: 4px;
+  padding: 0.5em 0.5em;
+  width: calc(100% - 1em);
+}
+
+.document_preview {
+  border-left: 2px solid #cc9900;
+  display: block;
+  width: 100%;
+  height: 500px;
+}
+
+.document_preview > div#preview-doc {
+  background-color: #f0ebeb9d !important;
+  display: block;
+  width: 90%;
+  height: 90%;
+  margin: 1em auto;
+}
+
+.status-indicator-1 {
+  border-left: 5px solid #f6b0ff;
+}
+
+.status-indicator-2 {
+  border-left: 5px solid #ecec09;
+}
+
+.status-indicator-3 {
+  border-left: 5px solid #203164;
+}
+
 .gap {
   row-gap: 2em;
 }
@@ -930,7 +980,6 @@ main > div.content .summary-table > span.summary-head, .subscription-forms .summ
 .alert .dialog {
   width: 40%;
   border-radius: 10px;
-  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
   background-color: #ffffff !important;
   height: 200px;
   margin: 0 auto;
@@ -939,7 +988,6 @@ main > div.content .summary-table > span.summary-head, .subscription-forms .summ
 }
 
 .progress-card {
-  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
   border-radius: 5px;
   width: 30%;
 }

@@ -10,6 +10,9 @@ $failColor:#e63030;
 $failColorFaint:#e63030ab;
 $successColorFaint:#3cbe3c9a;
 $successColor:#0f810f;
+$marve:#f6b0ff;
+$yellow:#ecec09;
+$tickBlue: #203164;
 $buttonBorderSize:4px;
 $buttonBorderRadius:8px;
 $titleSize:30px;
@@ -30,8 +33,9 @@ $sideBarSize: 200px;
 @mixin addBorder($size:$buttonBorderSize,$color:$primaryColor,$style:solid) {
   border: $size $color $style;
 }
-@mixin shade {
-  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+
+@mixin shade($x1:4px,$x2:8px,$y1:6px,$y2:20px) {
+  box-shadow: 0 $x1 $x2 0 rgba(0, 0, 0, 0.2), 0 $y1 $y2 0 rgba(0, 0, 0, 0.19);
 }
 @mixin flex($d: row, $j: center, $a: center) {
   display: flex;
@@ -53,6 +57,9 @@ html {
 }
 .shadow{
   @include shade();
+}
+.shadow-minor{
+  @include shade(2px,3px,3px,5px);
 }
 body {
   padding: 0;
@@ -141,7 +148,6 @@ main > div.content .eticket{
   width:calc(100% - 0em);
   cursor: pointer;
   flex-grow: 1;
-  @include shade();
 }
 main > div.content .eticket-active{
   border-left:8px solid $faintDark;
@@ -364,7 +370,8 @@ footer{
   border:none;
   border-radius: 8px;
   cursor: pointer;
-  min-width:100px;
+  min-width:70px;
+  margin-left:1em;
   font-family: $fontFamily,cursive;
   text-align: center;
   font-weight: bold;
@@ -408,7 +415,7 @@ form {
 form#signup{
   width:50%;
 }
-form textarea,form input[type="number"],form input[type="text"], form input[type="email"],form input[type="password"],form input[type="select"],form input[type="submit"]{
+form textarea,form input[type="date"],form input[type="number"],form input[type="text"], form input[type="email"],form input[type="password"],form input[type="select"],form input[type="submit"]{
   flex-grow: 1;
   padding:0.5em 0.5em;
   margin:0.5em 0;
@@ -457,7 +464,7 @@ form input[type="submit"]{
   .form-group > input[type="checkbox"]:checked{
     color: $primaryDarkColor;
   }
-  .form-group > input[type="text"],.form-group > input[type="email"],.form-group > input[type="password"]{
+  .form-group > input[type="date"],.form-group > input[type="text"],.form-group > input[type="email"],.form-group > input[type="password"]{
     outline-color: none;
     outline-width: 0;
     outline-width: none;
@@ -505,7 +512,6 @@ form input[type="submit"]{
   @include addBorder(1px,$primaryColor ,solid )
   }
   form.client_forms .form-group textarea,form.client_forms .form-group input[type="email"],form.client_forms .form-group input[type="password"],form.client_forms .form-group input[type="number"],form.client_forms .form-group input[type="text"]{
-
   padding:0.5em 1.5em;
   }
   //feature
@@ -562,11 +568,10 @@ form input[type="submit"]{
     @include setBg($defaultColor);
     color:$faint;
     cursor: pointer;
-    @include shade();
     margin-top:0.5em;
   }
  .body-row:hover{
-   @include setBg($faint);
+   @include setBg($faintLight);
    color:$faintDark;
  }
   .head-row,.body-row{
@@ -597,7 +602,6 @@ form input[type="submit"]{
   color: $defaultColor;
 }
 .stat-card{
-  @include shade(); 
   width:calc(15% - 1em);
   height: clamp(50px,70px,150px);
   margin:2em 0.5em;
@@ -676,7 +680,6 @@ form input[type="submit"]{
 }
 .consignment-forms,.subscription-forms{
   margin:0 2em 2em 2em;
-  @include shade();
 }
 .consignment-forms{
  width:60%;
@@ -726,6 +729,47 @@ form input[type="submit"]{
   margin:0 auto;
   width:calc(100% - 1em);
 }
+.consignment-row{
+  @extend .body-row;
+  @include addRoundCorner(10px);
+  padding:0.5em 0;
+}
+.instructions{
+  width:100%;
+}
+.instructions form{
+  align-items: flex-start;
+  width:90%;
+}
+.instructions form input{
+  align-self: flex-start;
+  border:1px solid $primaryDarkColor;
+  @include addRoundCorner(4px);
+  padding:0.5em 0.5em;
+  width:calc(100% - 1em);
+}
+.document_preview{
+    border-left: 2px solid $primaryDarkColor;
+    display:block;
+    width:100%;
+    height:500px;
+}
+.document_preview >div#preview-doc{
+  @include setBg($faintLight);
+  display:block;
+  width:90%;
+  height:90%;
+  margin:1em auto;
+}
+.status-indicator-1{
+  border-left:5px solid $marve;
+}
+.status-indicator-2{
+  border-left:5px solid $yellow;
+}
+.status-indicator-3{
+  border-left:5px solid $tickBlue;
+}
 .gap{
   row-gap:2em;
 }
@@ -764,7 +808,6 @@ form input[type="submit"]{
 .alert .dialog{
   width:40%;
   @include addRoundCorner(10px);
-  @include shade();
   @include setBg($defaultColor);
   height:200px;
   margin:0 auto;
@@ -774,7 +817,6 @@ form input[type="submit"]{
 }
 
 .progress-card{
-  @include shade();
   @include addRoundCorner(5px);
   width:30%;
 }

@@ -808,6 +808,7 @@ const hideSpinner=()=>{
 const createClientRow = (row,holder)=>{
     const rowHolder = document.createElement("div");
     rowHolder.classList.add("body-row");
+    rowHolder.classList.add("shadow-minor");
     if(row == null){
         const data = document.createTextNode("No clients");
         rowHolder.appendChild(data);
@@ -847,6 +848,7 @@ const createClientSummaryRow = (row)=>{
     const holder = document.querySelector("#client_table_summary");
     const rowHolder = document.createElement("div");
     rowHolder.classList.add("body-row");
+    rowHolder.classList.add("shadow-minor");
     if(row == null){
         const data = document.createTextNode("No clients");
         rowHolder.appendChild(data);
@@ -1209,6 +1211,7 @@ const showFeatures = ()=>{
         features.forEach(feature=>{
             const rowHolder = document.createElement("div");
             rowHolder.classList.add("body-row");
+            rowHolder.classList.add("shadow-minor");
             const featureName = document.createElement("span");
             featureName.textContent = feature.name;
             const featureDesc = document.createElement("span");
@@ -1253,6 +1256,7 @@ const showFeatures = ()=>{
     else{
         const rowHolder = document.createElement("div");
         rowHolder.classList.add("body-row");
+        rowHolder.classList.add("shadow-minor");
         const nodata = document.createElement("span");
         nodata.textContent = "No data";
         rowHolder.appendChild(nodata);
@@ -1381,6 +1385,7 @@ const showPackages = ()=>{
         var term = storedData.billing_cycles.filter(t=>t.id == package.billing_term)[0];
         const holder = document.createElement("div");
         holder.classList.add("subscription-forms");
+        holder.classList.add("shadow");
         const titleHolder = document.createElement("span");
         titleHolder.classList.add("summary-head");
         titleHolder.textContent = package.name;
@@ -1541,6 +1546,7 @@ const showRoles = ()=>{
         roles.forEach(role=>{
             const rowHolder = document.createElement("div");
             rowHolder.classList.add("body-row");
+            rowHolder.classList.add("shadow-minor");
             const roleId = document.createElement("span");
             roleId.textContent = role.name;
             const roleName = document.createElement("span");
@@ -1580,6 +1586,7 @@ const showRoles = ()=>{
     else{
         const rowHolder = document.createElement("div");
         rowHolder.classList.add("body-row");
+        rowHolder.classList.add("shadow-minor");
         const nodata = document.createElement("span");
         nodata.textContent = "No data";
         rowHolder.appendChild(nodata);
