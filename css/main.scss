@@ -706,8 +706,10 @@ form input[type="submit"]{
 }
 .subscription-forms p,.subscription-forms .features{
   margin:0.5em;
-  width:calc(100% - 1em);
   padding-bottom: 1em;
+}
+.subscription-forms .features{
+  width:calc(100% - 1em);
 }
 .subscription-forms .features > div.row-space{
   flex-grow:1 !important;

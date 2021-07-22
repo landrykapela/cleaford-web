@@ -18,6 +18,10 @@ localStorage.setItem = function(key, value) {
   originalSetItem.apply(this, arguments);
 };
 
+//thousad separator
+const thousandSeparator =(x)=> {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
 //set color theme
 const setTheme = (color,customizableItems)=>{
     if(customizableItems && customizableItems.length > 0){
@@ -36,7 +40,7 @@ const setTheme = (color,customizableItems)=>{
 }
 
 //confirm dialog
-const confirmDialog =(msg,actionText,action)=>{
+const alertDialog =(msg,actionText,action=null)=>{
     var alert = document.getElementById("alert_dialog");
     alert.classList.remove("hidden");
     var dialog = document.createElement("div");
@@ -44,36 +48,39 @@ const confirmDialog =(msg,actionText,action)=>{
     var dialogTitle = document.createElement("div");
     dialogTitle.classList.add("dialog-title");
     dialogTitle.textContent = actionText.toUpperCase();
-    var cancelButt = document.createElement("span");
-    var okButt = document.createElement("span");
     var msgText = document.createElement("p");
     msgText.textContent = msg;
     msgText.style.textAlign="center";
-    cancelButt.classList.add('dialog-button');
-    cancelButt.textContent = "CANCEL";
-    okButt.classList.add("dialog-button");
-    okButt.classList.add("primary-dark-text");
-    okButt.textContent = actionText.toUpperCase();
     dialog.appendChild(dialogTitle);
     dialog.appendChild(msgText);
-
     var buttonRow = document.createElement("div");
     buttonRow.classList.add("row-end");
-    buttonRow.appendChild(okButt);
+    if(action != null){
+        var okButt = document.createElement("span");
+        okButt.classList.add("dialog-button");
+        okButt.classList.add("primary-dark-text");
+        okButt.textContent = actionText.toUpperCase();
+        buttonRow.appendChild(okButt);
+        okButt.addEventListener('click',(e)=>{
+            action();
+            alert.classList.add("hidden");
+            while(alert.hasChildNodes()){
+                alert.removeChild(alert.childNodes[0]);
+            }
+            document.body.style.overflow = 'unset';
+            
+        });
+    }
+    var cancelButt = document.createElement("span");
+    cancelButt.classList.add('dialog-button');
+    cancelButt.textContent = "CANCEL";
     buttonRow.appendChild(cancelButt);
+
     dialog.appendChild(buttonRow);
     alert.appendChild(dialog);
     document.body.style.overflow = 'hidden';
 
-    okButt.addEventListener('click',(e)=>{
-        action();
-        alert.classList.add("hidden");
-        while(alert.hasChildNodes()){
-            alert.removeChild(alert.childNodes[0]);
-        }
-        document.body.style.overflow = 'unset';
-        
-    });
+   
     cancelButt.addEventListener('click',(e)=>{
         alert.classList.add("hidden");
         while(alert.hasChildNodes()){
@@ -81,6 +88,9 @@ const confirmDialog =(msg,actionText,action)=>{
         }
         document.body.style.overflow = 'unset';
     })
+    if(action ==null){
+        cancelButt.textContent = "CLOSE";
+    }
 }
 if(window.location.pathname != "/signin.html" && window.location.pathname != "/signing.html"){
 
@@ -244,8 +254,8 @@ const activateMenu =(target)=>{
             case 'subscriptions':
                 greet("Settings",{title:"Subscription",description:"Manage subscriptions"});
                 var features = (storedData.features) ? storedData.features :[];
-                displayFeaturesGrid(features,document.querySelector("#features-grid"));
                 displayFeaturesGrid(features,document.querySelector("#package_features"));
+                showPackages();
                 break;
             case 'features':
                 greet("Settings",{title:"Features",description:"Manage features"});
@@ -570,9 +580,9 @@ const showAdminStats =()=>{
     }
     var myChart = drawChart(config,canvas);
 
-
+    fetchPaymentTerms();
     fetchFeatures();
-
+    fetchPackages();
     getClients().then(clients=>{
         mapChart();
     }).catch(e=>{
@@ -1229,7 +1239,7 @@ const showFeatures = ()=>{
 
              //add delete button click listener
              delBut.addEventListener("click",(e)=>{
-                confirmDialog("Are you sure you want to delete this feature?","Delete",()=>{
+                alertDialog("Are you sure you want to delete this feature?","Delete",()=>{
                     deleteFeature(feature.id);
                 })
             })
@@ -1317,13 +1327,137 @@ const displayFeaturesGrid = (features,container)=>{
         }
        
     });
-
     if(form){
+        var payments = (storedData.billing_cycles)? storedData.billing_cycles:[];
+        while(form.billing_term.hasChildNodes()) form.billing_term.removeChild(form.billing_term.childNodes[0]);
+        payments.forEach(p=>{
+            form.billing_term.options.add(new Option(p.name,p.id));
+        });
         
+        form.addEventListener("submit",(e)=>{
+            e.preventDefault();
+            if(selected_features.length > 0){
+                let name = form.package_name.value;
+                let desc = form.package_description.value;
+                let price = form.package_price.value;
+                let term = form.billing_term.options[form.billing_term.options.selectedIndex].value;
+
+                let features = selected_features.join(",");
+                var data = {name:name,description:desc,price:price,billing_term:term,features:features};
+                console.log("data: ",data);
+                var options = {
+                    method:"POST",body:JSON.stringify(data),headers:{
+                        'Content-type':'application/json','Authorization':'Bearer '+currentUser.accessToken
+                    }
+                }
+                fetch(packages_url,options)
+                .then(res=>res.json())
+                .then(result=>{
+                    console.log("packages: ",result);
+                    storedData.packages = result.data;
+                    storage.setItem("data",JSON.stringify(storedData));
+                    showFeedback(result.msg,result.code);
+                })
+                .catch(er=>{
+                    console.log("err: ",er);
+                    showFeedback("Something went wrong! Please try again later",1);
+                })
+            }
+            else{
+                alertDialog("You have not selected any feature","Create Package",null)
+            }
+            
+        })
+       
     }
 }
-const fetchPaymentTerms = ()=>{
+const showPackages = ()=>{
+    const container = document.querySelector("#packages");
+    while(container.hasChildNodes()){
+        container.removeChild(container.childNodes[0]);
+    }
+    var packages = (storedData.packages) ? storedData.packages : [];
+    packages.forEach(package=>{
+        var term = storedData.billing_cycles.filter(t=>t.id == package.billing_term)[0];
+        const holder = document.createElement("div");
+        holder.classList.add("subscription-forms");
+        const titleHolder = document.createElement("span");
+        titleHolder.classList.add("summary-head");
+        titleHolder.textContent = package.name;
+        holder.appendChild(titleHolder);
+
+        const priceHolder = document.createElement("p");
+        priceHolder.classList.add("buttons");
+        priceHolder.textContent = thousandSeparator(package.price)+"/Tsh. "+term.name;
+        holder.appendChild(priceHolder);
+
+        const descTitleHolder = document.createElement("p");
+        descTitleHolder.classList.add("bold");
+        descTitleHolder.textContent = "Description";
+        holder.appendChild(descTitleHolder);
+
+        const descHolder = document.createElement("p");
+        descHolder.textContent = package.description;
+        holder.appendChild(descHolder);
+
+        const featuresTitleHolder = document.createElement("p");
+        featuresTitleHolder.classList.add("bold");
+        featuresTitleHolder.textContent = "Features";
+        holder.appendChild(featuresTitleHolder);
+        
+        const featuresHolder = document.createElement("div");
+        featuresHolder.classList.add("features");
+        
+        package.features.split(",").forEach(feature=>{
+            feature = storedData.features.filter(f=>f.id == feature)[0];
+            const row = document.createElement("div");
+            row.classList.add("row-space");
+            const checkBox = document.createElement("span");
+            checkBox.textContent = "check_box";
+            checkBox.classList.add("material-icons");
+            // checkBox.classList.add("checkbox");
+            checkBox.id = "check_"+feature.id;
+            const label = document.createElement("span");
+            label.textContent = feature.name;
+            row.appendChild(label);
+            row.appendChild(checkBox);
+            featuresHolder.appendChild(row);
+
+        })
+
+        holder.appendChild(featuresHolder);
+        container.appendChild(holder);       
+    });
     
+}
+const fetchPackages = ()=>{
+    fetch(packages_url,{method:"GET",headers:{'Content-type':'application/json','Authorization': 'Bearer '+currentUser.accessToken}})
+    .then(res=>res.json())
+    .then(result=>{
+        storedData.packages = result.data;
+        storage.setItem("data",JSON.stringify(storedData));
+    })
+    .catch(er=>{
+        console.log("fetchPackages: ",er);
+    })
+}
+const fetchPaymentTerms = ()=>{
+    var options = {
+        method:"GET",
+        headers:{
+            'Content-type':'application/json',
+            'Authorization':'Bearer '+currentUser.accessToken
+        }
+    }
+    fetch(payments_url,options)
+    .then(res=>res.json())
+    .then(result=>{
+        storedData.billing_cycles = result.data;
+        storage.setItem("data",JSON.stringify(storedData));
+    })
+    .catch(err=>{
+        console.log('fetchPaymentTerms: ',err);
+    });
 }
 //fetch features
 const fetchFeatures = ()=>{
@@ -1432,7 +1566,7 @@ const showRoles = ()=>{
 
              //add delete button click listener
              delBut.addEventListener("click",(e)=>{
-                confirmDialog("Are you sure you want to delete this role?","Delete",()=>{
+                alertDialog("Are you sure you want to delete this role?","Delete",()=>{
                     deleteRole(role.id);
                 })
             })
@@ -1787,7 +1921,7 @@ if(arrowDrop){
 if(signout){
     signout.addEventListener('click',(e)=>{
         e.preventDefault();
-        confirmDialog("Are you sure you want to sign out?","signout",()=>{
+        alertDialog("Are you sure you want to sign out?","signout",()=>{
             signoutUser();
         })
     });
