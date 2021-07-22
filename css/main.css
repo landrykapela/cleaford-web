@@ -406,7 +406,7 @@ footer {
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  min-width: 70px;
+  min-width: 50px;
   margin-left: 1em;
   font-family: "Baloo Thambi 2", cursive;
   text-align: center;
@@ -479,7 +479,6 @@ form input[type=submit] :disabled {
 
 form input[type=submit] {
   max-width: 150px;
-  margin-right: 2em;
 }
 
 .form-group, .form-group-no-border {
@@ -760,6 +759,7 @@ main > div.content .summary-table > span.summary-head, .subscription-forms .summ
   flex-direction: row;
   justify-content: flex-start;
   align-items: flex-start;
+  width: 100%;
 }
 
 .row {
@@ -827,7 +827,9 @@ main > div.content .summary-table > span.summary-head, .subscription-forms .summ
 }
 
 .consignment-forms {
-  width: 60%;
+  width: 90%;
+  margin: 1em auto;
+  border-bottom: 1px solid #a8a2a2;
 }
 
 .subscription-forms {
@@ -836,16 +838,24 @@ main > div.content .summary-table > span.summary-head, .subscription-forms .summ
 
 .consignment-forms > form {
   width: calc(100% - 2em);
-  margin-top: -0.5em;
   border-top-left-radius: 5px;
   border-top-right-radius: 5px;
-  background-color: #ffffff !important;
+  background-color: #f0ebeb9d !important;
 }
 
 .consignment-forms label, .subscription-forms label {
   text-align: right;
   padding: 0.25em 0.5em;
   width: calc(40% - 1em);
+}
+
+.consignment-forms .column {
+  width: 40%;
+}
+
+.consignment-forms .column > label {
+  text-align: left;
+  width: 100%;
 }
 
 .subscription-forms input, .subscription-forms textarea, .subscription-forms select, .consignment-forms input, .consignment-forms textarea, .consignment-forms select {
@@ -977,6 +987,37 @@ main > div.content .summary-table > span.summary-head, .subscription-forms .summ
   padding: 0.5em;
 }
 
+.pointer {
+  width: 200px;
+  height: 40px;
+  position: relative;
+  background: red;
+}
+
+.pointer:after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 0;
+  height: 0;
+  border-left: 20px solid white;
+  border-top: 20px solid transparent;
+  border-bottom: 20px solid transparent;
+}
+
+.pointer:before {
+  content: "";
+  position: absolute;
+  right: -20px;
+  bottom: 0;
+  width: 0;
+  height: 0;
+  border-left: 20px solid red;
+  border-top: 20px solid transparent;
+  border-bottom: 20px solid transparent;
+}
+
 .alert .dialog {
   width: 40%;
   border-radius: 10px;
@@ -987,13 +1028,27 @@ main > div.content .summary-table > span.summary-head, .subscription-forms .summ
   overflow: hidden;
 }
 
-.progress-card {
-  border-radius: 5px;
-  width: 30%;
+#export_form {
+  width: 100%;
 }
 
-.progress-card > div.row {
+.progress-card {
+  margin-bottom: 2em;
+}
+
+.progress-card > div {
   padding: 0.5em;
+  width: 100%;
+  font-size: small;
+  text-align: center;
+}
+
+.progress-card > div.current {
+  padding: 0.5em;
+  width: 100%;
+  font-size: small;
+  font-weight: bold;
+  border-bottom: 1px solid #a8a2a2;
 }
 
 .progress-title {

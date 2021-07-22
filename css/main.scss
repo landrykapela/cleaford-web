@@ -27,6 +27,10 @@ $sideBarSize: 200px;
   border-top-left-radius: $left;
   border-top-right-radius: $right;
 }
+@mixin addRoundCornerRight($top:$buttonBorderRadius,$bottom:$buttonBorderRadius) {
+  border-bottom-right-radius: -50px;
+  border-top-right-radius: -50px;
+}
 @mixin squareCorner {
   border-radius: unset !important;
 }
@@ -370,7 +374,7 @@ footer{
   border:none;
   border-radius: 8px;
   cursor: pointer;
-  min-width:70px;
+  min-width:50px;
   margin-left:1em;
   font-family: $fontFamily,cursive;
   text-align: center;
@@ -436,7 +440,7 @@ form input[type="submit"] :disabled{
 }
 form input[type="submit"]{
   max-width: 150px;
-  margin-right:2em;
+  // margin-right:2em;
 }
   .form-group,.form-group-no-border{
     padding:0.25em 0.5em;
@@ -646,6 +650,7 @@ form input[type="submit"]{
 }
 .row-top{
   @include flex(row,flex-start,flex-start);
+  width:100%;
 }
 .row{
   @include flex(row,flex-start,center );
@@ -682,7 +687,9 @@ form input[type="submit"]{
   margin:0 2em 2em 2em;
 }
 .consignment-forms{
- width:60%;
+ width:90%;
+ margin:1em auto;
+ border-bottom:1px solid $faint;
 }
 .subscription-forms{
   width:50%;
@@ -690,15 +697,22 @@ form input[type="submit"]{
 
 .consignment-forms > form{
   width:calc(100% - 2em);
-  margin-top:-0.5em;
+  // margin-top:-0.5em;
   @include addRoundCornerTop(5px,5px );
   // border:1px solid red;
-  @include setBg($defaultColor);
+  @include setBg($faintLight);
 }
 .consignment-forms label,.subscription-forms label{
   text-align: right;
   padding:0.25em 0.5em;
   width:calc(40% - 1em);
+}
+.consignment-forms .column{
+  width:40%;
+}
+.consignment-forms .column > label{
+  text-align: left;
+  width: 100%;
 }
 .subscription-forms input,.subscription-forms textarea, .subscription-forms select,.consignment-forms input,.consignment-forms textarea, .consignment-forms select{
   flex-grow: 1;
@@ -805,6 +819,38 @@ form input[type="submit"]{
   color:$defaultColor;
   padding:0.5em;
 }
+//pointer
+
+.pointer {
+  width: 200px;
+  height: 40px;
+  position: relative;
+  background: red;
+}
+.pointer:after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 0;
+  height: 0;
+  border-left: 20px solid white;
+  border-top: 20px solid transparent;
+  border-bottom: 20px solid transparent;
+}
+.pointer:before {
+  content: "";
+  position: absolute;
+  right: -20px;
+  bottom: 0;
+  width: 0;
+  height: 0;
+  border-left: 20px solid red;
+  border-top: 20px solid transparent;
+  border-bottom: 20px solid transparent;
+}
+
+//pointer
 .alert .dialog{
   width:40%;
   @include addRoundCorner(10px);
@@ -815,13 +861,25 @@ form input[type="submit"]{
   overflow:hidden;
 
 }
-
-.progress-card{
-  @include addRoundCorner(5px);
-  width:30%;
+#export_form{
+  width:100%;
 }
-.progress-card > div.row{
+.progress-card{
+  // border-bottom: 1px solid $faint;
+  margin-bottom: 2em;
+}
+.progress-card > div{
   padding:0.5em;
+  width:100%;
+  font-size:small;
+  text-align: center;
+}
+.progress-card > div.current{
+  padding:0.5em;
+  width:100%;
+  font-size:small;
+  font-weight: bold;
+  border-bottom:1px solid $faint;
 }
 .progress-title{
   @include addRoundCornerTop(5px,5px );

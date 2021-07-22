@@ -793,7 +793,25 @@ const showCustomers = (data)=>{
 const showConsignmentForm=(source)=>{
     document.querySelector("#add_export").classList.add("hidden");
     document.getElementById(source).classList.add("hidden");
-    document.getElementById("instruction_form").classList.remove("hidden");
+    const parent = document.getElementById("export_form");
+    parent.classList.remove("hidden");
+
+    var collapseButtons = Array.from(document.getElementsByClassName("summary-head"));
+    collapseButtons.filter(b=>b.hasChildNodes()).forEach(but=>{
+        if(but){
+            Array.from(but.children).forEach(span=>{
+                if(span.classList.contains("material-icons")){
+                    span.addEventListener("click",(e)=>{
+                        let target = e.target.id.split("_")[0];
+                        var form = document.getElementById(target+"_form");
+                        form.classList.toggle("hidden");
+                        e.target.textContent = (form.classList.contains("hidden")) ? "add" : "remove";
+                    })
+                }
+            })
+            
+        }
+    })
 }
 
 //fetch roles
