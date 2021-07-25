@@ -703,6 +703,8 @@ const editClientDetail = (client,source)=>{
              let address= updateForm.address.value;
              let region = updateForm.region.value;
              let country = updateForm.country.value;
+             let code = updateForm.code.value;
+             let tin = updateForm.tin.value;
              let file = updateForm.company_logo.files[0];
              
 
@@ -712,6 +714,8 @@ const editClientDetail = (client,source)=>{
                  region:region,
                  country:country,
                  id:id,
+                 code:(code && code.lenth !== 0) ? code: client.code,
+                 tin:(tin && tin.length !== 0) ? tin:client.tin,
                  company_name:(name && name.length !==0) ? name: client.name,
                  email:(email && email.length !==0) ? email: client.email,
                  phone:(phone && phone.length !==0) ? phone: client.phone,
@@ -739,27 +743,7 @@ const editClientDetail = (client,source)=>{
              const options = {
                  method:"PUT",body:JSON.stringify(newData),headers:headers
              }
-            //  .then(res=>{
-            //     if(res.status == 403){
-            //         showFeedback("Session expired, please login",1);
-            //         signoutUser();
-            //     }
-            //     else{
-            //         res.json().then(result=>{
-            //             updateCustomers(result.data);
-            //             showFeedback(result.msg,result.code);
-            //             closeCustomerForm('edit_customer_content')
-            //         })
-            //         .catch(err=>{
-            //             showFeedback(err.msg,err.code);
-            //         })
-            //     }
-            // })
-            // .catch(e=>{
-            //     showFeedback(e.msg,e.code);
-            // })
-
-
+           
              fetch(create_client_url,options)
              .then(res=>{
                  if(res.status == 403){
@@ -2101,8 +2085,12 @@ if(window.location.pathname ==="/admin/"){
                 let file = detailForm.company_logo.files[0];
                 let country = detailForm.country.value;
                 let region = detailForm.region.value;
+                let code = detailForm.code.value;
+                let tin = detailForm.tin.value;
                 let logoFile = null;
                 let datas = {
+                    tin:tin,
+                    code:code,
                     region:region,
                     country:country,
                     company_name:name,

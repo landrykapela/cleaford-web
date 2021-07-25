@@ -446,8 +446,9 @@ const showClientStats =()=>{
         storedData.consignments = result.data;
         storage.setItem("data",JSON.stringify(storedData));
         storedData = JSON.parse(storage.getItem("data"));
+        var consignments = (storedData.consignments) ? storedData.consignments : [];
         const numberOfConsignments = document.getElementById("no_of_consignments");
-        numberOfConsignments.textContent = storedData.consignments.length;
+        numberOfConsignments.textContent = consignments.length;
     })
    
 }
@@ -581,6 +582,8 @@ const editCustomerDetail = (customer,source)=>{
     editForm.contact_email.value = customer.contact_email;
     editForm.region.value = customer.region;
     editForm.country.value = customer.country;
+    editForm.tin.value = customer.tin;
+
     initializeMap(document.getElementById("map-edit"),editForm.address,editForm);
 
     activateMenu('edit_customer');
@@ -601,6 +604,7 @@ const editCustomerDetail = (customer,source)=>{
         let region = (editForm.region.value) ? editForm.region.value: customer.region;
         let contact_person = (editForm.contact_person.value) ? editForm.contact_person.value : customer.contact_person;
         let contact_email = (editForm.contact_email.value) ? editForm.contact_email.value : customer.contact_email;
+        let tin = (editForm.tin.value) ? editForm.tin.value : customer.tin;
         let data = {
             user:currentUser.id,
             name:name,
@@ -610,7 +614,8 @@ const editCustomerDetail = (customer,source)=>{
             country:country,
             region:region,
             contact_person:contact_person,
-            contact_email:contact_email
+            contact_email:contact_email,
+            tin:tin
         };
         let headers = {
             'Content-Type':'application/json',
@@ -771,6 +776,7 @@ const showCustomers = (data)=>{
 //show export list
 const showExportList = (data,source=null)=>{
     if(source != null) document.getElementById(source).classList.add("hidden");
+    document.querySelector("#add_export").classList.remove("hidden");
     var parent = document.querySelector("#export_list");
     parent.classList.remove("hidden");
     Array.from(parent.children).forEach(child=>{
@@ -879,7 +885,7 @@ const showConsignmentForm=(source,data=null)=>{
         })
         
     })
-    var consignmentDataForm = document.getElementById("consignment_data_form");
+    var consignmentDataForm = document.getElementById("data_form");
     var consigneeForm = document.getElementById("consignee_form");
     var exporterForm = document.getElementById("exporter_form");
     var forwarderForm = document.getElementById("forwarder_form");
@@ -909,14 +915,38 @@ const showConsignmentForm=(source,data=null)=>{
                 exporterForm.exporter_phone.value = selectedCustomer.phone;
                 exporterForm.exporter_name.value = selectedCustomer.name;
                 exporterForm.exporter_address.value = selectedCustomer.address+"\n\r"+selectedCustomer.region+","+selectedCustomer.country;
-                notifierForm.exporter_tin.value = selectedCustomer.tin;
+                exporterForm.exporter_tin.value = selectedCustomer.tin;
             //     notifierForm.notify_address.value = selectedCustomer.address+"\n\r"+selectedCustomer.region+","+selectedCustomer.country;
             //     notifierForm.notify_phone.value = selectedCustomer.phone
             }
             
         });
-    }
 
+        exporterForm.addEventListener("submit",(e)=>{
+            e.preventDefault();
+            newData = {
+                source:"exporter",
+                exporter_id:customerSelect.options[customerSelect.options.selectedIndex].value
+            }
+            var options ={
+                method:"PUT",body:JSON.stringify(newData),headers:{
+                    'Content-type':'application/json','Authorization': 'Bearer '+currentUser.accessToken
+                }
+            }
+            fetch(consignment_url+"/"+currentUser.id+"/"+data.id,options)
+            .then(res=>res.json())
+            .then(result=>{
+                storedData.consignments = result.data;
+                storage.setItem("data",JSON.stringify(storedData));
+                showExportList(result.data,"export_form");
+                showFeedback(result.msg,result.code);
+            })
+            .catch(e=>{
+                console.log("e consg: ",e);
+                showFeedback(e,1);
+            })  
+        });
+    }
     if(consignmentDataForm){
        if(data != null){
         consignmentDataForm.cargo_classification.value = data.cargo_classification;
@@ -1788,7 +1818,6 @@ const submitClientDetail =(data,verb)=>{
 }
 //submit dlient form
 const submitCustomerDetail =(data,verb)=>{
-    console.log("submit: ",data);
     const headers = {
         'Content-type':'application/json',
         'Authorization':'Bearer '+currentUser.accessToken
@@ -1931,7 +1960,9 @@ if(window.location.pathname == "/dashboard/"){
             let address= customerForm.address.value;
             let country = customerForm.country.value;
             let region = customerForm.region.value;
+            let tin = customerForm.code.value;
             let data = {
+                tin:tin,
                 region:region,
                 country:country,
                 company_name:name,

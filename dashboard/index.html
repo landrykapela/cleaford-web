@@ -238,9 +238,9 @@
                             <div class="consignment-forms">
                                 <div class="row-space summary-head">
                                     <span class="medium-text">Consignment Data</span>
-                                    <span class="material-icons" id="consignment_collapse">remove</span>
+                                    <span class="material-icons" id="data_collapse">remove</span>
                                 </div>
-                                <form id="consignment_data_form" method="POST">
+                                <form id="data_form" method="POST">
                                     <div class="row-space">
                                         <div class="column">
                                             <label for="cargo_classification">Cargo Classification *</label>
@@ -375,7 +375,7 @@
 
                                     <div class="row-space">
                                         <div class="column">
-                                            <label for="consignee_name">Consignment Name</label>
+                                            <label for="consignee_name">Consignee Name</label>
                                             <input type="text" id="consignee_name" name="consignee_name" placeholder="Consignee full name"/>
                                         </div>
                                         <div class="column">
@@ -386,7 +386,7 @@
                                     </div>
                                     <div class="row-space">
                                         <div class="column">
-                                            <label for="consignee_phone">Consignment Tel</label>
+                                            <label for="consignee_phone">Consignee Tel.</label>
                                             <input type="text" id="consignee_phone" name="consignee_phone" placeholder="Phone number"/>
                                         </div>
                                         <div class="column">
@@ -559,7 +559,10 @@
                                    <label for="contact_email">Contact E-mail</label>
                                    <input type="email" id="contact_email" name="contact_email" required />
                                </div>
-                              
+                               <div class="form-group">
+                                <label for="tin">TIN Number</label>
+                                <input type="text" id="tin" name="tin" placeholder="TIN Number" />
+                            </div>
                               <div class="form-group-no-border row-end">
                                 <input class="no-corner" type="submit" id="btnSubmit" name="btnSubmit" value="SUBMIT"/>
                                 <input type="reset" class="buttons no-corner" id="btnCancelAdd" name="btnCancelAdd" value="Cancel"/>
@@ -607,7 +610,10 @@
                                    <label for="contact_email">Contact E-mail</label>
                                    <input type="email" id="contact_email" name="contact_email" required />
                                </div>
-                              
+                               <div class="form-group">
+                                <label for="tin">TIN Number</label>
+                                <input type="text" id="tin" name="tin" placeholder="TIN Number" />
+                            </div>
                               <div class="form-group-no-border row-end">
                                 <input class="no-corner" type="submit" id="btnSubmit" name="btnSubmit" value="SUBMIT"/>
                                 <input type="reset" class="buttons no-corner" id="btnCancelEdit" name="btnCancelEdit" value="Cancel"/>
