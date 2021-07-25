@@ -1,5 +1,6 @@
 const storage = window.localStorage;
 const clientSummaryCount = 5;
+const CONSIGNMENT_NUMBER_FORMAT = 6;
 var currentUser = (storage.getItem("currentUser")) ? JSON.parse(storage.getItem("currentUser")):null;
 var storedData = (storage.getItem("data")) ? JSON.parse(storage.getItem("data")):{roles:[],client_roles:[],customers:[],roles:[]};
 
@@ -94,18 +95,8 @@ const showHideSubmenu = (menuId)=>{
     var subMenu = document.getElementById(menuId+"_submenu");
     var dropArrow = document.getElementById(menuId+"_drop");
 
-    if(subMenu.classList.contains("hidden")) {
-        subMenu.classList.remove("hidden");
-        dropArrow.textContent = "arrow_drop_up";
-        activateMenu(subMenu.firstElementChild.id);
-    }
-    else{
-        subMenu.classList.add("hidden");
-        dropArrow.textContent = "arrow_drop_down";
-    }
-
-
-        
+    subMenu.classList.toggle("hidden");
+    dropArrow.textContent = subMenu.classList.contains("hidden") ? "arrow_drop_down" : "arrow_drop_up";
 }
 //display system roles
 const showClientRoles = ()=>{
@@ -257,7 +248,6 @@ const activateMenu =(target)=>{
                 
                 break;
                 case 'exports':
-                    greet("Operations",{title:"Export",description:"Export consignments"});
                     showConsignment();
                     break;
             case 'roles':
@@ -445,15 +435,20 @@ const showClientStats =()=>{
                 console.log("stw: ",er);
                 showFeedback("something wrong",1);
             }
-        })
-              
+        })             
     }
     else{
         greet("Hello "+currentUser.email,null);
     }
     //show client summary
     fetchClientRoles();
-    fetchRegions();
+    fetchConsignments().then(result=>{
+        storedData.consignments = result.data;
+        storage.setItem("data",JSON.stringify(storedData));
+        storedData = JSON.parse(storage.getItem("data"));
+        const numberOfConsignments = document.getElementById("no_of_consignments");
+        numberOfConsignments.textContent = storedData.consignments.length;
+    })
    
 }
 
@@ -526,44 +521,17 @@ const activateAccount = (user)=>{
     })
 }
 const showConsignment = ()=>{
-    var consigneeForm = document.getElementById("consignee_form");
-    var exporterForm = document.getElementById("exporter_form");
-    var notifierForm = document.getElementById("notifier_form");
-    var customerSelect = document.getElementById("customer_select");
-    if(customerSelect){
-        while(customerSelect.hasChildNodes())customerSelect.removeChild(customerSelect.childNodes[0]);
-        var customers = (storedData.customers) ? storedData.customers : [];
-        customers.forEach(customer=>{
-            customerSelect.options.add(new Option(customer.name,customer.id));
-        });
-        customerSelect.options.add(new Option("--add new customer",-1));
-        var selectedCustomer = (customers.length) ? customers[0]: null;
-        if(selectedCustomer !==null){
-            exporterForm.exporter_phone.value = selectedCustomer.phone;
-            exporterForm.exporter_name.value = selectedCustomer.name;
-            exporterForm.exporter_address.value = selectedCustomer.address;
-            notifierForm.notify_name.value = selectedCustomer.contact_person;
-            notifierForm.notify_address.value = selectedCustomer.address;
-            notifierForm.notify_phone.value = selectedCustomer.phone
-       
-        }
-        customerSelect.addEventListener("change",(e)=>{
-            if(e.target.value == -1) showCustomerDetailForm('exports_content');
-            else{
-                selectedCustomer = customers.filter(c=>{
-                    return c.id == customerSelect.options[customerSelect.options.selectedIndex].value;
-                })[0];
-    
-                exporterForm.exporter_phone.value = selectedCustomer.phone;
-                exporterForm.exporter_name.value = selectedCustomer.name;
-                exporterForm.exporter_address.value = selectedCustomer.address+"\n\r"+selectedCustomer.region+","+selectedCustomer.country;
-                notifierForm.notify_name.value = selectedCustomer.contact_person;
-                notifierForm.notify_address.value = selectedCustomer.address+"\n\r"+selectedCustomer.region+","+selectedCustomer.country;
-                notifierForm.notify_phone.value = selectedCustomer.phone
-            }
-            
-        });
+    document.querySelector("#export_form").classList.add("hidden");
+    greet("Operations",{title:"Export",description:"Export consignments"});
+    var consignments = (storedData.consignments) ? storedData.consignments : [];
+    if(consignments.length == 0){
+        fetchConsignments().then(result=>{
+            storedData.consignments = result.data;
+            storage.setItem("db",JSON.stringify(storedData));
+            showExportList(result.data);
+        })
     }
+    else showExportList(storedData.consignments);
 }
 const initializeMap =(mapHolder,searchInput,targetForm,center={lat:-6.7924, lng:39.2083})=>{   
     const map = new google.maps.Map(mapHolder,{center:center,zoom:13});
@@ -768,6 +736,18 @@ const createCustomerSummaryRow = (row)=>{
 
     holder.appendChild(rowHolder);
 }
+const formatConsignmentNumber = (number)=>{
+    var num = number.toString();
+    var diff = CONSIGNMENT_NUMBER_FORMAT - num.length;
+    var pref = "";
+    if(diff > 0){
+        for(let i=0;i<diff;i++){
+            pref +="0";
+        }
+        num = pref +num;
+    }
+    return num;
+}
 //showCustomers
 const showCustomers = (data)=>{
     // activateMenu('customers');
@@ -788,9 +768,72 @@ const showCustomers = (data)=>{
         // arrayToCSV(data);
     }
 }
+//show export list
+const showExportList = (data,source=null)=>{
+    if(source != null) document.getElementById(source).classList.add("hidden");
+    var parent = document.querySelector("#export_list");
+    parent.classList.remove("hidden");
+    Array.from(parent.children).forEach(child=>{
+        if(child.classList.contains("consignment-row")) parent.removeChild(child);
+    });
 
+    if(data && data.length > 0){
+        data.forEach(d=>{
+            const row = document.createElement("span");
+            row.classList.add("consignment-row");
+            row.classList.add("shadow-minor");
+            row.classList.add("status-indicator-"+d.status);
+            const consNo = document.createElement("span");
+            consNo.textContent = formatConsignmentNumber(d.id);
+            row.appendChild(consNo);
+    
+            const shippingLine = document.createElement("span");
+            shippingLine.textContent = (d.shipping_line) ? d.shipping_line : "N/A";
+            row.appendChild(shippingLine);
+    
+            const vesselName = document.createElement("span");
+            vesselName.textContent = (d.vessel_name) ? d.vessel_name : "N/A";
+            row.appendChild(vesselName);
+            
+            const eta = document.createElement("span");
+            eta.textContent = (d.eta) ? d.eta : "N/A";
+            row.appendChild(eta);
+    
+            const destinationPort = document.createElement("span");
+            destinationPort.textContent = (d.port_of_discharge) ? d.port_of_discharge : "N/A";
+            row.appendChild(destinationPort);
+    
+            const tancisStatus = document.createElement("span");
+            tancisStatus.textContent = (d.tancis_status) ? d.tancis_status : "N/A";
+            row.appendChild(tancisStatus);
+            parent.appendChild(row);
+
+            row.addEventListener("click",(e)=>{
+                showConsignmentForm("export_list",d);
+            })
+        })
+       
+    }
+    else{
+        const row = document.createElement("span");
+        row.classList.add("consignment-row");
+        row.classList.add("shadow-minor");
+        row.textContent = "No Consignments";
+        parent.appendChild(row);
+    }
+}
 //show consignment form
-const showConsignmentForm=(source)=>{
+const showConsignmentForm=(source,data=null)=>{
+    var progressSteps = Array.from(document.getElementById("progress-card-1").children);
+    progressSteps.forEach((step)=>{
+        step.classList.remove("current");
+    })
+    if(data == null) progressSteps[0].classList.add("current");
+    else{
+        progressSteps.forEach((step,index)=>{
+            if(data.status == (index +1)) step.classList.add("current");
+        })
+    }
     document.querySelector("#add_export").classList.add("hidden");
     document.getElementById(source).classList.add("hidden");
     const parent = document.getElementById("export_form");
@@ -811,9 +854,269 @@ const showConsignmentForm=(source)=>{
             })
             
         }
+    });
+
+    var newData = (data == null) ? {} : data;
+    var uploadShippingInstructionsButton = document.getElementById("upload_shipping_instructions");
+    var shippingInstructionsInput = document.getElementById("file_shipping_instructions");
+    var shippingInstructionsLink = document.getElementById("link_shipping_instructions");
+
+    uploadShippingInstructionsButton.addEventListener("click",(e)=>{
+        shippingInstructionsInput.click();
+
+        shippingInstructionsInput.addEventListener('change',(e)=>{
+            if(shippingInstructionsInput.files[0]){
+               var urlObj = URL.createObjectURL(shippingInstructionsInput.files[0]);
+               shippingInstructionsLink.href = urlObj;
+               shippingInstructionsLink.textContent = "View Shipping Instructions";
+
+               var reader = new FileReader();
+               reader.addEventListener("load",()=>{
+                   newData.shipping_instructions = reader.result;
+               },false);
+               reader.readAsDataURL(shippingInstructionsInput.files[0]);
+            }
+        })
+        
     })
+    var consignmentDataForm = document.getElementById("consignment_data_form");
+    var consigneeForm = document.getElementById("consignee_form");
+    var exporterForm = document.getElementById("exporter_form");
+    var forwarderForm = document.getElementById("forwarder_form");
+    var customerSelect = document.getElementById("customer_select");
+    if(customerSelect){
+        while(customerSelect.hasChildNodes())customerSelect.removeChild(customerSelect.childNodes[0]);
+        var customers = (storedData.customers) ? storedData.customers : [];
+        customers.forEach(customer=>{
+            customerSelect.options.add(new Option(customer.name,customer.id));
+        });
+        customerSelect.options.add(new Option("--add new customer",-1));
+        var selectedCustomer = (customers.length) ? customers[0]: null;
+        if(selectedCustomer !==null){
+            exporterForm.exporter_phone.value = selectedCustomer.phone;
+            exporterForm.exporter_name.value = selectedCustomer.name;
+            exporterForm.exporter_address.value = selectedCustomer.address;
+            exporterForm.exporter_tin.value = selectedCustomer.tin;
+       
+        }
+        customerSelect.addEventListener("change",(e)=>{
+            if(e.target.value == -1) showCustomerDetailForm('exports_content');
+            else{
+                selectedCustomer = customers.filter(c=>{
+                    return c.id == customerSelect.options[customerSelect.options.selectedIndex].value;
+                })[0];
+    
+                exporterForm.exporter_phone.value = selectedCustomer.phone;
+                exporterForm.exporter_name.value = selectedCustomer.name;
+                exporterForm.exporter_address.value = selectedCustomer.address+"\n\r"+selectedCustomer.region+","+selectedCustomer.country;
+                notifierForm.exporter_tin.value = selectedCustomer.tin;
+            //     notifierForm.notify_address.value = selectedCustomer.address+"\n\r"+selectedCustomer.region+","+selectedCustomer.country;
+            //     notifierForm.notify_phone.value = selectedCustomer.phone
+            }
+            
+        });
+    }
+
+    if(consignmentDataForm){
+       if(data != null){
+        consignmentDataForm.cargo_classification.value = data.cargo_classification;
+        consignmentDataForm.place_of_destination.value = data.place_of_destination;
+        consignmentDataForm.place_of_delivery.value = data.place_of_delivery;
+        consignmentDataForm.port_of_discharge.value = data.port_of_discharge;
+        consignmentDataForm.port_of_origin.value = data.port_of_origin;
+        consignmentDataForm.no_of_containers.value = data.no_of_containers;
+        consignmentDataForm.goods_description.value = data.goods_description;
+        consignmentDataForm.no_of_packages.value = data.no_of_packages;
+        consignmentDataForm.package_unit.value = data.package_unit;
+        consignmentDataForm.gross_weight.value = data.gross_weight;
+        consignmentDataForm.gross_weight_unit.value = data.gross_weight_unit;
+        consignmentDataForm.gross_volume.value = data.gross_volume;
+        consignmentDataForm.gross_volume_unit.value = data.gross_volume_unit;
+        consignmentDataForm.net_weight.value = data.net_weight;
+        consignmentDataForm.net_weight_unit.value = data.net_weight_unit;
+        consignmentDataForm.invoice_value.value = data.invoice_value;
+        consignmentDataForm.invoice_currency.value = data.invoice_currency;
+        consignmentDataForm.freight_charge.value = data.freight_charge;
+        consignmentDataForm.freight_currency.value = data.freight_currency;
+        consignmentDataForm.imdg_code.value = data.imdg_code;
+        consignmentDataForm.packing_type.value = data.packing_type;
+        consignmentDataForm.oil_type.value = data.oil_type;
+        consignmentDataForm.shipping_mark.value = data.shipping_mark;
+       }
+        consignmentDataForm.addEventListener("submit",(e)=>{
+            e.preventDefault();
+            let cargo_classification = consignmentDataForm.cargo_classification.value;
+            let place_of_destination = consignmentDataForm.place_of_destination.value;
+            let place_of_delivery = consignmentDataForm.place_of_delivery.value;
+            let port_of_discharge = consignmentDataForm.port_of_discharge.value;
+            let port_of_origin = consignmentDataForm.port_of_origin.value;
+            let no_of_containers = consignmentDataForm.no_of_containers.value;
+            let goods_description = consignmentDataForm.goods_description.value;
+            let no_of_packages = consignmentDataForm.no_of_packages.value;
+            let package_unit = consignmentDataForm.package_unit.value;
+            let gross_weight = consignmentDataForm.gross_weight.value;
+            let gross_weight_unit = consignmentDataForm.gross_weight_unit.value;
+            let gross_volume = consignmentDataForm.gross_volume.value;
+            let gross_volume_unit = consignmentDataForm.gross_volume_unit.value;
+            let net_weight = consignmentDataForm.net_weight.value;
+            let net_weight_unit = consignmentDataForm.net_weight_unit.value;
+            let invoice_value = consignmentDataForm.invoice_value.value;
+            let invoice_currency = consignmentDataForm.invoice_currency.value;
+            let freight_charge = consignmentDataForm.freight_charge.value;
+            let freight_currency = consignmentDataForm.freight_currency.value;
+            let imdg_code = consignmentDataForm.imdg_code.value;
+            let packing_type = consignmentDataForm.packing_type.value;
+            let oil_type = consignmentDataForm.oil_type.value;
+            let shipping_mark = consignmentDataForm.shipping_mark.value;
+            newData = {
+                user:currentUser.id,
+                cargo_classification:cargo_classification,
+                place_of_destination:place_of_destination,
+                place_of_delivery:place_of_delivery,
+                port_of_discharge:port_of_discharge,
+                port_of_origin:port_of_origin,
+                no_of_containers:no_of_containers,
+                goods_description:goods_description,
+                no_of_packages:no_of_packages,
+                package_unit:package_unit,
+                gross_weight:gross_weight,
+                gross_weight_unit:gross_weight_unit,
+                gross_volume:gross_volume,gross_volume_unit:gross_volume_unit,net_weight:net_weight,net_weight_unit:net_weight_unit,
+                invoice_value:invoice_value,invoice_currency:invoice_currency,freight_charge:freight_charge,freight_currency:freight_currency,
+                imdg_code:imdg_code,packing_type:packing_type,oil_type:oil_type,shipping_mark:shipping_mark
+            }
+            if(data != null) {
+                newData.source = "data";
+            }
+            var method = (data ==null) ? "POST" : "PUT";
+            var options ={
+                method:method,body:JSON.stringify(newData),headers:{
+                    'Content-type':'application/json','Authorization': 'Bearer '+currentUser.accessToken
+                }
+            }
+            var url = (data == null) ? consignment_url : consignment_url+"/"+currentUser.id+"/"+data.id;
+            fetch(url,options)
+            .then(res=>res.json())
+            .then(result=>{
+                storedData.consignments = result.data;
+                storage.setItem("data",JSON.stringify(storedData));
+                showExportList(result.data,"export_form");
+                showFeedback(result.msg,result.code);
+            })
+            .catch(e=>{
+                console.log("e consg: ",e);
+                showFeedback(e,1);
+            })
+        })
+    }
+    if(consigneeForm){
+        if(data !=null){
+            consigneeForm.consignee_name.value = data.consignee_name;
+            consigneeForm.consignee_phone.value = data.consignee_phone;
+            consigneeForm.consignee_address.value = data.consignee_address;
+            consigneeForm.consignee_tin.value = data.consignee_tin;
+            consigneeForm.notify_name.value = data.notify_name;
+            consigneeForm.notify_phone.value = data.notify_phone;
+            consigneeForm.notify_address.value = data.notify_address;
+            consigneeForm.notify_tin.value = data.notify_tin;
+            consigneeForm.btnSubmitConsignee.classList.remove("hidden");
+        }
+        else{
+            consigneeForm.btnSubmitConsignee.classList.add("hidden");
+        }
+       
+        consigneeForm.addEventListener("submit",(e)=>{
+            e.preventDefault();
+            newData = {
+                source:"consignee",
+                consignee_name: consigneeForm.consignee_name.value,
+                consignee_phone: consigneeForm.consignee_phone.value,
+                consignee_address: consigneeForm.consignee_address.value,
+                consignee_tin: consigneeForm.consignee_tin.value,
+                notify_name: consigneeForm.notify_name.value,
+                notify_phone: consigneeForm.notify_phone.value,
+                notify_address: consigneeForm.notify_address.value,
+                notify_tin: consigneeForm.notify_tin.value,
+            }
+            var options ={
+                method:"PUT",body:JSON.stringify(newData),headers:{
+                    'Content-type':'application/json','Authorization': 'Bearer '+currentUser.accessToken
+                }
+            }
+            fetch(consignment_url+"/"+currentUser.id+"/"+data.id,options)
+            .then(res=>res.json())
+            .then(result=>{
+                storedData.consignments = result.data;
+                storage.setItem("data",JSON.stringify(storedData));
+                showExportList(result.data,"export_form");
+                showFeedback(result.msg,result.code);
+            })
+            .catch(e=>{
+                console.log("e consg: ",e);
+                showFeedback(e,1);
+            })            
+        })
+    }
+    
+    if(forwarderForm){
+        forwarderForm.forwarder_name.value = currentUser.detail.name;
+        forwarderForm.forwarder_address.value = currentUser.detail.address;
+        forwarderForm.forwarder_phone.value = currentUser.detail.phone;
+        forwarderForm.forwarder_code.value = (data && data.forwarder_code) ? data.forwarder_code: currentUser.detail.code;
+        forwarderForm.btnSubmitForwarder.classList.remove("hidden");
+        forwarderForm.addEventListener("submit",(event)=>{
+            event.preventDefault();
+            newData = {
+                id:data.id,
+                source:"forwarder",
+                forwarder_code:forwarderForm.forwarder_code.value,
+                forwarder_id:currentUser.detail.id
+            }
+            
+            var method = "PUT";
+            var options ={
+                method:method,body:JSON.stringify(newData),headers:{
+                    'Content-type':'application/json','Authorization': 'Bearer '+currentUser.accessToken
+                }
+            }
+            var url = consignment_url+"/"+currentUser.id+"/"+data.id;
+            fetch(url,options)
+            .then(res=>res.json())
+            .then(result=>{
+                console.log("re: ",result);
+                storedData.consignments = result.data;
+                storage.setItem("data",JSON.stringify(storedData));
+                showExportList(result.data,"export_form");
+                showFeedback(result.msg,result.code);
+            })
+            .catch(e=>{
+                console.log("e consg: ",e);
+                showFeedback(e,1);
+            })
+        })
+    }
 }
 
+const fetchConsignments = ()=>{
+    return new Promise((resolve,reject)=>{
+        var options ={
+            method: "GET",
+            headers:{
+                "Content-type":"application/json",
+                "Authorization":"Bearer "+currentUser.accessToken
+            }
+        }
+        var url = consignment_url+"/"+currentUser.id;
+        fetch(url,options)
+        .then(res=>res.json())
+        .then(result=>{
+            console.log("cons: ",result);
+            resolve(result);
+        }).catch(er=>{
+            reject(er);
+        })
+    })
+}
 //fetch roles
 const fetchRoles = ()=>{
     return new Promise((resolve,reject)=>{

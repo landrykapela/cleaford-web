@@ -820,15 +820,19 @@ main > div.content .summary-table > span.summary-head, .subscription-forms .summ
 
 .consignment-details {
   width: 100%;
+  background-color: #f0ebeb9d !important;
 }
 
 .consignment-forms, .subscription-forms {
   margin: 0 2em 2em 2em;
 }
 
-.consignment-forms {
+.consignment-forms, .consignment-forms-no-border {
   width: 90%;
   margin: 1em auto;
+}
+
+.consignment-forms {
   border-bottom: 1px solid #a8a2a2;
 }
 
@@ -840,7 +844,6 @@ main > div.content .summary-table > span.summary-head, .subscription-forms .summ
   width: calc(100% - 2em);
   border-top-left-radius: 5px;
   border-top-right-radius: 5px;
-  background-color: #f0ebeb9d !important;
 }
 
 .consignment-forms label, .subscription-forms label {
@@ -856,6 +859,7 @@ main > div.content .summary-table > span.summary-head, .subscription-forms .summ
 .consignment-forms .column > label {
   text-align: left;
   width: 100%;
+  padding-top: 0.25em;
 }
 
 .subscription-forms input, .subscription-forms textarea, .subscription-forms select, .consignment-forms input, .consignment-forms textarea, .consignment-forms select {
@@ -1039,6 +1043,7 @@ main > div.content .summary-table > span.summary-head, .subscription-forms .summ
 .progress-card > div {
   padding: 0.5em;
   width: 100%;
+  height: 70px;
   font-size: small;
   text-align: center;
 }

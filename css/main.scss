@@ -682,14 +682,17 @@ form input[type="submit"]{
 }
 .consignment-details{
   width:100%;
+  @include setBg($faintLight);
 }
 .consignment-forms,.subscription-forms{
   margin:0 2em 2em 2em;
 }
-.consignment-forms{
+.consignment-forms,.consignment-forms-no-border{
  width:90%;
  margin:1em auto;
- border-bottom:1px solid $faint;
+}
+.consignment-forms{
+  border-bottom:1px solid $faint;
 }
 .subscription-forms{
   width:50%;
@@ -700,7 +703,7 @@ form input[type="submit"]{
   // margin-top:-0.5em;
   @include addRoundCornerTop(5px,5px );
   // border:1px solid red;
-  @include setBg($faintLight);
+  // @include setBg($faintLight);
 }
 .consignment-forms label,.subscription-forms label{
   text-align: right;
@@ -713,6 +716,7 @@ form input[type="submit"]{
 .consignment-forms .column > label{
   text-align: left;
   width: 100%;
+  padding-top:0.25em;
 }
 .subscription-forms input,.subscription-forms textarea, .subscription-forms select,.consignment-forms input,.consignment-forms textarea, .consignment-forms select{
   flex-grow: 1;
@@ -871,6 +875,7 @@ form input[type="submit"]{
 .progress-card > div{
   padding:0.5em;
   width:100%;
+  height:70px;
   font-size:small;
   text-align: center;
 }

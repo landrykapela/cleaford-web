@@ -200,16 +200,8 @@ const showHideSubmenu = (menuId)=>{
     var subMenu = document.getElementById(menuId+"_submenu");
     var dropArrow = document.getElementById(menuId+"_drop");
 
-    if(subMenu.classList.contains("hidden")) {
-        subMenu.classList.remove("hidden");
-        dropArrow.textContent = "arrow_drop_up";
-        activateMenu(subMenu.firstElementChild.id);
-    }
-    else{
-        subMenu.classList.add("hidden");
-        dropArrow.textContent = "arrow_drop_down";
-    }
-
+    subMenu.classList.toggle("hidden");
+    dropArrow.textContent = subMenu.classList.contains("hidden") ? "arrow_drop_down" : "arrow_drop_up";
 
         
 }
