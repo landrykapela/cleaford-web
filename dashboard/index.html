@@ -226,7 +226,7 @@
                                     <span>Sending Docs</span>
                                  </div> 
                        </div>
-                        <div class="column consignment-details">
+                        <div id="detail-1" class="column consignment-details">
                             <div class="consignment-forms-no-border row-space">
                                 <div class="row">
                                     <input type="file" accept="image/*,.pdf" class="hidden" name="file_shipping_instructions" id="file_shipping_instructions"/>
@@ -236,253 +236,302 @@
                                 <span class="material-icons" onClick="showConsignment()">close</span>
                             </div>
                             <div class="consignment-forms">
-                                <div class="row-space summary-head">
-                                    <span class="medium-text">Consignment Data</span>
-                                    <span class="material-icons" id="data_collapse">remove</span>
-                                </div>
-                                <form id="data_form" method="POST">
-                                    <div class="row-space">
-                                        <div class="column">
-                                            <label for="cargo_classification">Cargo Classification *</label>
-                                            <input required type="text" id="cargo_classification" name="cargo_classification" placeholder="Cargo classification"/>
-                                        </div>
+                               
+                                <form id="consignment_form" method="POST">
+                                    <div class="row-space summary-head">
+                                        <span class="">Consignment Data</span>
+                                        <span class="material-icons" id="data_collapse">remove</span>
                                     </div>
-                                    <div class="row-space">
-                                        <div class="column">
-                                            <label for="place_of_destination">Place of Destination *</label>
-                                            <input required type="text" id="place_of_destination" name="place_of_destination" placeholder="Place of destination"/>
+                                    <div id="data_collapsible" class="column consignment-section">
+                                        <div class="row-space">
+                                            <div class="row">
+                                                <label for="cargo_classification">Cargo Classification *</label>
+                                                <input required type="text" id="cargo_classification" name="cargo_classification" placeholder="Cargo classification"/>
+                                            </div>
+                                            <div class="row">
+                                                <!-- <label for="cargo_classification">Cargo Classification *</label>
+                                                <input required type="text" id="cargo_classification" name="cargo_classification" placeholder="Cargo classification"/> -->
+                                            </div>
                                         </div>
-                                        <div class="column">
-                                            <label for="place_of_delivery">Place of Delivery *</label>
-                                            <input required type="text" id="place_of_delivery" name="place_of_delivery" placeholder="Place of Delivery"/>
+                                        <div class="row-space">
+                                            <div class="row">
+                                                <label for="place_of_destination">Place of Destination *</label>
+                                                <input required type="text" id="place_of_destination" name="place_of_destination" placeholder="Place of destination"/>
+                                            </div>
+                                            <div class="row">
+                                                <label for="place_of_delivery">Place of Delivery *</label>
+                                                <input required type="text" id="place_of_delivery" name="place_of_delivery" placeholder="Place of Delivery"/>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="row-space">
-                                        <div class="column">
-                                            <label for="port_of_discharge">Port of Discharge *</label>
-                                            <input required type="text" id="port_of_discharge" name="port_of_discharge" placeholder="Port of discharge"/>
+                                        <div class="row-space">
+                                            <div class="row">
+                                                <label for="port_of_discharge">Port of Discharge *</label>
+                                                <input required type="text" id="port_of_discharge" name="port_of_discharge" placeholder="Port of discharge"/>
+                                            </div>
+                                            <div class="row">
+                                                <label for="port_of_origin">Port of Origin *</label>
+                                                <input required type="text" id="port_of_origin" name="port_of_origin" placeholder="Port of origin"/>
+                                            </div>
                                         </div>
-                                        <div class="column">
-                                            <label for="port_of_origin">Port of Origin *</label>
-                                            <input required type="text" id="port_of_origin" name="port_of_origin" placeholder="Port of origin"/>
+                                        <div class="row-space">
+                                            <div class="row">
+                                                <label for="no_of_containers">Number of Containers *</label>
+                                                <input required type="number" id="no_of_containers" name="no_of_containers" placeholder="Number of Containers"/>
+                                            </div>
+                                            <div class="row">
+                                                <label for="goods_description">Description of Goods *</label>
+                                                <input required type="text" id="goods_description" name="goods_description" placeholder="Description of goods"/>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="row-space">
-                                        <div class="column">
-                                            <label for="no_of_containers">Number of Containers *</label>
-                                            <input required type="number" id="no_of_containers" name="no_of_containers" placeholder="Number of Containers"/>
+                                        <div class="row-space">
+                                            <div class="row">
+                                                <label for="no_of_packages">Number of Packages *</label>
+                                                <input required type="number" id="no_of_packages" name="no_of_packages" placeholder="No. of packages"/>
+                                            </div>
+                                            <div class="row">
+                                                <label for="package_unit">Package Unit</label>
+                                                <input required type="text" id="package_unit" name="package_unit" placeholder="Package Unit"/>
+                                            </div>
                                         </div>
-                                        <div class="column">
-                                            <label for="goods_description">Description of Goods *</label>
-                                            <input required type="text" id="goods_description" name="goods_description" placeholder="Description of goods"/>
+                                        <div class="row-space">
+                                            <div class="row">
+                                                <label for="gross_weight">Gross Weight *</label>
+                                                <input required type="text" id="gross_weight" name="gross_weight" placeholder="Gross weight"/>
+                                            </div>
+                                            <div class="row">
+                                                <label for="gross_weight_unit">Gross Weight Unit</label>
+                                                <input required type="text" id="gross_weight_unit" name="gross_weight_unit" placeholder="Gross Weight Unit"/>
+                                            </div>
+                                        </div>  
+                                        <div class="row-space">
+                                            <div class="row">
+                                                <label for="gross_volume">Gross Volume *</label>
+                                                <input required type="text" id="gross_volume" name="gross_volume" placeholder="Gross Volume"/>
+                                            </div>
+                                            <div class="row">
+                                                <label for="gross_volume_unit">Gross Volume Unit *</label>
+                                                <input required type="text" id="gross_volume_unit" name="gross_volume_unit" placeholder="Gross Volume Unit"/>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="row-space">
-                                        <div class="column">
-                                            <label for="no_of_packages">Number of Packages *</label>
-                                            <input required type="number" id="no_of_packages" name="no_of_packages" placeholder="No. of packages"/>
+                                        <div class="row-space">
+                                            <div class="row">
+                                                <label for="net_weight">Net Weight</label>
+                                                <input type="text" id="net_weight" name="net_weight" placeholder="Net Weight"/>
+                                            </div>
+                                            <div class="row">
+                                                <label for="net_weight_unit">Net Weight Unit</label>
+                                                <input type="text" id="net_weight_unit" name="net_weight_unit" placeholder="Net weight unit"/>
+                                            </div>
                                         </div>
-                                        <div class="column">
-                                            <label for="package_unit">Package Unit</label>
-                                            <input required type="text" id="package_unit" name="package_unit" placeholder="Package Unit"/>
+                                        <div class="row-space">
+                                            <div class="row">
+                                                <label for="invoice_value">Invoice Value</label>
+                                                <input type="text" id="invoice_value" name="invoice_value" placeholder="Invoice Value"/>
+                                            </div>
+                                            <div class="row">
+                                                <label for="invoice_currency">Invoice Currency</label>
+                                                <input type="text" id="invoice_currency" name="invoice_currency" placeholder="Invoice Currency"/>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="row-space">
-                                        <div class="column">
-                                            <label for="gross_weight">Gross Weight *</label>
-                                            <input required type="text" id="gross_weight" name="gross_weight" placeholder="Gross weight"/>
-                                        </div>
-                                        <div class="column">
-                                            <label for="gross_weight_unit">Gross Weight Unit</label>
-                                            <input required type="text" id="gross_weight_unit" name="gross_weight_unit" placeholder="Gross Weight Unit"/>
-                                        </div>
-                                    </div>  
-                                    <div class="row-space">
-                                        <div class="column">
-                                            <label for="gross_volume">Gross Volume *</label>
-                                            <input required type="text" id="gross_volume" name="gross_volume" placeholder="Gross Volume"/>
-                                        </div>
-                                        <div class="column">
-                                            <label for="gross_volume_unit">Gross Volume Unit *</label>
-                                            <input required type="text" id="gross_volume_unit" name="gross_volume_unit" placeholder="Gross Volume Unit"/>
-                                        </div>
-                                    </div>
-                                    <div class="row-space">
-                                        <div class="column">
-                                            <label for="net_weight">Net Weight</label>
-                                            <input type="text" id="net_weight" name="net_weight" placeholder="Net Weight"/>
-                                        </div>
-                                        <div class="column">
-                                            <label for="net_weight_unit">Net Weight Unit</label>
-                                            <input type="text" id="net_weight_unit" name="net_weight_unit" placeholder="Net weight unit"/>
-                                        </div>
-                                    </div>
-                                    <div class="row-space">
-                                        <div class="column">
-                                            <label for="invoice_value">Invoice Value</label>
-                                            <input type="text" id="invoice_value" name="invoice_value" placeholder="Invoice Value"/>
-                                        </div>
-                                        <div class="column">
-                                            <label for="invoice_currency">Invoice Currency</label>
-                                            <input type="text" id="invoice_currency" name="invoice_currency" placeholder="Invoice Currency"/>
-                                        </div>
-                                    </div>
-                                    <div class="row-space">
-                                       
-                                        <div class="column">
-                                            <label for="freight_charge">Freight Charge</label>
-                                            <input type="text" id="freight_charge" name="freight_charge" placeholder="Freight charge"/>
-                                        </div>
-                                        <div class="column">
-                                            <label for="freight_currency">Freight Currency</label>
-                                            <input type="text" id="freight_currency" name="freight_currency" placeholder="Freight Currency"/>
-                                        </div>
-                                    </div>
-                                    <div class="row-space">
-                                       
-                                       <div class="column">
-                                            <label for="imdg_code">IMDG Code</label>
-                                            <input type="text" id="imdg_code" name="imdg_code" placeholder="IMDG Code"/>
-                                        </div>
-                                        <div class="column">
-                                            <label for="packing_type">Packing Type *</label>
-                                            <input required type="text" id="packing_type" name="packing_type" placeholder="Packing Type"/>
-                                        </div>
-                                    </div>
-                                    <div class="row-space">
-                                       
-                                        <div class="column">
-                                            <label for="oil_type">Oil Type</label>
-                                            <input type="text" id="oil_type" name="oil_type" placeholder="Oil Type"/>
-                                        </div>
-                                        <div class="column">
-                                            <label for="shipping_mark">Shipping Mark</label>
-                                            <input type="text" id="shipping_mark" name="shipping_mark" placeholder="Shipping Mark"/>
-                                        </div>
-                                    </div>    
-                                       
-                                <div class="row-end">
-                                    <input type="submit" name="btnSubmitNotify" id="btnSubmitNotify" value="SAVE"/>
-                                </div>
-                                </form>
-                            </div>
-                            <div class="consignment-forms">
-                                <div class="row-space summary-head">
-                                    <span class="medium-text">Consignee Details</span>
-                                    <span class="material-icons" id="consignee_collapse">remove</span>
-                                </div>
-                                <form id="consignee_form" method="post">  
-
-                                    <div class="row-space">
-                                        <div class="column">
-                                            <label for="consignee_name">Consignee Name</label>
-                                            <input type="text" id="consignee_name" name="consignee_name" placeholder="Consignee full name"/>
-                                        </div>
-                                        <div class="column">
-                                            <label for="notify_name">Notify Name</label>
-                                            <input type="text" id="notify_name" name="notify_name" placeholder="Notifier full name"/>
-                                        </div>
+                                        <div class="row-space">
                                         
+                                            <div class="row">
+                                                <label for="freight_charge">Freight Charge</label>
+                                                <input type="text" id="freight_charge" name="freight_charge" placeholder="Freight charge"/>
+                                            </div>
+                                            <div class="row">
+                                                <label for="freight_currency">Freight Currency</label>
+                                                <input type="text" id="freight_currency" name="freight_currency" placeholder="Freight Currency"/>
+                                            </div>
+                                        </div>
+                                        <div class="row-space">
+                                        
+                                        <div class="row">
+                                                <label for="imdg_code">IMDG Code</label>
+                                                <input type="text" id="imdg_code" name="imdg_code" placeholder="IMDG Code"/>
+                                            </div>
+                                            <div class="row">
+                                                <label for="packing_type">Packing Type *</label>
+                                                <input required type="text" id="packing_type" name="packing_type" placeholder="Packing Type"/>
+                                            </div>
+                                        </div>
+                                        <div class="row-space">
+                                        
+                                            <div class="row">
+                                                <label for="oil_type">Oil Type</label>
+                                                <input type="text" id="oil_type" name="oil_type" placeholder="Oil Type"/>
+                                            </div>
+                                            <div class="row">
+                                                <label for="shipping_mark">Shipping Mark</label>
+                                                <input type="text" id="shipping_mark" name="shipping_mark" placeholder="Shipping Mark"/>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="row-space">
-                                        <div class="column">
-                                            <label for="consignee_phone">Consignee Tel.</label>
-                                            <input type="text" id="consignee_phone" name="consignee_phone" placeholder="Phone number"/>
-                                        </div>
-                                        <div class="column">
-                                            <label for="notify_phone">Notify Tel</label>
-                                            <input type="text" id="notify_phone" name="notify_phone" placeholder="Phone number"/>
-                                        </div>
-                                       
+                                    <div class="row-space summary-head">
+                                        <span class="">Consignee Details</span>
+                                        <span class="material-icons" id="consignee_collapse">remove</span>
                                     </div>
-                                    <div class="row-space">
-                                        <div class="column">
-                                            <label for="consignee_address">Consignee Address</label>
-                                            <textarea id="consignee_address" name="consignee_address" rows="5"></textarea>
+                                    <div id="consignee_collapsible" class="column consignment-section">    
+                                        <div class="row-space">
+                                            <div class="row">
+                                                <label for="consignee_name">Consignee Name</label>
+                                                <input type="text" id="consignee_name" name="consignee_name" placeholder="Consignee full name"/>
+                                            </div>
+                                            <div class="row">
+                                                <label for="notify_name">Notify Name</label>
+                                                <input type="text" id="notify_name" name="notify_name" placeholder="Notifier full name"/>
+                                            </div>
+                                            
                                         </div>
-                                        <div class="column">
-                                            <label for="notify_address">Notify Address</label>
-                                            <textarea id="notify_address" name="notify_address" rows="5"></textarea>
+                                        <div class="row-space">
+                                            <div class="row">
+                                                <label for="consignee_phone">Consignee Tel.</label>
+                                                <input type="text" id="consignee_phone" name="consignee_phone" placeholder="Phone number"/>
+                                            </div>
+                                            <div class="row">
+                                                <label for="notify_phone">Notify Tel</label>
+                                                <input type="text" id="notify_phone" name="notify_phone" placeholder="Phone number"/>
+                                            </div>
+                                        
                                         </div>
+                                        <div class="row-space">
+                                            <div class="row">
+                                                <label for="consignee_address">Consignee Address</label>
+                                                <textarea id="consignee_address" name="consignee_address" rows="5"></textarea>
+                                            </div>
+                                            <div class="row">
+                                                <label for="notify_address">Notify Address</label>
+                                                <textarea id="notify_address" name="notify_address" rows="5"></textarea>
+                                            </div>
+                                        </div>
+                                        <div class="row-space"> 
+                                            <div class="row">
+                                                <label for="consignee_tin">Consignee TIN</label>
+                                                <input type="text" id="consignee_tin" name="consignee_tin" placeholder="TIN Number"/>
+                                            </div>
+                                        <div class="row">
+                                            <label for="notify_tin">Notify TIN</label>
+                                            <input type="text" id="notify_tin" name="notify_tin" placeholder="TIN Number"/>
+                                        </div> 
+                                        
+                                        </div> 
                                     </div>
-                                    <div class="row-space"> 
-                                        <div class="column">
-                                            <label for="consignee_tin">Consignee TIN</label>
-                                            <input type="text" id="consignee_tin" name="consignee_tin" placeholder="TIN Number"/>
+                                    <div class="row-space summary-head">
+                                        <span class="">Exporter & Forwarder Details</span>
+                                        <span class="material-icons" id="exporter_collapse">remove</span>
+                                    </div>
+                                    <div id="exporter_collapsible" class="consignment-section">
+                                        <div class="row-space">
+                                            <div class="row">
+                                                <label for="customer_select">Select Customer</label>
+                                                <select id="customer_select" name="customer_select"></select>
+                                            </div>
+                                            <div class="row">
+                                            </div>
                                         </div>
-                                    <div class="column">
-                                        <label for="notify_tin">Notify TIN</label>
-                                        <input type="text" id="notify_tin" name="notify_tin" placeholder="TIN Number"/>
-                                    </div> 
-                                    
-                                </div>
-                                    <div class="row-end">
-                                        <input type="submit" value="SAVE" id="btnSubmitConsignee" name="btnSubmitConsignee"/>
+                                        <div class="row-space">
+                                            <div class="row">
+                                                <label for="exporter_name">Exporter Name</label>
+                                                <input required type="text" id="exporter_name" name="exporter_name" placeholder="Exporter full name"/>
+                                            </div>
+                                            <div class="row">
+                                                <label for="forwarder_name">Forwarder Name</label>
+                                                <input type="text" id="forwarder_name" name="forwarder_name" placeholder="Forwarder name"/>
+                                            </div>
+                                        </div>
+                                        <div class="row-space">
+                                            <div class="row">
+                                                <label for="exporter_phone">Exporter Tel</label>
+                                                <input required type="text" id="exporter_phone" name="exporter_phone" placeholder="Phone number"/>
+                                            </div>
+                                            <div class="row">
+                                                <label for="forwarder_phone">Forwarder Tel</label>
+                                                <input type="text" id="forwarder_phone" name="forwarder_phone" placeholder="Phone number"/>
+                                            </div>
+                                            
+                                        </div>
+                                        <div class="row-space">
+                                            <div class="row">
+                                                <label for="exporter_address">Exporter Address</label>
+                                                <textarea id="exporter_address" name="exporter_address" rows="5"></textarea>
+                                            </div>
+                                            <div class="row">
+                                                <label for="forwarder_address">Forwarder Address</label>
+                                                <textarea id="forwarder_address" name="forwarder_address" rows="5"></textarea>
+                                            </div>
+                                        </div>
+                                        <div class="row-space">
+                                            <div class="row">
+                                                <label for="exporter_tin">Exporter TIN</label>
+                                                <input type="text" id="exporter_tin" name="exporter_tin" placeholder="TIN Number"/>
+                                            </div>
+                                            <div class="row">
+                                                <label for="forwarder_code">Forwarder Code</label>
+                                                <input type="text" id="forwarder_code" name="forwarder_code" placeholder="Forwarder Code"/>
+                                            </div>
+                                        </div> 
+                                        <div class="row-end">
+                                            <input type="submit" name="btnSubmitNotify" id="btnSubmitNotify" value="SAVE"/>
+                                        </div>
                                     </div>
                                 </form>
+                            </div>
+                           
+                        </div>
+                        <div id="detail-2" class="column consignment-details">
+                            <div class="consignment-forms-no-border row-space">
+                                <div class="row">
+                                    <input type="file" accept="image/*,.pdf" class="hidden" name="file_ship_booking" id="file_ship_booking"/>
+                                    <span class="buttons" id="upload_ship_booking">Upload Booking Confirmation</span>
+                                    <a id="link_ship_booking" target="_blank"></a>
+                                </div>
+                                <span class="material-icons" onClick="showConsignment()">close</span>
                             </div>
                             <div class="consignment-forms">
-                                <div class="row-space summary-head">
-                                    <span class="medium-text">Exporter Details</span>
-                                    <span class="material-icons" id="exporter_collapse">remove</span>
-                                </div>
-                                <form  id="exporter_form" method="post">
-                                    <div class="row">
-                                        <label for="customer_select">Select Customer</label>
-                                        <select id="customer_select" name="customer_select"></select>
+                               
+                                <form id="consignment_form" method="POST">
+                                    <div class="row-space summary-head">
+                                        <span class="">Ship Booking Details</span>
+                                        <span class="material-icons" id="booking_collapse">remove</span>
                                     </div>
-                                    <div class="row">
-                                        <label for="exporter_name">Full Name</label>
-                                        <input required type="text" id="exporter_name" name="exporter_name" placeholder="Exporter full name"/>
+                                    <div id="booking_collapsible" class="column consignment-section">
+                                        <div class="row-space">
+                                            <div class="row">
+                                                <label for="mbl_number">MB/L Number *</label>
+                                                <input required type="text" id="mbl_number" name="mbl_number" placeholder="MB/L Number"/>
+                                            </div>
+                                            <div class="row">
+                                                <label for="shipping_line">Shipping Line *</label>
+                                                <input required type="text" id="shipping_line" name="shipping_line" placeholder="Shipping Line"/>
+                                             </div>
+                                        </div>
+                                        <div class="row-space">
+                                            <div class="row">
+                                                <label for="vessel_name">Vessel Name *</label>
+                                                <input required type="text" id="vessel_name" name="vessel_name" placeholder="Vessel Name"/>
+                                            </div>
+                                            <div class="row">
+                                                <label for="booking_no">Booking Number *</label>
+                                                <input required type="text" id="booking_no" name="booking_no" placeholder="Booking Number"/>
+                                            </div>
+                                        </div>
+                                        <div class="row-space">
+                                            <div class="row">
+                                                <label for="bl_type">B/L Type *</label>
+                                                <input required type="text" id="bl_type" name="bl_type" placeholder="B/L Type"/>
+                                            </div>
+                                            <div class="row">
+                                                <label for="terminal_carry_date">Terminal Expected Carry in Date</label>
+                                                <input type="date" id="terminal_carry_date" name="port_of_origin" placeholder="Date"/>
+                                            </div>
+                                            <div class="row-end">
+                                                <input type="submit" name="btnSubmitShipping" id="btnSubmitShipping" value="SAVE"/>
+                                            </div>
                                     </div>
-                                    <div class="row">
-                                        <label for="exporter_phone">Telephone</label>
-                                        <input required type="text" id="exporter_phone" name="exporter_phone" placeholder="Phone number"/>
-                                    </div>
-                                    
-                                    <div class="row">
-                                        <label for="exporter_address">Address</label>
-                                        <textarea id="exporter_address" name="exporter_address" rows="5"></textarea>
-                                    </div>
-                                    <div class="row">
-                                        <label for="exporter_tin">TIN</label>
-                                        <input type="text" id="exporter_tin" name="exporter_tin" placeholder="TIN Number"/>
-                                    </div>
-                                    <div class="row-end">
-                                        <input type="submit" name="submitExporter" id="submitExporter" value="SAVE"/>
-                                    </div>
+                                   
                                 </form>
                             </div>
-                            <div class="consignment-forms">
-                                <div class="row-space summary-head">
-                                    <span class="medium-text">Forwarder Details</span>
-                                    <span class="material-icons" id="forwarder_collapse">remove</span>
-                                </div>
-                                <form id="forwarder_form" method="post">
-                                    
-                                    <div class="row">
-                                        <label for="forwarder_code">Forwarder Code</label>
-                                        <input type="text" id="forwarder_code" name="forwarder_code" placeholder="Forwarder Code"/>
-                                    </div>
-                                    <div class="row">
-                                        <label for="forwarder_name">Forwarder Name</label>
-                                        <input type="text" id="forwarder_name" name="forwarder_name" placeholder="Forwarder name"/>
-                                    </div>
-                                    <div class="row">
-                                        <label for="forwarder_phone">Forwarder Tel</label>
-                                        <input type="text" id="forwarder_phone" name="forwarder_phone" placeholder="Phone number"/>
-                                    </div>
-                                    
-                                    <div class="row">
-                                        <label for="forwarder_address">Forwarder Address</label>
-                                        <textarea id="forwarder_address" name="forwarder_address" rows="5"></textarea>
-                                    </div>
-                                    <div class="row-end">
-                                        <input type="submit" name="btnSubmitForwarder" id="btnSubmitForwarder" value="SAVE"/>
-                                    </div>
-                                </form>
-                            </div>
-                            
+                           
                         </div>
                    </div>
                    <div class="row-top hidden" id="instruction_form">

@@ -523,7 +523,6 @@ form input[type=submit] {
 .form-group > input[type=date], .form-group > input[type=text], .form-group > input[type=email], .form-group > input[type=password] {
   outline-color: none;
   outline-width: 0;
-  outline-width: none;
   border: 0;
   font-size: 16px;
   margin: 0;
@@ -866,8 +865,17 @@ main > div.content .summary-table > span.summary-head, .subscription-forms .summ
   flex-grow: 1;
   border-top-left-radius: 4px;
   border-top-right-radius: 4px;
-  width: calc(100% - 1em);
+  width: calc(50% - 1em);
   padding: 0.25em 0.5em;
+  border: 0.5px solid #d3d3d3;
+}
+
+.consignment-forms .summary-head {
+  margin-top: 1em;
+}
+
+.consignment-forms form > div.consignment-section {
+  width: 100%;
 }
 
 .subscription-forms p, .subscription-forms .features {
@@ -1046,6 +1054,7 @@ main > div.content .summary-table > span.summary-head, .subscription-forms .summ
   height: 70px;
   font-size: small;
   text-align: center;
+  cursor: pointer;
 }
 
 .progress-card > div.current {
