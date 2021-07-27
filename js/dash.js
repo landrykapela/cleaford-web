@@ -148,7 +148,7 @@ const showClientRoles = ()=>{
 
             //add delete button click listener
             delBut.addEventListener("click",(e)=>{
-                confirmDialog("Are you sure you want to delete this role?","Delete",()=>{
+                alertDialog("Are you sure you want to delete this role?","Delete",()=>{
                     deleteClientRole(role.id);
                 })
             })
@@ -1090,6 +1090,81 @@ const showConsignmentForm=(source,data=null)=>{
         var detail = document.getElementById("detail-2");
         detail.classList.remove("hidden");
 
+        var newData;
+        var fileUploaded = null;
+        var uploadShipBookingButton = document.getElementById("upload_ship_booking");
+        var shipBookingInput = document.getElementById("file_ship_booking");
+        var shipBookingLink = document.getElementById("link_ship_booking");
+        
+        if(uploadShipBookingButton){
+            uploadShipBookingButton.addEventListener("click",(e)=>{
+                shipBookingInput.click();
+                shipBookingInput.addEventListener("change",(e)=>{
+                    if(shipBookingInput.files[0] != null){
+                        var reader = new FileReader();
+                        reader.addEventListener("load",()=>{
+                            var urlObj = URL.createObjectURL(shipBookingInput.files[0]);
+                            shipBookingLink.href = urlObj;
+                            shipBookingLink.textContent = "View Booking Comfirmation";
+                            fileUploaded = reader.result;
+                        },false)
+
+                        reader.readAsDataURL(shipBookingInput.files[0]);
+                    }
+                    
+                })
+            })
+        }
+        shippingForm = document.getElementById("booking_form");
+        if(shippingForm){
+            if(data.shipping_details){
+                shippingForm.mbl_number.value = data.shipping_details.mbl_number;
+                shippingForm.shipping_line.value = data.shipping_details.shipping_line;
+                shippingForm.vessel_name.value = data.shipping_details.vessel_name;
+                shippingForm.booking_no.value = data.shipping_details.booking_no;
+                shippingForm.bl_type.value = data.shipping_details.bl_type;                
+                shippingForm.terminal_carry_date.value = data.shipping_details.terminal_carry_date;
+                
+            }
+
+            shippingForm.addEventListener("submit",(e)=>{
+                e.preventDefault();
+                newData = {
+                    cid:data.id,
+                    mbl_number:shippingForm.mbl_number.value,
+                    shipping_line:shippingForm.shipping_line.value,
+                    vessel_name:shippingForm.vessel_name.value,
+                    booking_number:shippingForm.booking_no.value,
+                    bl_type:shippingForm.bl_type.value,
+                    terminal_carry_date:shippingForm.terminal_carry_date.value,
+                    booking_confirmation:fileUploaded
+                }
+                if(fileUploaded == null){
+                    alertDialog("Please upload ship booking confirmation","Ship Booking",null);
+                }
+                else{
+                    var url = ship_booking_url +"/"+currentUser.id;
+                    var options = {
+                        method:"POST",body:JSON.stringify(newData),headers:{
+                            'Content-type':'application/json',
+                            'Authorization':'Bearer '+currentUser.accessToken
+                        }
+                    }
+                    showSpinner();
+                    fetch(url,options)
+                    .then(res=>res.json())
+                    .then(result=>{
+                        hideSpinner();
+                        console.log("sp: ",result);
+                    })
+                    .catch(e=>{
+                        console.log("sp: ",e);
+                        showFeedback("Something went wrong! Please try again later",1);
+                    })
+                }
+            })
+        }
+
     }
 }
 
@@ -1510,7 +1585,8 @@ const refreshUser=()=>{
 }
 
 //confirm dialog
-const confirmDialog =(msg,actionText,action)=>{
+//confirm dialog
+const alertDialog =(msg,actionText,action=null)=>{
     var alert = document.getElementById("alert_dialog");
     alert.classList.remove("hidden");
     var dialog = document.createElement("div");
@@ -1518,39 +1594,49 @@ const confirmDialog =(msg,actionText,action)=>{
     var dialogTitle = document.createElement("div");
     dialogTitle.classList.add("dialog-title");
     dialogTitle.textContent = actionText.toUpperCase();
-    var cancelButt = document.createElement("span");
-    var okButt = document.createElement("span");
     var msgText = document.createElement("p");
     msgText.textContent = msg;
     msgText.style.textAlign="center";
-    cancelButt.classList.add('dialog-button');
-    cancelButt.textContent = "CANCEL";
-    okButt.classList.add("dialog-button");
-    okButt.classList.add("primary-dark-text");
-    okButt.textContent = actionText.toUpperCase();
     dialog.appendChild(dialogTitle);
     dialog.appendChild(msgText);
-
     var buttonRow = document.createElement("div");
     buttonRow.classList.add("row-end");
-    buttonRow.appendChild(okButt);
+    if(action != null){
+        var okButt = document.createElement("span");
+        okButt.classList.add("dialog-button");
+        okButt.classList.add("primary-dark-text");
+        okButt.textContent = actionText.toUpperCase();
+        buttonRow.appendChild(okButt);
+        okButt.addEventListener('click',(e)=>{
+            action();
+            alert.classList.add("hidden");
+            while(alert.hasChildNodes()){
+                alert.removeChild(alert.childNodes[0]);
+            }
+            document.body.style.overflow = 'unset';
+            
+        });
+    }
+    var cancelButt = document.createElement("span");
+    cancelButt.classList.add('dialog-button');
+    cancelButt.textContent = "CANCEL";
     buttonRow.appendChild(cancelButt);
+
     dialog.appendChild(buttonRow);
     alert.appendChild(dialog);
+    document.body.style.overflow = 'hidden';
 
-    okButt.addEventListener('click',(e)=>{
-        action();
-        alert.classList.add("hidden");
-        while(alert.hasChildNodes()){
-            alert.removeChild(alert.childNodes[0]);
-        }
-    });
+   
     cancelButt.addEventListener('click',(e)=>{
         alert.classList.add("hidden");
         while(alert.hasChildNodes()){
             alert.removeChild(alert.childNodes[0]);
         }
+        document.body.style.overflow = 'unset';
     })
+    if(action ==null){
+        cancelButt.textContent = "CLOSE";
+    }
 }
 //handle arrow drop down and menus
 
@@ -1569,7 +1655,7 @@ const confirmDialog =(msg,actionText,action)=>{
     if(signout){
         signout.addEventListener('click',(e)=>{
             e.preventDefault();
-            confirmDialog("Are you sure you want to sign out?","signout",()=>{
+            alertDialog("Are you sure you want to sign out?","signout",()=>{
                 signoutUser();
             });
         });
