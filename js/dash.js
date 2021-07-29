@@ -794,15 +794,21 @@ const showExportList = (data,source=null)=>{
             row.appendChild(consNo);
     
             const shippingLine = document.createElement("span");
-            shippingLine.textContent = (d.shipping_line) ? d.shipping_line : "N/A";
+            shippingLine.textContent = (d.shipping_details) ? d.shipping_details.shipping_line : "N/A";
             row.appendChild(shippingLine);
     
             const vesselName = document.createElement("span");
-            vesselName.textContent = (d.vessel_name) ? d.vessel_name : "N/A";
+            vesselName.textContent = (d.shipping_details) ? d.shipping_details.vessel_name : "N/A";
             row.appendChild(vesselName);
             
             const eta = document.createElement("span");
-            eta.textContent = (d.eta) ? d.eta : "N/A";
+            let tcd = "";
+            if(d.shipping_details){
+                let date = new Date(d.shipping_details.terminal_carry_date);
+                tcd += (1+ date.getMonth())+"/"+date.getDate()+"/"+date.getFullYear();
+            }
+            else tcd = "N/A";
+            eta.textContent = tcd;
             row.appendChild(eta);
     
             const destinationPort = document.createElement("span");
@@ -815,6 +821,7 @@ const showExportList = (data,source=null)=>{
             parent.appendChild(row);
 
             row.addEventListener("click",(e)=>{
+                console.log("clicked data: ",d);
                 showConsignmentForm("export_list",d);
             })
         })
@@ -828,274 +835,296 @@ const showExportList = (data,source=null)=>{
         parent.appendChild(row);
     }
 }
+
+//close consignmentForm
+const closeConsignmentForm = ()=>{
+    document.querySelector("#add_export").classList.remove("hidden");
+    document.querySelector("#export_form").classList.add("hidden");
+    document.querySelector("#export_list").classList.remove("hidden");
+}
 //show consignment form
 const showConsignmentForm=(source,data=null)=>{
-    var progressSteps = Array.from(document.getElementById("progress-card-1").children);
-    progressSteps.forEach((step)=>{
-        step.classList.remove("current");
-    })
-    if(data == null) progressSteps[0].classList.add("current");
-    else{
-        progressSteps.forEach((step,index)=>{
-            if(data.status == (index +1)) step.classList.add("current");
-            step.addEventListener("click",(e)=>{
-                step.classList.toggle("current");
-            })
+    const progressSteps = Array.from(document.getElementById("progress-card-1").children);
+    progressSteps.forEach((step,index)=>{
+        step.addEventListener("click",(e)=>{
+            switchSteps(index+1,data);
         })
-    }
+    })
     document.querySelector("#add_export").classList.add("hidden");
     document.getElementById(source).classList.add("hidden");
     const parent = document.getElementById("export_form");
     parent.classList.remove("hidden");
+    var position = (data == null) ? 1: data.status;
+    switchSteps(position,data);
 
-    if(data.status == 1){
-        Array.from(document.getElementsByClassName("consignment-details")).forEach(d=>d.classList.add("hidden"));
-       
-        var detail = document.getElementById("detail-1");
-        detail.classList.remove("hidden");
+    
+}
+
+//switch steps
+const switchSteps = (position,data)=>{
+    var progressSteps = Array.from(document.getElementById("progress-card-1").children);
+    progressSteps.forEach((step)=>{
+        step.classList.remove("current");
+    });
+    progressSteps[position-1].classList.add("current");
+    switchDetails(position,data);
+}
+//switch consignment forms
+const switchDetails = (index,data)=>{
+    Array.from(document.getElementsByClassName("consignment-details")).forEach(d=>d.classList.add("hidden"));
+    document.getElementById("detail-"+(index)).classList.remove("hidden");
+   
+    if(index == 1){
         var collapseButtons = Array.from(document.getElementsByClassName("summary-head"));
         collapseButtons.filter(b=>b.hasChildNodes()).forEach(but=>{
-        if(but){
-            Array.from(but.children).forEach(span=>{
-                if(span.classList.contains("material-icons")){
-                    span.addEventListener("click",(e)=>{
-                        let target = e.target.id.split("_")[0];
-                        var collapsible = document.getElementById(target+"_collapsible");
-                        collapsible.classList.toggle("hidden");
-                        e.target.textContent = (collapsible.classList.contains("hidden")) ? "add" : "remove";
-                    })
+            if(but){
+                Array.from(but.children).forEach(span=>{
+                    if(span.classList.contains("material-icons")){
+                        span.addEventListener("click",(e)=>{
+                            let target = e.target.id.split("_")[0];
+                            var collapsible = document.getElementById(target+"_collapsible");
+                            collapsible.classList.toggle("hidden");
+                            e.target.textContent = (collapsible.classList.contains("hidden")) ? "add" : "remove";
+                        })
+                    }
+                })
+            }
+        });
+        var newData = (data == null) ? {} : data;
+        var uploadShippingInstructionsButton = document.getElementById("upload_shipping_instructions");
+        var shippingInstructionsInput = document.getElementById("file_shipping_instructions");
+        var shippingInstructionsLink = document.getElementById("link_shipping_instructions");
+        if(data != null){
+            if(data.files.length > 0){
+                let shippingInstructionsFiles = data.files.filter(f=>f.name == "shipping instructions");
+                if(shippingInstructionsFiles.length > 0) {
+                    shippingInstructionsLink.href = files_url+"/"+shippingInstructionsFiles[0].filename;
+                    shippingInstructionsLink.textContent = "View Shipping Instructions";
                 }
-            })
-            
-        }
-    });
-
-    var newData = (data == null) ? {} : data;
-    var uploadShippingInstructionsButton = document.getElementById("upload_shipping_instructions");
-    var shippingInstructionsInput = document.getElementById("file_shipping_instructions");
-    var shippingInstructionsLink = document.getElementById("link_shipping_instructions");
-    if(data != null){
-        if(data.files.length > 0){
-            let shippingInstructionsFiles = data.files.filter(f=>f.name == "shipping instructions");
-            if(shippingInstructionsFiles.length > 0) {
-                shippingInstructionsLink.href = files_url+"/"+shippingInstructionsFiles[0].filename;
-                shippingInstructionsLink.textContent = "View Shipping Instructions";
+                else{
+                    shippingInstructionsLink.href = "";
+                    shippingInstructionsLink.textContent = "";
+                }
             }
             else{
+
                 shippingInstructionsLink.href = "";
                 shippingInstructionsLink.textContent = "";
             }
         }
-        else{
+        uploadShippingInstructionsButton.addEventListener("click",(e)=>{
+            shippingInstructionsInput.click();
 
-            shippingInstructionsLink.href = "";
-            shippingInstructionsLink.textContent = "";
-        }
-    }
-    uploadShippingInstructionsButton.addEventListener("click",(e)=>{
-        shippingInstructionsInput.click();
+            shippingInstructionsInput.addEventListener('change',(e)=>{
+                if(shippingInstructionsInput.files[0]){
+                var urlObj = URL.createObjectURL(shippingInstructionsInput.files[0]);
+                shippingInstructionsLink.href = urlObj;
+                shippingInstructionsLink.textContent = "View Shipping Instructions";
 
-        shippingInstructionsInput.addEventListener('change',(e)=>{
-            if(shippingInstructionsInput.files[0]){
-               var urlObj = URL.createObjectURL(shippingInstructionsInput.files[0]);
-               shippingInstructionsLink.href = urlObj;
-               shippingInstructionsLink.textContent = "View Shipping Instructions";
-
-               var reader = new FileReader();
-               reader.addEventListener("load",()=>{
-                   newData.instructions_file = reader.result;
-               },false);
-               reader.readAsDataURL(shippingInstructionsInput.files[0]);
-            }
-        })
-        
-    })
-    var consignmentDataForm = document.getElementById("consignment_form");
-   
-    if(consignmentDataForm){
-        var customerSelect = document.getElementById("customer_select");
-        var selectedCustomer;
-        if(customerSelect){
-            while(customerSelect.hasChildNodes())customerSelect.removeChild(customerSelect.childNodes[0]);
-            var customers = (storedData.customers) ? storedData.customers : [];
-            customers.forEach(customer=>{
-                customerSelect.options.add(new Option(customer.name,customer.id));
-            });
-            customerSelect.options.add(new Option("--add new customer--",-1));
+                var reader = new FileReader();
+                reader.addEventListener("load",()=>{
+                    newData.instructions_file = reader.result;
+                },false);
+                reader.readAsDataURL(shippingInstructionsInput.files[0]);
+                }
+            })
             
-            customerSelect.addEventListener("change",(e)=>{
-                if(e.target.value == -1) showCustomerDetailForm('exports_content');
-                else{
-                    selectedCustomer = customers.filter(c=>{
-                        return c.id == customerSelect.options[customerSelect.options.selectedIndex].value;
-                    })[0];
-        
+        })
+        var consignmentDataForm = document.getElementById("consignment_form");
+
+        if(consignmentDataForm){
+            var customerSelect = document.getElementById("customer_select");
+            var selectedCustomer;
+            if(customerSelect){
+                while(customerSelect.hasChildNodes())customerSelect.removeChild(customerSelect.childNodes[0]);
+                var customers = (storedData.customers) ? storedData.customers : [];
+                customers.forEach(customer=>{
+                    customerSelect.options.add(new Option(customer.name,customer.id));
+                });
+                customerSelect.options.add(new Option("--add new customer--",-1));
+                
+                customerSelect.addEventListener("change",(e)=>{
+                    if(e.target.value == -1) showCustomerDetailForm('exports_content');
+                    else{
+                        selectedCustomer = customers.filter(c=>{
+                            return c.id == customerSelect.options[customerSelect.options.selectedIndex].value;
+                        })[0];
+            
+                        consignmentDataForm.exporter_phone.value = selectedCustomer.phone;
+                        consignmentDataForm.exporter_name.value = selectedCustomer.name;
+                        consignmentDataForm.exporter_address.value = selectedCustomer.address+"\n\r"+selectedCustomer.region+","+selectedCustomer.country;
+                        consignmentDataForm.exporter_tin.value = selectedCustomer.tin;
+                    //     notifierForm.notify_address.value = selectedCustomer.address+"\n\r"+selectedCustomer.region+","+selectedCustomer.country;
+                    //     notifierForm.notify_phone.value = selectedCustomer.phone
+                    }
+                    
+                });   
+            }
+            if(data != null){
+                consignmentDataForm.cargo_classification.value = data.cargo_classification;
+                consignmentDataForm.place_of_destination.value = data.place_of_destination;
+                consignmentDataForm.place_of_delivery.value = data.place_of_delivery;
+                consignmentDataForm.port_of_discharge.value = data.port_of_discharge;
+                consignmentDataForm.port_of_origin.value = data.port_of_origin;
+                consignmentDataForm.no_of_containers.value = data.no_of_containers;
+                consignmentDataForm.goods_description.value = data.goods_description;
+                consignmentDataForm.no_of_packages.value = data.no_of_packages;
+                consignmentDataForm.package_unit.value = data.package_unit;
+                consignmentDataForm.gross_weight.value = data.gross_weight;
+                consignmentDataForm.gross_weight_unit.value = data.gross_weight_unit;
+                consignmentDataForm.gross_volume.value = data.gross_volume;
+                consignmentDataForm.gross_volume_unit.value = data.gross_volume_unit;
+                consignmentDataForm.net_weight.value = data.net_weight;
+                consignmentDataForm.net_weight_unit.value = data.net_weight_unit;
+                consignmentDataForm.invoice_value.value = data.invoice_value;
+                consignmentDataForm.invoice_currency.value = data.invoice_currency;
+                consignmentDataForm.freight_charge.value = data.freight_charge;
+                consignmentDataForm.freight_currency.value = data.freight_currency;
+                consignmentDataForm.imdg_code.value = data.imdg_code;
+                consignmentDataForm.packing_type.value = data.packing_type;
+                consignmentDataForm.oil_type.value = data.oil_type;
+                consignmentDataForm.shipping_mark.value = data.shipping_mark;
+                consignmentDataForm.consignee_name.value = data.consignee_name;
+                consignmentDataForm.consignee_phone.value = data.consignee_phone;
+                consignmentDataForm.consignee_address.value = data.consignee_address;
+                consignmentDataForm.consignee_tin.value = data.consignee_tin;
+                consignmentDataForm.notify_name.value = data.notify_name;
+                consignmentDataForm.notify_phone.value = data.notify_phone;
+                consignmentDataForm.notify_address.value = data.notify_address;
+                consignmentDataForm.notify_tin.value = data.notify_tin;
+                consignmentDataForm.forwarder_name.value = currentUser.detail.name;
+                consignmentDataForm.forwarder_address.value = currentUser.detail.address;
+                consignmentDataForm.forwarder_phone.value = currentUser.detail.phone;
+                consignmentDataForm.forwarder_code.value = (data && data.forwarder_code) ? data.forwarder_code: currentUser.detail.code;
+                consignmentDataForm.customer_select.value = data.exporter_id;
+                
+                
+                selectedCustomer = customers.filter(c=>c.id == data.exporter_id)[0];
+                    if(selectedCustomer !=null ){
+                        consignmentDataForm.exporter_phone.value = selectedCustomer.phone;
+                        consignmentDataForm.exporter_name.value = selectedCustomer.name;
+                        consignmentDataForm.exporter_address.value = selectedCustomer.address;
+                        consignmentDataForm.exporter_tin.value = selectedCustomer.tin;
+                
+                    }
+                
+            }
+            else{
+                selectedCustomer = customers[0];
+                if(selectedCustomer !==null){
                     consignmentDataForm.exporter_phone.value = selectedCustomer.phone;
                     consignmentDataForm.exporter_name.value = selectedCustomer.name;
-                    consignmentDataForm.exporter_address.value = selectedCustomer.address+"\n\r"+selectedCustomer.region+","+selectedCustomer.country;
+                    consignmentDataForm.exporter_address.value = selectedCustomer.address;
                     consignmentDataForm.exporter_tin.value = selectedCustomer.tin;
-                //     notifierForm.notify_address.value = selectedCustomer.address+"\n\r"+selectedCustomer.region+","+selectedCustomer.country;
-                //     notifierForm.notify_phone.value = selectedCustomer.phone
-                }
-                
-            });   
-        }
-       if(data != null){
-        consignmentDataForm.cargo_classification.value = data.cargo_classification;
-        consignmentDataForm.place_of_destination.value = data.place_of_destination;
-        consignmentDataForm.place_of_delivery.value = data.place_of_delivery;
-        consignmentDataForm.port_of_discharge.value = data.port_of_discharge;
-        consignmentDataForm.port_of_origin.value = data.port_of_origin;
-        consignmentDataForm.no_of_containers.value = data.no_of_containers;
-        consignmentDataForm.goods_description.value = data.goods_description;
-        consignmentDataForm.no_of_packages.value = data.no_of_packages;
-        consignmentDataForm.package_unit.value = data.package_unit;
-        consignmentDataForm.gross_weight.value = data.gross_weight;
-        consignmentDataForm.gross_weight_unit.value = data.gross_weight_unit;
-        consignmentDataForm.gross_volume.value = data.gross_volume;
-        consignmentDataForm.gross_volume_unit.value = data.gross_volume_unit;
-        consignmentDataForm.net_weight.value = data.net_weight;
-        consignmentDataForm.net_weight_unit.value = data.net_weight_unit;
-        consignmentDataForm.invoice_value.value = data.invoice_value;
-        consignmentDataForm.invoice_currency.value = data.invoice_currency;
-        consignmentDataForm.freight_charge.value = data.freight_charge;
-        consignmentDataForm.freight_currency.value = data.freight_currency;
-        consignmentDataForm.imdg_code.value = data.imdg_code;
-        consignmentDataForm.packing_type.value = data.packing_type;
-        consignmentDataForm.oil_type.value = data.oil_type;
-        consignmentDataForm.shipping_mark.value = data.shipping_mark;
-        consignmentDataForm.consignee_name.value = data.consignee_name;
-        consignmentDataForm.consignee_phone.value = data.consignee_phone;
-        consignmentDataForm.consignee_address.value = data.consignee_address;
-        consignmentDataForm.consignee_tin.value = data.consignee_tin;
-        consignmentDataForm.notify_name.value = data.notify_name;
-        consignmentDataForm.notify_phone.value = data.notify_phone;
-        consignmentDataForm.notify_address.value = data.notify_address;
-        consignmentDataForm.notify_tin.value = data.notify_tin;
-        consignmentDataForm.forwarder_name.value = currentUser.detail.name;
-        consignmentDataForm.forwarder_address.value = currentUser.detail.address;
-        consignmentDataForm.forwarder_phone.value = currentUser.detail.phone;
-        consignmentDataForm.forwarder_code.value = (data && data.forwarder_code) ? data.forwarder_code: currentUser.detail.code;
-        consignmentDataForm.customer_select.value = data.exporter_id;
-        
-        
-        selectedCustomer = customers.filter(c=>c.id == data.exporter_id)[0];
-            if(selectedCustomer !=null ){
-                consignmentDataForm.exporter_phone.value = selectedCustomer.phone;
-                consignmentDataForm.exporter_name.value = selectedCustomer.name;
-                consignmentDataForm.exporter_address.value = selectedCustomer.address;
-                consignmentDataForm.exporter_tin.value = selectedCustomer.tin;
-           
-            }
-        
-       }
-       else{
-        selectedCustomer = customers[0];
-        if(selectedCustomer !==null){
-            consignmentDataForm.exporter_phone.value = selectedCustomer.phone;
-            consignmentDataForm.exporter_name.value = selectedCustomer.name;
-            consignmentDataForm.exporter_address.value = selectedCustomer.address;
-            consignmentDataForm.exporter_tin.value = selectedCustomer.tin;
-       
-        }
-        consignmentDataForm.forwarder_code.value = currentUser.detail.code;consignmentDataForm.forwarder_code.value = currentUser.detail.code;
-        consignmentDataForm.forwarder_address.value = currentUser.detail.address;
-        consignmentDataForm.forwarder_phone.value = currentUser.detail.phone;
-        consignmentDataForm.forwarder_name.value = currentUser.detail.name;
-        
-        
-
-       }
-        consignmentDataForm.addEventListener("submit",(e)=>{
-            e.preventDefault();
-            let cargo_classification = consignmentDataForm.cargo_classification.value;
-            let place_of_destination = consignmentDataForm.place_of_destination.value;
-            let place_of_delivery = consignmentDataForm.place_of_delivery.value;
-            let port_of_discharge = consignmentDataForm.port_of_discharge.value;
-            let port_of_origin = consignmentDataForm.port_of_origin.value;
-            let no_of_containers = consignmentDataForm.no_of_containers.value;
-            let goods_description = consignmentDataForm.goods_description.value;
-            let no_of_packages = consignmentDataForm.no_of_packages.value;
-            let package_unit = consignmentDataForm.package_unit.value;
-            let gross_weight = consignmentDataForm.gross_weight.value;
-            let gross_weight_unit = consignmentDataForm.gross_weight_unit.value;
-            let gross_volume = consignmentDataForm.gross_volume.value;
-            let gross_volume_unit = consignmentDataForm.gross_volume_unit.value;
-            let net_weight = consignmentDataForm.net_weight.value;
-            let net_weight_unit = consignmentDataForm.net_weight_unit.value;
-            let invoice_value = consignmentDataForm.invoice_value.value;
-            let invoice_currency = consignmentDataForm.invoice_currency.value;
-            let freight_charge = consignmentDataForm.freight_charge.value;
-            let freight_currency = consignmentDataForm.freight_currency.value;
-            let imdg_code = consignmentDataForm.imdg_code.value;
-            let packing_type = consignmentDataForm.packing_type.value;
-            let oil_type = consignmentDataForm.oil_type.value;
-            let shipping_mark = consignmentDataForm.shipping_mark.value;
-            let forwarder_code = consignmentDataForm.forwarder_code.value;
-            let forwarder_id = currentUser.detail.id;
-            newData = {
-                cargo_classification:cargo_classification,
-                place_of_destination:place_of_destination,
-                place_of_delivery:place_of_delivery,
-                port_of_discharge:port_of_discharge,
-                port_of_origin:port_of_origin,
-                no_of_containers:no_of_containers,
-                goods_description:goods_description,
-                no_of_packages:no_of_packages,
-                package_unit:package_unit,
-                gross_weight:gross_weight,
-                gross_weight_unit:gross_weight_unit,
-                gross_volume:gross_volume,gross_volume_unit:gross_volume_unit,net_weight:net_weight,net_weight_unit:net_weight_unit,
-                invoice_value:invoice_value,invoice_currency:invoice_currency,freight_charge:freight_charge,freight_currency:freight_currency,
-                imdg_code:imdg_code,packing_type:packing_type,oil_type:oil_type,shipping_mark:shipping_mark,
-                exporter_id:customerSelect.options[customerSelect.options.selectedIndex].value,
-                forwarder_code:forwarder_code,
-                forwarder_id:forwarder_id,
-                consignee_name: consignmentDataForm.consignee_name.value,
-                consignee_phone: consignmentDataForm.consignee_phone.value,
-                consignee_address: consignmentDataForm.consignee_address.value,
-                consignee_tin: consignmentDataForm.consignee_tin.value,
-                notify_name: consignmentDataForm.notify_name.value,
-                notify_phone: consignmentDataForm.notify_phone.value,
-                notify_address: consignmentDataForm.notify_address.value,
-                notify_tin: consignmentDataForm.notify_tin.value,
-                instructions_file:newData.instructions_file
-            }
-            console.log("mydata: ",newData);
-            var method = (data ==null) ? "POST" : "PUT";
-            var options ={
-                method:method,body:JSON.stringify(newData),headers:{
-                    'Content-type':'application/json','Authorization': 'Bearer '+currentUser.accessToken
-                }
-            }
-            var url = (data == null) ? consignment_url : consignment_url+"/"+currentUser.id+"/"+data.id;
             
-            fetch(url,options)
-            .then(res=>res.json())
-            .then(result=>{
-                updateConsignmentList(result.data);
-                showExportList(result.data,"export_form");
-                showFeedback(result.msg,result.code);
-            })
-            .catch(e=>{
-                console.log("e consg: ",e);
-                showFeedback(e,1);
-            })
-        })
-    }
-  
-    }
-    else if(data.status == 2){
-        Array.from(document.getElementsByClassName("consignment-details")).forEach(d=>d.classList.add("hidden"));
-        var detail = document.getElementById("detail-2");
-        detail.classList.remove("hidden");
+                }
+                consignmentDataForm.forwarder_code.value = currentUser.detail.code;consignmentDataForm.forwarder_code.value = currentUser.detail.code;
+                consignmentDataForm.forwarder_address.value = currentUser.detail.address;
+                consignmentDataForm.forwarder_phone.value = currentUser.detail.phone;
+                consignmentDataForm.forwarder_name.value = currentUser.detail.name;
+                
+                
 
-        var newData;
+            }
+            consignmentDataForm.addEventListener("submit",(e)=>{
+                e.preventDefault();
+                let cargo_classification = consignmentDataForm.cargo_classification.value;
+                let place_of_destination = consignmentDataForm.place_of_destination.value;
+                let place_of_delivery = consignmentDataForm.place_of_delivery.value;
+                let port_of_discharge = consignmentDataForm.port_of_discharge.value;
+                let port_of_origin = consignmentDataForm.port_of_origin.value;
+                let no_of_containers = consignmentDataForm.no_of_containers.value;
+                let goods_description = consignmentDataForm.goods_description.value;
+                let no_of_packages = consignmentDataForm.no_of_packages.value;
+                let package_unit = consignmentDataForm.package_unit.value;
+                let gross_weight = consignmentDataForm.gross_weight.value;
+                let gross_weight_unit = consignmentDataForm.gross_weight_unit.value;
+                let gross_volume = consignmentDataForm.gross_volume.value;
+                let gross_volume_unit = consignmentDataForm.gross_volume_unit.value;
+                let net_weight = consignmentDataForm.net_weight.value;
+                let net_weight_unit = consignmentDataForm.net_weight_unit.value;
+                let invoice_value = consignmentDataForm.invoice_value.value;
+                let invoice_currency = consignmentDataForm.invoice_currency.value;
+                let freight_charge = consignmentDataForm.freight_charge.value;
+                let freight_currency = consignmentDataForm.freight_currency.value;
+                let imdg_code = consignmentDataForm.imdg_code.value;
+                let packing_type = consignmentDataForm.packing_type.value;
+                let oil_type = consignmentDataForm.oil_type.value;
+                let shipping_mark = consignmentDataForm.shipping_mark.value;
+                let forwarder_code = consignmentDataForm.forwarder_code.value;
+                let forwarder_id = currentUser.detail.id;
+                newData = {
+                    cargo_classification:cargo_classification,
+                    place_of_destination:place_of_destination,
+                    place_of_delivery:place_of_delivery,
+                    port_of_discharge:port_of_discharge,
+                    port_of_origin:port_of_origin,
+                    no_of_containers:no_of_containers,
+                    goods_description:goods_description,
+                    no_of_packages:no_of_packages,
+                    package_unit:package_unit,
+                    gross_weight:gross_weight,
+                    gross_weight_unit:gross_weight_unit,
+                    gross_volume:gross_volume,gross_volume_unit:gross_volume_unit,net_weight:net_weight,net_weight_unit:net_weight_unit,
+                    invoice_value:invoice_value,invoice_currency:invoice_currency,freight_charge:freight_charge,freight_currency:freight_currency,
+                    imdg_code:imdg_code,packing_type:packing_type,oil_type:oil_type,shipping_mark:shipping_mark,
+                    exporter_id:customerSelect.options[customerSelect.options.selectedIndex].value,
+                    forwarder_code:forwarder_code,
+                    forwarder_id:forwarder_id,
+                    consignee_name: consignmentDataForm.consignee_name.value,
+                    consignee_phone: consignmentDataForm.consignee_phone.value,
+                    consignee_address: consignmentDataForm.consignee_address.value,
+                    consignee_tin: consignmentDataForm.consignee_tin.value,
+                    notify_name: consignmentDataForm.notify_name.value,
+                    notify_phone: consignmentDataForm.notify_phone.value,
+                    notify_address: consignmentDataForm.notify_address.value,
+                    notify_tin: consignmentDataForm.notify_tin.value,
+                    instructions_file:newData.instructions_file
+                }
+                console.log("mydata: ",newData);
+                var method = (data ==null) ? "POST" : "PUT";
+                var options ={
+                    method:method,body:JSON.stringify(newData),headers:{
+                        'Content-type':'application/json','Authorization': 'Bearer '+currentUser.accessToken
+                    }
+                }
+                var url = (data == null) ? consignment_url : consignment_url+"/"+currentUser.id+"/"+data.id;
+                
+                fetch(url,options)
+                .then(res=>res.json())
+                .then(result=>{
+                    updateConsignmentList(result.data);
+                    showExportList(result.data,"export_form");
+                    showFeedback(result.msg,result.code);
+                })
+                .catch(e=>{
+                    console.log("e consg: ",e);
+                    showFeedback(e,1);
+                })
+            })
+        }
+    }
+    if(index == 2){
         var fileUploaded = null;
+        var newData = {booking_confirmation:fileUploaded};
         var uploadShipBookingButton = document.getElementById("upload_ship_booking");
         var shipBookingInput = document.getElementById("file_ship_booking");
         var shipBookingLink = document.getElementById("link_ship_booking");
-        
+        if(data.files.length > 0){
+            let shipBookingFile = data.files.filter(f=>f.name == "ship booking");
+            if(shipBookingFile.length > 0) {
+                shipBookingLink.href = files_url+"/"+shipBookingFile[0].filename;
+                shipBookingLink.textContent = "View Ship Booking";
+            }
+            else{
+                shipBookingLink.href = "";
+                shipBookingLink.textContent = "";
+            }
+        }
+        else{
+            shipBookingLink.href = "";
+            shipBookingLink.textContent = "";
+        }
         if(uploadShipBookingButton){
             uploadShipBookingButton.addEventListener("click",(e)=>{
                 shipBookingInput.click();
@@ -1105,8 +1134,8 @@ const showConsignmentForm=(source,data=null)=>{
                         reader.addEventListener("load",()=>{
                             var urlObj = URL.createObjectURL(shipBookingInput.files[0]);
                             shipBookingLink.href = urlObj;
-                            shipBookingLink.textContent = "View Booking Comfirmation";
-                            fileUploaded = reader.result;
+                            shipBookingLink.textContent = "View Booking confirmation";
+                            newData.booking_confirmation = reader.result;
                         },false)
 
                         reader.readAsDataURL(shipBookingInput.files[0]);
@@ -1122,30 +1151,40 @@ const showConsignmentForm=(source,data=null)=>{
                 shippingForm.shipping_line.value = data.shipping_details.shipping_line;
                 shippingForm.vessel_name.value = data.shipping_details.vessel_name;
                 shippingForm.booking_no.value = data.shipping_details.booking_no;
-                shippingForm.bl_type.value = data.shipping_details.bl_type;                
-                shippingForm.terminal_carry_date.value = data.shipping_details.terminal_carry_date;
+                shippingForm.bl_type.value = data.shipping_details.bl_type;   
+                let date = new Date(data.shipping_details.terminal_carry_date);
+                let tcd = (1+ date.getMonth())+"/"+date.getDate()+"/"+date.getFullYear();     
+                shippingForm.terminal_carry_date.type = "text";        
+                shippingForm.terminal_carry_date.value = tcd;
                 
+            }
+            if(shippingForm.terminal_carry_date.type == "text"){
+                shippingForm.terminal_carry_date.addEventListener("focus",(e)=>{
+                    e.target.type= "date";
+                })
             }
 
             shippingForm.addEventListener("submit",(e)=>{
                 e.preventDefault();
-                newData = {
-                    cid:data.id,
-                    mbl_number:shippingForm.mbl_number.value,
-                    shipping_line:shippingForm.shipping_line.value,
-                    vessel_name:shippingForm.vessel_name.value,
-                    booking_number:shippingForm.booking_no.value,
-                    bl_type:shippingForm.bl_type.value,
-                    terminal_carry_date:shippingForm.terminal_carry_date.value,
-                    booking_confirmation:fileUploaded
-                }
-                if(fileUploaded == null){
-                    alertDialog("Please upload ship booking confirmation","Ship Booking",null);
+                newData.cid =data.id;
+                newData.mbl_number=shippingForm.mbl_number.value;
+                newData.shipping_line=shippingForm.shipping_line.value;
+                newData.vessel_name=shippingForm.vessel_name.value;
+                newData.booking_no=shippingForm.booking_no.value;
+                newData.bl_type=shippingForm.bl_type.value;
+                newData.terminal_carry_date=Date.parse(shippingForm.terminal_carry_date.value);
+                
+                
+                if(newData.booking_confirmation == null){
+                    alertDialog("Please upload ship booking confirmation","Ship Booking 1",null);
                 }
                 else{
+                    console.log("body: ",newData);
                     var url = ship_booking_url +"/"+currentUser.id;
+                    var method = (data.shipping_details) ? "PUT":"POST";
+                    if(data.shipping_details) newData.id = data.shipping_details.id;
                     var options = {
-                        method:"POST",body:JSON.stringify(newData),headers:{
+                        method:method,body:JSON.stringify(newData),headers:{
                             'Content-type':'application/json',
                             'Authorization':'Bearer '+currentUser.accessToken
                         }
@@ -1153,21 +1192,22 @@ const showConsignmentForm=(source,data=null)=>{
                     showSpinner();
                     fetch(url,options)
                     .then(res=>res.json())
-                    .then(result=>{
+                    .then(result=>{ 
                         hideSpinner();
                         console.log("sp: ",result);
+                        showFeedback(result.msg,result.code);
                     })
                     .catch(e=>{
-                        console.log("sp: ",e);
                         showFeedback("Something went wrong! Please try again later",1);
                     })
                 }
             })
         }
-
+    }
+    if(index == 3){
+        document.getElementById("detail-"+(index)).classList.remove("hidden");
     }
 }
-
 //update local list of consighments
 const updateConsignmentList = (data)=>{
     if(data){

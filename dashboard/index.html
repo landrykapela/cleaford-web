@@ -112,15 +112,15 @@
                         </div>
                         <div class="stat-card shadow">
                             <span>Consignments processed</span>
-                            <span class="stat-value" id="no_of_consignments">155</span>
+                            <span class="stat-value" id="no_of_consignments">0</span>
                         </div>
                         <div class="stat-card shadow">
                             <span>Ready for shipping</span>
-                            <span class="stat-value" id="no_of_clients">4</span>
+                            <span class="stat-value" id="no_of_clients">0</span>
                         </div>
                         <div class="stat-card shadow">
                             <span>Ready for release</span>
-                            <span class="stat-value" id="no_of_clients">5</span>
+                            <span class="stat-value" id="no_of_clients">0</span>
                         </div>
                         <div class="stat-card shadow">
                             <span>Pending approval</span>
@@ -196,15 +196,15 @@
                            <div class="column-center" id="step-3">
                                <span class="progress-step">3</span>
                                <span>Packaging/ Warehousing</span>
-                            </div> 
-                            <div class="column-center" id="step-4">
+                           </div> 
+                           <div class="column-center" id="step-4">
                                 <span class="progress-step">4</span>
                                 <span>Certificates Processing</span>
-                             </div>                       
-                             <div class="column-center" id="step-5">
-                                <span class="progress-step">5</span>
-                                <span>Custom Release Processing</span>
-                             </div> 
+                           </div>                       
+                           <div class="column-center" id="step-5">
+                             <span class="progress-step">5</span>
+                             <span>Custom Release Processing</span>
+                           </div> 
                              <div class="column-center" id="step-6">
                                 <span class="progress-step">6</span>   
                                 <span>Loading Permission</span>
@@ -531,8 +531,61 @@
                                         </div>
                                    
                                 </form>
+                            </div>                          
+                        </div>
+                        <div id="detail-3" class="column consignment-details">
+                            <div class="consignment-forms-no-border row-space">
+                                <div class="row">
+                                    <input type="file" accept="image/*,.pdf" class="hidden" name="file_warehouse_booking" id="file_warehouse_booking"/>
+                                    <span class="buttons" id="upload_warehouse_booking">Upload Warehouse Confirmation</span>
+                                    <a id="link_warehouse_booking" target="_blank"></a>
+                                </div>
+                                <span class="material-icons" onClick="showConsignment()">close</span>
                             </div>
-                           
+                            <div class="consignment-forms">                              
+                                <form id="container_form" method="POST">
+                                    <div class="row-space summary-head">
+                                        <span class="">Warehouse Booking Details</span>
+                                        <span class="material-icons" id="booking_collapse">remove</span>
+                                    </div>
+                                    <div id="container_collapsible" class="column consignment-section">
+                                        <div class="row-space">
+                                            <div class="row">
+                                                <label for="mbl_number">MB/L Number *</label>
+                                                <input required type="text" id="mbl_number" name="mbl_number" placeholder="MB/L Number"/>
+                                            </div>
+                                            <div class="row">
+                                                <label for="shipping_line">Shipping Line *</label>
+                                                <input required type="text" id="shipping_line" name="shipping_line" placeholder="Shipping Line"/>
+                                             </div>
+                                        </div>
+                                        <div class="row-space">
+                                            <div class="row">
+                                                <label for="vessel_name">Vessel Name *</label>
+                                                <input required type="text" id="vessel_name" name="vessel_name" placeholder="Vessel Name"/>
+                                            </div>
+                                            <div class="row">
+                                                <label for="booking_no">Booking Number *</label>
+                                                <input required type="text" id="booking_no" name="booking_no" placeholder="Booking Number"/>
+                                            </div>
+                                        </div>
+                                        <div class="row-space">
+                                            <div class="row">
+                                                <label for="bl_type">B/L Type *</label>
+                                                <input required type="text" id="bl_type" name="bl_type" placeholder="B/L Type"/>
+                                            </div>
+                                            <div class="row">
+                                                <label for="terminal_carry_date">Terminal Expected Carry in Date</label>
+                                                <input type="date" id="terminal_carry_date" name="port_of_origin" placeholder="Date"/>
+                                            </div>
+                                           
+                                        </div>
+                                        <div class="row-end">
+                                            <input type="submit" name="btnSubmitShipping" id="btnSubmitShipping" value="SAVE"/>
+                                        </div>
+                                   
+                                </form>
+                            </div>                         
                         </div>
                    </div>
                    <div class="row-top hidden" id="instruction_form">
