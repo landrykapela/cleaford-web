@@ -775,7 +775,23 @@ const showCustomers = (data)=>{
 }
 //show export list
 const showExportList = (data,source=null)=>{
-    if(source != null) document.getElementById(source).classList.add("hidden");
+    if(source != null) {
+        var mySource = document.getElementById(source);
+        mySource.classList.add("hidden");
+        
+    }
+    else{
+        var mySource = document.getElementById("export_form");
+        mySource.classList.add("hidden");
+        
+        Array.from(document.getElementsByClassName("consignment-forms")).forEach(child=>{
+            console.log("tagname: ",Array.from(child.children)[0].tagName);
+            Array.from(child.children).forEach(c=>{
+                if(c.tagName.toLowerCase() == "form") c.reset();
+            })
+            // if(Array.from(child.children)[0].tagName.toLowerCase() == "form") Array.from(child.children)[0].reset;
+        })
+    }
     document.querySelector("#add_export").classList.remove("hidden");
     var parent = document.querySelector("#export_list");
     parent.classList.remove("hidden");
@@ -1093,8 +1109,10 @@ const switchDetails = (index,data)=>{
                 fetch(url,options)
                 .then(res=>res.json())
                 .then(result=>{
-                    updateConsignmentList(result.data);
-                    showExportList(result.data,"export_form");
+                    if(result.code ==0){
+                        updateConsignmentList(result.data);
+                        showExportList(result.data,"export_form");
+                    }                   
                     showFeedback(result.msg,result.code);
                 })
                 .catch(e=>{
@@ -1194,7 +1212,10 @@ const switchDetails = (index,data)=>{
                     .then(res=>res.json())
                     .then(result=>{ 
                         hideSpinner();
-                        console.log("sp: ",result);
+                        if(result.code ==0){
+                            updateConsignmentList(result.data);
+                            showExportList(result.data,"export_form");
+                        }
                         showFeedback(result.msg,result.code);
                     })
                     .catch(e=>{
