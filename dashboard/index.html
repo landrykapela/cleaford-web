@@ -226,7 +226,8 @@
                                     <span>Sending Docs</span>
                                  </div> 
                        </div>
-                        <div id="detail-1" class="column consignment-details">
+                   
+                        <div id="detail_1" class="column consignment-details hidden">
                             <div class="consignment-forms-no-border row-space">
                                 <div class="row">
                                     <input type="file" accept="image/*,.pdf" class="hidden" name="file_shipping_instructions" id="file_shipping_instructions"/>
@@ -236,7 +237,7 @@
                                 <span class="material-icons" onClick="showConsignment()">close</span>
                             </div>
                             <div class="consignment-forms">
-                               
+                                
                                 <form id="consignment_form" method="POST">
                                     <div class="row-space summary-head">
                                         <span class="">Consignment Data</span>
@@ -249,8 +250,7 @@
                                                 <input required type="text" id="cargo_classification" name="cargo_classification" placeholder="Cargo classification"/>
                                             </div>
                                             <div class="row">
-                                                <!-- <label for="cargo_classification">Cargo Classification *</label>
-                                                <input required type="text" id="cargo_classification" name="cargo_classification" placeholder="Cargo classification"/> -->
+                                                
                                             </div>
                                         </div>
                                         <div class="row-space">
@@ -476,9 +476,9 @@
                                     </div>
                                 </form>
                             </div>
-                           
+                            
                         </div>
-                        <div id="detail-2" class="column consignment-details">
+                        <div id="detail_2" class="column consignment-details hidden">
                             <div class="consignment-forms-no-border row-space">
                                 <div class="row">
                                     <input type="file" accept="image/*,.pdf" class="hidden" name="file_ship_booking" id="file_ship_booking"/>
@@ -488,11 +488,11 @@
                                 <span class="material-icons" onClick="showConsignment()">close</span>
                             </div>
                             <div class="consignment-forms">
-                               
+                                
                                 <form id="booking_form" method="POST">
                                     <div class="row-space summary-head">
                                         <span class="">Ship Booking Details</span>
-                                        <!-- <span class="material-icons" id="booking_collapse">remove</span> -->
+                                    
                                     </div>
                                     <div id="booking_collapsible" class="column consignment-section">
                                         <div class="row-space">
@@ -503,7 +503,7 @@
                                             <div class="row">
                                                 <label for="shipping_line">Shipping Line *</label>
                                                 <input required type="text" id="shipping_line" name="shipping_line" placeholder="Shipping Line"/>
-                                             </div>
+                                            </div>
                                         </div>
                                         <div class="row-space">
                                             <div class="row">
@@ -522,71 +522,253 @@
                                             </div>
                                             <div class="row">
                                                 <label for="terminal_carry_date">Terminal Expected Carry in Date</label>
-                                                <input type="date" id="terminal_carry_date" name="port_of_origin" placeholder="Date"/>
+                                                <input type="date" id="terminal_carry_date" name="terminal_carry_date" placeholder="Date"/>
                                             </div>
-                                           
+                                            
                                         </div>
                                         <div class="row-end">
                                             <input type="submit" name="btnSubmitShipping" id="btnSubmitShipping" value="SAVE"/>
                                         </div>
-                                   
+                                    </div>
                                 </form>
                             </div>                          
                         </div>
-                        <div id="detail-3" class="column consignment-details">
+                        <div id="detail_3" class="column consignment-details hidden">
                             <div class="consignment-forms-no-border row-space">
                                 <div class="row">
-                                    <input type="file" accept="image/*,.pdf" class="hidden" name="file_warehouse_booking" id="file_warehouse_booking"/>
-                                    <span class="buttons" id="upload_warehouse_booking">Upload Warehouse Confirmation</span>
-                                    <a id="link_warehouse_booking" target="_blank"></a>
+                                    <input type="file" accept="image/*,.pdf" class="hidden" name="file_container_booking" id="file_container_booking"/>
+                                    <span class="buttons" id="upload_container_booking">Upload Container Confirmation</span>
+                                    <a id="link_container_booking" target="_blank"></a>
                                 </div>
                                 <span class="material-icons" onClick="showConsignment()">close</span>
                             </div>
                             <div class="consignment-forms">                              
                                 <form id="container_form" method="POST">
                                     <div class="row-space summary-head">
-                                        <span class="">Warehouse Booking Details</span>
-                                        <span class="material-icons" id="booking_collapse">remove</span>
+                                        <span class="">Container/Warehouse Booking Details</span>
+                                        <span class="material-icons" id="container_collapse">remove</span>
                                     </div>
                                     <div id="container_collapsible" class="column consignment-section">
                                         <div class="row-space">
                                             <div class="row">
-                                                <label for="mbl_number">MB/L Number *</label>
+                                                <label for="mbl_number">MB/L Number </label>
+                                                <input type="text" id="mbl_number" name="mbl_number" placeholder="MB/L Number"/>
+                                            </div>
+                                            <div class="row">
+                                                <label for="container_type">Type of Container *</label>
+                                                <input required type="text" id="container_type" name="container_type" placeholder="Type of Container"/>
+                                                </div>
+                                        </div>
+                                        <div class="row-space">
+                                            <div class="row">
+                                                <label for="container_no">Container Number *</label>
+                                                <input required type="text" id="container_no" name="container_no" placeholder="Container Number"/>
+                                            </div>
+                                            <div class="row">
+                                                <label for="container_size">Container Size *</label>
+                                                <input required type="text" id="container_size" name="container_size" placeholder="Container Size"/>
+                                            </div>
+                                        </div>
+                                        <div class="row-space">
+                                            <div class="row">
+                                                <label for="seal_1">Seal Number 1</label>
+                                                <input type="text" id="seal_1" name="seal_1" placeholder="Shipping line seal number"/>
+                                            </div>
+                                            <div class="row">
+                                                <label for="seal_2">Seal Number 2</label>
+                                                <input type="text" id="seal_2" name="seal_2" placeholder="Exporter seal number"/>
+                                            </div>
+                                            
+                                        </div>
+                                        <div class="row-space">
+                                            <div class="row">
+                                                <label for="seal_3">Seal Number 3</label>
+                                                <input type="text" id="seal_3" name="seal_3" placeholder="Out of Gague"/>
+                                            </div>
+                                            <div class="row">
+                                                <label for="freight_indicator">Freight Indicator</label>
+                                                <input type="text" id="freight_indicator" name="freight_indicator" placeholder="Freight Indicator"/>
+                                            </div>
+                                            
+                                        </div>
+                                        <div class="row-space">
+                                            <div class="row">
+                                                <label for="no_of_packages">Number of Packages</label>
+                                                <input type="text" id="no_of_packages" name="no_of_packages" placeholder="Number of packages"/>
+                                            </div>
+                                            <div class="row">
+                                                <label for="package_unit">Package Unit</label>
+                                                <input type="text" id="package_unit" name="package_unit" placeholder="Package Unit"/>
+                                            </div>
+                                            
+                                        </div>
+                                        <div class="row-space">
+                                            <div class="row">
+                                                <label for="volume">Volume</label>
+                                                <input type="text" id="volume" name="volume" placeholder="Volume"/>
+                                            </div>
+                                            <div class="row">
+                                                <label for="volume_unit">Volume Unit</label>
+                                                <input type="text" id="volume_unit" name="volume_unit" placeholder="Volume Unit"/>
+                                            </div>
+                                            
+                                        </div>
+                                        <div class="row-space">
+                                            <div class="row">
+                                                <label for="weight">Weight *</label>
+                                                <input required type="text" id="weight" name="weight" placeholder="Weight"/>
+                                            </div>
+                                            <div class="row">
+                                                <label for="weight_unit">Weight Unit *</label>
+                                                <input type="text" id="weight_unit" name="weight_unit" placeholder="Weight Unit"/>
+                                            </div>
+                                            
+                                        </div>
+                                        <div class="row-space">
+                                            <div class="row">
+                                                <label for="max_temp">Maximum Temperature</label>
+                                                <input type="text" id="max_temp" name="max_temp" placeholder="Maximum Temperature"/>
+                                            </div>
+                                            <div class="row">
+                                                <label for="min_temp">Minimum Temperature</label>
+                                                <input type="text" id="min_temp" name="min_temp" placeholder="Minimum Temperature"/>
+                                            </div>
+                                            
+                                        </div>
+                                        <div class="row-space">
+                                            <div class="row">
+                                                <label for="plug_yn">Refer Plug Y/N *</label>
+                                                <input required type="text" id="plug_yn" name="plug_yn" placeholder="Refer Plug Y/N"/>
+                                            </div>
+                                            <div class="row">
+                                            </div>
+                                            
+                                        </div>
+                                        <div class="row-end">
+                                            <input type="submit" name="btnSubmitContainer" id="btnSubmitContainer" value="SAVE"/>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>                          
+                        </div>  
+                        <div id="detail_4" class="column consignment-details hidden">
+                            <div class="consignment-forms-no-border row-space">
+                                <div class="row">
+                                    <input type="file" accept="image/*,.pdf" class="hidden" name="file_certificates" id="file_certificates" multiple/>
+                                    <span class="buttons" id="upload_certificates">Upload Certificates</span>
+                                    <a id="link_certificates" target="_blank"></a>
+                                </div>
+                                <span class="material-icons" onClick="showConsignment()">close</span>
+                            </div>
+                            <div class="consignment-forms">                              
+                                <form id="container_form" method="POST">
+                                    <div class="row-space summary-head">
+                                        <span class="">Certificates</span>
+                                        <span class="material-icons" id="certificates_collapse">remove</span>
+                                    </div>
+                                    <div id="certificates_collapsible" class="column consignment-section">
+                                        <div class="row-space">
+                                            <div class="row">
+                                                <label for="mbl_number">MB/L Number </label>
                                                 <input required type="text" id="mbl_number" name="mbl_number" placeholder="MB/L Number"/>
                                             </div>
                                             <div class="row">
-                                                <label for="shipping_line">Shipping Line *</label>
-                                                <input required type="text" id="shipping_line" name="shipping_line" placeholder="Shipping Line"/>
-                                             </div>
+                                                <label for="container_type">Type of Container *</label>
+                                                <input required type="text" id="container_type" name="container_type" placeholder="Type of Container"/>
+                                                </div>
                                         </div>
                                         <div class="row-space">
                                             <div class="row">
-                                                <label for="vessel_name">Vessel Name *</label>
-                                                <input required type="text" id="vessel_name" name="vessel_name" placeholder="Vessel Name"/>
+                                                <label for="container_no">Container Number *</label>
+                                                <input required type="text" id="container_no" name="container_no" placeholder="Container Number"/>
                                             </div>
                                             <div class="row">
-                                                <label for="booking_no">Booking Number *</label>
-                                                <input required type="text" id="booking_no" name="booking_no" placeholder="Booking Number"/>
+                                                <label for="container_size">Container Size *</label>
+                                                <input required type="text" id="container_size" name="container_size" placeholder="Container Size"/>
                                             </div>
                                         </div>
                                         <div class="row-space">
                                             <div class="row">
-                                                <label for="bl_type">B/L Type *</label>
-                                                <input required type="text" id="bl_type" name="bl_type" placeholder="B/L Type"/>
+                                                <label for="seal_1">Seal Number 1</label>
+                                                <input required type="text" id="seal_1" name="seal_1" placeholder="Shipping line seal number"/>
                                             </div>
                                             <div class="row">
-                                                <label for="terminal_carry_date">Terminal Expected Carry in Date</label>
-                                                <input type="date" id="terminal_carry_date" name="port_of_origin" placeholder="Date"/>
+                                                <label for="seal_2">Seal Number 2</label>
+                                                <input type="text" id="seal_2" name="seal_2" placeholder="Exporter seal number"/>
                                             </div>
-                                           
+                                            
+                                        </div>
+                                        <div class="row-space">
+                                            <div class="row">
+                                                <label for="seal_3">Seal Number 3</label>
+                                                <input required type="text" id="seal_3" name="seal_3" placeholder="Out of Gague"/>
+                                            </div>
+                                            <div class="row">
+                                                <label for="freight_indicator">Freight Indicator</label>
+                                                <input type="text" id="freight_indicator" name="freight_indicator" placeholder="Freight Indicator"/>
+                                            </div>
+                                            
+                                        </div>
+                                        <div class="row-space">
+                                            <div class="row">
+                                                <label for="no_of_packages">Number of Packages</label>
+                                                <input required type="text" id="no_of_packages" name="no_of_packages" placeholder="Number of packages"/>
+                                            </div>
+                                            <div class="row">
+                                                <label for="package_unit">Package Unit</label>
+                                                <input type="text" id="package_unit" name="package_unit" placeholder="Package Unit"/>
+                                            </div>
+                                            
+                                        </div>
+                                        <div class="row-space">
+                                            <div class="row">
+                                                <label for="volume">Volume</label>
+                                                <input required type="text" id="volume" name="volume" placeholder="Volume"/>
+                                            </div>
+                                            <div class="row">
+                                                <label for="volume_unit">Volume Unit</label>
+                                                <input type="text" id="volume_unit" name="volume_unit" placeholder="Volume Unit"/>
+                                            </div>
+                                            
+                                        </div>
+                                        <div class="row-space">
+                                            <div class="row">
+                                                <label for="weight">Weight *</label>
+                                                <input required type="text" id="weight" name="weight" placeholder="Weight"/>
+                                            </div>
+                                            <div class="row">
+                                                <label for="weight_unit">Weight Unit *</label>
+                                                <input type="text" id="weight_unit" name="weight_unit" placeholder="Weight Unit"/>
+                                            </div>
+                                            
+                                        </div>
+                                        <div class="row-space">
+                                            <div class="row">
+                                                <label for="maximum_temperature">Maximum Temperature</label>
+                                                <input required type="text" id="maximum_temperature" name="maximum_temperature" placeholder="Maximum Temperature"/>
+                                            </div>
+                                            <div class="row">
+                                                <label for="minimum_temperature">Minimum Temperature</label>
+                                                <input required type="text" id="minimum_temperature" name="minimum_temperature" placeholder="Minimum Temperature"/>
+                                            </div>
+                                            
+                                        </div>
+                                        <div class="row-space">
+                                            <div class="row">
+                                                <label for="plug_yn">Refer Plug Y/N *</label>
+                                                <input required type="text" id="plug_yn" name="plug_yn" placeholder="Refer Plug Y/N"/>
+                                            </div>
+                                            <div class="row">
+                                            </div>
+                                            
                                         </div>
                                         <div class="row-end">
-                                            <input type="submit" name="btnSubmitShipping" id="btnSubmitShipping" value="SAVE"/>
+                                            <input type="submit" name="btnSubmitContainer" id="btnSubmitContainer" value="SAVE"/>
                                         </div>
-                                   
+                                    </div>
                                 </form>
-                            </div>                         
-                        </div>
+                            </div>                          
+                        </div> 
                    </div>
                    <div class="row-top hidden" id="instruction_form">
                     <!-- <div class="column instructions">

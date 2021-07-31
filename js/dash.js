@@ -185,6 +185,7 @@ const deleteClientRole =(role_id)=>{
         else{
             res.json().then(result=>{
                 updateClientRoles(result.data);
+                showClientRoles();
                 showFeedback(result.msg,result.code);
             }).catch(e=>{
                 showFeedback(e,1);
@@ -194,8 +195,7 @@ const deleteClientRole =(role_id)=>{
         console.log(e);
         showFeedback("Something went wrong! Please try again later",1)
     })
-    // updateClientRoles(roles);
-    // showClientRoles()
+   
 }
 const activateMenu =(target)=>{
     const items = Array.from(document.getElementsByClassName("menu-item"));
@@ -785,7 +785,7 @@ const showExportList = (data,source=null)=>{
         mySource.classList.add("hidden");
         
         Array.from(document.getElementsByClassName("consignment-forms")).forEach(child=>{
-            console.log("tagname: ",Array.from(child.children)[0].tagName);
+            // console.log("tagname: ",Array.from(child.children)[0].tagName);
             Array.from(child.children).forEach(c=>{
                 if(c.tagName.toLowerCase() == "form") c.reset();
             })
@@ -887,8 +887,10 @@ const switchSteps = (position,data)=>{
 }
 //switch consignment forms
 const switchDetails = (index,data)=>{
-    Array.from(document.getElementsByClassName("consignment-details")).forEach(d=>d.classList.add("hidden"));
-    document.getElementById("detail-"+(index)).classList.remove("hidden");
+    Array.from(document.getElementsByClassName("consignment-details")).forEach(d=>{
+        if(d.id.split("_")[1] == index) d.classList.remove("hidden");
+        else d.classList.add("hidden");
+    });
    
     if(index == 1){
         var collapseButtons = Array.from(document.getElementsByClassName("summary-head"));
@@ -1226,7 +1228,98 @@ const switchDetails = (index,data)=>{
         }
     }
     if(index == 3){
-        document.getElementById("detail-"+(index)).classList.remove("hidden");
+        var containerForm = document.querySelector("#container_form");
+        var newData = {};
+        if(data != null){
+            newData.cid = data.id;
+            if(data.shipping_details){
+                containerForm.mbl_number.value = data.shipping_details.mbl_number;
+            }
+            if(data.container_details && data.container_details.length > 0){
+                containerForm.container_type.value = data.container_details[0].container_type;
+                containerForm.container_no.value = data.container_details[0].container_no;
+                containerForm.container_size.value = data.container_details[0].container_size;
+                containerForm.seal_1.value = data.container_details[0].seal_1;
+                containerForm.seal_2.value = data.container_details[0].seal_2;
+                containerForm.seal_3.value = data.container_details[0].seal_3;
+                containerForm.freight_indicator.value = data.container_details[0].freight_indicator;
+                containerForm.no_of_packages.value = data.container_details[0].no_of_packages;
+                containerForm.package_unit.value = data.container_details[0].package_unit;
+                containerForm.volume.value = data.container_details[0].volume;
+                containerForm.volume_unit.value = data.container_details[0].volume_unit;
+                containerForm.weight.value = data.container_details[0].weight;
+                containerForm.weight_unit.value = data.container_details[0].weight_unit;
+                containerForm.max_temp.value = data.container_details[0].max_temp;
+                containerForm.min_temp.value = data.container_details[0].min_temp;
+                containerForm.plug_yn.value = data.container_details[0].plug_yn;
+            }
+            
+        }
+        var uploadContainerBookingButton = document.getElementById("upload_container_booking");
+        var containerBookingInput = document.getElementById("file_container_booking");
+        var containerBookingLink = document.getElementById("link_container_booking");
+
+        if(uploadContainerBookingButton){
+            uploadContainerBookingButton.addEventListener("click",(e)=>{
+                containerBookingInput.click();
+
+                containerBookingInput.addEventListener("change",(e)=>{
+                    var file = containerBookingInput.files[0];
+                    if(file){
+                        var reader = new FileReader();
+                        reader.addEventListener("load",()=>{
+                            var urlObj = URL.createObjectURL(file);
+                            containerBookingLink.href = urlObj;
+                            containerBookingLink.textContent = "View Booking Confirmation;"
+                            newData.container_file = reader.result;
+                            
+                        },false);
+                        reader.readAsDataURL(file);
+                    }
+                })
+            })
+        }
+        if(containerForm){
+            containerForm.addEventListener("submit",(e)=>{
+                e.preventDefault();
+                newData.mbl_number = containerForm.mbl_number.value;
+                newData.container_type = containerForm.container_type.value;
+                newData.container_no = containerForm.container_no.value;
+                newData.container_size = containerForm.container_size.value;
+                newData.seal_1 = containerForm.seal_1.value;
+                newData.seal_2 = containerForm.seal_2.value;
+                newData.seal_3 = containerForm.seal_3.value;
+                newData.freight_indicator = containerForm.freight_indicator.value;
+                newData.no_of_packages = containerForm.no_of_packages.value;
+                newData.package_unit = containerForm.package_unit.value;
+                newData.volume = containerForm.volume.value;
+                newData.volume_unit = containerForm.volume_unit.value;
+                newData.weight = containerForm.weight.value;
+                newData.weight_unit = containerForm.weight_unit.value;
+                newData.max_temp = containerForm.max_temp.value;
+                newData.min_temp = containerForm.min_temp.value;
+                newData.plug_yn = containerForm.plug_yn.value;
+
+                console.log("my data: ",newData);
+                var method = data.container_details ? "PUT" : "POST";
+
+                var options = {
+                    method:method,body:JSON.stringify(newData),headers:{
+                        'Content-type':'application/json','Authorization':'Bearer '+currentUser.accessToken
+                    }
+                }
+                var url = (data.container_details && data.container_details.length > 0) ? container_booking_url+"/"+currentUser.id+"/"+data.container_details[0].id : container_booking_url+"/"+currentUser.id;
+                fetch(url,options)
+                .then(res=>res.json()).then(result=>{
+                    console.log("containers: ",result);
+                    showFeedback(result.msg,result.code);
+                })
+                .catch(e=>{
+                    console.log("err: ",e);
+                    showFeedback(e,1);
+                })
+            })
+        }
     }
 }
 //update local list of consighments
@@ -1409,7 +1502,14 @@ const showRoleForm = (holder)=>{
         // let permission = "1,2";//roleForm.permission.value.trim();
         const data = {name:name,level:level,description:description};
        
-        if(name && name.length !=0) registerClientRole(data);
+        if(name && name.length !=0) {
+            registerClientRole(data).then(result=>{
+                showClientRoles();
+            })
+            .catch(er=>{
+                showFeedback(er,1);
+            })
+        }
         // else inputName.classList.add("fail");
     })
 
@@ -1485,8 +1585,8 @@ const showRoleEditForm = (holder,role)=>{
             
             updateClientRole(data,role.id,currentUser.id).then(result=>{
                 showFeedback(result.msg,result.code);
-                console.log("mydata: ",result.data);
                 updateClientRoles(result.data);
+                showClientRoles();
             }).catch(err=>{
                 showFeedback(err,1);
 
@@ -1974,7 +2074,7 @@ const updateClientRoles =(roles)=>{
     if(roles && roles.length > 0){
         storedData.client_roles = roles;
         storage.setItem("data",JSON.stringify(storedData));
-        showClientRoles();
+        // showClientRoles();
     }
 }
 
@@ -1992,7 +2092,6 @@ const updateClientRole = (data,roleId,userId)=>{
             body:body,
             headers:headers
         }
-        console.log("body:",body);
         fetch(url,options).then(res=>{
             if(res.status == 403) {
                 showFeedback("Your session expired, please login",1);
@@ -2001,7 +2100,10 @@ const updateClientRole = (data,roleId,userId)=>{
             else{
                 res.json().then(result=>{
                     showFeedback(result.msg,result.code);
-                    if(result.code == 0) updateClientRoles(result.data);
+                    if(result.code == 0) {
+                        updateClientRoles(result.data);
+                        showClientRoles();
+                    }
                     resolve(result);
                 })
                 .catch(err=>{
