@@ -1072,6 +1072,7 @@ const switchDetails = (index,data)=>{
                 let forwarder_code = consignmentDataForm.forwarder_code.value;
                 let forwarder_id = currentUser.detail.id;
                 newData = {
+                    user:currentUser.id,
                     cargo_classification:cargo_classification,
                     place_of_destination:place_of_destination,
                     place_of_delivery:place_of_delivery,
