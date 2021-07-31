@@ -831,9 +831,14 @@ const showExportList = (data,source=null)=>{
             destinationPort.textContent = (d.port_of_discharge) ? d.port_of_discharge : "N/A";
             row.appendChild(destinationPort);
     
+            const consStatus = document.createElement("span");
+            consStatus.textContent = (d.status_text) ? d.status_text : "N/A";
+            row.appendChild(consStatus);
+            
             const tancisStatus = document.createElement("span");
             tancisStatus.textContent = (d.tancis_status) ? d.tancis_status : "N/A";
             row.appendChild(tancisStatus);
+
             parent.appendChild(row);
 
             row.addEventListener("click",(e)=>{
@@ -1101,7 +1106,7 @@ const switchDetails = (index,data)=>{
                     instructions_file:newData.instructions_file
                 }
                 console.log("mydata: ",newData);
-                var method = (data ==null) ? "POST" : "PUT";
+                var method = (data == null) ? "POST" : "PUT";
                 var options ={
                     method:method,body:JSON.stringify(newData),headers:{
                         'Content-type':'application/json','Authorization': 'Bearer '+currentUser.accessToken
@@ -1131,7 +1136,7 @@ const switchDetails = (index,data)=>{
         var uploadShipBookingButton = document.getElementById("upload_ship_booking");
         var shipBookingInput = document.getElementById("file_ship_booking");
         var shipBookingLink = document.getElementById("link_ship_booking");
-        if(data.files.length > 0){
+        if(data.files && data.files.length > 0){
             let shipBookingFile = data.files.filter(f=>f.name == "ship booking");
             if(shipBookingFile.length > 0) {
                 shipBookingLink.href = files_url+"/"+shipBookingFile[0].filename;
