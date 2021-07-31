@@ -943,15 +943,27 @@ main > div.content .summary-table > span.summary-head, .subscription-forms .summ
 }
 
 .status-indicator-1 {
+  border-left: 5px solid #ffffff;
+}
+
+.status-indicator-2, .status-indicator-7, .status-indicator-8 {
   border-left: 5px solid #f6b0ff;
 }
 
-.status-indicator-2 {
+.status-indicator-3 {
+  border-left: 5px solid #666262;
+}
+
+.status-indicator-4 {
+  border-left: 5px solid #203164;
+}
+
+.status-indicator-6 {
   border-left: 5px solid #ecec09;
 }
 
-.status-indicator-3 {
-  border-left: 5px solid #203164;
+.status-indicator-9, .status-indicator-10 {
+  border-left: 5px solid #0f810f;
 }
 
 .gap {

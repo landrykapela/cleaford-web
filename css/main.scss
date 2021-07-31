@@ -786,13 +786,23 @@ form input[type="submit"]{
   margin:1em auto;
 }
 .status-indicator-1{
+  border-left:5px solid $defaultColor;
+}
+.status-indicator-2,.status-indicator-7,.status-indicator-8{
   border-left:5px solid $marve;
 }
-.status-indicator-2{
+.status-indicator-3{
+  border-left:5px solid $faintDark;
+}
+
+.status-indicator-4{
+  border-left:5px solid $tickBlue;
+}
+.status-indicator-6{
   border-left:5px solid $yellow;
 }
-.status-indicator-3{
-  border-left:5px solid $tickBlue;
+.status-indicator-9,.status-indicator-10{
+  border-left:5px solid $successColor;
 }
 .gap{
   row-gap:2em;

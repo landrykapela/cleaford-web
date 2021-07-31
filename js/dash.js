@@ -834,7 +834,7 @@ const showExportList = (data,source=null)=>{
             const consStatus = document.createElement("span");
             consStatus.textContent = (d.status_text) ? d.status_text : "N/A";
             row.appendChild(consStatus);
-            
+
             const tancisStatus = document.createElement("span");
             tancisStatus.textContent = (d.tancis_status) ? d.tancis_status : "N/A";
             row.appendChild(tancisStatus);
@@ -1265,6 +1265,12 @@ const switchDetails = (index,data)=>{
         var containerBookingInput = document.getElementById("file_container_booking");
         var containerBookingLink = document.getElementById("link_container_booking");
 
+        if(data.files && data.files.length > 0){
+            var containerFiles = data.files.filter(f=>f.name.toLowerCase() == "container booking");
+            containerBookingLink.href = files_url+"/"+containerFiles[0].filename;
+            containerBookingLink.textContent = "View Booking Confirmation";
+        }
+
         if(uploadContainerBookingButton){
             uploadContainerBookingButton.addEventListener("click",(e)=>{
                 containerBookingInput.click();
@@ -1307,7 +1313,7 @@ const switchDetails = (index,data)=>{
                 newData.plug_yn = containerForm.plug_yn.value;
 
                 console.log("my data: ",newData);
-                var method = data.container_details ? "PUT" : "POST";
+                var method = (data.container_details && data.container_details.length > 0) ? "PUT" : "POST";
 
                 var options = {
                     method:method,body:JSON.stringify(newData),headers:{
