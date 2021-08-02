@@ -1226,6 +1226,7 @@ const switchDetails = (index,data)=>{
         }
     }
     if(index == 3){
+        
         addContainerForm(data,CONTAINER_FIELDS);
         // var containerForm = document.querySelector("#container_form");
         // var newData = {};
@@ -1340,18 +1341,69 @@ const switchDetails = (index,data)=>{
 
 //add container form
 const addContainerForm = (data,fields)=>{
-    const form = document.getElementById("container_form");
-    Array.from(form.children).forEach(child=>{
-        form.removeChild(child);
+    const parent = document.getElementById("container_forms");
+    Array.from(parent.children).forEach(child=>{
+        parent.removeChild(child);
     })
+
+    // file upload and link
+
+    var uploadContainerBookingButton = document.getElementById("upload_container_booking");
+        var containerBookingInput = document.getElementById("file_container_booking");
+        var containerBookingLink = document.getElementById("link_container_booking");
+        var newFile = null;
+        if(data.files && data.files.length > 0){
+            var containerFiles = data.files.filter(f=>f.name.toLowerCase() == "container booking");
+            if(containerFiles.length > 0){
+                containerBookingLink.href = files_url+"/"+containerFiles[0].filename;
+                containerBookingLink.textContent = "View Booking Confirmation";
+            }
+        }
+
+        if(uploadContainerBookingButton){
+            uploadContainerBookingButton.addEventListener("click",(e)=>{
+                containerBookingInput.click();
+
+                containerBookingInput.addEventListener("change",(e)=>{
+                    var file = containerBookingInput.files[0];
+                    if(file){
+                        var reader = new FileReader();
+                        reader.addEventListener("load",()=>{
+                            var urlObj = URL.createObjectURL(file);
+                            containerBookingLink.href = urlObj;
+                            containerBookingLink.textContent = "View Booking Confirmation";
+                            if(data && data.id){
+                                uploadConsignmentFile(currentUser.id,reader.result,data.id,"container_bookings")
+                                .then(result=>{
+                                    updateConsignmentList(result.data);
+                                    showFeedback(result.msg,result.code);
+                                })
+                                .catch(e=>{
+                                    showFeedback(e,1);
+                                })
+                            }
+                            else{
+                                newFile = reader.result;
+                            }
+                            
+                        },false);
+                        reader.readAsDataURL(file);
+                    }
+                })
+            })
+        }
+
+
+    //end of file upload and link
+
+
     let count = (data && data.no_of_containers) ? data.no_of_containers : 1;
     
     for(let n=1;n<=count;n++){
         const section = document.createElement("div");
-        section.id ="container"+n+"_collapsible";
-        section.classList.add("column");
+        // section.classList.add("column");
         section.classList.add("consignment-section");
-
+        section.id = "container"+n+"_collapsible";
         const head = document.createElement("div");
         head.classList.add("row-space");
         head.classList.add("summary-head");
@@ -1376,19 +1428,28 @@ const addContainerForm = (data,fields)=>{
             e.target.textContent = (section.classList.contains("hidden")) ? "add" : "remove";
         })
                     
-        form.appendChild(head);
+        parent.appendChild(head);
+
+        const form = document.createElement("form");
+        form.id = "container"+n+"_form";
+        form.name = "container"+n+"_form";
 
         const formGroups = [];
         fields.forEach((f,i)=>{
-            if(i ==0 || i % 2 == 0){
+            if(i <= fields.length /2){
                 const formgroup = document.createElement("div");
                 formgroup.classList.add("row-space");
                 formGroups.push(formgroup);
             }
         })
-        
+        var idInput = document.createElement("input");
+        idInput.type = "hidden";
+        idInput.id = "container_id";
+        idInput.name = "container_id";
+        idInput.value = (data.container_details && data.container_details.length > n-1) ? data.container_details[n-1].id :-1;
+        form.appendChild(idInput);
         formGroups.forEach((group,idx)=>{
-            let index = (idx == 0) ? 0 : idx +2;
+            let index = (idx == 0) ? 0 : idx *2;
             
                 let field = fields[index];
                 let nField = null;
@@ -1400,53 +1461,116 @@ const addContainerForm = (data,fields)=>{
                 fieldDiv.classList.add("row");
                 nFieldDiv.classList.add("row");
                 const fieldLabel = document.createElement("label");
-                fieldLabel.textContent = field.label;
+                fieldLabel.textContent = field.label +((field.required) ? " *": "");
                 fieldDiv.appendChild(fieldLabel);
         
                 const fieldInput = document.createElement("input");
                 fieldInput.id = field.id+"#"+n;
                 fieldInput.name = field.id;
                 fieldInput.type = "text";
+                // fieldInput.required = field.required;
                 fieldInput.placeholder = field.label;
+                
+                if(data && data.container_details && data.container_details.length >n-1){
+                    fieldInput.value = data.container_details[n-1][field.id];
+                   
+                }
+                if(data && data.shipping_details && field.id == "mbl_number"){
+                    fieldInput.value = data.shipping_details.mbl_number;
+                }
                 fieldDiv.appendChild(fieldInput);
         
                 if(nField != null){
                     const nFieldLabel = document.createElement("label");
-                    nFieldLabel.textContent = nField.label;
+                    nFieldLabel.textContent = nField.label +((field.required) ? " *": "");
                     nFieldDiv.appendChild(nFieldLabel);
         
                     const nFieldInput = document.createElement("input");
                     nFieldInput.id = nField.id+"#"+n;
                     nFieldInput.name = nField.id;
                     nFieldInput.type = "text";
+                    // nFieldInput.required = field.required;
                     nFieldInput.placeholder = nField.label;
                     nFieldDiv.appendChild(nFieldInput);
-
                     if(data && data.container_details && data.container_details.length >n-1){
-                        fieldInput.value = data.container_details[n-1][field.id];
                         nFieldInput.value = data.container_details[n-1][nField.id];
                     }
                 }
+                
                 group.appendChild(fieldDiv);
                 group.appendChild(nFieldDiv);
-                section.appendChild(group);
-            
+                form.appendChild(group);
+                    
+        });
+          
+        const actionRow = document.createElement("div");
+        actionRow.classList.add("row-end");
+        const btnSubmit = document.createElement("input");
+        btnSubmit.type = "submit";
+        btnSubmit.id = "btnSubmitContainer";
+        btnSubmit.name = "btnSubmitContainer";
+        btnSubmit.value = "SAVE";
+    
+        actionRow.appendChild(btnSubmit);
+        form.appendChild(actionRow);
+        section.appendChild(form);
+
+         
+        form.addEventListener("submit",(event)=>{
+            event.preventDefault();
+                let dataItem = {};
+                Array.from(form.elements).filter(input=>input.id.split("#")[1] == n).forEach(inp=>{
+                    let key = inp.id.split("#")[0];
+                    dataItem[key] = inp.value;
+                })
+                dataItem.cid = data.id;
+                console.log("form: ",dataItem);
+                if(newFile) dataItem.container_file = newFile;
+                var method =  (idInput.value == -1) ? "POST" : "PUT";
+                var options = {
+                    method:method,body:JSON.stringify(dataItem),headers:{
+                        "Content-type":"application/json","Authorization":"Bearer "+currentUser.accessToken
+                    }
+                }
+                var url = (idInput.value == -1) ? container_booking_url+"/"+currentUser.id : container_booking_url+"/"+currentUser.id+"/"+idInput.value;
+                console.log("url: ",url+"/"+method);
+                fetch(url,options)
+                .then(res=>res.json()).then(result=>{
+                    console.log("containers: ",result);
+                    updateConsignmentList(result.data);
+                    showFeedback(result.msg,result.code);
+                    showExportList(result.data,"export_form");
+                })
+                .catch(e=>{
+                    console.log("err: ",e);
+                    showFeedback(e,1);
+                })
         })
-        form.appendChild(section);
-    }  
+        parent.appendChild(section);
+    } 
     
-    const actionRow = document.createElement("div");
-    actionRow.classList.add("row-end");
-    const btnSubmit = document.createElement("input");
-    btnSubmit.type = "submit";
-    btnSubmit.id = "btnSubmitContainer";
-    btnSubmit.name = "btnSubmitContainer";
-    btnSubmit.value = "SAVE";
+   
 
-    actionRow.appendChild(btnSubmit);
-    form.appendChild(actionRow);
-    
+}
 
+//upload consignment file
+const uploadConsignmentFile = (userId,file,cid,target)=>{
+    return new Promise((resolve,reject)=>{
+        var data = {cid:cid,file:file,target:target,user:userId};
+        console.log("ucf: ",data);
+        // fetch(upload_files_url,{body:JSON.stringify(data),method:"POST",headers:{'Content-type':'application/json','Authorization':'Bearer '+currentUser.accessToken}})
+        // .then(res=>res.json())
+        // .then(result=>{
+        //     console.log("result: ",result);
+        //     resolve(result);
+        //     // updateConsignmentList(result.data);
+        //     // showExportList(result.data);
+        //     // showFeedback(result.msg,result.code);
+        // })
+        // .catch(e=>{
+        //     reject("Something went wrong! Please try again later");
+        // })
+    })
 }
 
 //update local list of consighments

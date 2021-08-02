@@ -731,6 +731,9 @@ form input[type="submit"]{
 .consignment-forms form >div.consignment-section{
   width: 100%;
 }
+.consignment-section > form{
+  width:90%;
+}
 .subscription-forms p,.subscription-forms .features{
   margin:0.5em;
   padding-bottom: 1em;
@@ -792,7 +795,7 @@ form input[type="submit"]{
   border-left:5px solid $marve;
 }
 .status-indicator-3{
-  border-left:5px solid $faintDark;
+  border-left:5px solid $faint;
 }
 
 .status-indicator-4{
@@ -899,6 +902,9 @@ form input[type="submit"]{
 //end layouts
 
 // texts formats
+.file-link{
+  margin-left:1em;
+}
 .bold{
   font-weight: bold;
 }

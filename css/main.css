@@ -878,6 +878,10 @@ main > div.content .summary-table > span.summary-head, .subscription-forms .summ
   width: 100%;
 }
 
+.consignment-section > form {
+  width: 90%;
+}
+
 .subscription-forms p, .subscription-forms .features {
   margin: 0.5em;
   padding-bottom: 1em;
@@ -951,7 +955,7 @@ main > div.content .summary-table > span.summary-head, .subscription-forms .summ
 }
 
 .status-indicator-3 {
-  border-left: 5px solid #666262;
+  border-left: 5px solid #a8a2a2;
 }
 
 .status-indicator-4 {
@@ -1076,6 +1080,10 @@ main > div.content .summary-table > span.summary-head, .subscription-forms .summ
 .progress-step {
   border: 1px solid #666262;
   color: #666262;
+}
+
+.file-link {
+  margin-left: 1em;
 }
 
 .bold {

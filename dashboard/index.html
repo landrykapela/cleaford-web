@@ -233,7 +233,7 @@
                                 <div class="row">
                                     <input type="file" accept="image/*,.pdf" class="hidden" name="file_shipping_instructions" id="file_shipping_instructions"/>
                                     <span class="buttons" id="upload_shipping_instructions">Upload Shipping Instructions</span>
-                                    <a id="link_shipping_instructions" target="_blank"></a>
+                                    <a class="file-link" id="link_shipping_instructions" target="_blank"></a>
                                 </div>
                                 <span class="material-icons" onClick="showConsignment()">close</span>
                             </div>
@@ -484,7 +484,7 @@
                                 <div class="row">
                                     <input type="file" accept="image/*,.pdf" class="hidden" name="file_ship_booking" id="file_ship_booking"/>
                                     <span class="buttons" id="upload_ship_booking">Upload Booking Confirmation</span>
-                                    <a id="link_ship_booking" target="_blank"></a>
+                                    <a class="file-link" id="link_ship_booking" target="_blank"></a>
                                 </div>
                                 <span class="material-icons" onClick="showConsignment()">close</span>
                             </div>
@@ -539,14 +539,12 @@
                                 <div class="row">
                                     <input type="file" accept="image/*,.pdf" class="hidden" name="file_container_booking" id="file_container_booking"/>
                                     <span class="buttons" id="upload_container_booking">Upload Container Confirmation</span>
-                                    <a id="link_container_booking" target="_blank"></a>
+                                    <a class="file-link" id="link_container_booking" target="_blank"></a>
                                 </div>
                                 <span class="material-icons" onClick="showConsignment()">close</span>
                             </div>
-                            <div class="consignment-forms">                              
-                                <form id="container_form" method="POST">
-                                   
-                                </form>
+                            <div class="consignment-forms" id="container_forms">                              
+                                
                             </div>                          
                         </div>  
                         <div id="detail_4" class="column consignment-details hidden">
@@ -554,7 +552,7 @@
                                 <div class="row">
                                     <input type="file" accept="image/*,.pdf" class="hidden" name="file_certificates" id="file_certificates" multiple/>
                                     <span class="buttons" id="upload_certificates">Upload Certificates</span>
-                                    <a id="link_certificates" target="_blank"></a>
+                                    <a class="file-link" id="link_certificates" target="_blank"></a>
                                 </div>
                                 <span class="material-icons" onClick="showConsignment()">close</span>
                             </div>
