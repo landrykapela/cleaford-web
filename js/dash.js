@@ -1,6 +1,9 @@
 const storage = window.localStorage;
 const clientSummaryCount = 5;
 const CONSIGNMENT_NUMBER_FORMAT = 6;
+const CONTAINER_FIELDS = [{id:"mbl_number",label:"MB/L Number",required:false},{id:"container_type",label:"Container Type",required:true},{id:"container_no",label:"Container Number",required:true},{id:"container_size",label:"Container size",required:true},{id:"seal_1",label:"Shipping Seal",required:false},{id:"seal_2",label:"Exporter Seal",required:false},{id:"seal_3",label:"Seal Number 3",required:false},{id:"freight_indicator",label:"Freight Indicator",required:false},
+{id:"no_of_packages",label:"Number of Packages",required:false},{id:"package_unit",label:"Package Unit",required:false},{id:"volume",label:"Volume",required:false},{id:"volume_unit",label:"Voulume Unit",required:false},{id:"weight",label:"Weight",required:true},{id:"weight_unit",label:"Weight Unit",required:true},{id:"max_temp",label:"Maximum Temperature",required:false},
+{id:"min_temp",label:"Minimum Temperature",required:false},{id:"plug_yn",label:"Refer Plug Y/N",required:true}];
 var currentUser = (storage.getItem("currentUser")) ? JSON.parse(storage.getItem("currentUser")):null;
 var storedData = (storage.getItem("data")) ? JSON.parse(storage.getItem("data")):{roles:[],client_roles:[],customers:[],roles:[]};
 
@@ -898,21 +901,7 @@ const switchDetails = (index,data)=>{
     });
    
     if(index == 1){
-        var collapseButtons = Array.from(document.getElementsByClassName("summary-head"));
-        collapseButtons.filter(b=>b.hasChildNodes()).forEach(but=>{
-            if(but){
-                Array.from(but.children).forEach(span=>{
-                    if(span.classList.contains("material-icons")){
-                        span.addEventListener("click",(e)=>{
-                            let target = e.target.id.split("_")[0];
-                            var collapsible = document.getElementById(target+"_collapsible");
-                            collapsible.classList.toggle("hidden");
-                            e.target.textContent = (collapsible.classList.contains("hidden")) ? "add" : "remove";
-                        })
-                    }
-                })
-            }
-        });
+        
         var newData = (data == null) ? {} : data;
         var uploadShippingInstructionsButton = document.getElementById("upload_shipping_instructions");
         var shippingInstructionsInput = document.getElementById("file_shipping_instructions");
@@ -1131,8 +1120,8 @@ const switchDetails = (index,data)=>{
         }
     }
     if(index == 2){
-        var fileUploaded = null;
-        var newData = {booking_confirmation:fileUploaded};
+        var hasFile = false;
+        var newData = {};
         var uploadShipBookingButton = document.getElementById("upload_ship_booking");
         var shipBookingInput = document.getElementById("file_ship_booking");
         var shipBookingLink = document.getElementById("link_ship_booking");
@@ -1141,6 +1130,7 @@ const switchDetails = (index,data)=>{
             if(shipBookingFile.length > 0) {
                 shipBookingLink.href = files_url+"/"+shipBookingFile[0].filename;
                 shipBookingLink.textContent = "View Ship Booking";
+                hasFile = true;
             }
             else{
                 shipBookingLink.href = "";
@@ -1162,6 +1152,7 @@ const switchDetails = (index,data)=>{
                             shipBookingLink.href = urlObj;
                             shipBookingLink.textContent = "View Booking confirmation";
                             newData.booking_confirmation = reader.result;
+                            hasFile = true;
                         },false)
 
                         reader.readAsDataURL(shipBookingInput.files[0]);
@@ -1201,7 +1192,8 @@ const switchDetails = (index,data)=>{
                 newData.terminal_carry_date=Date.parse(shippingForm.terminal_carry_date.value);
                 
                 
-                if(newData.booking_confirmation == null){
+                console.log("body: ",newData);
+                if(!hasFile && newData.booking_confirmation == null){
                     alertDialog("Please upload ship booking confirmation","Ship Booking 1",null);
                 }
                 else{
@@ -1234,106 +1226,229 @@ const switchDetails = (index,data)=>{
         }
     }
     if(index == 3){
-        var containerForm = document.querySelector("#container_form");
-        var newData = {};
-        if(data != null){
-            newData.cid = data.id;
-            if(data.shipping_details){
-                containerForm.mbl_number.value = data.shipping_details.mbl_number;
-            }
-            if(data.container_details && data.container_details.length > 0){
-                containerForm.container_type.value = data.container_details[0].container_type;
-                containerForm.container_no.value = data.container_details[0].container_no;
-                containerForm.container_size.value = data.container_details[0].container_size;
-                containerForm.seal_1.value = data.container_details[0].seal_1;
-                containerForm.seal_2.value = data.container_details[0].seal_2;
-                containerForm.seal_3.value = data.container_details[0].seal_3;
-                containerForm.freight_indicator.value = data.container_details[0].freight_indicator;
-                containerForm.no_of_packages.value = data.container_details[0].no_of_packages;
-                containerForm.package_unit.value = data.container_details[0].package_unit;
-                containerForm.volume.value = data.container_details[0].volume;
-                containerForm.volume_unit.value = data.container_details[0].volume_unit;
-                containerForm.weight.value = data.container_details[0].weight;
-                containerForm.weight_unit.value = data.container_details[0].weight_unit;
-                containerForm.max_temp.value = data.container_details[0].max_temp;
-                containerForm.min_temp.value = data.container_details[0].min_temp;
-                containerForm.plug_yn.value = data.container_details[0].plug_yn;
-            }
+        addContainerForm(data,CONTAINER_FIELDS);
+        // var containerForm = document.querySelector("#container_form");
+        // var newData = {};
+        // if(data != null){
+        //     newData.cid = data.id;
+        //     if(data.shipping_details){
+        //         containerForm.mbl_number.value = data.shipping_details.mbl_number;
+        //     }
+        //     if(data.container_details && data.container_details.length > 0){
+        //         containerForm.container_type.value = data.container_details[0].container_type;
+        //         containerForm.container_no.value = data.container_details[0].container_no;
+        //         containerForm.container_size.value = data.container_details[0].container_size;
+        //         containerForm.seal_1.value = data.container_details[0].seal_1;
+        //         containerForm.seal_2.value = data.container_details[0].seal_2;
+        //         containerForm.seal_3.value = data.container_details[0].seal_3;
+        //         containerForm.freight_indicator.value = data.container_details[0].freight_indicator;
+        //         containerForm.no_of_packages.value = data.container_details[0].no_of_packages;
+        //         containerForm.package_unit.value = data.container_details[0].package_unit;
+        //         containerForm.volume.value = data.container_details[0].volume;
+        //         containerForm.volume_unit.value = data.container_details[0].volume_unit;
+        //         containerForm.weight.value = data.container_details[0].weight;
+        //         containerForm.weight_unit.value = data.container_details[0].weight_unit;
+        //         containerForm.max_temp.value = data.container_details[0].max_temp;
+        //         containerForm.min_temp.value = data.container_details[0].min_temp;
+        //         containerForm.plug_yn.value = data.container_details[0].plug_yn;
+        //     }
             
-        }
-        var uploadContainerBookingButton = document.getElementById("upload_container_booking");
-        var containerBookingInput = document.getElementById("file_container_booking");
-        var containerBookingLink = document.getElementById("link_container_booking");
+        // }
+        // var uploadContainerBookingButton = document.getElementById("upload_container_booking");
+        // var containerBookingInput = document.getElementById("file_container_booking");
+        // var containerBookingLink = document.getElementById("link_container_booking");
 
-        if(data.files && data.files.length > 0){
-            var containerFiles = data.files.filter(f=>f.name.toLowerCase() == "container booking");
-            containerBookingLink.href = files_url+"/"+containerFiles[0].filename;
-            containerBookingLink.textContent = "View Booking Confirmation";
-        }
+        // if(data.files && data.files.length > 0){
+        //     var containerFiles = data.files.filter(f=>f.name.toLowerCase() == "container booking");
+        //     if(containerFiles.length > 0){
+        //         containerBookingLink.href = files_url+"/"+containerFiles[0].filename;
+        //         containerBookingLink.textContent = "View Booking Confirmation";
+        //     }
+        // }
 
-        if(uploadContainerBookingButton){
-            uploadContainerBookingButton.addEventListener("click",(e)=>{
-                containerBookingInput.click();
+        // if(uploadContainerBookingButton){
+        //     uploadContainerBookingButton.addEventListener("click",(e)=>{
+        //         containerBookingInput.click();
 
-                containerBookingInput.addEventListener("change",(e)=>{
-                    var file = containerBookingInput.files[0];
-                    if(file){
-                        var reader = new FileReader();
-                        reader.addEventListener("load",()=>{
-                            var urlObj = URL.createObjectURL(file);
-                            containerBookingLink.href = urlObj;
-                            containerBookingLink.textContent = "View Booking Confirmation;"
-                            newData.container_file = reader.result;
+        //         containerBookingInput.addEventListener("change",(e)=>{
+        //             var file = containerBookingInput.files[0];
+        //             if(file){
+        //                 var reader = new FileReader();
+        //                 reader.addEventListener("load",()=>{
+        //                     var urlObj = URL.createObjectURL(file);
+        //                     containerBookingLink.href = urlObj;
+        //                     containerBookingLink.textContent = "View Booking Confirmation;"
+        //                     newData.container_file = reader.result;
                             
-                        },false);
-                        reader.readAsDataURL(file);
-                    }
-                })
-            })
-        }
-        if(containerForm){
-            containerForm.addEventListener("submit",(e)=>{
-                e.preventDefault();
-                newData.mbl_number = containerForm.mbl_number.value;
-                newData.container_type = containerForm.container_type.value;
-                newData.container_no = containerForm.container_no.value;
-                newData.container_size = containerForm.container_size.value;
-                newData.seal_1 = containerForm.seal_1.value;
-                newData.seal_2 = containerForm.seal_2.value;
-                newData.seal_3 = containerForm.seal_3.value;
-                newData.freight_indicator = containerForm.freight_indicator.value;
-                newData.no_of_packages = containerForm.no_of_packages.value;
-                newData.package_unit = containerForm.package_unit.value;
-                newData.volume = containerForm.volume.value;
-                newData.volume_unit = containerForm.volume_unit.value;
-                newData.weight = containerForm.weight.value;
-                newData.weight_unit = containerForm.weight_unit.value;
-                newData.max_temp = containerForm.max_temp.value;
-                newData.min_temp = containerForm.min_temp.value;
-                newData.plug_yn = containerForm.plug_yn.value;
+        //                 },false);
+        //                 reader.readAsDataURL(file);
+        //             }
+        //         })
+        //     })
+        // }
 
-                console.log("my data: ",newData);
-                var method = (data.container_details && data.container_details.length > 0) ? "PUT" : "POST";
+        // if(data && data.no_of_containers > 1){
+        //     const addContainerButton = document.getElementById("add_container");
+        //     addContainerButton.classList.remove("hidden");
+        //     addContainerButton.addEventListener("click",(e)=>{
+        //         addContainerForm(data,CONTAINER_FIELDS);
+        //     })
+        // }
+        // if(containerForm){
+        //     containerForm.addEventListener("submit",(e)=>{
+        //         e.preventDefault();
+        //         newData.mbl_number = containerForm.mbl_number.value;
+        //         newData.container_type = containerForm.container_type.value;
+        //         newData.container_no = containerForm.container_no.value;
+        //         newData.container_size = containerForm.container_size.value;
+        //         newData.seal_1 = containerForm.seal_1.value;
+        //         newData.seal_2 = containerForm.seal_2.value;
+        //         newData.seal_3 = containerForm.seal_3.value;
+        //         newData.freight_indicator = containerForm.freight_indicator.value;
+        //         newData.no_of_packages = containerForm.no_of_packages.value;
+        //         newData.package_unit = containerForm.package_unit.value;
+        //         newData.volume = containerForm.volume.value;
+        //         newData.volume_unit = containerForm.volume_unit.value;
+        //         newData.weight = containerForm.weight.value;
+        //         newData.weight_unit = containerForm.weight_unit.value;
+        //         newData.max_temp = containerForm.max_temp.value;
+        //         newData.min_temp = containerForm.min_temp.value;
+        //         newData.plug_yn = containerForm.plug_yn.value;
 
-                var options = {
-                    method:method,body:JSON.stringify(newData),headers:{
-                        'Content-type':'application/json','Authorization':'Bearer '+currentUser.accessToken
-                    }
-                }
-                var url = (data.container_details && data.container_details.length > 0) ? container_booking_url+"/"+currentUser.id+"/"+data.container_details[0].id : container_booking_url+"/"+currentUser.id;
-                fetch(url,options)
-                .then(res=>res.json()).then(result=>{
-                    console.log("containers: ",result);
-                    showFeedback(result.msg,result.code);
-                })
-                .catch(e=>{
-                    console.log("err: ",e);
-                    showFeedback(e,1);
-                })
-            })
-        }
+        //         console.log("my data: ",newData);
+        //         var method = (data.container_details && data.container_details.length > 0) ? "PUT" : "POST";
+
+        //         var options = {
+        //             method:method,body:JSON.stringify(newData),headers:{
+        //                 'Content-type':'application/json','Authorization':'Bearer '+currentUser.accessToken
+        //             }
+        //         }
+        //         var url = (data.container_details && data.container_details.length > 0) ? container_booking_url+"/"+currentUser.id+"/"+data.container_details[0].id : container_booking_url+"/"+currentUser.id;
+        //         fetch(url,options)
+        //         .then(res=>res.json()).then(result=>{
+        //             console.log("containers: ",result);
+        //             showFeedback(result.msg,result.code);
+        //         })
+        //         .catch(e=>{
+        //             console.log("err: ",e);
+        //             showFeedback(e,1);
+        //         })
+        //     })
+        // }
     }
 }
+
+//add container form
+const addContainerForm = (data,fields)=>{
+    const form = document.getElementById("container_form");
+    Array.from(form.children).forEach(child=>{
+        form.removeChild(child);
+    })
+    let count = (data && data.no_of_containers) ? data.no_of_containers : 1;
+    
+    for(let n=1;n<=count;n++){
+        const section = document.createElement("div");
+        section.id ="container"+n+"_collapsible";
+        section.classList.add("column");
+        section.classList.add("consignment-section");
+
+        const head = document.createElement("div");
+        head.classList.add("row-space");
+        head.classList.add("summary-head");
+
+        const title = document.createElement("span");
+        title.textContent = "Container #"+n;
+        head.appendChild(title);
+        const collapse = document.createElement("span");
+        collapse.id = "container"+n+"_collapse";
+        collapse.classList.add("material-icons");
+        if(n>1){
+            collapse.textContent = "add";
+            section.classList.add("hidden")
+        }
+        else collapse.textContent = "remove";
+        
+        head.appendChild(collapse);
+
+        collapse.addEventListener("click",(e)=>{
+            // let target = e.target.id.split("_")[0];
+            section.classList.toggle("hidden");
+            e.target.textContent = (section.classList.contains("hidden")) ? "add" : "remove";
+        })
+                    
+        form.appendChild(head);
+
+        const formGroups = [];
+        fields.forEach((f,i)=>{
+            if(i ==0 || i % 2 == 0){
+                const formgroup = document.createElement("div");
+                formgroup.classList.add("row-space");
+                formGroups.push(formgroup);
+            }
+        })
+        
+        formGroups.forEach((group,idx)=>{
+            let index = (idx == 0) ? 0 : idx +2;
+            
+                let field = fields[index];
+                let nField = null;
+                if(index < fields.length -1) nField = fields[index +1];
+              
+                
+                const fieldDiv = document.createElement("div");
+                const nFieldDiv = document.createElement("div");
+                fieldDiv.classList.add("row");
+                nFieldDiv.classList.add("row");
+                const fieldLabel = document.createElement("label");
+                fieldLabel.textContent = field.label;
+                fieldDiv.appendChild(fieldLabel);
+        
+                const fieldInput = document.createElement("input");
+                fieldInput.id = field.id+"#"+n;
+                fieldInput.name = field.id;
+                fieldInput.type = "text";
+                fieldInput.placeholder = field.label;
+                fieldDiv.appendChild(fieldInput);
+        
+                if(nField != null){
+                    const nFieldLabel = document.createElement("label");
+                    nFieldLabel.textContent = nField.label;
+                    nFieldDiv.appendChild(nFieldLabel);
+        
+                    const nFieldInput = document.createElement("input");
+                    nFieldInput.id = nField.id+"#"+n;
+                    nFieldInput.name = nField.id;
+                    nFieldInput.type = "text";
+                    nFieldInput.placeholder = nField.label;
+                    nFieldDiv.appendChild(nFieldInput);
+
+                    if(data && data.container_details && data.container_details.length >n-1){
+                        fieldInput.value = data.container_details[n-1][field.id];
+                        nFieldInput.value = data.container_details[n-1][nField.id];
+                    }
+                }
+                group.appendChild(fieldDiv);
+                group.appendChild(nFieldDiv);
+                section.appendChild(group);
+            
+        })
+        form.appendChild(section);
+    }  
+    
+    const actionRow = document.createElement("div");
+    actionRow.classList.add("row-end");
+    const btnSubmit = document.createElement("input");
+    btnSubmit.type = "submit";
+    btnSubmit.id = "btnSubmitContainer";
+    btnSubmit.name = "btnSubmitContainer";
+    btnSubmit.value = "SAVE";
+
+    actionRow.appendChild(btnSubmit);
+    form.appendChild(actionRow);
+    
+
+}
+
 //update local list of consighments
 const updateConsignmentList = (data)=>{
     if(data){
