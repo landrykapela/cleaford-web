@@ -389,6 +389,20 @@ footer {
   margin: 0.5em 1em;
 }
 
+.highlight {
+  width: 25px;
+  height: 25px;
+  background-color: #666262 !important;
+  color: #ffffff;
+  padding: 3px;
+  border-radius: 50%;
+  text-align: center;
+}
+
+.highlight:hover {
+  background-color: #ffcc00 !important;
+}
+
 .no-corner {
   border-radius: unset !important;
 }
@@ -870,11 +884,30 @@ main > div.content .summary-table > span.summary-head, .subscription-forms .summ
   border: 0.5px solid #d3d3d3;
 }
 
+.consignment-forms input[type=number], .consignment-forms select {
+  flex-grow: 0;
+  width: 20%;
+}
+
+.consignment-forms select {
+  max-width: 40%;
+}
+
+.consignment-section {
+  margin-top: 1em;
+}
+
+.consignment-section legend {
+  width: 30%;
+  font-weight: bold;
+  color: #666262;
+}
+
 .consignment-forms .summary-head {
   margin-top: 1em;
 }
 
-.consignment-forms form > div.consignment-section {
+.consignment-forms form > .consignment-section {
   width: 100%;
 }
 

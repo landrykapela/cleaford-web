@@ -359,6 +359,18 @@ footer{
 }
 
 //start buttons
+.highlight{
+  width:25px;
+  height:25px;
+  @include setBg($faintDark);
+  color:$defaultColor;
+  padding:3px;
+  border-radius: 50%;
+  text-align: center;
+}
+.highlight:hover{
+  @include setBg($primaryColor);
+}
 .no-corner{
   @include squareCorner();
 }
@@ -725,10 +737,25 @@ form input[type="submit"]{
   border:0.5px solid $secondaryColor;
   // outline-color: $primaryColor;
 }
+.consignment-forms input[type="number"],.consignment-forms select{
+  flex-grow: 0;
+  width:20%;
+}
+.consignment-forms select{
+  max-width:40%;
+}
+.consignment-section{
+  margin-top:1em;
+}
+.consignment-section legend{
+  width:30%;
+  font-weight: bold;
+  color:$faintDark;
+}
 .consignment-forms .summary-head{
   margin-top:1em;
 }
-.consignment-forms form >div.consignment-section{
+.consignment-forms form > .consignment-section{
   width: 100%;
 }
 .consignment-section > form{

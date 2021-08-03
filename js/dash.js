@@ -901,7 +901,21 @@ const switchDetails = (index,data)=>{
     });
    
     if(index == 1){
-        
+        Array.from(document.getElementsByTagName("legend")).forEach(cd=>{
+            console.log("chid: ",cd.id);
+            Array.from(cd.children).forEach(child=>{
+                if(child.id.includes("_collapse")){
+                    child.addEventListener("click",(e)=>{
+                        let target = e.target.id.split("_")[0]+"_collapsible";
+                        document.getElementById(target).classList.toggle("hidden");
+                        if(child.textContent == "keyboard_arrow_down") child.textContent = "keyboard_arrow_up";
+                        else child.textContent = "keyboard_arrow_down";
+                    })
+                }
+                
+            })
+            
+        })
         var newData = (data == null) ? {} : data;
         var uploadShippingInstructionsButton = document.getElementById("upload_shipping_instructions");
         var shippingInstructionsInput = document.getElementById("file_shipping_instructions");
@@ -1425,7 +1439,7 @@ const addContainerForm = (data,fields)=>{
         collapse.addEventListener("click",(e)=>{
             // let target = e.target.id.split("_")[0];
             section.classList.toggle("hidden");
-            e.target.textContent = (section.classList.contains("hidden")) ? "add" : "remove";
+            e.target.textContent = (section.classList.contains("hidden")) ? "keyboard_arrow_down" : "keyboard_arrow_up";
         })
                     
         parent.appendChild(head);
