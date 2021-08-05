@@ -689,6 +689,10 @@ main > div.content .summary-table > span.summary-head, .subscription-forms .summ
   width: 20%;
 }
 
+.hform > select .wide-select {
+  width: 100% !important;
+}
+
 .hform > input[type=submit] {
   background-color: transparent !important;
 }
@@ -949,6 +953,11 @@ main > div.content .summary-table > span.summary-head, .subscription-forms .summ
 
 .consignment-section > form {
   width: 90%;
+}
+
+.consignment-forms select.wide-select {
+  max-width: unset;
+  width: 50% !important;
 }
 
 .subscription-forms p, .subscription-forms .features {

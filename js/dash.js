@@ -1,6 +1,12 @@
 const storage = window.localStorage;
 const clientSummaryCount = 5;
 const CONSIGNMENT_NUMBER_FORMAT = 6;
+const PREDOCUMENTS = [{id:0,name:"ODG Certificate 1",label:"odg_1"},
+{id:1,name:"ODG Certificate 2",label:"odg_2"},
+{id:2,name:"ODG Certificate 3",label:"odg_3"},
+{id:3,name:"ODG Certificate 4",label:"odg_4"},
+{id:4,name:"ODG Certificate 5",label:"odg_5"},
+{id:5,name:"ODG Certificate 6",label:"odg_6"},];
 const CONTAINER_FIELDS = [{id:"mbl_number",label:"MB/L Number",required:false,type:"text"},
 {id:"container_type",label:"Container Type",required:true,type:"select",options:["General Purpose","ISO Reefer","Insulated","Flat Rack","Open Top"]},
 {id:"container_no",label:"Container Number",required:true,type:"text"},
@@ -446,7 +452,7 @@ const showClientStats =()=>{
         }).catch(er=>{
             if(er.code == -1){
                 showFeedback(er.msg,1);
-                signoutUser();
+                // signoutUser();
             }
             else{
                 console.log("stw: ",er);
@@ -837,7 +843,7 @@ const showExportList = (data,source=null)=>{
             const eta = document.createElement("span");
             let tcd = "";
             if(d.shipping_details){
-                let date = new Date(d.shipping_details.terminal_carry_date);
+                let date = new Date(d.shipping_details.eta);
                 tcd += (1+ date.getMonth())+"/"+date.getDate()+"/"+date.getFullYear();
             }
             else tcd = "N/A";
@@ -898,6 +904,24 @@ const showConsignmentForm=(source,data=null)=>{
     
 }
 
+//show odg files
+const showODGFiles = (files)=>{
+    var container = document.getElementById("odg_list");
+    Array.from(container.children).forEach(c=>container.removeChild(c));
+    if(files && files.length > 0){
+        files.forEach(file=>{
+            var anchor = document.createElement("a");
+            anchor.href = file.url;
+            anchor.target = "_blank";
+            anchor.textContent = file.name;
+            container.appendChild(anchor);
+        })
+
+    }
+    else{
+        container.textContent = "No files uploaded!";
+    }
+}
 //switch steps
 const switchSteps = (position,data)=>{
     var progressSteps = Array.from(document.getElementById("progress-card-1").children);
@@ -1307,116 +1331,52 @@ const switchDetails = (index,data)=>{
         }
     }
     if(index == 3){
-        
-        addContainerForm(data,CONTAINER_FIELDS);
-        var containerForm = document.querySelector("#container_form");
-        var newData = {};
-        if(data != null){
-            newData.cid = data.id;
-            if(data.shipping_details){
-                containerForm.mbl_number.value = data.shipping_details.mbl_number;
-            }
-            if(data.container_details && data.container_details.length > 0){
-                containerForm.container_type.value = data.container_details[0].container_type;
-                containerForm.container_no.value = data.container_details[0].container_no;
-                containerForm.container_size.value = data.container_details[0].container_size;
-                containerForm.seal_1.value = data.container_details[0].seal_1;
-                containerForm.seal_2.value = data.container_details[0].seal_2;
-                containerForm.seal_3.value = data.container_details[0].seal_3;
-                containerForm.freight_indicator.value = data.container_details[0].freight_indicator;
-                containerForm.no_of_packages.value = data.container_details[0].no_of_packages;
-                containerForm.package_unit.value = data.container_details[0].package_unit;
-                containerForm.volume.value = data.container_details[0].volume;
-                containerForm.volume_unit.value = data.container_details[0].volume_unit;
-                containerForm.weight.value = data.container_details[0].weight;
-                containerForm.weight_unit.value = data.container_details[0].weight_unit;
-                containerForm.max_temp.value = data.container_details[0].max_temp;
-                containerForm.min_temp.value = data.container_details[0].min_temp;
-                containerForm.plug_yn.value = data.container_details[0].plug_yn;
-            }
-            
-        }
-        var uploadContainerBookingButton = document.getElementById("upload_container_booking");
-        var containerBookingInput = document.getElementById("file_container_booking");
-        var containerBookingLink = document.getElementById("link_container_booking");
+        var myFiles = [];
+        var select = document.getElementById("odg_file_select");
+        var fileInput = document.getElementById("odg_file_input");
+        // var fileInput = document.getElementById("odg_file_input");
+        if(select){
+            PREDOCUMENTS.forEach(doc=>{
+                select.options.add(new Option(doc.name,doc.label));
+            });
 
-        if(data.files && data.files.length > 0){
-            var containerFiles = data.files.filter(f=>f.name.toLowerCase() == "container booking");
-            if(containerFiles.length > 0){
-                containerBookingLink.href = files_url+"/"+containerFiles[0].filename;
-                containerBookingLink.textContent = "View Booking Confirmation";
-            }
-        }
+            select.addEventListener("change",(e)=>{
+                fileInput.click();
 
-        if(uploadContainerBookingButton){
-            uploadContainerBookingButton.addEventListener("click",(e)=>{
-                containerBookingInput.click();
-
-                containerBookingInput.addEventListener("change",(e)=>{
-                    var file = containerBookingInput.files[0];
-                    if(file){
+                var selectedOption = select.options[select.options.selectedIndex];
+                fileInput.addEventListener("change",(e)=>{
+                    if(e.target.files[0]){
                         var reader = new FileReader();
                         reader.addEventListener("load",()=>{
-                            var urlObj = URL.createObjectURL(file);
-                            containerBookingLink.href = urlObj;
-                            containerBookingLink.textContent = "View Booking Confirmation;"
-                            newData.container_file = reader.result;
-                            
+                            var url = URL.createObjectURL(e.target.files[0]);
+                            var file = {url:url,label:selectedOption.value,name:selectedOption.text};
+                            let k = 0;
+                            var check = myFiles.filter((mf,i)=>{
+                                if(mf.label == selectedOption.value){
+                                    k = i;
+                                    return mf;
+                                }
+                            });
+                            if(check.length > 0){
+                                myFiles[k] = check[0];
+                            }
+                            else myFiles.push(file);
+
+                            showODGFiles(myFiles);
                         },false);
-                        reader.readAsDataURL(file);
+
+                        reader.readAsDataURL(e.target.files[0]);
                     }
                 })
             })
+    
         }
-
-        if(data && data.no_of_containers > 1){
-            const addContainerButton = document.getElementById("add_container");
-            addContainerButton.classList.remove("hidden");
-            addContainerButton.addEventListener("click",(e)=>{
-                addContainerForm(data,CONTAINER_FIELDS);
-            })
-        }
-        if(containerForm){
-            containerForm.addEventListener("submit",(e)=>{
-                e.preventDefault();
-                newData.mbl_number = containerForm.mbl_number.value;
-                newData.container_type = containerForm.container_type.value;
-                newData.container_no = containerForm.container_no.value;
-                newData.container_size = containerForm.container_size.value;
-                newData.seal_1 = containerForm.seal_1.value;
-                newData.seal_2 = containerForm.seal_2.value;
-                newData.seal_3 = containerForm.seal_3.value;
-                newData.freight_indicator = containerForm.freight_indicator.value;
-                newData.no_of_packages = containerForm.no_of_packages.value;
-                newData.package_unit = containerForm.package_unit.value;
-                newData.volume = containerForm.volume.value;
-                newData.volume_unit = containerForm.volume_unit.value;
-                newData.weight = containerForm.weight.value;
-                newData.weight_unit = containerForm.weight_unit.value;
-                newData.max_temp = containerForm.max_temp.value;
-                newData.min_temp = containerForm.min_temp.value;
-                newData.plug_yn = containerForm.plug_yn.value;
-
-                console.log("my data: ",newData);
-                var method = (data.container_details && data.container_details.length > 0) ? "PUT" : "POST";
-
-                var options = {
-                    method:method,body:JSON.stringify(newData),headers:{
-                        'Content-type':'application/json','Authorization':'Bearer '+currentUser.accessToken
-                    }
-                }
-                var url = (data.container_details && data.container_details.length > 0) ? container_booking_url+"/"+currentUser.id+"/"+data.container_details[0].id : container_booking_url+"/"+currentUser.id;
-                fetch(url,options)
-                .then(res=>res.json()).then(result=>{
-                    console.log("containers: ",result);
-                    showFeedback(result.msg,result.code);
-                })
-                .catch(e=>{
-                    console.log("err: ",e);
-                    showFeedback(e,1);
-                })
-            })
-        }
+        
+        
+    }
+    if(index ==4){
+        addContainerForm(data,CONTAINER_FIELDS);
+        
     }
 }
 
@@ -1551,14 +1511,14 @@ const addContainerForm = (data,fields)=>{
                 fieldSelect.id = field.id+"#"+n;
                 fieldSelect.name = field.id;
                 fieldSelect.required = field.required;
-                fieldSelect.placeholder = field.label;
+                field.options.forEach(opt=>{
+                    fieldSelect.options.add(new Option(opt));
+                })
                 if(data && data.container_details && data.container_details.length >n-1){
                     fieldSelect.value = data.container_details[n-1][field.id];
                    
                 }
-                field.options.forEach(opt=>{
-                    fieldSelect.options.add(new Option(opt));
-                })
+               
                 form.appendChild(fieldSelect);  
             }
                 // form.appendChild(fieldDiv);
@@ -1606,24 +1566,21 @@ const addContainerForm = (data,fields)=>{
                 }
                 var url = (idInput.value == -1) ? container_booking_url+"/"+currentUser.id : container_booking_url+"/"+currentUser.id+"/"+idInput.value;
                 console.log("url: ",url+"/"+method);
-                // fetch(url,options)
-                // .then(res=>res.json()).then(result=>{
-                //     console.log("containers: ",result);
-                //     updateConsignmentList(result.data);
-                //     showFeedback(result.msg,result.code);
-                //     showExportList(result.data,"export_form");
-                // })
-                // .catch(e=>{
-                //     console.log("err: ",e);
-                //     showFeedback(e,1);
-                // })
+                fetch(url,options)
+                .then(res=>res.json()).then(result=>{
+                    console.log("containers: ",result);
+                    updateConsignmentList(result.data);
+                    showFeedback(result.msg,result.code);
+                    showExportList(result.data,"export_form");
+                })
+                .catch(e=>{
+                    console.log("err: ",e);
+                    showFeedback(e,1);
+                })
         })
         // parent.appendChild(section);
 
     } 
-    
-   
-
 }
 
 //upload consignment file

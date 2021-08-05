@@ -344,6 +344,7 @@ form {
 form#signup{
   width:50%;
 }
+
 form textarea,form input[type="date"],form input[type="number"],form input[type="text"], form input[type="email"],form input[type="password"],form input[type="select"],form input[type="submit"]{
   flex-grow: 1;
   padding:0.5em 0.5em;
@@ -604,6 +605,9 @@ footer{
     padding:0.25em;
     width:20%;
   }
+  .hform > select .wide-select{
+    width:100% !important;
+  }
   .hform > input[type="submit"]{
     @include setBg(transparent);
     // width:30px;
@@ -795,6 +799,10 @@ footer{
 }
 .consignment-section > form{
   width:90%;
+}
+.consignment-forms select.wide-select{
+  max-width: unset;
+  width:50% !important;
 }
 .subscription-forms p,.subscription-forms .features{
   margin:0.5em;
