@@ -1,9 +1,23 @@
 const storage = window.localStorage;
 const clientSummaryCount = 5;
 const CONSIGNMENT_NUMBER_FORMAT = 6;
-const CONTAINER_FIELDS = [{id:"mbl_number",label:"MB/L Number",required:false},{id:"container_type",label:"Container Type",required:true},{id:"container_no",label:"Container Number",required:true},{id:"container_size",label:"Container size",required:true},{id:"seal_1",label:"Shipping Seal",required:false},{id:"seal_2",label:"Exporter Seal",required:false},{id:"seal_3",label:"Seal Number 3",required:false},{id:"freight_indicator",label:"Freight Indicator",required:false},
-{id:"no_of_packages",label:"Number of Packages",required:false},{id:"package_unit",label:"Package Unit",required:false},{id:"volume",label:"Volume",required:false},{id:"volume_unit",label:"Voulume Unit",required:false},{id:"weight",label:"Weight",required:true},{id:"weight_unit",label:"Weight Unit",required:true},{id:"max_temp",label:"Maximum Temperature",required:false},
-{id:"min_temp",label:"Minimum Temperature",required:false},{id:"plug_yn",label:"Refer Plug Y/N",required:true}];
+const CONTAINER_FIELDS = [{id:"mbl_number",label:"MB/L Number",required:false,type:"text"},
+{id:"container_type",label:"Container Type",required:true,type:"select",options:["General Purpose","ISO Reefer","Insulated","Flat Rack","Open Top"]},
+{id:"container_no",label:"Container Number",required:true,type:"text"},
+{id:"container_size",label:"Container size",required:true,type:"text"},
+{id:"seal_1",label:"Shipping Seal",required:false,type:"text"},
+{id:"seal_2",label:"Exporter Seal",required:false,type:"text"},
+{id:"seal_3",label:"Seal Number 3",required:false,type:"text"},
+{id:"freight_indicator",label:"Freight Indicator",required:false,type:"text"},
+{id:"no_of_packages",label:"Number of Packages",required:false,type:"number"},
+{id:"package_unit",label:"Package Unit",required:false,type:"select",options:["Bag","Box","Carton","Piece"]},
+{id:"volume",label:"Volume",required:false,type:"number"},
+{id:"volume_unit",label:"Voulume Unit",required:false,type:"select",options:["Cubic Meter","Cubic Foot","Lt"]},
+{id:"weight",label:"Weight",required:true,type:"number"},
+{id:"weight_unit",label:"Weight Unit",required:true,type:"select",options:["KG","Lb","Ton"]},
+{id:"max_temp",label:"Maximum Temperature",required:false,type:"number"},
+{id:"min_temp",label:"Minimum Temperature",required:false,type:"number"},
+{id:"plug_yn",label:"Refer Plug Y/N",required:true,type:"select",options:["Yes","No"]}];
 var currentUser = (storage.getItem("currentUser")) ? JSON.parse(storage.getItem("currentUser")):null;
 var storedData = (storage.getItem("data")) ? JSON.parse(storage.getItem("data")):{roles:[],client_roles:[],customers:[],roles:[]};
 
@@ -512,8 +526,8 @@ const activateAccount = (user)=>{
     .then(res=>{
         console.log(res);
         if(res.status === 403){
-            alert("Your session has expired. Please sign in again");
-            signoutUser();
+            showFeedback("Your session has expired. Please sign in again",1);
+            // signoutUser();
         }
         return res.json()})
     .then(result=>{
@@ -635,7 +649,7 @@ const editCustomerDetail = (customer,source)=>{
             .then(res=>{
                 if(res.status == 403){
                     showFeedback("Session expired, please login",1);
-                    signoutUser();
+                    // signoutUser();
                 }
                 else{
                     res.json().then(result=>{
@@ -949,7 +963,20 @@ const switchDetails = (index,data)=>{
 
                 var reader = new FileReader();
                 reader.addEventListener("load",()=>{
-                    newData.instructions_file = reader.result;
+                    if(data && data.id){
+                        uploadConsignmentFile(currentUser.id,reader.result,data.id,"consignments_tb","shipping instructions")
+                        .then(result=>{
+                            // console.log("result: ",result);
+                            updateConsignmentList(result.data);
+                            showFeedback(result.msg,result.code);
+                        })
+                        .catch(e=>{
+                            showFeedback(e,1);
+                        })
+                    }
+                    else{
+                        newData.instructions_file = reader.result;
+                    }
                 },false);
                 reader.readAsDataURL(shippingInstructionsInput.files[0]);
                 }
@@ -1079,6 +1106,16 @@ const switchDetails = (index,data)=>{
                 let shipping_mark = consignmentDataForm.shipping_mark.value;
                 let forwarder_code = consignmentDataForm.forwarder_code.value;
                 let forwarder_id = currentUser.detail.id;
+
+                let consignee_name = consignmentDataForm.consignee_name.value;
+                let consignee_phone = consignmentDataForm.consignee_phone.value;
+                let consignee_address = consignmentDataForm.consignee_address.value;
+                let consignee_tin = consignmentDataForm.consignee_tin.value;
+                let notify_name = consignmentDataForm.notify_name.value;
+                let notify_phone = consignmentDataForm.notify_phone.value;
+                let notify_address = consignmentDataForm.notify_address.value;
+                let notify_tin = consignmentDataForm.notify_tin.value;
+               
                 newData = {
                     user:currentUser.id,
                     cargo_classification:cargo_classification,
@@ -1098,14 +1135,14 @@ const switchDetails = (index,data)=>{
                     exporter_id:customerSelect.options[customerSelect.options.selectedIndex].value,
                     forwarder_code:forwarder_code,
                     forwarder_id:forwarder_id,
-                    consignee_name: consignmentDataForm.consignee_name.value,
-                    consignee_phone: consignmentDataForm.consignee_phone.value,
-                    consignee_address: consignmentDataForm.consignee_address.value,
-                    consignee_tin: consignmentDataForm.consignee_tin.value,
-                    notify_name: consignmentDataForm.notify_name.value,
-                    notify_phone: consignmentDataForm.notify_phone.value,
-                    notify_address: consignmentDataForm.notify_address.value,
-                    notify_tin: consignmentDataForm.notify_tin.value,
+                    consignee_name: consignee_name.value,
+                    consignee_phone: consignee_phone.value,
+                    consignee_address: consignee_address.value,
+                    consignee_tin: consignee_tin.value,
+                    notify_name: notify_name.value,
+                    notify_phone: notify_phone.value,
+                    notify_address: notify_address.value,
+                    notify_tin: notify_tin.value,
                     instructions_file:newData.instructions_file
                 }
                 console.log("mydata: ",newData);
@@ -1186,11 +1223,38 @@ const switchDetails = (index,data)=>{
                 let date = new Date(data.shipping_details.terminal_carry_date);
                 let tcd = (1+ date.getMonth())+"/"+date.getDate()+"/"+date.getFullYear();     
                 shippingForm.terminal_carry_date.type = "text";        
-                shippingForm.terminal_carry_date.value = tcd;
+                shippingForm.terminal_carry_date.value = tcd;  
+                let eta = new Date(data.shipping_details.eta);
+                let etad = (1+ eta.getMonth())+"/"+eta.getDate()+"/"+eta.getFullYear();     
+                shippingForm.eta.type = "text";        
+                shippingForm.eta.value = etad; 
+                let etb = new Date(data.shipping_details.etb);
+                let etbd = (1+ etb.getMonth())+"/"+etb.getDate()+"/"+etb.getFullYear();     
+                shippingForm.etb.type = "text";        
+                shippingForm.etb.value = etbd; 
+                let etd = new Date(data.shipping_details.etd);
+                let etdd = (1+ etd.getMonth())+"/"+etd.getDate()+"/"+etd.getFullYear();     
+                shippingForm.etd.type = "text";        
+                shippingForm.etd.value = etdd;
                 
             }
             if(shippingForm.terminal_carry_date.type == "text"){
                 shippingForm.terminal_carry_date.addEventListener("focus",(e)=>{
+                    e.target.type= "date";
+                })
+            }
+            if(shippingForm.eta.type == "text"){
+                shippingForm.eta.addEventListener("focus",(e)=>{
+                    e.target.type= "date";
+                })
+            }
+            if(shippingForm.etb.type == "text"){
+                shippingForm.etb.addEventListener("focus",(e)=>{
+                    e.target.type= "date";
+                })
+            }
+            if(shippingForm.etd.type == "text"){
+                shippingForm.etd.addEventListener("focus",(e)=>{
                     e.target.type= "date";
                 })
             }
@@ -1204,6 +1268,9 @@ const switchDetails = (index,data)=>{
                 newData.booking_no=shippingForm.booking_no.value;
                 newData.bl_type=shippingForm.bl_type.value;
                 newData.terminal_carry_date=Date.parse(shippingForm.terminal_carry_date.value);
+                newData.eta=Date.parse(shippingForm.eta.value);
+                newData.etb=Date.parse(shippingForm.etb.value);
+                newData.etd=Date.parse(shippingForm.etd.value);
                 
                 
                 console.log("body: ",newData);
@@ -1242,125 +1309,125 @@ const switchDetails = (index,data)=>{
     if(index == 3){
         
         addContainerForm(data,CONTAINER_FIELDS);
-        // var containerForm = document.querySelector("#container_form");
-        // var newData = {};
-        // if(data != null){
-        //     newData.cid = data.id;
-        //     if(data.shipping_details){
-        //         containerForm.mbl_number.value = data.shipping_details.mbl_number;
-        //     }
-        //     if(data.container_details && data.container_details.length > 0){
-        //         containerForm.container_type.value = data.container_details[0].container_type;
-        //         containerForm.container_no.value = data.container_details[0].container_no;
-        //         containerForm.container_size.value = data.container_details[0].container_size;
-        //         containerForm.seal_1.value = data.container_details[0].seal_1;
-        //         containerForm.seal_2.value = data.container_details[0].seal_2;
-        //         containerForm.seal_3.value = data.container_details[0].seal_3;
-        //         containerForm.freight_indicator.value = data.container_details[0].freight_indicator;
-        //         containerForm.no_of_packages.value = data.container_details[0].no_of_packages;
-        //         containerForm.package_unit.value = data.container_details[0].package_unit;
-        //         containerForm.volume.value = data.container_details[0].volume;
-        //         containerForm.volume_unit.value = data.container_details[0].volume_unit;
-        //         containerForm.weight.value = data.container_details[0].weight;
-        //         containerForm.weight_unit.value = data.container_details[0].weight_unit;
-        //         containerForm.max_temp.value = data.container_details[0].max_temp;
-        //         containerForm.min_temp.value = data.container_details[0].min_temp;
-        //         containerForm.plug_yn.value = data.container_details[0].plug_yn;
-        //     }
+        var containerForm = document.querySelector("#container_form");
+        var newData = {};
+        if(data != null){
+            newData.cid = data.id;
+            if(data.shipping_details){
+                containerForm.mbl_number.value = data.shipping_details.mbl_number;
+            }
+            if(data.container_details && data.container_details.length > 0){
+                containerForm.container_type.value = data.container_details[0].container_type;
+                containerForm.container_no.value = data.container_details[0].container_no;
+                containerForm.container_size.value = data.container_details[0].container_size;
+                containerForm.seal_1.value = data.container_details[0].seal_1;
+                containerForm.seal_2.value = data.container_details[0].seal_2;
+                containerForm.seal_3.value = data.container_details[0].seal_3;
+                containerForm.freight_indicator.value = data.container_details[0].freight_indicator;
+                containerForm.no_of_packages.value = data.container_details[0].no_of_packages;
+                containerForm.package_unit.value = data.container_details[0].package_unit;
+                containerForm.volume.value = data.container_details[0].volume;
+                containerForm.volume_unit.value = data.container_details[0].volume_unit;
+                containerForm.weight.value = data.container_details[0].weight;
+                containerForm.weight_unit.value = data.container_details[0].weight_unit;
+                containerForm.max_temp.value = data.container_details[0].max_temp;
+                containerForm.min_temp.value = data.container_details[0].min_temp;
+                containerForm.plug_yn.value = data.container_details[0].plug_yn;
+            }
             
-        // }
-        // var uploadContainerBookingButton = document.getElementById("upload_container_booking");
-        // var containerBookingInput = document.getElementById("file_container_booking");
-        // var containerBookingLink = document.getElementById("link_container_booking");
+        }
+        var uploadContainerBookingButton = document.getElementById("upload_container_booking");
+        var containerBookingInput = document.getElementById("file_container_booking");
+        var containerBookingLink = document.getElementById("link_container_booking");
 
-        // if(data.files && data.files.length > 0){
-        //     var containerFiles = data.files.filter(f=>f.name.toLowerCase() == "container booking");
-        //     if(containerFiles.length > 0){
-        //         containerBookingLink.href = files_url+"/"+containerFiles[0].filename;
-        //         containerBookingLink.textContent = "View Booking Confirmation";
-        //     }
-        // }
+        if(data.files && data.files.length > 0){
+            var containerFiles = data.files.filter(f=>f.name.toLowerCase() == "container booking");
+            if(containerFiles.length > 0){
+                containerBookingLink.href = files_url+"/"+containerFiles[0].filename;
+                containerBookingLink.textContent = "View Booking Confirmation";
+            }
+        }
 
-        // if(uploadContainerBookingButton){
-        //     uploadContainerBookingButton.addEventListener("click",(e)=>{
-        //         containerBookingInput.click();
+        if(uploadContainerBookingButton){
+            uploadContainerBookingButton.addEventListener("click",(e)=>{
+                containerBookingInput.click();
 
-        //         containerBookingInput.addEventListener("change",(e)=>{
-        //             var file = containerBookingInput.files[0];
-        //             if(file){
-        //                 var reader = new FileReader();
-        //                 reader.addEventListener("load",()=>{
-        //                     var urlObj = URL.createObjectURL(file);
-        //                     containerBookingLink.href = urlObj;
-        //                     containerBookingLink.textContent = "View Booking Confirmation;"
-        //                     newData.container_file = reader.result;
+                containerBookingInput.addEventListener("change",(e)=>{
+                    var file = containerBookingInput.files[0];
+                    if(file){
+                        var reader = new FileReader();
+                        reader.addEventListener("load",()=>{
+                            var urlObj = URL.createObjectURL(file);
+                            containerBookingLink.href = urlObj;
+                            containerBookingLink.textContent = "View Booking Confirmation;"
+                            newData.container_file = reader.result;
                             
-        //                 },false);
-        //                 reader.readAsDataURL(file);
-        //             }
-        //         })
-        //     })
-        // }
+                        },false);
+                        reader.readAsDataURL(file);
+                    }
+                })
+            })
+        }
 
-        // if(data && data.no_of_containers > 1){
-        //     const addContainerButton = document.getElementById("add_container");
-        //     addContainerButton.classList.remove("hidden");
-        //     addContainerButton.addEventListener("click",(e)=>{
-        //         addContainerForm(data,CONTAINER_FIELDS);
-        //     })
-        // }
-        // if(containerForm){
-        //     containerForm.addEventListener("submit",(e)=>{
-        //         e.preventDefault();
-        //         newData.mbl_number = containerForm.mbl_number.value;
-        //         newData.container_type = containerForm.container_type.value;
-        //         newData.container_no = containerForm.container_no.value;
-        //         newData.container_size = containerForm.container_size.value;
-        //         newData.seal_1 = containerForm.seal_1.value;
-        //         newData.seal_2 = containerForm.seal_2.value;
-        //         newData.seal_3 = containerForm.seal_3.value;
-        //         newData.freight_indicator = containerForm.freight_indicator.value;
-        //         newData.no_of_packages = containerForm.no_of_packages.value;
-        //         newData.package_unit = containerForm.package_unit.value;
-        //         newData.volume = containerForm.volume.value;
-        //         newData.volume_unit = containerForm.volume_unit.value;
-        //         newData.weight = containerForm.weight.value;
-        //         newData.weight_unit = containerForm.weight_unit.value;
-        //         newData.max_temp = containerForm.max_temp.value;
-        //         newData.min_temp = containerForm.min_temp.value;
-        //         newData.plug_yn = containerForm.plug_yn.value;
+        if(data && data.no_of_containers > 1){
+            const addContainerButton = document.getElementById("add_container");
+            addContainerButton.classList.remove("hidden");
+            addContainerButton.addEventListener("click",(e)=>{
+                addContainerForm(data,CONTAINER_FIELDS);
+            })
+        }
+        if(containerForm){
+            containerForm.addEventListener("submit",(e)=>{
+                e.preventDefault();
+                newData.mbl_number = containerForm.mbl_number.value;
+                newData.container_type = containerForm.container_type.value;
+                newData.container_no = containerForm.container_no.value;
+                newData.container_size = containerForm.container_size.value;
+                newData.seal_1 = containerForm.seal_1.value;
+                newData.seal_2 = containerForm.seal_2.value;
+                newData.seal_3 = containerForm.seal_3.value;
+                newData.freight_indicator = containerForm.freight_indicator.value;
+                newData.no_of_packages = containerForm.no_of_packages.value;
+                newData.package_unit = containerForm.package_unit.value;
+                newData.volume = containerForm.volume.value;
+                newData.volume_unit = containerForm.volume_unit.value;
+                newData.weight = containerForm.weight.value;
+                newData.weight_unit = containerForm.weight_unit.value;
+                newData.max_temp = containerForm.max_temp.value;
+                newData.min_temp = containerForm.min_temp.value;
+                newData.plug_yn = containerForm.plug_yn.value;
 
-        //         console.log("my data: ",newData);
-        //         var method = (data.container_details && data.container_details.length > 0) ? "PUT" : "POST";
+                console.log("my data: ",newData);
+                var method = (data.container_details && data.container_details.length > 0) ? "PUT" : "POST";
 
-        //         var options = {
-        //             method:method,body:JSON.stringify(newData),headers:{
-        //                 'Content-type':'application/json','Authorization':'Bearer '+currentUser.accessToken
-        //             }
-        //         }
-        //         var url = (data.container_details && data.container_details.length > 0) ? container_booking_url+"/"+currentUser.id+"/"+data.container_details[0].id : container_booking_url+"/"+currentUser.id;
-        //         fetch(url,options)
-        //         .then(res=>res.json()).then(result=>{
-        //             console.log("containers: ",result);
-        //             showFeedback(result.msg,result.code);
-        //         })
-        //         .catch(e=>{
-        //             console.log("err: ",e);
-        //             showFeedback(e,1);
-        //         })
-        //     })
-        // }
+                var options = {
+                    method:method,body:JSON.stringify(newData),headers:{
+                        'Content-type':'application/json','Authorization':'Bearer '+currentUser.accessToken
+                    }
+                }
+                var url = (data.container_details && data.container_details.length > 0) ? container_booking_url+"/"+currentUser.id+"/"+data.container_details[0].id : container_booking_url+"/"+currentUser.id;
+                fetch(url,options)
+                .then(res=>res.json()).then(result=>{
+                    console.log("containers: ",result);
+                    showFeedback(result.msg,result.code);
+                })
+                .catch(e=>{
+                    console.log("err: ",e);
+                    showFeedback(e,1);
+                })
+            })
+        }
     }
 }
 
 //add container form
 const addContainerForm = (data,fields)=>{
     const parent = document.getElementById("container_forms");
-    Array.from(parent.children).forEach(child=>{
-        parent.removeChild(child);
+    Array.from(parent.children).forEach((child,i)=>{
+       if(i>0)parent.removeChild(child);
     })
 
-    // file upload and link
+   // file upload and link
 
     var uploadContainerBookingButton = document.getElementById("upload_container_booking");
         var containerBookingInput = document.getElementById("file_container_booking");
@@ -1387,8 +1454,9 @@ const addContainerForm = (data,fields)=>{
                             containerBookingLink.href = urlObj;
                             containerBookingLink.textContent = "View Booking Confirmation";
                             if(data && data.id){
-                                uploadConsignmentFile(currentUser.id,reader.result,data.id,"container_bookings")
+                                uploadConsignmentFile(currentUser.id,reader.result,data.id,"container_bookings","container booking")
                                 .then(result=>{
+                                    // console.log("result: ",result);
                                     updateConsignmentList(result.data);
                                     showFeedback(result.msg,result.code);
                                 })
@@ -1410,81 +1478,65 @@ const addContainerForm = (data,fields)=>{
 
     //end of file upload and link
 
-
     let count = (data && data.no_of_containers) ? data.no_of_containers : 1;
+    const formHead = document.createElement("div");
+    formHead.classList.add("hform");
+    formHead.id = "container0_form";
+    formHead.name = "container0_form";
+
+    var heads = document.createElement("div");
+    heads.classList.add("hform");
+    Array.from(heads.children).forEach(child=>heads.removeChild(child));
+    var fields = fields.sort((a,b)=>(a.required === b.required) ? 0: a.required ? -1 : 1)
     
+    var miniFields = fields.filter(f=>f.required);
+    miniFields.forEach(field=>{
+        var item = document.createElement("span");
+        if(field.type == "select") item.classList.add("select");
+        if(field.type == "number") item.classList.add("num");
+        item.classList.add("bold");
+        item.textContent = field.label + ((field.required) ? "*" : "");
+        heads.appendChild(item);
+    })
+    var f = fields.filter(f=>f.id == "seal_1")[0];
+    var item = document.createElement("span");
+    if(f.type == "select") item.classList.add("select");
+    if(f.type == "number") item.classList.add("num");
+    item.classList.add("bold");
+    item.textContent = f.label + ((f.required) ? "*" : "");
+    heads.appendChild(item);
+
+    var actionHead = document.createElement("span");
+    actionHead.classList.add("bold");
+    actionHead.textContent = "Actions";
+    heads.appendChild(actionHead);
+    formHead.appendChild(heads);
+    parent.appendChild(formHead);
     for(let n=1;n<=count;n++){
-        const section = document.createElement("div");
-        // section.classList.add("column");
-        section.classList.add("consignment-section");
-        section.id = "container"+n+"_collapsible";
-        const head = document.createElement("div");
-        head.classList.add("row-space");
-        head.classList.add("summary-head");
-
-        const title = document.createElement("span");
-        title.textContent = "Container #"+n;
-        head.appendChild(title);
-        const collapse = document.createElement("span");
-        collapse.id = "container"+n+"_collapse";
-        collapse.classList.add("material-icons");
-        if(n>1){
-            collapse.textContent = "add";
-            section.classList.add("hidden")
-        }
-        else collapse.textContent = "remove";
-        
-        head.appendChild(collapse);
-
-        collapse.addEventListener("click",(e)=>{
-            // let target = e.target.id.split("_")[0];
-            section.classList.toggle("hidden");
-            e.target.textContent = (section.classList.contains("hidden")) ? "keyboard_arrow_down" : "keyboard_arrow_up";
-        })
-                    
-        parent.appendChild(head);
-
+       
         const form = document.createElement("form");
+        form.method = "POST";
+        form.classList.add("hform");
         form.id = "container"+n+"_form";
         form.name = "container"+n+"_form";
-
-        const formGroups = [];
-        fields.forEach((f,i)=>{
-            if(i <= fields.length /2){
-                const formgroup = document.createElement("div");
-                formgroup.classList.add("row-space");
-                formGroups.push(formgroup);
-            }
-        })
+       
         var idInput = document.createElement("input");
         idInput.type = "hidden";
         idInput.id = "container_id";
         idInput.name = "container_id";
         idInput.value = (data.container_details && data.container_details.length > n-1) ? data.container_details[n-1].id :-1;
         form.appendChild(idInput);
-        formGroups.forEach((group,idx)=>{
-            let index = (idx == 0) ? 0 : idx *2;
-            
-                let field = fields[index];
-                let nField = null;
-                if(index < fields.length -1) nField = fields[index +1];
-              
-                
-                const fieldDiv = document.createElement("div");
-                const nFieldDiv = document.createElement("div");
-                fieldDiv.classList.add("row");
-                nFieldDiv.classList.add("row");
-                const fieldLabel = document.createElement("label");
-                fieldLabel.textContent = field.label +((field.required) ? " *": "");
-                fieldDiv.appendChild(fieldLabel);
-        
+        miniFields.forEach(field=>{
+            // const fieldDiv = document.createElement("div");
+            // fieldDiv.classList.add("row");
+            if(field.type == "text" || field.type == "number"){
                 const fieldInput = document.createElement("input");
+                if(field.type == "number") fieldInput.step = ".1";
                 fieldInput.id = field.id+"#"+n;
                 fieldInput.name = field.id;
-                fieldInput.type = "text";
-                // fieldInput.required = field.required;
+                fieldInput.type = field.type;
+                fieldInput.required = field.required;
                 fieldInput.placeholder = field.label;
-                
                 if(data && data.container_details && data.container_details.length >n-1){
                     fieldInput.value = data.container_details[n-1][field.id];
                    
@@ -1492,54 +1544,60 @@ const addContainerForm = (data,fields)=>{
                 if(data && data.shipping_details && field.id == "mbl_number"){
                     fieldInput.value = data.shipping_details.mbl_number;
                 }
-                fieldDiv.appendChild(fieldInput);
-        
-                if(nField != null){
-                    const nFieldLabel = document.createElement("label");
-                    nFieldLabel.textContent = nField.label +((field.required) ? " *": "");
-                    nFieldDiv.appendChild(nFieldLabel);
-        
-                    const nFieldInput = document.createElement("input");
-                    nFieldInput.id = nField.id+"#"+n;
-                    nFieldInput.name = nField.id;
-                    nFieldInput.type = "text";
-                    // nFieldInput.required = field.required;
-                    nFieldInput.placeholder = nField.label;
-                    nFieldDiv.appendChild(nFieldInput);
-                    if(data && data.container_details && data.container_details.length >n-1){
-                        nFieldInput.value = data.container_details[n-1][nField.id];
-                    }
+                form.appendChild(fieldInput);
+            }
+            else{
+                const fieldSelect = document.createElement("select");
+                fieldSelect.id = field.id+"#"+n;
+                fieldSelect.name = field.id;
+                fieldSelect.required = field.required;
+                fieldSelect.placeholder = field.label;
+                if(data && data.container_details && data.container_details.length >n-1){
+                    fieldSelect.value = data.container_details[n-1][field.id];
+                   
                 }
-                
-                group.appendChild(fieldDiv);
-                group.appendChild(nFieldDiv);
-                form.appendChild(group);
-                    
-        });
-          
-        const actionRow = document.createElement("div");
-        actionRow.classList.add("row-end");
-        const btnSubmit = document.createElement("input");
-        btnSubmit.type = "submit";
-        btnSubmit.id = "btnSubmitContainer";
-        btnSubmit.name = "btnSubmitContainer";
-        btnSubmit.value = "SAVE";
-    
-        actionRow.appendChild(btnSubmit);
-        form.appendChild(actionRow);
-        section.appendChild(form);
+                field.options.forEach(opt=>{
+                    fieldSelect.options.add(new Option(opt));
+                })
+                form.appendChild(fieldSelect);  
+            }
+                // form.appendChild(fieldDiv);
+        })
+            
+        const fieldInputSeal = document.createElement("input");
+        fieldInputSeal.id = f.id+"#"+n;
+        fieldInputSeal.name = f.id;
+        fieldInputSeal.type = f.type;
+        fieldInputSeal.required = f.required;
+        fieldInputSeal.placeholder = f.label;
+        if(data && data.container_details && data.container_details.length >n-1){
+            fieldInputSeal.value = data.container_details[n-1][f.id];
+            
+        }
+        
+        form.appendChild(fieldInputSeal);
 
+        const btnSubmit = document.createElement("input");
+        btnSubmit.type = "submit"
+        btnSubmit.classList.add("buttons-t");
+        btnSubmit.value = "SAVE";
+       
+        // actionRow.appendChild(btnSubmit);
+        form.appendChild(btnSubmit);
+        parent.appendChild(form);
+        // parent.appendChild(row);
          
         form.addEventListener("submit",(event)=>{
             event.preventDefault();
+            console.log("newFile: ",newFile);
                 let dataItem = {};
                 Array.from(form.elements).filter(input=>input.id.split("#")[1] == n).forEach(inp=>{
                     let key = inp.id.split("#")[0];
                     dataItem[key] = inp.value;
                 })
                 dataItem.cid = data.id;
-                console.log("form: ",dataItem);
                 if(newFile) dataItem.container_file = newFile;
+                console.log("form: ",dataItem);
                 var method =  (idInput.value == -1) ? "POST" : "PUT";
                 var options = {
                     method:method,body:JSON.stringify(dataItem),headers:{
@@ -1548,19 +1606,20 @@ const addContainerForm = (data,fields)=>{
                 }
                 var url = (idInput.value == -1) ? container_booking_url+"/"+currentUser.id : container_booking_url+"/"+currentUser.id+"/"+idInput.value;
                 console.log("url: ",url+"/"+method);
-                fetch(url,options)
-                .then(res=>res.json()).then(result=>{
-                    console.log("containers: ",result);
-                    updateConsignmentList(result.data);
-                    showFeedback(result.msg,result.code);
-                    showExportList(result.data,"export_form");
-                })
-                .catch(e=>{
-                    console.log("err: ",e);
-                    showFeedback(e,1);
-                })
+                // fetch(url,options)
+                // .then(res=>res.json()).then(result=>{
+                //     console.log("containers: ",result);
+                //     updateConsignmentList(result.data);
+                //     showFeedback(result.msg,result.code);
+                //     showExportList(result.data,"export_form");
+                // })
+                // .catch(e=>{
+                //     console.log("err: ",e);
+                //     showFeedback(e,1);
+                // })
         })
-        parent.appendChild(section);
+        // parent.appendChild(section);
+
     } 
     
    
@@ -1568,22 +1627,22 @@ const addContainerForm = (data,fields)=>{
 }
 
 //upload consignment file
-const uploadConsignmentFile = (userId,file,cid,target)=>{
+const uploadConsignmentFile = (userId,file,cid,target,name)=>{
     return new Promise((resolve,reject)=>{
-        var data = {cid:cid,file:file,target:target,user:userId};
+        var data = {cid:cid,file:file,target:target,user:userId,name:name};
         console.log("ucf: ",data);
-        // fetch(upload_files_url,{body:JSON.stringify(data),method:"POST",headers:{'Content-type':'application/json','Authorization':'Bearer '+currentUser.accessToken}})
-        // .then(res=>res.json())
-        // .then(result=>{
-        //     console.log("result: ",result);
-        //     resolve(result);
-        //     // updateConsignmentList(result.data);
-        //     // showExportList(result.data);
-        //     // showFeedback(result.msg,result.code);
-        // })
-        // .catch(e=>{
-        //     reject("Something went wrong! Please try again later");
-        // })
+        fetch(upload_files_url,{body:JSON.stringify(data),method:"POST",headers:{'Content-type':'application/json','Authorization':'Bearer '+currentUser.accessToken}})
+        .then(res=>res.json())
+        .then(result=>{
+            console.log("result: ",result);
+            resolve(result);
+            updateConsignmentList(result.data);
+            showExportList(result.data);
+            showFeedback(result.msg,result.code);
+        })
+        .catch(e=>{
+            reject("Something went wrong! Please try again later");
+        })
     })
 }
 
@@ -1627,7 +1686,7 @@ const fetchRoles = ()=>{
         .then(res=>{
             if(res.status == 403){
                 showFeedback("Your session expired, please sign in",1);
-                signoutUser();
+                // signoutUser();
             }
             else{
                 res.json().then(result=>{
@@ -1659,7 +1718,7 @@ const fetchClientRoles = ()=>{
         .then(res=>{
             if(res.status == 403){
                 showFeedback("Session expired, please login",1);
-                signoutUser();
+                // signoutUser();
             }
             else {
                 res.json().then(result=>{
@@ -1693,7 +1752,7 @@ const registerClientRole = (data)=>{
         fetch(url,options).then(res=>{
             if(res.status == 403) {
                 showFeedback("Your session expired, please login",1);
-                signoutUser();
+                // signoutUser();
             }
             else{
                 res.json().then(result=>{
@@ -2277,7 +2336,7 @@ const submitClientDetail =(data,verb)=>{
     .then(res=>{
         if(res.status == 403){
             showFeedback("Session expired. Please signin",1);
-            signoutUser();
+            // signoutUser();
             
         }
         else{
@@ -2315,7 +2374,7 @@ const submitCustomerDetail =(data,verb)=>{
     .then(res=>{
         if(res.status == 403){
             showFeedback("Session expired. Please signin",1);
-            signoutUser();
+            // signoutUser();
             
         }
         else{

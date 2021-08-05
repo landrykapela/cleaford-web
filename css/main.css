@@ -364,101 +364,6 @@ main > div#dashboard_content {
   flex-grow: 1;
 }
 
-footer {
-  text-align: center;
-  color: #ffffff;
-  width: calc(100% - 2em);
-  padding: 0.5em 1em;
-  background-color: #666262 !important;
-}
-
-.form-container {
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: center;
-  border-radius: 30px;
-  background-color: #a8a2a2 !important;
-  width: 60%;
-  margin: 1em auto;
-  color: #666262;
-  padding: 1em 0;
-}
-
-.form-container > span {
-  margin: 0.5em 1em;
-}
-
-.highlight {
-  width: 25px;
-  height: 25px;
-  background-color: #666262 !important;
-  color: #ffffff;
-  padding: 3px;
-  border-radius: 50%;
-  text-align: center;
-}
-
-.highlight:hover {
-  background-color: #ffcc00 !important;
-}
-
-.no-corner {
-  border-radius: unset !important;
-}
-
-.export-buttons {
-  width: 50px;
-  background-color: #666262 !important;
-  color: #ffffff;
-  margin: 0.25em;
-  cursor: pointer;
-}
-
-.buttons, .buttons-s, form input[type=submit] {
-  padding: 0.5em 1em;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  min-width: 50px;
-  margin-left: 1em;
-  font-family: "Baloo Thambi 2", cursive;
-  text-align: center;
-  font-weight: bold;
-  font-size: 16px;
-}
-
-.buttons {
-  border: 1px #cc9900 solid;
-  background-color: transparent !important;
-  color: #cc9900;
-}
-
-.buttons-s, form input[type=submit] {
-  background-color: #cc9900 !important;
-  color: #ffffff;
-}
-
-.secondary-button {
-  background-color: #a8a2a2 !important;
-  width: 70px;
-  color: #ffffff;
-  border-radius: unset !important;
-  border: none;
-  margin: 0.5em 0;
-  padding: 0.25em;
-  font-size: small;
-  align-self: flex-end;
-}
-
-.dialog-button {
-  cursor: pointer;
-  font-size: larger;
-  font-weight: bold;
-  color: #666262;
-  margin: 1em;
-}
-
 form {
   display: flex;
   flex-direction: column;
@@ -597,6 +502,111 @@ form.client_forms .form-group textarea, form.client_forms .form-group input[type
   padding: 0.5em 1.5em;
 }
 
+footer {
+  text-align: center;
+  color: #ffffff;
+  width: calc(100% - 2em);
+  padding: 0.5em 1em;
+  background-color: #666262 !important;
+}
+
+.form-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  border-radius: 30px;
+  background-color: #a8a2a2 !important;
+  width: 60%;
+  margin: 1em auto;
+  color: #666262;
+  padding: 1em 0;
+}
+
+.form-container > span {
+  margin: 0.5em 1em;
+}
+
+.highlight {
+  width: 25px;
+  height: 25px;
+  background-color: #666262 !important;
+  color: #ffffff;
+  padding: 3px;
+  border-radius: 50%;
+  text-align: center;
+}
+
+.highlight:hover {
+  background-color: #ffcc00 !important;
+}
+
+.no-corner {
+  border-radius: unset !important;
+}
+
+.export-buttons {
+  width: 50px;
+  background-color: #666262 !important;
+  color: #ffffff;
+  margin: 0.25em;
+  cursor: pointer;
+}
+
+.buttons, .buttons-s, form input[type=submit], .buttons-t {
+  padding: 0.5em 1em;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  min-width: 50px;
+  margin-left: 1em;
+  font-family: "Baloo Thambi 2", cursive;
+  text-align: center;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.buttons {
+  border: 1px #cc9900 solid;
+  background-color: transparent !important;
+  color: #cc9900;
+}
+
+.buttons-s, form input[type=submit] {
+  background-color: #cc9900 !important;
+  color: #ffffff;
+}
+
+.buttons-t {
+  background-color: transparent;
+  color: #cc9900 !important;
+  font-weight: bold;
+}
+
+.buttons-t:hover {
+  color: #ffcc00 !important;
+}
+
+.secondary-button {
+  background-color: #a8a2a2 !important;
+  width: 70px;
+  color: #ffffff;
+  border-radius: unset !important;
+  border: none;
+  margin: 0.5em 0;
+  padding: 0.25em;
+  font-size: small;
+  align-self: flex-end;
+}
+
+.dialog-button {
+  cursor: pointer;
+  font-size: larger;
+  font-weight: bold;
+  color: #666262;
+  margin: 1em;
+}
+
 .feature-image {
   width: 50%;
 }
@@ -620,7 +630,7 @@ main > div.content .summary-table > span.summary-head, .subscription-forms .summ
   width: calc(100% - 1em);
 }
 
-.summary-head, .head-row {
+.summary-head, .head-row, .hform {
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
@@ -647,6 +657,10 @@ main > div.content .summary-table > span.summary-head, .subscription-forms .summ
   margin-top: 0.25em;
 }
 
+.summary-table {
+  overflow-x: scroll;
+}
+
 .head-row > span, .body-row > span, .consignment-row > span {
   display: flex;
   flex-direction: row;
@@ -656,6 +670,27 @@ main > div.content .summary-table > span.summary-head, .subscription-forms .summ
   padding: 0.25em;
   font-size: small;
   text-align: left;
+}
+
+#container_form .head-row, .hform {
+  width: calc(100% - 0.5em) !important;
+}
+
+.hform > span, .hform input {
+  padding: 0.25em !important;
+  font-size: small;
+  text-align: left;
+  width: 30%;
+  color: #666262;
+}
+
+.hform > input[type=number], .hform > select, .hform .select, .hform .num {
+  padding: 0.25em;
+  width: 20%;
+}
+
+.hform > input[type=submit] {
+  background-color: transparent !important;
 }
 
 .body-row > span.actions, .consignment-row > span.actions {
@@ -678,7 +713,7 @@ main > div.content .summary-table > span.summary-head, .subscription-forms .summ
   color: #666262;
 }
 
-.head-row, .body-row, .consignment-row {
+.head-row, .body-row, .consignment-row, form.hform {
   display: flex;
   flex-direction: row;
   justify-content: space-evenly;
@@ -854,9 +889,10 @@ main > div.content .summary-table > span.summary-head, .subscription-forms .summ
 }
 
 .consignment-forms > form {
-  width: calc(100% - 2em);
+  width: calc(100%);
   border-top-left-radius: 5px;
   border-top-right-radius: 5px;
+  padding: 1em 0 !important;
 }
 
 .consignment-forms label, .subscription-forms label {
@@ -1261,6 +1297,10 @@ a.nav-item:hover {
   border: 1px solid #ffcc00;
   border-top: none;
   animation: spin 1s linear 0s infinite forwards;
+}
+
+.button-mini {
+  width: 30px !important;
 }
 
 .round-corner {

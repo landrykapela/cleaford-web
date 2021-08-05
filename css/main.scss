@@ -333,94 +333,7 @@ text-align: left;
 }
 //end side bar
 
-//footer
-footer{
-  text-align: center;
-  color: $defaultColor;
-  width: calc(100% - 2em);
-  padding:0.5em 1em;
-  @include setBg($faintDark);
-}
-//end footer
 
-//form container
-.form-container{
-  @include flex(column,flex-start,center);
-  @include addRoundCorner(30px);
-  @include setBg($faint);
-  width:60%;
-  margin:1em auto;
-  color:$faintDark;
-  padding:1em 0;
-}
-.form-container > span{
-  // align-self: flex-start;
-  margin:0.5em 1em;
-}
-
-//start buttons
-.highlight{
-  width:25px;
-  height:25px;
-  @include setBg($faintDark);
-  color:$defaultColor;
-  padding:3px;
-  border-radius: 50%;
-  text-align: center;
-}
-.highlight:hover{
-  @include setBg($primaryColor);
-}
-.no-corner{
-  @include squareCorner();
-}
-.export-buttons{
-  width:50px;
-  @include setBg($faintDark);
-  color:$defaultColor;
-  margin:0.25em;
-  cursor: pointer;
-}
-.buttons,.buttons-s{
-  padding:0.5em 1em;
-  border:none;
-  border-radius: 8px;
-  cursor: pointer;
-  min-width:50px;
-  margin-left:1em;
-  font-family: $fontFamily,cursive;
-  text-align: center;
-  font-weight: bold;
-  font-size: $standardTextSize;
-}
-.buttons{
-  @include addBorder(1px,$primaryDarkColor ,solid );
-  @include setBg(transparent);
-  color:$primaryDarkColor;
-}
-.buttons-s{
-  @include setBg($primaryDarkColor);
-  color:$defaultColor;
-}
-.secondary-button{
-  @include setBg($faint);
-  width:70px;
-  color:$defaultColor;
-  @include squareCorner();
-  border:none;
-  margin:0.5em 0;
-  padding:0.25em;
-  font-size: small;
-  align-self: flex-end;
-}
-.dialog-button{
-  cursor: pointer;
-  font-size: larger;
-  font-weight: bold;
-  color:$faintDark;
-  margin:1em;
-}
-//end buttons
 //forms
 form {
   @include flex(column,flex-start ,center );
@@ -529,6 +442,104 @@ form input[type="submit"]{
   form.client_forms .form-group textarea,form.client_forms .form-group input[type="email"],form.client_forms .form-group input[type="password"],form.client_forms .form-group input[type="number"],form.client_forms .form-group input[type="text"]{
   padding:0.5em 1.5em;
   }
+
+//footer
+footer{
+  text-align: center;
+  color: $defaultColor;
+  width: calc(100% - 2em);
+  padding:0.5em 1em;
+  @include setBg($faintDark);
+}
+//end footer
+
+//form container
+.form-container{
+  @include flex(column,flex-start,center);
+  @include addRoundCorner(30px);
+  @include setBg($faint);
+  width:60%;
+  margin:1em auto;
+  color:$faintDark;
+  padding:1em 0;
+}
+.form-container > span{
+  // align-self: flex-start;
+  margin:0.5em 1em;
+}
+
+//start buttons
+.highlight{
+  width:25px;
+  height:25px;
+  @include setBg($faintDark);
+  color:$defaultColor;
+  padding:3px;
+  border-radius: 50%;
+  text-align: center;
+}
+.highlight:hover{
+  @include setBg($primaryColor);
+}
+.no-corner{
+  @include squareCorner();
+}
+.export-buttons{
+  width:50px;
+  @include setBg($faintDark);
+  color:$defaultColor;
+  margin:0.25em;
+  cursor: pointer;
+}
+.buttons,.buttons-s,.buttons-t{
+  padding:0.5em 1em;
+  border:none;
+  border-radius: 8px;
+  cursor: pointer;
+  min-width:50px;
+  margin-left:1em;
+  font-family: $fontFamily,cursive;
+  text-align: center;
+  font-weight: bold;
+  font-size: $standardTextSize;
+}
+.buttons{
+  @include addBorder(1px,$primaryDarkColor ,solid );
+  @include setBg(transparent);
+  color:$primaryDarkColor;
+}
+.buttons-s{
+  @include setBg($primaryDarkColor);
+  color:$defaultColor;
+}
+.buttons-t{
+  background-color: transparent;
+  color:$primaryDarkColor !important;
+  font-weight: bold;
+}
+.buttons-t:hover{
+  color:$primaryColor !important;
+}
+.secondary-button{
+  @include setBg($faint);
+  width:70px;
+  color:$defaultColor;
+  @include squareCorner();
+  border:none;
+  margin:0.5em 0;
+  padding:0.25em;
+  font-size: small;
+  align-self: flex-end;
+}
+.dialog-button{
+  cursor: pointer;
+  font-size: larger;
+  font-weight: bold;
+  color:$faintDark;
+  margin:1em;
+}
+//end buttons
+
   //feature
   .feature-image{
     width:50%;
@@ -549,7 +560,7 @@ form input[type="submit"]{
     align-self: center;
     width:calc(100% - 1em);
   }
-  .summary-head, .head-row{
+  .summary-head, .head-row,.hform{
     @include flex(row,flex-start,center);
     @include addRoundCornerTop(4px,4px );
     color:$defaultColor; 
@@ -567,13 +578,35 @@ form input[type="submit"]{
   .summary-table .head-row{
     margin-top:0.25em;
   }
- 
+ .summary-table{
+   overflow-x: scroll;
+ }
   .head-row > span,.body-row >span{
     @include flex(row,flex-start,center);
     width: 100%;
     padding:0.25em;
     font-size: small;
     text-align: left;
+  }
+  #container_form .head-row,.hform{
+    width:calc(100% - 0.5em) !important;
+  }
+  .hform > span,.hform input{
+    padding:0.25em !important;
+    font-size: small;
+    text-align: left;
+    width:30%;
+    color:$faintDark;
+  }
+ 
+ 
+  .hform > input[type="number"], .hform > select,.hform .select,.hform .num{
+    padding:0.25em;
+    width:20%;
+  }
+  .hform > input[type="submit"]{
+    @include setBg(transparent);
+    // width:30px;
   }
   .body-row > span.actions{
     @include flex(row,space-evenly ,center );
@@ -589,12 +622,13 @@ form input[type="submit"]{
    @include setBg($faintLight);
    color:$faintDark;
  }
-  .head-row,.body-row{
+  .head-row,.body-row,form.hform{
     @include flex(row,space-evenly,center );
     width: calc(100% - 0.5em - 2px);
     // border:1px solid $faint;
     padding:0.25em;
   }
+
   .summary-table form{
     @include flex(row,space-evenly,center);
     width:90%;
@@ -710,11 +744,12 @@ form input[type="submit"]{
 }
 
 .consignment-forms > form{
-  width:calc(100% - 2em);
+  width:calc(100%);
   // margin-top:-0.5em;
   @include addRoundCornerTop(5px,5px );
   // border:1px solid red;
   // @include setBg($faintLight);
+  padding:1em 0 !important;
 }
 .consignment-forms label,.subscription-forms label{
   text-align: right;
@@ -1057,6 +1092,9 @@ a.nav-item:hover {
   border:1px solid $primaryColor;
   border-top:none;
   animation: spin 1s linear 0s infinite forwards;
+}
+.button-mini{
+  width:30px !important;
 }
 
 //others

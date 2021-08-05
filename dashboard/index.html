@@ -197,15 +197,15 @@
                            </div> 
                            <div class="column-center" id="step-3">
                                <span class="progress-step">3</span>
-                               <span>Packaging/ Warehousing</span>
+                               <span>Pre-Documentation</span>
                            </div> 
                            <div class="column-center" id="step-4">
                                 <span class="progress-step">4</span>
-                                <span>Certificates Processing</span>
+                                <span>Packaging/Loading</span>
                            </div>                       
                            <div class="column-center" id="step-5">
                              <span class="progress-step">5</span>
-                             <span>Custom Release Processing</span>
+                             <span>Post-Documentation</span>
                            </div> 
                              
                        </div>
@@ -414,7 +414,7 @@
                                                     <option>Type C</option>
                                                 </select>
                                             </div>
-                                            <div class="rows"></div>
+                                            <div class="row"></div>
                                            </div>
                                         </div>
                                     </fieldset>
@@ -482,81 +482,118 @@
                            </div>
                         </div>
                         <div id="detail_2" class="column consignment-details hidden">
-                            <div class="consignment-forms-no-border row-space">
-                                <div class="row">
-                                    <input type="file" accept="image/*,.pdf" class="hidden" name="file_ship_booking" id="file_ship_booking"/>
-                                    <span class="buttons" id="upload_ship_booking">Upload Booking Confirmation</span>
-                                    <a class="file-link" id="link_ship_booking" target="_blank"></a>
-                                </div>
-                                <span class="material-icons" onClick="showConsignment()">close</span>
+                            
+                            <div class="consignment-forms-no-border row-end">
+                                
+                                <span class="material-icons highlight" onClick="showConsignment()">close</span>
                             </div>
                             <div class="consignment-forms">
                                 
                                 <form id="booking_form" method="POST">
-                                    <div class="row-space summary-head">
-                                        <span class="">Ship Booking Details</span>
-                                    
-                                    </div>
-                                    <div id="booking_collapsible" class="column consignment-section">
-                                        <div class="row-space">
-                                            <div class="row">
-                                                <label for="mbl_number">MB/L Number *</label>
-                                                <input required type="text" id="mbl_number" name="mbl_number" placeholder="MB/L Number"/>
+                                   
+                                    <fieldset class="consignment-section">
+                                        <legend class="row-space">Ship Booking Details
+                                            <span class="material-icons" id="booking_collapse">keyboard_arrow_down</span>
+                                        </legend>
+                                        <div id="booking_collapsible" class="consignment-section">
+                                            <div class="row-space">
+                                                <div class="row">
+                                                    <label for="mbl_number">MB/L Number *</label>
+                                                    <input required type="text" id="mbl_number" name="mbl_number" placeholder="MB/L Number"/>
+                                                </div>
+                                                <div class="row">
+                                                    <label for="shipping_line">Shipping Line *</label>
+                                                    <input required type="text" id="shipping_line" name="shipping_line" placeholder="Shipping Line"/>
+                                                </div>
                                             </div>
-                                            <div class="row">
-                                                <label for="shipping_line">Shipping Line *</label>
-                                                <input required type="text" id="shipping_line" name="shipping_line" placeholder="Shipping Line"/>
+                                            <div class="row-space">
+                                                <div class="row">
+                                                    <label for="vessel_name">Vessel Name *</label>
+                                                    <input required type="text" id="vessel_name" name="vessel_name" placeholder="Vessel Name"/>
+                                                </div>
+                                                <div class="row">
+                                                    <label for="booking_no">Booking Number *</label>
+                                                    <input required type="text" id="booking_no" name="booking_no" placeholder="Booking Number"/>
+                                                </div>
+                                            </div>
+                                            <div class="row-space">
+                                                <div class="row">
+                                                    <label for="bl_type">B/L Type *</label>
+                                                    <select required type="text" id="bl_type" name="bl_type">
+                                                        <option>Clean BL</option>
+                                                        <option>Received for Shipment</option>
+                                                        <option>Through BL</option>
+                                                        <option>Master BL</option>
+                                                        <option>Container BL</option>
+                                                    </select>
+                                                </div>
+                                                <div class="row">
+                                                    <label for="terminal_carry_date">Terminal Expected Carry in Date</label>
+                                                    <input type="date" id="terminal_carry_date" name="terminal_carry_date" placeholder="Date"/>
+                                                </div>
+                                            </div>
+                                            <div class="row-space">
+                                                <div class="row">
+                                                    <label for="eta">ETA</label>
+                                                    <input required type="date" id="eta" name="eta"/>
+                                                </div>
+                                                <div class="row">
+                                                    <label for="etb">ETB</label>
+                                                    <input type="date" id="etb" name="etb"/>
+                                                </div>
+                                                
                                             </div>
                                         </div>
                                         <div class="row-space">
                                             <div class="row">
-                                                <label for="vessel_name">Vessel Name *</label>
-                                                <input required type="text" id="vessel_name" name="vessel_name" placeholder="Vessel Name"/>
+                                                <label for="etd">ETD</label>
+                                                <input required type="date" id="etd" name="etd"/>
                                             </div>
                                             <div class="row">
-                                                <label for="booking_no">Booking Number *</label>
-                                                <input required type="text" id="booking_no" name="booking_no" placeholder="Booking Number"/>
-                                            </div>
-                                        </div>
-                                        <div class="row-space">
-                                            <div class="row">
-                                                <label for="bl_type">B/L Type *</label>
-                                                <input required type="text" id="bl_type" name="bl_type" placeholder="B/L Type"/>
-                                            </div>
-                                            <div class="row">
-                                                <label for="terminal_carry_date">Terminal Expected Carry in Date</label>
-                                                <input type="date" id="terminal_carry_date" name="terminal_carry_date" placeholder="Date"/>
+                                               
                                             </div>
                                             
                                         </div>
-                                        <div class="row-end">
-                                            <input type="submit" name="btnSubmitShipping" id="btnSubmitShipping" value="SAVE"/>
+                                            
                                         </div>
+                                    </fieldset>
+                                    <div class="consignment-forms-no-border row-space">
+                                        <div class="row">
+                                            <input type="file" accept="image/*,.pdf" class="hidden" name="file_ship_booking" id="file_ship_booking"/>
+                                            <span class="buttons" id="upload_ship_booking">Upload Booking Confirmation</span>
+                                            <a class="file-link" id="link_ship_booking" target="_blank"></a>
+                                        </div>
+                                        <input class="buttons-s" type="submit" name="btnSubmitShipping" id="btnSubmitShipping" value="SAVE"/>
+                                   
                                     </div>
+                                   
                                 </form>
                             </div>                          
                         </div>
-                        <div id="detail_3" class="column consignment-details hidden">
-                            <div class="consignment-forms-no-border row-space">
+                        <div id="detail_4" class="consignment-details hidden">
+                            
+                            <div class="column" id="container_forms">   
+                                <div class="row-end">
+                                    <span class="material-icons highlight" onClick="showConsignment()">close</span>
+                                </div>
+                             
+                            </div>   
+                            <div class="consignment-forms-no-border row">
                                 <div class="row">
                                     <input type="file" accept="image/*,.pdf" class="hidden" name="file_container_booking" id="file_container_booking"/>
                                     <span class="buttons" id="upload_container_booking">Upload Container Confirmation</span>
                                     <a class="file-link" id="link_container_booking" target="_blank"></a>
                                 </div>
-                                <span class="material-icons" onClick="showConsignment()">close</span>
-                            </div>
-                            <div class="consignment-forms" id="container_forms">                              
-                                
-                            </div>                          
+                            </div>                       
                         </div>  
-                        <div id="detail_4" class="column consignment-details hidden">
+                        <div id="detail_3" class="column consignment-details hidden">
                             <div class="consignment-forms-no-border row-space">
                                 <div class="row">
                                     <input type="file" accept="image/*,.pdf" class="hidden" name="file_certificates" id="file_certificates" multiple/>
                                     <span class="buttons" id="upload_certificates">Upload Certificates</span>
                                     <a class="file-link" id="link_certificates" target="_blank"></a>
                                 </div>
-                                <span class="material-icons" onClick="showConsignment()">close</span>
+                                <span class="material-icons highlight" onClick="showConsignment()">close</span>
                             </div>
                             <div class="consignment-forms">                              
                                 <form id="container_form" method="POST">
