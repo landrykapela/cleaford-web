@@ -931,17 +931,48 @@ const showODGFiles = (files,tag)=>{
     Array.from(container.children).forEach(c=>container.removeChild(c));
     if(files && files.length > 0){
         files.forEach(file=>{
+            var div = document.createElement("div");
+            div.classList.add("row-space");
             var anchor = document.createElement("a");
-            anchor.href = (file.url) ? file.url : "/data/"+file.filename;
+            anchor.href = (file.url) ? file.url : files_url+"/"+file.filename;
             anchor.target = "_blank";
             anchor.textContent = file.name;//[0].toUpperCase()+ file.name.substring(1);
-            container.appendChild(anchor);
+            div.appendChild(anchor);
+
+            var del = document.createElement("span");
+            del.classList.add("material-icons");
+            del.textContent = "delete";
+
+            div.appendChild(del);
+
+            del.addEventListener("click",(e)=>{
+                alertDialog("Are you sure you want to delete this file?","Delelte",()=>{
+                    deleteFile(file.id,tag);
+                })
+            })
+
+            container.appendChild(div);
         })
 
     }
     else{
         container.textContent = "No files uploaded!";
     }
+}
+//delete uploaded file
+const deleteFile=(fileId)=>{
+    var url = upload_files_url +"/"+currentUser.id+"/"+fileId;
+    fetch(url,{method:"DELETE",headers:{'Content-type':'application/json','Authorization':'Bearer '+currentUser.accessToken}})
+    .then(res=>res.json())
+    .then(result=>{
+        updateConsignmentList(result.data);
+        showExportList(result.data);
+        showFeedback(result.msg,result.code);
+    })
+    .catch(e=>{
+        console.log("deleteFile(): ",e);
+        showFeedback("Something went wrong",1);
+    })
 }
 //switch steps
 const switchSteps = (position,data)=>{
@@ -1181,14 +1212,14 @@ const switchDetails = (index,data)=>{
                     exporter_id:customerSelect.options[customerSelect.options.selectedIndex].value,
                     forwarder_code:forwarder_code,
                     forwarder_id:forwarder_id,
-                    consignee_name: consignee_name.value,
-                    consignee_phone: consignee_phone.value,
-                    consignee_address: consignee_address.value,
-                    consignee_tin: consignee_tin.value,
-                    notify_name: notify_name.value,
-                    notify_phone: notify_phone.value,
-                    notify_address: notify_address.value,
-                    notify_tin: notify_tin.value,
+                    consignee_name: consignee_name,
+                    consignee_phone: consignee_phone,
+                    consignee_address: consignee_address,
+                    consignee_tin: consignee_tin,
+                    notify_name: notify_name,
+                    notify_phone: notify_phone,
+                    notify_address: notify_address,
+                    notify_tin: notify_tin,
                     instructions_file:newData.instructions_file
                 }
                 console.log("mydata: ",newData);
@@ -1442,6 +1473,7 @@ const switchDetails = (index,data)=>{
                     fileInput.click();
                     fileInput.addEventListener("change",(e)=>{
                         var file = e.target.files[0];
+                        console.log("test 1...");
                         if(file){
                             var reader = new FileReader();
                             reader.addEventListener("load",()=>{
@@ -1687,7 +1719,6 @@ const addContainerForm = (data,fields)=>{
 const uploadConsignmentFile = (userId,file,cid,target,name)=>{
     return new Promise((resolve,reject)=>{
         var data = {cid:cid,file:file,target:target,user:userId,name:name};
-        console.log("ucf: ",data);
         fetch(upload_files_url,{body:JSON.stringify(data),method:"POST",headers:{'Content-type':'application/json','Authorization':'Bearer '+currentUser.accessToken}})
         .then(res=>res.json())
         .then(result=>{
