@@ -1,12 +1,22 @@
 const storage = window.localStorage;
+const DATA_COUNT = 12;
+const NUMBER_CFG = {count: DATA_COUNT, min: 0, max: 100};
+
 const clientSummaryCount = 5;
 const CONSIGNMENT_NUMBER_FORMAT = 6;
-const PREDOCUMENTS = [{id:0,name:"ODG Certificate 1",label:"odg_1"},
-{id:1,name:"ODG Certificate 2",label:"odg_2"},
-{id:2,name:"ODG Certificate 3",label:"odg_3"},
-{id:3,name:"ODG Certificate 4",label:"odg_4"},
-{id:4,name:"ODG Certificate 5",label:"odg_5"},
-{id:5,name:"ODG Certificate 6",label:"odg_6"},];
+const PREDOCUMENTS = [
+    {id:0,name:"ODG Certificate 1",label:"odg_1"},
+    {id:1,name:"ODG Certificate 2",label:"odg_2"},
+    {id:2,name:"ODG Certificate 3",label:"odg_3"},
+    {id:3,name:"ODG Certificate 4",label:"odg_4"},
+    {id:4,name:"ODG Certificate 5",label:"odg_5"},
+    {id:5,name:"ODG Certificate 6",label:"odg_6"}];
+    const DOCUMENTS = [
+        {id:0,name:"custom release",label:"Custom Release"},
+        {id:1,name:"loading permission",label:"Loading Permission"},
+        {id:2,name:"export permission",label:"Export Permission"},
+        {id:3,name:"screening report",label:"Screening Report"},
+        {id:4,name:"bill of lading",label:"Bill of Lading"},];
 const CONTAINER_FIELDS = [{id:"mbl_number",label:"MB/L Number",required:false,type:"text"},
 {id:"container_type",label:"Container Type",required:true,type:"select",options:["General Purpose","ISO Reefer","Insulated","Flat Rack","Open Top"]},
 {id:"container_no",label:"Container Number",required:true,type:"text"},
@@ -38,6 +48,15 @@ localStorage.setItem = function(key, value) {
   originalSetItem.apply(this, arguments);
 };
 
+
+const generateRandomData = (count)=>{
+    var result = [];
+    for(let i=0; i<count;i++){
+        let random = Math.floor(Math.random() * (NUMBER_CFG.max - NUMBER_CFG.min + 1)) + NUMBER_CFG.min;
+        result.push(random);
+    }
+    return result;
+}
 
 const arrayToCSV = (sourceArray)=>{
     let source = (typeof sourceArray != 'object') ? JSON.parse(sourceArray) : sourceArray;
@@ -417,34 +436,34 @@ const showClientStats =()=>{
             }
             const canvas = document.createElement("canvas");
             chartArea.appendChild(canvas);
-            let summary = {
-                labels:["Clearing","Forwarding"],
-                datasets:[{
-                    label:"Consigment Type",
-                    data:[22,36],
-                    backgroundColor:['#ffcc00','#cc9900'],
-                    hoverOffset:4
-                }]
+            
+    const labels = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    let data = {
+        labels: labels,
+        datasets: [
+            {
+            label: 'Sales',
+            data: generateRandomData(NUMBER_CFG.count),
+            borderColor: "#cc9900",
+            backgroundColor: "#ffcc00",
+            },
+            
+        ]
+    }
+    let config = {
+        type: 'line',   
+        data: data,
+        options: {
+          responsive: true,
+          plugins: {
+        
+            title: {
+              display: true,
+              text: 'Annual Sales'
             }
-            let config = {
-                type:'pie',data:summary,options:{
-                    responsive:true,
-                    plugins:{
-                        legend:{
-                            display:true,
-                            position:'left'
-                        },
-                        title:{
-                            display:true,
-                            position:'top',text:'Consigment Type',
-                            align:'start',
-                            padding:{
-                                top:10,left:10,bottom:10
-                            }
-                        }
-                    }
-                }
-            }
+          }
+        },
+    }
             var myChart = drawChart(config,canvas);
         
             // showCustomersSummary();
@@ -905,15 +924,17 @@ const showConsignmentForm=(source,data=null)=>{
 }
 
 //show odg files
-const showODGFiles = (files)=>{
-    var container = document.getElementById("odg_list");
+const showODGFiles = (files,tag)=>{
+    console.log("test: ",files);
+    var list_id = tag+"_list";
+    var container = document.getElementById(list_id);
     Array.from(container.children).forEach(c=>container.removeChild(c));
     if(files && files.length > 0){
         files.forEach(file=>{
             var anchor = document.createElement("a");
-            anchor.href = file.url;
+            anchor.href = (file.url) ? file.url : "/data/"+file.filename;
             anchor.target = "_blank";
-            anchor.textContent = file.name;
+            anchor.textContent = file.name;//[0].toUpperCase()+ file.name.substring(1);
             container.appendChild(anchor);
         })
 
@@ -928,6 +949,7 @@ const switchSteps = (position,data)=>{
     progressSteps.forEach((step)=>{
         step.classList.remove("current");
     });
+    position = (position >=5 ) ? 5 :position;
     progressSteps[position-1].classList.add("current");
     switchDetails(position,data);
 }
@@ -1331,25 +1353,30 @@ const switchDetails = (index,data)=>{
         }
     }
     if(index == 3){
-        var myFiles = [];
+        var myFiles = (data && data.files) ? data.files.filter(f=>f.name.includes("ODG Certificate")) : [];
         var select = document.getElementById("odg_file_select");
         var fileInput = document.getElementById("odg_file_input");
-        // var fileInput = document.getElementById("odg_file_input");
+        
+        var filesToUpload = PREDOCUMENTS;
+        console.log("mf: ",filesToUpload);
         if(select){
-            PREDOCUMENTS.forEach(doc=>{
+            if(select.hasChildNodes){
+                Array.from(select.children).forEach((o,i)=>{if(i>0)select.removeChild(o);});
+            }
+            filesToUpload.forEach(doc=>{
                 select.options.add(new Option(doc.name,doc.label));
             });
 
             select.addEventListener("change",(e)=>{
                 fileInput.click();
-
                 var selectedOption = select.options[select.options.selectedIndex];
                 fileInput.addEventListener("change",(e)=>{
-                    if(e.target.files[0]){
+                    var file = e.target.files[0];
+                    if(file){
                         var reader = new FileReader();
                         reader.addEventListener("load",()=>{
-                            var url = URL.createObjectURL(e.target.files[0]);
-                            var file = {url:url,label:selectedOption.value,name:selectedOption.text};
+                            var url = URL.createObjectURL(file);
+                            var fileObj = {url:url,label:selectedOption.value,name:selectedOption.text};
                             let k = 0;
                             var check = myFiles.filter((mf,i)=>{
                                 if(mf.label == selectedOption.value){
@@ -1360,23 +1387,97 @@ const switchDetails = (index,data)=>{
                             if(check.length > 0){
                                 myFiles[k] = check[0];
                             }
-                            else myFiles.push(file);
-
-                            showODGFiles(myFiles);
+                            else myFiles.push(fileObj);
+                            uploadConsignmentFile(currentUser.id,reader.result,data.id,"consignments_tb",fileObj.name)
+                            .then(result=>{
+                                updateConsignmentList(result.data);
+                                showFeedback(result.msg,result.code);
+                                showODGFiles(myFiles,"odg");
+                            })
+                            .catch(e=>{
+                                showFeedback(e,1);
+                            })
                         },false);
 
-                        reader.readAsDataURL(e.target.files[0]);
+                        reader.readAsDataURL(file);
                     }
                 })
             })
     
         }
         
+        showODGFiles(myFiles,"odg");
+       
         
     }
     if(index ==4){
         addContainerForm(data,CONTAINER_FIELDS);
+    }
+    if(index == 5){
+        var myFiles = (data && data.files) ? data.files.filter(f=>{
+            return (f.name == "custom release" || 
+            f.name == "loading permission" ||
+            f.name == "export permission" ||
+            f.name == "screening report" ||
+            f.name == "bill of lading")
+        }) : [];
+
+        console.log("mf: ",myFiles);
+        showODGFiles(myFiles,"docs");
+        var select = document.getElementById("document_file_select");
+        var fileInput = document.getElementById("document_file_input");
         
+        var filesToUpload = DOCUMENTS;
+        if(select){
+            if(select.hasChildNodes){
+                Array.from(select.children).forEach((o,i)=>{if(i>0)select.removeChild(o);});
+            }
+            filesToUpload.forEach(doc=>{
+                select.options.add(new Option(doc.label,doc.name));
+            });
+
+            select.addEventListener("change",(e)=>{
+                var selectedOption = select.options[select.options.selectedIndex];
+                if(selectedOption.value != "--select file--"){
+                    fileInput.click();
+                    fileInput.addEventListener("change",(e)=>{
+                        var file = e.target.files[0];
+                        if(file){
+                            var reader = new FileReader();
+                            reader.addEventListener("load",()=>{
+                                var url = URL.createObjectURL(file);
+                                var fileObj = {url:url,name:selectedOption.value,label:selectedOption.text};
+                                let k = 0;
+                                var check = myFiles.filter((mf,i)=>{
+                                    if(mf.label == selectedOption.value){
+                                        k = i;
+                                        return mf;
+                                    }
+                                });
+                                if(check.length > 0){
+                                    myFiles[k] = check[0];
+                                }
+                                else myFiles.push(fileObj);
+                                
+                                uploadConsignmentFile(currentUser.id,reader.result,data.id,"consignments_tb",fileObj.name)
+                                .then(result=>{
+                                    updateConsignmentList(result.data);
+                                    showFeedback(result.msg,result.code);
+                                    showODGFiles(myFiles,"docs");
+                                })
+                                .catch(e=>{
+                                    showFeedback(e,1);
+                                })
+                            },false);
+    
+                            reader.readAsDataURL(file);
+                        }
+                    })
+                }
+                
+            })    
+        }
+       
     }
 }
 
@@ -1458,7 +1559,7 @@ const addContainerForm = (data,fields)=>{
         item.textContent = field.label + ((field.required) ? "*" : "");
         heads.appendChild(item);
     })
-    var f = fields.filter(f=>f.id == "seal_1")[0];
+    var f = fields.filter(f=>f.id == "mbl_number")[0];
     var item = document.createElement("span");
     if(f.type == "select") item.classList.add("select");
     if(f.type == "number") item.classList.add("num");
@@ -1468,7 +1569,7 @@ const addContainerForm = (data,fields)=>{
 
     var actionHead = document.createElement("span");
     actionHead.classList.add("bold");
-    actionHead.textContent = "Actions";
+    actionHead.textContent = "";
     heads.appendChild(actionHead);
     formHead.appendChild(heads);
     parent.appendChild(formHead);
@@ -1480,12 +1581,6 @@ const addContainerForm = (data,fields)=>{
         form.id = "container"+n+"_form";
         form.name = "container"+n+"_form";
        
-        var idInput = document.createElement("input");
-        idInput.type = "hidden";
-        idInput.id = "container_id";
-        idInput.name = "container_id";
-        idInput.value = (data.container_details && data.container_details.length > n-1) ? data.container_details[n-1].id :-1;
-        form.appendChild(idInput);
         miniFields.forEach(field=>{
             // const fieldDiv = document.createElement("div");
             // fieldDiv.classList.add("row");
@@ -1524,18 +1619,17 @@ const addContainerForm = (data,fields)=>{
                 // form.appendChild(fieldDiv);
         })
             
-        const fieldInputSeal = document.createElement("input");
-        fieldInputSeal.id = f.id+"#"+n;
-        fieldInputSeal.name = f.id;
-        fieldInputSeal.type = f.type;
-        fieldInputSeal.required = f.required;
-        fieldInputSeal.placeholder = f.label;
+        const fieldInputMbl = document.createElement("input");
+        fieldInputMbl.id = f.id+"#"+n;
+        fieldInputMbl.name = f.id;
+        fieldInputMbl.type = f.type;
+        fieldInputMbl.required = f.required;
         if(data && data.container_details && data.container_details.length >n-1){
-            fieldInputSeal.value = data.container_details[n-1][f.id];
+            fieldInputMbl.value = (data.shipping_details) ? data.shipping_details.mbl_number : data.container_details[n-1][f.id];
             
         }
         
-        form.appendChild(fieldInputSeal);
+        form.appendChild(fieldInputMbl);
 
         const btnSubmit = document.createElement("input");
         btnSubmit.type = "submit"
@@ -1549,8 +1643,14 @@ const addContainerForm = (data,fields)=>{
          
         form.addEventListener("submit",(event)=>{
             event.preventDefault();
+
+            var containers = data.container_details;
+            var containerId = -1;
+            if(containers && containers.length > n-1){
+                containerId = containers[n-1].id;
+            }
             console.log("newFile: ",newFile);
-                let dataItem = {};
+                let dataItem = {id:parseInt(containerId)};
                 Array.from(form.elements).filter(input=>input.id.split("#")[1] == n).forEach(inp=>{
                     let key = inp.id.split("#")[0];
                     dataItem[key] = inp.value;
@@ -1558,13 +1658,13 @@ const addContainerForm = (data,fields)=>{
                 dataItem.cid = data.id;
                 if(newFile) dataItem.container_file = newFile;
                 console.log("form: ",dataItem);
-                var method =  (idInput.value == -1) ? "POST" : "PUT";
+                var method =  (containerId == -1) ? "POST" : "PUT";
                 var options = {
                     method:method,body:JSON.stringify(dataItem),headers:{
                         "Content-type":"application/json","Authorization":"Bearer "+currentUser.accessToken
                     }
                 }
-                var url = (idInput.value == -1) ? container_booking_url+"/"+currentUser.id : container_booking_url+"/"+currentUser.id+"/"+idInput.value;
+                var url = (containerId == -1) ? container_booking_url+"/"+currentUser.id : container_booking_url+"/"+currentUser.id+"/"+containerId;
                 console.log("url: ",url+"/"+method);
                 fetch(url,options)
                 .then(res=>res.json()).then(result=>{
