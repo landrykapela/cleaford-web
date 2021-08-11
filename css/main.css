@@ -748,6 +748,10 @@ main > div.content .summary-table > span.summary-head, .subscription-forms .summ
   color: #ffcc00;
 }
 
+.wide {
+  width: 100%;
+}
+
 #feedback {
   margin: 0 auto;
   width: calc(100% - 4em);
@@ -872,6 +876,37 @@ main > div.content .summary-table > span.summary-head, .subscription-forms .summ
 
 .center-self {
   margin: 0 auto;
+}
+
+.searchable_container {
+  width: 50%;
+}
+
+.searchable_select {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  background-color: #ffffff !important;
+  color: #666262;
+  border: 1px solid #a8a2a2;
+  width: calc(100% - 2em);
+  position: absolute;
+  max-width: 300px;
+  max-height: 400px;
+  overflow-y: scroll;
+}
+
+.searchable_select span {
+  border-bottom: 1px solid #f0ebeb9d;
+  width: calc(100% - 2em);
+  padding: 1em;
+  cursor: pointer;
+}
+
+.searchable_select span:hover {
+  background-color: #f0ebeb9d !important;
+  color: #666262;
 }
 
 .consignment-details {

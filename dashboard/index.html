@@ -291,23 +291,32 @@
                                             </div>
                                         </div>
                                         <div class="row-space">
-                                            <div class="row">
+                                            <div class="row-top">
                                                 <label for="place_of_destination">Place of Destination *</label>
-                                                <input required type="text" id="place_of_destination" name="place_of_destination" placeholder="Place of destination"/>
+                                                <div class="searchable_container">
+                                                    <input required type="text" id="place_of_destination" name="place_of_destination" placeholder="Place of destination"/>
+                                                    <div class="searchable_select hidden" id="searchable_countries"></div>
+                                                </div>
                                             </div>
                                             <div class="row">
                                                 <label for="place_of_delivery">Place of Delivery *</label>
-                                                <input required type="text" id="place_of_delivery" name="place_of_delivery" placeholder="Place of Delivery"/>
+                                                <div class="searchable_container">
+                                                    <input required type="text" id="place_of_delivery" name="place_of_delivery" placeholder="Place of Delivery"/>
+                                                    <div class="searchable_select hidden" id="searchable_city"></div>
+                                                </div>
                                             </div>
                                         </div>
                                         <div class="row-space">
                                             <div class="row">
                                                 <label for="port_of_discharge">Port of Discharge *</label>
-                                                <input required type="text" id="port_of_discharge" name="port_of_discharge" placeholder="Port of discharge"/>
+                                                <select class="wide-select" required id="port_of_discharge" name="port_of_discharge"></select>
                                             </div>
                                             <div class="row">
                                                 <label for="port_of_origin">Port of Origin *</label>
-                                                <input required type="text" id="port_of_origin" name="port_of_origin" placeholder="Port of origin"/>
+                                                <div class="searchable_container">
+                                                    <input required type="text" id="port_of_origin" name="port_of_origin" placeholder="Port of origin"/>
+                                                    <div class="searchable_select hidden" id="searchable_ports"></div>
+                                                </div>
                                             </div>
                                         </div>
                                         <div class="row-space">
@@ -579,7 +588,7 @@
                                         <div class="row">
                                             <label for="odg_file">Select the type of certificate to upload </label>
                                             <input type="file" name="odg_file_input" id="odg_file_input" class="hidden"/>
-                                            <select class="wide-select" id="odg_file_select" name="odg_file_select"><option>--select file--</option></select>
+                                            <select class="wide-select" id="odg_file_select" name="odg_file_select"><option value="-1">--select file--</option></select>
                                         </div>
                                         
                                     </div>

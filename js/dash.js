@@ -993,7 +993,6 @@ const switchDetails = (index,data)=>{
    
     if(index == 1){
         Array.from(document.getElementsByTagName("legend")).forEach(cd=>{
-            console.log("chid: ",cd.id);
             Array.from(cd.children).forEach(child=>{
                 if(child.id.includes("_collapse")){
                     child.addEventListener("click",(e)=>{
@@ -1156,6 +1155,49 @@ const switchDetails = (index,data)=>{
                 
 
             }
+
+            var searchableCountries = document.getElementById("searchable_countries");
+            var countries = [];
+            PORTS.forEach(p=>{
+                if(!countries.includes(p.country)) countries.push(p.country);
+            })
+            // console.log("countries: ",countries);
+            // loadCountries(countries,searchableCountries);
+
+            var countrySearch = document.getElementById("place_of_destination");
+            countrySearch.addEventListener("input",(e)=>{
+                // searchableCountries.classList.remove("hidden");
+                let search = e.target.value.toLowerCase();
+                var filteredCountries;
+                if(search.length == 0) filteredCountries = countries;
+                else filteredCountries = countries.filter(c=>c.toLowerCase().includes(search));
+                loadCountries(filteredCountries,searchableCountries,countrySearch);
+            })
+            countrySearch.addEventListener("focus",(e)=>{
+                // searchableCountries.classList.remove("hidden");
+
+                var filteredCountries = countries;
+                if(e.target.value.length > 0) filteredCountries = countries.filter(c=>c.toLowerCase().includes(e.target.value));
+                loadCountries(filteredCountries,searchableCountries,countrySearch);
+            })
+            countrySearch.addEventListener("blur",(e)=>{
+                // searchableCountries.classList.add("hidden");
+            })
+
+            var portSearch = document.getElementById("port_of_origin");
+            var searchablePorts = document.getElementById("searchable_ports");
+            portSearch.addEventListener("focus",(e)=>{
+                var filteredPorts=filteredPorts = PORTS.map(p=>(p.name + ", "+p.code));
+                loadPorts(filteredPorts,searchablePorts,portSearch);
+            })
+            portSearch.addEventListener("input",(e)=>{
+                // searchableCountries.classList.remove("hidden");
+                let search = e.target.value.toLowerCase();
+                var filteredPorts;
+                if(search.length == 0) filteredPorts = PORTS.map(p=>(p.name + ", "+p.code));
+                else filteredPorts = PORTS.map(p=>(p.name + ", "+p.code)).filter(c=>c.toLowerCase().includes(search));
+                loadPorts(filteredPorts,searchablePorts,portSearch);
+            })
             consignmentDataForm.addEventListener("submit",(e)=>{
                 e.preventDefault();
                 let cargo_classification = consignmentDataForm.cargo_classification.value;
@@ -1399,40 +1441,45 @@ const switchDetails = (index,data)=>{
             });
 
             select.addEventListener("change",(e)=>{
-                fileInput.click();
+                e.stopPropagation();
                 var selectedOption = select.options[select.options.selectedIndex];
-                fileInput.addEventListener("change",(e)=>{
-                    var file = e.target.files[0];
-                    if(file){
-                        var reader = new FileReader();
-                        reader.addEventListener("load",()=>{
-                            var url = URL.createObjectURL(file);
-                            var fileObj = {url:url,label:selectedOption.value,name:selectedOption.text};
-                            let k = 0;
-                            var check = myFiles.filter((mf,i)=>{
-                                if(mf.label == selectedOption.value){
-                                    k = i;
-                                    return mf;
+                if(selectedOption.value != "-1"){
+                    fileInput.click();
+                    fileInput.addEventListener("change",(e)=>{
+                        var file = e.target.files[0];
+                        if(file){
+                            selected = true;
+                            var reader = new FileReader();
+                            reader.addEventListener("load",()=>{
+                                var url = URL.createObjectURL(file);
+                                var fileObj = {url:url,label:selectedOption.value,name:selectedOption.text};
+                                let k = 0;
+                                var check = myFiles.filter((mf,i)=>{
+                                    if(mf.label == selectedOption.value){
+                                        k = i;
+                                        return mf;
+                                    }
+                                });
+                                if(check.length > 0){
+                                    myFiles[k] = check[0];
                                 }
-                            });
-                            if(check.length > 0){
-                                myFiles[k] = check[0];
-                            }
-                            else myFiles.push(fileObj);
-                            uploadConsignmentFile(currentUser.id,reader.result,data.id,"consignments_tb",fileObj.name)
-                            .then(result=>{
-                                updateConsignmentList(result.data);
-                                showFeedback(result.msg,result.code);
-                                showODGFiles(myFiles,"odg");
-                            })
-                            .catch(e=>{
-                                showFeedback(e,1);
-                            })
-                        },false);
-
-                        reader.readAsDataURL(file);
-                    }
-                })
+                                else myFiles.push(fileObj);
+                                uploadConsignmentFile(currentUser.id,reader.result,data.id,"consignments_tb",fileObj.name)
+                                .then(result=>{
+                                    updateConsignmentList(result.data);
+                                    showFeedback(result.msg,result.code);
+                                    showODGFiles(myFiles,"odg");
+                                })
+                                .catch(e=>{
+                                    showFeedback(e,1);
+                                })
+                            },false);
+    
+                            reader.readAsDataURL(file);
+                        }
+                    })
+                }
+                
             })
     
         }
@@ -1512,7 +1559,86 @@ const switchDetails = (index,data)=>{
        
     }
 }
+//load cities
+const loadCities = (country,el,target)=>{
+    Array.from(el.children).forEach(child=>el.removeChild(child));
+    el.classList.remove("hidden");
+    var cities = PORTS.filter(p=>p.country.toLowerCase() == country.toLowerCase()).map(p=>p.name);
+    var fCities = cities;
+    var search = target.value.toLowerCase();
+    if(target.value.length > 0) fCities = cities.filter(c=>c.toLowerCase().includes(search));
+    fCities.forEach(city=>{
+        var countrySpan = document.createElement("span");
+        countrySpan.textContent = city;
+        el.appendChild(countrySpan);
+        countrySpan.addEventListener("click",(e)=>{
+            target.value = city;
+            el.classList.add("hidden");
+            populatePorts(city,document.getElementById("port_of_discharge"));
+        })
+        
+    })
+    // target.addEventListener("blur",(e)=>{
+    //     el.classList.add("hidden");
+    // })
+   
+}
+//load countriese
+const loadCountries = (countries,el,target)=>{
+    Array.from(el.children).forEach(child=>el.removeChild(child));
+    el.classList.remove("hidden");
+    var searchableCities = document.getElementById("searchable_city");
+    var citySearch = document.getElementById("place_of_delivery");
+    citySearch.value = "";
+            
+    countries.forEach(country=>{
+        var countrySpan = document.createElement("span");
+        countrySpan.textContent = country;
+        el.appendChild(countrySpan);
+        countrySpan.addEventListener("click",(e)=>{
+            // alert(e.target.textContent);
+            target.value = country;
+            el.classList.add("hidden");
+            
+            citySearch.addEventListener("focus",(e)=>{
+                loadCities(country,searchableCities,citySearch);
+            });
+            citySearch.addEventListener("input",(e)=>{
+                loadCities(country,searchableCities,citySearch)
+            })
+            
+        })
+        
+    })
+   
+    
+    
+}
+const populatePorts = (city,target)=>{
+    Array.from(target.children).forEach(c=>target.removeChild(c));
+    var ports = PORTS.filter(p=>p.name.toLowerCase() == city.toLowerCase());
+    ports.forEach(p=>{
+        target.options.add(new Option(p.name+", "+p.code,p.code))
+    });
 
+}
+//load ports
+const loadPorts = (ports,el,target)=>{
+    Array.from(el.children).forEach(child=>el.removeChild(child));
+    el.classList.remove("hidden");
+    ports.forEach(port=>{
+        var portSpan = document.createElement("span");
+        portSpan.textContent = port;
+        el.appendChild(portSpan);
+        portSpan.addEventListener("click",(e)=>{
+            // alert(e.target.textContent);
+            target.value = port;
+            el.classList.add("hidden");
+            
+        })
+        
+    })
+}
 //add container form
 const addContainerForm = (data,fields)=>{
     const parent = document.getElementById("container_forms");
@@ -1656,10 +1782,9 @@ const addContainerForm = (data,fields)=>{
         fieldInputMbl.name = f.id;
         fieldInputMbl.type = f.type;
         fieldInputMbl.required = f.required;
-        if(data && data.container_details && data.container_details.length >n-1){
-            fieldInputMbl.value = (data.shipping_details) ? data.shipping_details.mbl_number : data.container_details[n-1][f.id];
-            
-        }
+        
+        fieldInputMbl.value = (data.shipping_details) ? data.shipping_details.mbl_number : "";
+         
         
         form.appendChild(fieldInputMbl);
 
