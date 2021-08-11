@@ -437,61 +437,66 @@ const showClientStats =()=>{
             const canvas = document.createElement("canvas");
             chartArea.appendChild(canvas);
             
-    const labels = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-    let data = {
-        labels: labels,
-        datasets: [
-            {
-            label: 'Sales',
-            data: generateRandomData(NUMBER_CFG.count),
-            borderColor: "#cc9900",
-            backgroundColor: "#ffcc00",
-            },
-            
-        ]
-    }
-    let config = {
-        type: 'line',   
-        data: data,
-        options: {
-          responsive: true,
-          plugins: {
-        
-            title: {
-              display: true,
-              text: 'Annual Sales'
+            const labels = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+            let data = {
+                labels: labels,
+                datasets: [
+                    {
+                    label: 'Sales',
+                    data: generateRandomData(NUMBER_CFG.count),
+                    borderColor: "#cc9900",
+                    backgroundColor: "#ffcc00",
+                    },
+                    
+                ]
             }
-          }
-        },
-    }
-            var myChart = drawChart(config,canvas);
-        
-            // showCustomersSummary();
-            mapChart();
-        }).catch(er=>{
-            if(er.code == -1){
-                showFeedback(er.msg,1);
-                // signoutUser();
+            let config = {
+                type: 'line',   
+                data: data,
+                options: {
+                responsive: true,
+                maintainAspectRatio:false,
+                plugins: {
+                    title: {
+                    display: true,
+                    text: 'Annual Sales'
+                    }
+                }
+                },
+            }
+                    var myChart = drawChart(config,canvas);
+                    // myChart.homeZoomLevel = 50;
+                    // showCustomersSummary();
+                    mapChart();
+                }).catch(er=>{
+                    if(er.code == -1){
+                        showFeedback(er.msg,1);
+                        // signoutUser();
+                    }
+                    else{
+                        console.log("stw: ",er);
+                        showFeedback("something wrong",1);
+                    }
+                })             
             }
             else{
-                console.log("stw: ",er);
-                showFeedback("something wrong",1);
+                greet("Hello "+currentUser.email,null);
             }
-        })             
-    }
-    else{
-        greet("Hello "+currentUser.email,null);
-    }
-    //show client summary
-    fetchClientRoles();
-    fetchConsignments().then(result=>{
-        storedData.consignments = result.data;
-        storage.setItem("data",JSON.stringify(storedData));
-        storedData = JSON.parse(storage.getItem("data"));
-        var consignments = (storedData.consignments) ? storedData.consignments : [];
-        const numberOfConsignments = document.getElementById("no_of_consignments");
-        numberOfConsignments.textContent = consignments.length;
-    })
+            //show client summary
+            fetchClientRoles();
+            fetchConsignments().then(result=>{
+                storedData.consignments = result.data;
+                storage.setItem("data",JSON.stringify(storedData));
+                storedData = JSON.parse(storage.getItem("data"));
+                var consignments = (storedData.consignments) ? storedData.consignments : [];
+                const numberOfConsignments = document.getElementById("no_of_consignments");
+                numberOfConsignments.textContent = consignments.length;
+
+                showExportListSummary(result.data);s
+            })
+            .catch(e=>{
+                console.log("err: ",e);
+            })
    
 }
 
@@ -880,6 +885,71 @@ const showExportList = (data,source=null)=>{
             const tancisStatus = document.createElement("span");
             tancisStatus.textContent = (d.tancis_status) ? d.tancis_status : "N/A";
             row.appendChild(tancisStatus);
+
+            parent.appendChild(row);
+
+            row.addEventListener("click",(e)=>{
+                console.log("clicked data: ",d);
+                showConsignmentForm("export_list",d);
+            })
+        })
+       
+    }
+    else{
+        const row = document.createElement("span");
+        row.classList.add("consignment-row");
+        row.classList.add("shadow-minor");
+        row.textContent = "No Consignments";
+        parent.appendChild(row);
+    }
+}
+//show export listsummary
+const showExportListSummary = (data)=>{
+    var parent = document.getElementById("consignment_summary");
+    Array.from(parent.children).forEach((child,i)=>{
+        if(i > 0) parent.removeChild(child);
+    })
+    
+    
+    if(data && data.length > 0){
+        data.forEach(d=>{
+            const row = document.createElement("span");
+            row.classList.add("consignment-row");
+            row.classList.add("shadow-minor");
+            row.classList.add("status-indicator-"+d.status);
+            // const consNo = document.createElement("span");
+            // consNo.textContent = formatConsignmentNumber(d.id);
+            // row.appendChild(consNo);
+    
+            const shippingLine = document.createElement("span");
+            shippingLine.textContent = (d.shipping_details) ? d.shipping_details.shipping_line : "N/A";
+            row.appendChild(shippingLine);
+    
+            // const vesselName = document.createElement("span");
+            // vesselName.textContent = (d.shipping_details) ? d.shipping_details.vessel_name : "N/A";
+            // row.appendChild(vesselName);
+            
+            const eta = document.createElement("span");
+            let tcd = "";
+            if(d.shipping_details){
+                let date = new Date(d.shipping_details.eta);
+                tcd += (1+ date.getMonth())+"/"+date.getDate()+"/"+date.getFullYear();
+            }
+            else tcd = "N/A";
+            eta.textContent = tcd;
+            row.appendChild(eta);
+    
+            const destinationPort = document.createElement("span");
+            destinationPort.textContent = (d.port_of_discharge) ? d.port_of_discharge : "N/A";
+            row.appendChild(destinationPort);
+    
+            const consStatus = document.createElement("span");
+            consStatus.textContent = (d.status_text) ? d.status_text : "N/A";
+            row.appendChild(consStatus);
+
+            // const tancisStatus = document.createElement("span");
+            // tancisStatus.textContent = (d.tancis_status) ? d.tancis_status : "N/A";
+            // row.appendChild(tancisStatus);
 
             parent.appendChild(row);
 
@@ -2250,6 +2320,8 @@ const mapChart = ()=>{
        myData.features = newFeatures;
         // Low-detail map
         var chart = am4core.create("map-chart2", am4maps.MapChart);
+        chart.homeZoomLevel = 2;
+        chart.height = "100%";
         chart.geodata = myData;
         chart.projection = new am4maps.projections.Miller();
         var polygonSeries = chart.series.push(new am4maps.MapPolygonSeries());

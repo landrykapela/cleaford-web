@@ -168,6 +168,7 @@ main > div.content .info{
 main > div.content .info-map{
   height:300px;
 }
+
 main >div.content .info-stats,main >div.content .info-map{
   @include flex(row,space-between ,center );
   flex-wrap: wrap;
@@ -191,6 +192,22 @@ main >div.content .info-charts, main > div.content .info-map{
 .info-charts, .info-map{
   @include setBg($defaultColor);
   border:1px solid $primaryColor;
+}
+main > div.contnet .info-map-full{
+  width:100%;
+  height: auto;
+}
+.info-map-full > canvas{
+  // height:100% !important;
+  width:100% !important;
+}
+#map-chart2{
+  margin-top:1em;
+  height:400px;
+  border:1px solid $primaryColor;
+}
+#consignment_summary{
+  overflow-y: scroll;
 }
 main > div#dashboard_content{
   background-image: url(../img/admin_bg.jpg);
