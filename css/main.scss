@@ -142,6 +142,7 @@ main > div.content{
   padding:0.5em 1em;
   @include flex(column,flex-start,flex-start);
   min-height:100vh;
+  width:calc(100% - 2em - #{$sideBarSize});
 }
 main > div.content .eticket{
   @include setBg($defaultColor);
@@ -584,11 +585,12 @@ footer{
     color:$defaultColor; 
     // padding:0.25em;
   }
-  .head-row{
+  .head-row,table > thead{
     // @include setBg($faintDark);
     margin-top:0.5em;
     color: $faintDark;
     font-weight: bold;
+    font-size: small;
   }
   .head-row > span.actions{
     @include flex(row,center,center);
@@ -608,8 +610,22 @@ footer{
   }
   #container_form .head-row,.hform{
     width:calc(100% - 0.5em) !important;
+    // overflow-x:scroll;
   }
-  .hform > span,.hform input{
+  #container_form form{
+    width:calc(100% - 2em);
+    overflow-x:scroll;
+    @include flex(row,flex-start,flex-start);
+  }
+  #container_form table > thead{
+    color: $faintDark;
+    // font-weight: bold;
+  }
+  th,td{
+    width:10%;
+    text-align: left;
+  }
+  th > span,th input{
     padding:0.25em !important;
     font-size: small;
     text-align: left;
@@ -617,20 +633,17 @@ footer{
     color:$faintDark;
   }
  
-  .hform > input,.hform > select{
+  td > input,td > select{
     color: black;
   }
-  .hform > input[type="number"], .hform > select,.hform .select,.hform .num{
+  td > input[type="number"], td > select,th .select,th .num{
     padding:0.25em;
-    width:20%;
+    // width:20%;
   }
-  .hform > select .wide-select{
+  td > select .wide-select{
     width:100% !important;
   }
-  .hform > input[type="submit"]{
-    @include setBg(transparent);
-    // width:30px;
-  }
+ 
   .body-row > span.actions{
     @include flex(row,space-evenly ,center );
     flex-shrink: 1;
@@ -778,6 +791,7 @@ footer{
 .consignment-details{
   width:100%;
   @include setBg($faintLight);
+  // overflow-x:scroll;
 }
 .consignment-forms,.subscription-forms{
   margin:0 2em 2em 2em;

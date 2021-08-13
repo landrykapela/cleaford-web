@@ -125,11 +125,11 @@
                         </div>
                         <div class="stat-card shadow">
                             <span>Pending approval</span>
-                            <span class="stat-value" id="no_of_clients">3</span>
+                            <span class="stat-value" id="no_of_clients">0</span>
                         </div>
                       <div class="stat-card shadow">
                             <span>Pending Invoices</span>
-                            <span class="stat-value" id="no_of_clients">120</span>
+                            <span class="stat-value" id="no_of_clients">0</span>
                         </div>
                     </div>
                     <div class="row-even">
@@ -585,7 +585,7 @@
                                 </form>
                             </div>                          
                         </div>
-                       <div id="detail_3" class="consignment-details hidden">
+                        <div id="detail_3" class="consignment-details hidden">
                             <div class="consignment-forms-no-border row-space">
                                 <div class="row">
                                     <span class="medium-text">Upload Certificates</span>
@@ -595,14 +595,12 @@
                             <div class="consignment-forms">                              
                                <div id="certificates_collapsible" class="column consignment-section">
                                     <div class="row-space">
-                                        <div class="row">
-                                            <label for="odg_file">Select the type of certificate to upload </label>
-                                            <input type="file" name="odg_file_input" id="odg_file_input" class="hidden"/>
-                                            <select class="wide-select" id="odg_file_select" name="odg_file_select"><option value="-1">--select file--</option></select>
-                                        </div>
-                                        
+                                        <label for="odg_file">Select a certificate to upload </label>
+                                         <select class="wide-select" id="odg_file_select" name="odg_file_select"><option value="-1">--select file--</option></select>
                                     </div>
-                                    
+                                    <div class="row">
+                                        <input type="file" name="odg_file_input" id="odg_file_input" class="hidden"/>
+                                    </div>
                                     <div class="column" id="odg_list">
                                     </div>
                                 </div>
@@ -610,19 +608,13 @@
                         </div> 
                         <div id="detail_4" class="consignment-details hidden">
                             
-                            <div class="column" id="container_forms">   
+                            <div class="column" id="container_form">   
                                 <div class="row-end">
                                     <span class="material-icons highlight" onClick="showConsignment()">close</span>
                                 </div>
                              
                             </div>   
-                            <div class="consignment-forms-no-border row">
-                                <div class="row">
-                                    <input type="file" accept="image/*,.pdf" class="hidden" name="file_container_booking" id="file_container_booking"/>
-                                    <span class="buttons" id="upload_container_booking">Upload Container Confirmation</span>
-                                    <a class="file-link" id="link_container_booking" target="_blank"></a>
-                                </div>
-                            </div>                       
+                                                   
                         </div> 
                         <div id="detail_5" class="consignment-details hidden">
                             <div class="consignment-forms-no-border row-space">
@@ -633,15 +625,14 @@
                             </div>
                             <div class="consignment-forms">                              
                                <div id="documents_collapsible" class="column consignment-section">
-                                    <div class="row-space">
-                                        <div class="row">
-                                            <label for="document_file">Select Document </label>
-                                            <input type="file" name="document_file_input" id="document_file_input" class="hidden"/>
-                                            <select class="wide-select" id="document_file_select" name="document_file_select"><option>--select file--</option></select>
-                                        </div>
-                                        
+                                    <div class="row">
+                                        <label for="document_file">Select Document </label>
+                                        <select class="wide-select" id="document_file_select" name="document_file_select"><option>--select file--</option></select>
                                     </div>
                                     
+                                    <div class="row">
+                                        <input type="file" name="document_file_input" id="document_file_input" class="hidden"/>
+                                    </div>
                                     <div class="column" id="docs_list">
                                     </div>
                                 </div>
