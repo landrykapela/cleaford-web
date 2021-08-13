@@ -999,12 +999,13 @@ const showConsignmentForm=(source,data=null)=>{
 //show odg files
 const showODGFiles = (files,tag)=>{
     var list_id = tag+"_list";
+    var docs = (tag == "odg") ? PREDOCUMENTS:DOCUMENTS;
     var container = document.getElementById(list_id);
     Array.from(container.children).forEach(c=>container.removeChild(c));
     if(files && files.length > 0){
         files.map(f=>{
             var fs = f;
-            DOCUMENTS.forEach(d=>{
+            docs.forEach(d=>{
                 if(d.name.toLowerCase() == f.name.toLowerCase()) fs.label = d.label;
             });
             return fs;
@@ -1015,7 +1016,7 @@ const showODGFiles = (files,tag)=>{
             var anchor = document.createElement("a");
             anchor.href = (file.url) ? file.url : files_url+"/"+file.filename;
             anchor.target = "_blank";
-            anchor.textContent = file.label;//[0].toUpperCase()+ file.name.substring(1);
+            anchor.textContent = (tag == "odg") ? file.name:file.label;//[0].toUpperCase()+ file.name.substring(1);
             div.appendChild(anchor);
 
             var del = document.createElement("span");
