@@ -228,13 +228,13 @@
                              <form id="consignment_form" method="POST">
                                 <fieldset class="consignment-section">
                                     <legend class="row-space">Exporter & Forwarder Details
-                                        <span class="material-icons" id="exporter_collapse">keyboard_arrow_up</span>
+                                        <span class="material-icons" id="exporter_collapse" onclick="collapse('exporter');">keyboard_arrow_up</span>
                                     </legend>
                                     <div id="exporter_collapsible" class="consignment-section">
                                         <div class="row-space">
                                             <div class="row">
                                                 <label for="customer_select">Select Customer</label>
-                                                <select id="customer_select" name="customer_select"></select>
+                                                <select id="customer_select" name="customer_select"><option value="-2">--select customer--</option></option></select>
                                             </div>
                                             <div class="row">
                                             </div>
@@ -286,7 +286,7 @@
                                 
                                 <fieldset class="consignment-section">
                                     <legend class="row-space">Consignment Data
-                                        <span class="material-icons" id="data_collapse">keyboard_arrow_down</span>
+                                        <span class="material-icons" id="data_collapse" onclick="collapse('data');">keyboard_arrow_down</span>
                                     </legend>
                                     <div id="data_collapsible" class="consignment-section hidden">
                                         <div class="row-space">
@@ -439,7 +439,7 @@
                                 </fieldset>
                                 <fieldset class="consignment-section">
                                     <legend class="row-space">Consignee Details
-                                        <span class="material-icons" id="consignee_collapse">keyboard_arrow_down</span>
+                                        <span class="material-icons" id="consignee_collapse" onclick="collapse('consignee');" >keyboard_arrow_down</span>
                                     </legend>
                                     <div id="consignee_collapsible" class="consignment-section hidden">    
                                         <div class="row-space">
@@ -831,11 +831,10 @@
         </div>
         <footer>&copy; 2021, Cleaford. All rights reserved</footer>
    <script src="/js/config.js"></script>
-   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-   <script src="//cdn.amcharts.com/lib/4/core.js"></script>
-<script src="//cdn.amcharts.com/lib/4/charts.js"></script>
-<script src="//cdn.amcharts.com/lib/4/maps.js"></script>
-<script src="//cdn.amcharts.com/lib/4/geodata/worldLow.js"></script>
+   <script src="/libs/amcharts4/core.js"></script>
+<script src="/libs/amcharts4/charts.js"></script>
+<script src="/libs/amcharts4/maps.js"></script>
+<script src="/libs/geodata/worldLow.js"></script>
    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
    <script src="https://maps.googleapis.com/maps/api/js?libraries=places&key=AIzaSyAWALPfQrbJypNehyEnoFKFKs1nDOoqOGk"></script>
    <script src="/js/dash.js"></script>

@@ -1054,6 +1054,15 @@ const deleteFile=(fileId)=>{
         showFeedback("Something went wrong",1);
     })
 }
+
+//collapse expand fieldset
+const collapse = (sourceId)=>{
+    const source = document.getElementById(sourceId+"_collapse");
+    const target = document.getElementById(sourceId+"_collapsible");
+    target.classList.toggle("hidden");
+    if(source.textContent == "keyboard_arrow_down") source.textContent = "keyboard_arrow_up";
+    else source.textContent = "keyboard_arrow_down";
+}
 //switch steps
 const switchSteps = (position,data)=>{
     var progressSteps = Array.from(document.getElementById("progress-card-1").children);
@@ -1072,20 +1081,8 @@ const switchDetails = (index,data)=>{
     });
    
     if(index == 1){
-        Array.from(document.getElementsByTagName("legend")).forEach(cd=>{
-            Array.from(cd.children).forEach(child=>{
-                if(child.id.includes("_collapse")){
-                    child.addEventListener("click",(e)=>{
-                        let target = e.target.id.split("_")[0]+"_collapsible";
-                        document.getElementById(target).classList.toggle("hidden");
-                        if(child.textContent == "keyboard_arrow_down") child.textContent = "keyboard_arrow_up";
-                        else child.textContent = "keyboard_arrow_down";
-                    })
-                }
-                
-            })
-            
-        })
+        var consignmentDataForm = document.getElementById("consignment_form");
+        consignmentDataForm.reset();
         var newData = (data == null) ? {} : data;
         var uploadShippingInstructionsButton = document.getElementById("upload_shipping_instructions");
         var shippingInstructionsInput = document.getElementById("file_shipping_instructions");
@@ -1139,13 +1136,16 @@ const switchDetails = (index,data)=>{
             })
             
         })
-        var consignmentDataForm = document.getElementById("consignment_form");
-
+       
         if(consignmentDataForm){
             var customerSelect = document.getElementById("customer_select");
             var selectedCustomer;
+            
             if(customerSelect){
-                while(customerSelect.hasChildNodes())customerSelect.removeChild(customerSelect.childNodes[0]);
+                Array.from(customerSelect.children).forEach((child,idx)=>{
+                    if(idx > 0) customerSelect.removeChild(child);
+                });
+
                 var customers = (storedData.customers) ? storedData.customers : [];
                 customers.forEach(customer=>{
                     customerSelect.options.add(new Option(customer.name,customer.id));
@@ -1154,7 +1154,7 @@ const switchDetails = (index,data)=>{
                 
                 customerSelect.addEventListener("change",(e)=>{
                     if(e.target.value == -1) showCustomerDetailForm('exports_content');
-                    else{
+                    else if(e.target.value != -2){
                         selectedCustomer = customers.filter(c=>{
                             return c.id == customerSelect.options[customerSelect.options.selectedIndex].value;
                         })[0];
@@ -1163,8 +1163,7 @@ const switchDetails = (index,data)=>{
                         consignmentDataForm.exporter_name.value = selectedCustomer.name;
                         consignmentDataForm.exporter_address.value = selectedCustomer.address+"\n\r"+selectedCustomer.region+","+selectedCustomer.country;
                         consignmentDataForm.exporter_tin.value = selectedCustomer.tin;
-                    //     notifierForm.notify_address.value = selectedCustomer.address+"\n\r"+selectedCustomer.region+","+selectedCustomer.country;
-                    //     notifierForm.notify_phone.value = selectedCustomer.phone
+                   
                     }
                     
                 });   
@@ -1224,21 +1223,11 @@ const switchDetails = (index,data)=>{
                 
             }
             else{
-                selectedCustomer = customers[0];
-                if(selectedCustomer !==null){
-                    consignmentDataForm.exporter_phone.value = selectedCustomer.phone;
-                    consignmentDataForm.exporter_name.value = selectedCustomer.name;
-                    consignmentDataForm.exporter_address.value = selectedCustomer.address;
-                    consignmentDataForm.exporter_tin.value = selectedCustomer.tin;
-            
-                }
+                
                 consignmentDataForm.forwarder_code.value = currentUser.detail.code;consignmentDataForm.forwarder_code.value = currentUser.detail.code;
                 consignmentDataForm.forwarder_address.value = currentUser.detail.address;
                 consignmentDataForm.forwarder_phone.value = currentUser.detail.phone;
                 consignmentDataForm.forwarder_name.value = currentUser.detail.name;
-                
-                
-
             }
 
             var searchableCountries = document.getElementById("searchable_countries");
@@ -1349,6 +1338,7 @@ const switchDetails = (index,data)=>{
                     notify_tin: notify_tin,
                     instructions_file:newData.instructions_file
                 }
+                if(data != null) newData.status = data.status;
                 console.log("mydata: ",newData);
                 var method = (data == null) ? "POST" : "PUT";
                 var options ={
@@ -1375,6 +1365,8 @@ const switchDetails = (index,data)=>{
         }
     }
     if(index == 2){
+        shippingForm = document.getElementById("booking_form");
+        shippingForm.reset();
         var hasFile = false;
         var newData = {};
         var uploadShipBookingButton = document.getElementById("upload_ship_booking");
@@ -1416,7 +1408,6 @@ const switchDetails = (index,data)=>{
                 })
             })
         }
-        shippingForm = document.getElementById("booking_form");
         if(shippingForm){
             if(data.shipping_details){
                 shippingForm.mbl_number.value = data.shipping_details.mbl_number;
@@ -1599,8 +1590,7 @@ const switchDetails = (index,data)=>{
         var filesToUpload = DOCUMENTS.filter(d=>{
             return myFileNames.indexOf(d.name.toLowerCase()) === -1;
         });
-        console.log("mfn: ",myFiles);
-        console.log("ftu; ",filesToUpload);
+        
         if(select){
             if(select.hasChildNodes){
                 Array.from(select.children).forEach((o,i)=>{if(i>0)select.removeChild(o);});
