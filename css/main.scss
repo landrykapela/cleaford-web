@@ -76,6 +76,38 @@ body {
 }
 
 //layouts
+.row-top{
+  @include flex(row,flex-start,flex-start);
+  width:100%;
+}
+.row{
+  @include flex(row,flex-start,center );
+  width: 100%;
+}
+.row-center{
+  @include flex(row,center,center);
+}
+.row-even{
+  @include flex(row,space-evenly,flex-start);
+}
+.row-space{
+  @include flex(row,space-between,flex-start);
+  width: 100%;
+}
+.row-end{
+  @include flex(row,flex-end,center);
+  width:100%;
+}
+.column{
+  @include flex(column,flex-start,flex-start);
+  // border: 1px solid red;
+}
+.column-center{
+  @include flex(column,flex-start ,center );
+}
+.center-self{
+  margin:0 auto;
+}
 header {
   @include flex(row, space-between, flex-start);
   padding: 0;
@@ -240,7 +272,62 @@ main > div#dashboard_content{
   // border:1px solid red;
   margin:0.25em;
 }
+.customer-details{
+  width:95%;
+  margin:1em auto;
+  padding:0.5em;
+}
+.customer-details >div.first{
+  min-width:126px;
+  text-align: right;
+  flex-grow: 1;
+  margin-right: 0.5em;
+}
+.customer-details >div.row :nth-child(2),.customer-details >div.row-space :nth-child(2){
+  text-align: left;
+  flex-grow: 1;
+}
+.customer-details > div.row span.label,.customer-details >div.row-space span.label{
+  text-align: right;
+  min-width:80px;
+  padding:0.25em 0.5em;
+  // border:1px solid blue;
+}
+.customer-details > div.row span.value,.customer-details >div.row-space span.value{
+  text-align: left;
+  border:1px solid $primaryDarkColor;
+  @include addRoundCornerTop(4px,4px );
+  padding:0.05em 0.5em;
+  text-align: left;
+  flex-grow: 1;
+  max-width: 180px;
+  margin-top:0.5em;
+}
+.tab-container{
+  width:calc(100% - 1em);
+  margin:2em auto;
+  margin-bottom: 0;
+}
+.tab{
+  @include addRoundCornerTop(4px,4px);
+  cursor: pointer;
+  color:$primaryDarkColor;
+  min-width:100px !important;
+  padding:0.5em 1em;
 
+}
+.tab-active{
+  @include setBg($primaryDarkColor);
+  color:$defaultColor;
+}
+.underline-primary{
+  border-bottom: 1px solid $primaryDarkColor;
+}
+.vspace{
+  display:block;
+  height:5em;
+  width:126px;
+}
 #my-detail{
   width:60%;
 }
@@ -732,38 +819,7 @@ footer{
 .no-overflow{
   overflow-x: hidden !important;
 }
-.row-top{
-  @include flex(row,flex-start,flex-start);
-  width:100%;
-}
-.row{
-  @include flex(row,flex-start,center );
-  width: 100%;
-}
-.row-center{
-  @include flex(row,center,center);
-}
-.row-even{
-  @include flex(row,space-evenly,flex-start);
-}
-.row-space{
-  @include flex(row,space-between,flex-start);
-  width: 100%;
-}
-.row-end{
-  @include flex(row,flex-end,center);
-  width:100%;
-}
-.column{
-  @include flex(column,flex-start,flex-start);
-  // border: 1px solid red;
-}
-.column-center{
-  @include flex(column,flex-start ,center );
-}
-.center-self{
-  margin:0 auto;
-}
+
 .searchable_container{
   width:50%;
 }
@@ -1037,6 +1093,15 @@ footer{
 }
 .bold{
   font-weight: bold;
+}
+.text-right{
+  text-align: right;
+}
+.text-left{
+  text-align: left;
+}
+.text-center{
+  text-align: center;
 }
 .medium-text {
   font-size: 1.5rem;

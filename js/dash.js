@@ -626,6 +626,118 @@ const initializeMap =(mapHolder,searchInput,targetForm,center={lat:-6.7924, lng:
     })
 
 }
+const viewCustomerDetails = (customer,source)=>{
+    greet("Customers",{title:"Customers",description:"View"});
+    const detailView = document.getElementById("view_customer_content");
+    detailView.classList.remove("hidden");
+    document.getElementById(source).classList.add("hidden");
+
+    const name = document.getElementById("customer_name");
+    const tin = document.getElementById("c_tin");
+    const address = document.getElementById("c_address");
+    const region = document.getElementById("region");
+    const country = document.getElementById("country");
+    const email = document.getElementById("email");
+    const phone = document.getElementById("phone");
+    const contactPerson = document.getElementById("contact_p");
+    const contactEmail = document.getElementById("contact_e");
+
+    name.textContent = customer.name;
+    tin.textContent = customer.tin;
+    address.textContent = customer.address;
+    region.textContent = customer.region;
+    country.textContent = customer.country;
+    email.textContent = customer.email;
+    phone.textContent = customer.phone;
+    contactPerson.textContent = customer.contact_person;
+    contactEmail.textContent = customer.contact_email;
+
+    // var db = JSON.parse(storage.getItem("db"));
+    var consignments = storedData.consignments.filter(c=>c.exporter_id == customer.id);
+    showCustomerConsignments(consignments,0);
+
+    const inProgressTab = document.getElementById("tab-inprogress");
+    inProgressTab.textContent = "In-progress ("+consignments.filter(c=>c.status < 10).length+")";
+    const completeTab = document.getElementById("tab-complete");
+    completeTab.textContent =  "Completed ("+consignments.filter(c=>c.status >= 10).length+")";
+
+    inProgressTab.addEventListener("click",(e)=>{
+        showCustomerConsignments(consignments,0);
+        e.target.classList.toggle("tab-active");
+        completeTab.classList.toggle("tab-active");
+    })
+    completeTab.addEventListener("click",(e)=>{
+        showCustomerConsignments(consignments,1);
+        e.target.classList.toggle("tab-active");
+        inProgressTab.classList.toggle("tab-active");
+    })
+}
+const showCustomerConsignments = (consignments,flag)=>{
+    const parent = document.getElementById("consignment_list");
+    Array.from(parent.children).forEach((child,idx)=>{
+        if(idx > 0) parent.removeChild(child);
+    });
+
+    var data = (flag == 0) ? consignments.filter(c=>c.status < 10) : consignments.filter(c=>c.status >= 10);
+    if(data && data.length > 0){
+        data.forEach(d=>{
+            const row = document.createElement("span");
+            row.classList.add("consignment-row");
+            row.classList.add("shadow-minor");
+            row.classList.add("status-indicator-"+d.status);
+            const consNo = document.createElement("span");
+            consNo.textContent = formatConsignmentNumber(d.id);
+            row.appendChild(consNo);
+    
+            const shippingLine = document.createElement("span");
+            shippingLine.textContent = (d.shipping_details) ? d.shipping_details.shipping_line : "N/A";
+            row.appendChild(shippingLine);
+    
+            const vesselName = document.createElement("span");
+            vesselName.textContent = (d.shipping_details) ? d.shipping_details.vessel_name : "N/A";
+            row.appendChild(vesselName);
+            
+            const eta = document.createElement("span");
+            let tcd = "";
+            if(d.shipping_details){
+                let date = new Date(d.shipping_details.eta);
+                tcd += (1+ date.getMonth())+"/"+date.getDate()+"/"+date.getFullYear();
+            }
+            else tcd = "N/A";
+            eta.textContent = tcd;
+            row.appendChild(eta);
+    
+            const destinationPort = document.createElement("span");
+            destinationPort.textContent = (d.port_of_discharge) ? d.port_of_discharge : "N/A";
+            row.appendChild(destinationPort);
+    
+            const consStatus = document.createElement("span");
+            consStatus.textContent = (d.status_text) ? d.status_text : "N/A";
+            row.appendChild(consStatus);
+
+            const tancisStatus = document.createElement("span");
+            tancisStatus.textContent = (d.tancis_status) ? d.tancis_status : "N/A";
+            row.appendChild(tancisStatus);
+
+            parent.appendChild(row);
+
+            row.addEventListener("click",(e)=>{
+                console.log("clicked data: ",d);
+                showConsignmentForm("view_customer_content",d);
+            })
+        })
+       
+    }
+    else{
+        const row = document.createElement("span");
+        row.classList.add("consignment-row");
+        row.classList.add("shadow-minor");
+        row.textContent = "No Consignments";
+        parent.appendChild(row);
+    }
+
+
+}
 const editCustomerDetail = (customer,source)=>{
     const editForm = document.querySelector("#edit_customer_form");
     editForm.customer_id.value = customer.id;
@@ -754,7 +866,7 @@ const createCustomerRow = (row,holder)=>{
     holder.appendChild(rowHolder);
      //add click listener
      rowHolder.addEventListener('click',()=>{
-        editCustomerDetail(row,'customers_content');
+        viewCustomerDetails(row,'customers_content');
     })
 }
 const createCustomerSummaryRow = (row)=>{
@@ -809,8 +921,8 @@ const formatConsignmentNumber = (number)=>{
     return num;
 }
 //showCustomers
-const showCustomers = (data)=>{
-    // activateMenu('customers');
+const showCustomers = (data,source=null)=>{
+    if(source != null) document.getElementById(source).classList.add("hidden");
     const holder = document.querySelector("#customers_table_summary");  
     Array.from(holder.children).forEach(child=>{
         if(child.classList.contains("body-row")) holder.removeChild(child);
@@ -980,6 +1092,13 @@ const closeConsignmentForm = ()=>{
 }
 //show consignment form
 const showConsignmentForm=(source,data=null)=>{
+    if(source != "export_list"){
+        document.getElementById("exports_content").classList.remove("hidden");
+        document.getElementById("export_list").classList.add("hidden");
+        greet("Operations",{title:"Consignments",description:"View"});
+        // activateMenu("exports")
+    }
+    document.getElementById(source).classList.add("hidden");
     const progressSteps = Array.from(document.getElementById("progress-card-1").children);
     progressSteps.forEach((step,index)=>{
         step.addEventListener("click",(e)=>{
@@ -987,7 +1106,6 @@ const showConsignmentForm=(source,data=null)=>{
         })
     })
     document.querySelector("#add_export").classList.add("hidden");
-    document.getElementById(source).classList.add("hidden");
     const parent = document.getElementById("export_form");
     parent.classList.remove("hidden");
     var position = (data == null) ? 1: data.status;
@@ -1175,9 +1293,11 @@ const switchDetails = (index,data)=>{
                 if(data.place_of_delivery && data.place_of_delivery.length > 0){
                     var ports = PORTS.filter(p=>p.country.toLowerCase() == data.place_of_destination.toLowerCase() && p.name.toLowerCase() == data.place_of_delivery.toLowerCase())
                     ports.forEach(p=>consignmentDataForm.port_of_discharge.options.add(new Option(p.name+", "+p.code,p.code)));
+                    var myPort = ports.filter(p=>p.name.toLowerCase() == data.place_of_delivery.toLowerCase());
+                    consignmentDataForm.port_of_discharge.value = (myPort.length > 0) ? ports.filter(p=>p.name.toLowerCase() == data.place_of_delivery.toLowerCase())[0].code : data.port_of_discharge;
+                
                 }
 
-                consignmentDataForm.port_of_discharge.value = ports.filter(p=>p.name.toLowerCase() == data.place_of_delivery.toLowerCase())[0].code;
                 consignmentDataForm.port_of_origin.value = data.port_of_origin;
                 consignmentDataForm.no_of_containers.value = data.no_of_containers;
                 consignmentDataForm.goods_description.value = data.goods_description;
@@ -2293,7 +2413,7 @@ const showCustomersSummary = ()=>{
 const closeCustomerForm=(source)=>{
     document.getElementById(source).classList.add("hidden");
     document.getElementById("customers_content").classList.remove("hidden");
-    showCustomers(storedData.customers);
+    showCustomers(storedData.customers,source);
 }
 //fetch clients
 const getCustomers = ()=>{
