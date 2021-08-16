@@ -46,6 +46,7 @@
                     <span class="material-icons" id="finance_drop">arrow_drop_down</span>
                 </div>
                 <div class="submenu hidden" id="finance_submenu">
+                    <span id="quotations" class="menu-item">Quotations</span>
                     <span id="invoices" class="menu-item">Invoices</span>
                     <span id="vouchers" class="menu-item">Vouchers</span>
                     <span id="receipts" class="menu-item">Receipts</span>
@@ -640,7 +641,7 @@
                         </div> 
                    </div>
                    
-                 </div>
+                </div>
                 <div class="can-hide hidden" id="add_customer_content">
                     <div class="row-space">
                         <div id="form-container" class="form-container">
@@ -900,6 +901,125 @@
                             <span class="actions">Action</span> 
                         </div>
                     </div>
+                </div>
+                <div class="can-hide hidden" id="quotations_content">
+                    <div class="row-end">
+                        <span class="action-button shadow-minor" id="add_quotation" onclick="showQuotationForm('quotation_list');">
+                            <span class="material-icons">add</span>
+                            <span>New Quotation</span>
+                        </span> 
+                    </div>
+                    <div class="row-top summary-table" id="quotation_list">
+                        <span class="head-row">
+                            <span>Quotation #</span>
+                            <span>Customer</span>
+                            <span>Service</span>
+                            <span>Goods</span>
+                            <span>Quantity</span>
+                            <span>Price</span>
+                            <span>Status</span>
+                        </span>
+                      
+                    </div>
+                    <div class="column-center consignment-forms hidden" id="quotation_form">
+                        <form class="wide shadow-minor">
+                            <div class="row-space">
+                                <div class="column wide">
+                                    <span class="bold">Client</span>
+                                    <span id="client_name">Client Name</span>
+                                    <span id="client_address">Address here</span>
+                                    <span id="client_region">Dar es Salaam</span>
+                                    <span id="client_country">Tanzania</span>
+                                </div>
+                                <div class="column wide">
+                                    <span class="bold">Quotation for</span>
+                                    <div class="row-top">
+                                        <label for="customer_id">Select Customer</label>
+                                        <div class="column wide">
+                                            <select class="wide-select" id="customer_id" name="customer_id"></select>
+                                            <span id="customer_name">Customer Name</span>
+                                            <span id="customer_address">Address here</span>
+                                            <span id="customer_region">Dar es Salaam, Tanzania</span>
+                                        </div>
+                                    </div>
+                                    
+                                    
+                                </div>
+                               
+                            </div>
+                            <div class="row-space">
+                                <div class="row">
+                                        <label for="service">Service</label>
+                                        <select class="wide-select" id="service" name="service">
+                                            <option value="-1">--select service--</option>
+                                            <option>Full Body</option>
+                                            <option>Half Body</option>
+                                        </select>
+                                </div>
+                                <div class="row">
+                                        <label for="goods">Goods</label>
+                                        <input type="text" id="goods" name="goods" placeholder="Goods"/>
+                                        
+                                </div>
+                                <div class="row">
+                                    
+                                    
+                            </div>
+                            </div>
+                            <div class="row">
+                                <div class="row">
+                                    <label for="quantity">Quantity (Containers)</label>
+                                    <input type="text" id="quantity" name="quantity" placeholder="No. of containers"/>
+                                    
+                                </div>
+                                <div class="row">
+                                    <label for="price">Price</label>
+                                    <input type="text" id="price" name="price" value="0.0"/>
+                                    
+                                </div>
+                                <div class="row">
+                                    <label for="status">Status</label>
+                                    <select class="wide-select" id="status" name="status">
+                                        <option value="-1">--select status--</option>
+                                        <option>Awaiting Manager's Approval</option>
+                                        <option>Awaiting Client's Approval</option>
+                                        <option>Approved</option>
+                                    </select>
+                                </div>
+                                
+                               
+                            </div>
+                            <div class="row-top summary-table" id="cost_item_list">
+                                <span class="head-row">
+                                    <span>SN#</span>
+                                    <span>Description</span>
+                                    <span>Quantity</span>
+                                    <span>Price</span>
+                                    <span>Amount</span>
+                                </span>
+                                <span class="body-row shadow-minor">
+                                    <span>1</span>
+                                    <span>Agency Fee</span>
+                                    <span>1</span>
+                                    <span>200</span>
+                                    <span>200</span>
+                                </span>
+                                <div class="body-row shadow-minor">
+                                    <input type="number" name="item_count" id="item_count" value="1"/>
+                                    <select name="cost_item" id="cost_item">
+                                        <option>--select cost item--</option>
+                                        <option>Agency Fee</option>
+                                        <option>Bill of Lading</option>
+                                        <option>Phytosanitary Cert</option>
+                                        <option>Treatment</option>
+                                        <option>Inspection</option>
+                                    </select>
+                                </div>
+                            </div> 
+                           
+                        </form>
+                   </div>
+                   
                 </div>
             </div>
         </main>

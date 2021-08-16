@@ -289,9 +289,16 @@ const activateMenu =(target)=>{
                 greet("Settings",{title:"Users",description:"Manage users"});
                 
                 break;
-                case 'exports':
-                    showConsignment();
-                    break;
+            case 'exports':
+                showConsignment();
+                break;
+            case 'imports':
+                greet("Operations",{title:"Imports",description:"Consignments"});
+                break;
+            case 'quotations':
+                greet("Finance",{title:"Quotations",description:"List of quotations"});
+                break;
+                
             case 'roles':
                 greet("Settings",{title:"Roles",description:"Manage roles"});
                 if(!storedData.roles || storedData.roles.length == 0){
@@ -1111,6 +1118,26 @@ const showConsignmentForm=(source,data=null)=>{
     var position = (data == null) ? 1: data.status;
     switchSteps(position,data);
 
+    
+}
+
+//show Quotation form
+const showQuotationForm=(source,data=null)=>{
+    if(source != "quotation_list"){
+        document.getElementById("quotations_content").classList.remove("hidden");
+        document.getElementById("quotation_list").classList.add("hidden");
+       
+        // activateMenu("exports")
+    }
+    var desc= "Create";
+    if(data != null) desc = "View";
+    greet("Finance",{title:"Quotations",description:desc});
+    document.getElementById(source).classList.add("hidden");
+   
+    document.querySelector("#add_quotation").classList.add("hidden");
+    const parent = document.getElementById("quotation_form");
+    parent.classList.remove("hidden");
+   
     
 }
 

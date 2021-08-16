@@ -337,7 +337,7 @@ main > div#dashboard_content {
   padding: 0.05em 0.5em;
   text-align: left;
   flex-grow: 1;
-  max-width: 180px;
+  max-width: 220px;
   margin-top: 0.5em;
 }
 
@@ -352,7 +352,7 @@ main > div#dashboard_content {
   border-top-right-radius: 4px;
   cursor: pointer;
   color: #cc9900;
-  min-width: 100px !important;
+  min-width: 120px !important;
   padding: 0.5em 1em;
 }
 
@@ -913,7 +913,8 @@ td > select .wide-select {
 }
 
 .wide {
-  width: 100%;
+  width: calc(100% - 1em);
+  margin: 0.5em;
 }
 
 #feedback {
