@@ -1137,8 +1137,133 @@ const showQuotationForm=(source,data=null)=>{
     document.querySelector("#add_quotation").classList.add("hidden");
     const parent = document.getElementById("quotation_form");
     parent.classList.remove("hidden");
-   
+
+    const clientName = document.getElementById("client_name");
+    const clientAddress = document.getElementById("client_address");
+    const clientRegion = document.getElementById("client_region");
+
+    var client = currentUser.detail;
+    clientName.textContent = client.name;
+    clientAddress.textContent = client.address;
+    clientRegion.textContent = client.region+", "+client.country;
+
+    const form = document.getElementById("my_quote_form");
+
+    Array.from(form.customer_id.children).forEach((c,i)=>{
+        if(i>0) form.customer_id.removeChild(c);
+    });
+    storedData.customers.forEach(c=>{
+        form.customer_id.options.add(new Option(c.name,c.id));
+    })
+    form.customer_id.addEventListener("change",(e)=>{
+        var id = e.target.options[e.target.options.selectedIndex].value;
+        var customer = storedData.customers.filter(c=>c.id == id)[0];
+        var customerName = document.getElementById("c_name");
+        customerName.textContent = customer.name;
+        var customerAddress = document.getElementById("c_address");
+        customerAddress.textContent = customer.address;
+        var customerRegion = document.getElementById("c_region");
+        customerRegion.textContent = customer.region +", "+ customer.country;
+        
+    })
+    var costItems = [{id:0,name:"Agency Fee",cost:200},{id:1,name:"Bill of Lading",cost:95},{id:2,name:"Phytosanitary Cert",cost:18},{id:3,name:"Treatment",cost:100},{id:4,name:"Inspection",cost:40},{id:5,name:"Port Charges/Welfare and handling",cost:480},];
     
+    var myCostItems = [];
+    const costItemList = document.getElementById("cost_item_list");
+    const costItemEl = document.getElementById("cost_item");
+    const costItemCountEl = document.getElementById("item_count");
+
+    Array.from(costItemEl.children).forEach((ch,i)=>{
+        if(i>0) costItemEl.removeChild(ch);
+    })
+    costItems.forEach(ci=>{
+        costItemEl.options.add(new Option(ci.name,ci.id));
+    })
+    costItemEl.addEventListener("change",(e)=>{
+        let itemId = e.target.options[e.target.options.selectedIndex].value;
+        let idx = 0;
+        let item = costItems.filter((c,i)=>{
+            if(c.id == itemId){
+                idx = i;
+                return c.id == itemId;
+            }
+           
+        });
+        let quantity = costItemCountEl.value;
+        item[0].count = quantity;
+        if(myCostItems.filter(m=>m.id == itemId).length > 0){
+            item[0].count++;
+            myCostItems[idx] = item[0];
+        }
+        else myCostItems.push(item[0]);
+        showCostItems(myCostItems,costItemList);
+        var sum = 0;
+        myCostItems.forEach((a)=>{
+            sum += (a.count * a.cost);
+        });
+        form.price.value = sum;
+        console.log("sum: ",sum);
+    })
+
+    form.addEventListener("submit",(e)=>{
+        e.preventDefault();
+
+    })
+}
+
+//show cost items
+const showCostItems = (items,container)=>{
+    Array.from(container.children).forEach((c,i)=>{
+        if(i>0 && i !== container.children.length - 1) container.removeChild(c);
+    });
+
+    var sum = 0;
+    if(items.length > 0){
+        items.forEach((item,idx)=>{
+            var amount = item.cost * item.count;
+            sum += amount;
+            const row = document.createElement("span");
+            row.classList.add("body-row");
+            row.classList.add("shadow-minor");
+            const sn = document.createElement("span");
+            const desc = document.createElement("span");
+            const qtty = document.createElement("span");
+            const price = document.createElement("span");
+            const amt = document.createElement("span");
+    
+            sn.textContent = (idx +1);
+            desc.textContent = item.name;
+            qtty.textContent = item.count;
+            price.textContent = item.cost;
+            amt.textContent = amount;
+    
+            row.appendChild(sn);
+            row.appendChild(desc);
+            row.appendChild(qtty);
+            row.appendChild(price);
+            row.appendChild(amt);
+    
+            container.appendChild(row);
+        });
+
+        const total = document.createElement("span");
+        total.classList.add("medium-text");
+        total.classList.add("row-end");
+        // total.style.textAlign = "right";
+        total.textContent = "TOTAL "+sum;
+        container.appendChild(total);
+    }
+    else{
+        const row = document.createElement("span");
+            row.classList.add("body-row");
+            row.classList.add("shadow-minor");
+            const nodata = document.createElement("span");
+            nodata.textContent = "no items selected";
+            row.appendChild(nodata);
+            container.appendChild(row);
+    }
+
+   
 }
 
 //show odg files

@@ -922,14 +922,13 @@
                       
                     </div>
                     <div class="column-center consignment-forms hidden" id="quotation_form">
-                        <form class="wide shadow-minor">
+                        <form class="wide shadow-minor" id="my_quote_form">
                             <div class="row-space">
                                 <div class="column wide">
                                     <span class="bold">Client</span>
-                                    <span id="client_name">Client Name</span>
-                                    <span id="client_address">Address here</span>
-                                    <span id="client_region">Dar es Salaam</span>
-                                    <span id="client_country">Tanzania</span>
+                                    <span id="client_name"></span>
+                                    <span id="client_address"></span>
+                                    <span id="client_region"></span>
                                 </div>
                                 <div class="column wide">
                                     <span class="bold">Quotation for</span>
@@ -937,9 +936,9 @@
                                         <label for="customer_id">Select Customer</label>
                                         <div class="column wide">
                                             <select class="wide-select" id="customer_id" name="customer_id"></select>
-                                            <span id="customer_name">Customer Name</span>
-                                            <span id="customer_address">Address here</span>
-                                            <span id="customer_region">Dar es Salaam, Tanzania</span>
+                                            <span id="c_name"></span>
+                                            <span id="c_address"></span>
+                                            <span id="c_region"></span>
                                         </div>
                                     </div>
                                     
@@ -997,25 +996,20 @@
                                     <span>Price</span>
                                     <span>Amount</span>
                                 </span>
-                                <span class="body-row shadow-minor">
-                                    <span>1</span>
-                                    <span>Agency Fee</span>
-                                    <span>1</span>
-                                    <span>200</span>
-                                    <span>200</span>
-                                </span>
+                             </div>   
                                 <div class="body-row shadow-minor">
-                                    <input type="number" name="item_count" id="item_count" value="1"/>
-                                    <select name="cost_item" id="cost_item">
-                                        <option>--select cost item--</option>
-                                        <option>Agency Fee</option>
-                                        <option>Bill of Lading</option>
-                                        <option>Phytosanitary Cert</option>
-                                        <option>Treatment</option>
-                                        <option>Inspection</option>
-                                    </select>
+                                    <div class="row">
+                                        <input type="number" name="item_count" id="item_count" value="1"/>
+                                        <select name="cost_item" id="cost_item">
+                                            <option>--select cost item--</option>
+                                           
+                                        </select>
+                                    </div>
+                                    <div class="row-end">
+                                        <input type="submit" id="btnSubmit" name="btnSubmit" value="SAVE"/>
+                                    </div>
                                 </div>
-                            </div> 
+                            
                            
                         </form>
                    </div>
