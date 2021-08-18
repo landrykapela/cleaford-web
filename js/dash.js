@@ -34,6 +34,8 @@ const CONTAINER_FIELDS = [{id:"mbl_number",label:"MB/L Number",required:false,ty
 {id:"max_temp",label:"Maximum Temperature",required:false,type:"number"},
 {id:"min_temp",label:"Minimum Temperature",required:false,type:"number"},
 {id:"plug_yn",label:"Refer Plug",required:true,type:"select",options:["Yes","No"]}];
+const COST_ITEMS = [{id:0,name:"Agency Fee",cost:200},{id:1,name:"Bill of Lading",cost:95},{id:2,name:"Phytosanitary Cert",cost:18},{id:3,name:"Treatment",cost:100},{id:4,name:"Inspection",cost:40},{id:5,name:"Port Charges/Welfare and handling",cost:480},];
+    
 var currentUser = (storage.getItem("currentUser")) ? JSON.parse(storage.getItem("currentUser")):null;
 var storedData = (storage.getItem("data")) ? JSON.parse(storage.getItem("data")):{roles:[],client_roles:[],customers:[],roles:[]};
 
@@ -297,6 +299,22 @@ const activateMenu =(target)=>{
                 break;
             case 'quotations':
                 greet("Finance",{title:"Quotations",description:"List of quotations"});
+                if(!storedData.quotations || storedData.quotations.length == 0){
+                    var options = {method:"GET",headers:{"Content-type":"application/json","Authorization":"Bearer "+currentUser.accessToken}};
+                    var url = quotation_url+"/"+currentUser.id;
+                    fetch(url,options).then(res=>res.json())
+                    .then(result=>{
+                        storedData.quotations = result.data;
+                        storage.setItem("data",JSON.stringify(storedData));
+                        showQuotationList(result.data);
+                    })
+                    .catch(e=>{
+                        showFeedback("Something went wrong. Please try again later",1);
+                    });
+                }
+                else{
+                    showQuotationList(storedData.quotations);
+                }
                 break;
                 
             case 'roles':
@@ -639,6 +657,13 @@ const viewCustomerDetails = (customer,source)=>{
     detailView.classList.remove("hidden");
     document.getElementById(source).classList.add("hidden");
 
+    const editButton = document.getElementById("editCustomerButton");
+    if(editButton){
+        editButton.addEventListener("click",(e)=>{
+            editCustomerDetail(customer,"view_customer_content");
+        })
+    }
+    
     const name = document.getElementById("customer_name");
     const tin = document.getElementById("c_tin");
     const address = document.getElementById("c_address");
@@ -1121,6 +1146,64 @@ const showConsignmentForm=(source,data=null)=>{
     
 }
 
+//show quotations
+const showQuotationList = (quotations,source=null)=>{
+    if(source != null) document.getElementById(source).classList.add("hidden");
+    const parent = document.getElementById("quotation_list");
+    Array.from(parent.children).forEach((c,i)=>{
+        if(i>0) parent.removeChild(c);
+    })
+
+    if(quotations.length > 0){
+        quotations.forEach((d,i)=>{
+            const row = document.createElement("span");
+            row.classList.add("consignment-row");
+            row.classList.add("shadow-minor");
+            // row.classList.add("status-indicator-"+d.status);
+            const qNo = document.createElement("span");
+            qNo.textContent = formatConsignmentNumber(d.id);
+            row.appendChild(qNo);
+    
+            const customer = document.createElement("span");
+            var customerInfo = storedData.customers.filter(c=>c.id == d.customer_id)[0];
+            customer.textContent = customerInfo.name;
+            row.appendChild(customer);
+    
+            const service = document.createElement("span");
+            service.textContent = d.service;
+            row.appendChild(service);
+            
+            
+    
+            const goods = document.createElement("span");
+            goods.textContent = d.goods;
+            row.appendChild(goods);
+    
+            const nContainer = document.createElement("span");
+            nContainer.textContent = d.quantity;
+            row.appendChild(nContainer);
+
+            const qStatus = document.createElement("span");
+            qStatus.textContent = d.status;
+            row.appendChild(qStatus);
+
+            parent.appendChild(row);
+
+            row.addEventListener("click",(e)=>{
+                showQuotationForm("quotation_list",d);
+            })
+        })
+        
+    }
+    else{
+        const row = document.createElement("span");
+        row.classList.add("consignment-row");
+        row.classList.add("shadow-minor");
+        row.textContent = "No Quotations";
+        parent.appendChild(row);
+    }
+    
+}
 //show Quotation form
 const showQuotationForm=(source,data=null)=>{
     if(source != "quotation_list"){
@@ -1149,30 +1232,75 @@ const showQuotationForm=(source,data=null)=>{
 
     const form = document.getElementById("my_quote_form");
 
-    Array.from(form.customer_id.children).forEach((c,i)=>{
-        if(i>0) form.customer_id.removeChild(c);
+    Array.from(form.cs_id.children).forEach((c,i)=>{
+        if(i>0) form.cs_id.removeChild(c);
     });
     storedData.customers.forEach(c=>{
-        form.customer_id.options.add(new Option(c.name,c.id));
+        form.cs_id.options.add(new Option(c.name,c.id));
     })
-    form.customer_id.addEventListener("change",(e)=>{
-        var id = e.target.options[e.target.options.selectedIndex].value;
-        var customer = storedData.customers.filter(c=>c.id == id)[0];
-        var customerName = document.getElementById("c_name");
-        customerName.textContent = customer.name;
-        var customerAddress = document.getElementById("c_address");
-        customerAddress.textContent = customer.address;
-        var customerRegion = document.getElementById("c_region");
-        customerRegion.textContent = customer.region +", "+ customer.country;
-        
-    })
-    var costItems = [{id:0,name:"Agency Fee",cost:200},{id:1,name:"Bill of Lading",cost:95},{id:2,name:"Phytosanitary Cert",cost:18},{id:3,name:"Treatment",cost:100},{id:4,name:"Inspection",cost:40},{id:5,name:"Port Charges/Welfare and handling",cost:480},];
-    
-    var myCostItems = [];
+
+    form.cs_id.options.add(new Option("--add new customer--",-1));
     const costItemList = document.getElementById("cost_item_list");
     const costItemEl = document.getElementById("cost_item");
     const costItemCountEl = document.getElementById("item_count");
+    const qNumber = document.getElementById("quotation_number");
 
+    var customer = storedData.customers.filter(c=>c.id == form.cs_id.value)[0];
+    var customerName = document.getElementById("cs_name");
+    var customerAddress = document.getElementById("cs_address");
+    var customerRegion = document.getElementById("cs_region");
+    if(data != null){
+        qNumber.textContent = "Quotation No: "+formatConsignmentNumber(data.id);
+        form.cs_id.value = data.customer_id;
+        var customer = storedData.customers.filter(c=>c.id == data.customer_id)[0];
+        customerName.textContent = customer.name;
+        customerAddress.textContent = customer.address;
+        customerRegion.textContent = customer.region +", "+ customer.country;
+
+        form.goods.value = data.goods;
+        form.service.value = data.service;
+        form.quantity.value = data.quantity;
+        form.status.value = data.status;
+        form.price.value = data.price;
+
+        var qItemsIds = data.items.split("_").map(id=>parseInt(id));
+        var qItems = COST_ITEMS.filter((c,i)=>{
+            return qItemsIds.indexOf(c.id) !== -1;
+        }).map(c=>{
+            c.count = 1;
+            return c;
+        });
+        
+        myQItems = [];
+        qItems.forEach((q)=>{
+            var mq = myQItems.filter((m,i)=>m.id == q.id);
+            if(mq.length > 0){
+                mq[0].count ++;
+                myQItems[i] = mq[0];
+            }
+            else{
+                q.count = 1;
+                myQItems.push(q);
+            }
+        })
+        console.log("ids: ",qItemsIds);
+        console.log("itms: ",qItems);
+        showCostItems(myQItems,costItemList);
+    }
+    form.cs_id.addEventListener("change",(e)=>{
+        if(e.target.value == -1) showCustomerDetailForm('quotations_content');
+        else if(e.target.value != -2){
+            var id = e.target.options[e.target.options.selectedIndex].value;
+            var cust = storedData.customers.filter(c=>c.id == id)[0];
+            customerName.textContent = cust.name;
+            customerAddress.textContent = cust.address;
+            customerRegion.textContent = cust.region +", "+ cust.country;
+        }
+        
+    })
+    var costItems = COST_ITEMS;
+    var myCostItems = [];
+    
     Array.from(costItemEl.children).forEach((ch,i)=>{
         if(i>0) costItemEl.removeChild(ch);
     })
@@ -1181,17 +1309,16 @@ const showQuotationForm=(source,data=null)=>{
     })
     costItemEl.addEventListener("change",(e)=>{
         let itemId = e.target.options[e.target.options.selectedIndex].value;
-        let idx = 0;
+        
         let item = costItems.filter((c,i)=>{
             if(c.id == itemId){
-                idx = i;
                 return c.id == itemId;
             }
            
         });
         let quantity = costItemCountEl.value;
         item[0].count = quantity;
-        if(myCostItems.filter(m=>m.id == itemId).length > 0){
+        if(myCostItems.filter((m,idx)=>m.id == itemId).length > 0){
             item[0].count++;
             myCostItems[idx] = item[0];
         }
@@ -1205,12 +1332,56 @@ const showQuotationForm=(source,data=null)=>{
         console.log("sum: ",sum);
     })
 
+    const cancelButton = document.getElementById("close_quote_form");
+    if(cancelButton){
+        cancelButton.addEventListener("click",(e)=>{
+            myCostItems = [];
+            Array.from(costItemList.children).forEach((c,i)=>{
+                if(i>0) costItemList.removeChild(c);
+            });
+            qNumber.textContent = "";
+            customerAddress.textContent = "";
+            customerName.textContent = "";
+            customerRegion.textContent = "";
+            closeQuotationForm();
+        })
+    }
     form.addEventListener("submit",(e)=>{
         e.preventDefault();
-
+        var customerId = form.cs_id.value;
+        var service = form.service.value;
+        var goods = form.goods.value;
+        var containerNum = form.quantity.value;
+        var price = form.price.value;
+        var status = form.status.value;
+        var cost_items = myCostItems.map(i=>i.id).join("_");
+        var data = {customer_id:customerId,service:service,goods:goods,quantity:containerNum,price:price,status:status,items:cost_items};
+        var url = quotation_url +"/"+currentUser.id;
+        var options = {method:"POST",body:JSON.stringify(data),headers:{"Content-type":"application/json","Authorization":"Bearer "+currentUser.accessToken}}
+        fetch(url,options)
+        .then(res=>res.json())
+        .then(result=>{
+            console.log("result: ",result);
+            storedData.quotations = result.data;
+            storage.setItem("data",JSON.stringify(storedData));
+            showFeedback(result.msg,result.code);
+            closeQuotationForm('my_quote_form');
+        })
+        .catch(er=>{
+            console.log("er: ",er);
+            showFeedback("Something went wrong: "+e,1);
+        })
     })
 }
-
+const closeQuotationForm=() =>{
+    var form = document.getElementById("my_quote_form");
+    form.reset();
+    
+    document.getElementById("quotation_form").classList.add("hidden");
+    document.getElementById("quotation_list").classList.remove("hidden");
+    document.querySelector("#add_quotation").classList.remove("hidden");
+    showQuotationList(storedData.quotations);
+}
 //show cost items
 const showCostItems = (items,container)=>{
     Array.from(container.children).forEach((c,i)=>{
@@ -1258,7 +1429,7 @@ const showCostItems = (items,container)=>{
             row.classList.add("body-row");
             row.classList.add("shadow-minor");
             const nodata = document.createElement("span");
-            nodata.textContent = "no items selected";
+            nodata.textContent = "no cost items selected";
             row.appendChild(nodata);
             container.appendChild(row);
     }

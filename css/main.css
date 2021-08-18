@@ -1098,6 +1098,7 @@ td > select .wide-select {
 .consignment-forms select.wide-select {
   max-width: unset;
   width: 50% !important;
+  min-width: 128px;
 }
 
 .subscription-forms p, .subscription-forms .features {

@@ -725,7 +725,7 @@
                             </div>
                             <div class="column">
                                 <div class="row-end">
-                                    <span class="buttons" id="updateCustomer">Update</span>
+                                    <span class="buttons" id="editCustomerButton">Edit</span>
                                 </div>
                                 <div>
 
@@ -915,7 +915,7 @@
                             <span>Customer</span>
                             <span>Service</span>
                             <span>Goods</span>
-                            <span>Quantity</span>
+                            <span>No. of Containers</span>
                             <span>Price</span>
                             <span>Status</span>
                         </span>
@@ -929,16 +929,19 @@
                                     <span id="client_name"></span>
                                     <span id="client_address"></span>
                                     <span id="client_region"></span>
+                                    <span id="quotation_number" class="bold primary-dark-text"></span>
                                 </div>
                                 <div class="column wide">
-                                    <span class="bold">Quotation for</span>
+                                    <label class="bold">Quotation for</label>
                                     <div class="row-top">
-                                        <label for="customer_id">Select Customer</label>
+                                        <label for="cs_id">Select Customer</label>
                                         <div class="column wide">
-                                            <select class="wide-select" id="customer_id" name="customer_id"></select>
-                                            <span id="c_name"></span>
-                                            <span id="c_address"></span>
-                                            <span id="c_region"></span>
+                                            <select class="wide-select" id="cs_id" name="cs_id">
+                                                <option value="-2">--select customer--</option>
+                                            </select>
+                                            <span id="cs_name"></span>
+                                            <span id="cs_address"></span>
+                                            <span id="cs_region"></span>
                                         </div>
                                     </div>
                                     
@@ -961,9 +964,7 @@
                                         
                                 </div>
                                 <div class="row">
-                                    
-                                    
-                            </div>
+                                </div>
                             </div>
                             <div class="row">
                                 <div class="row">
@@ -997,15 +998,16 @@
                                     <span>Amount</span>
                                 </span>
                              </div>   
-                                <div class="body-row shadow-minor">
+                                <div class="body-row">
                                     <div class="row">
                                         <input type="number" name="item_count" id="item_count" value="1"/>
-                                        <select name="cost_item" id="cost_item">
+                                        <select class="wide-select" name="cost_item" id="cost_item">
                                             <option>--select cost item--</option>
                                            
                                         </select>
                                     </div>
                                     <div class="row-end">
+                                        <span class="buttons-t" id="close_quote_form">CLOSE</span>
                                         <input type="submit" id="btnSubmit" name="btnSubmit" value="SAVE"/>
                                     </div>
                                 </div>
