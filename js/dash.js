@@ -270,10 +270,10 @@ const activateMenu =(target)=>{
     
     if(menu){
         switch(menu.id){
-            case 'clients':
-                greet("Clients",{title:"Clients",description:"List of clients"});
-                getClients().then(clients=>{
-                    showClients(clients)
+            case 'customers':
+                greet("Customers",{title:"Customers",description:"List of customers"});
+                getCustomers().then(customers=>{
+                    // showCustomers(customers)
                 }).catch(er=>{
                     console.log("er:",er);
                     showFeedback(er,1);
@@ -298,7 +298,6 @@ const activateMenu =(target)=>{
                 greet("Operations",{title:"Imports",description:"Consignments"});
                 break;
             case 'quotations':
-                greet("Finance",{title:"Quotations",description:"List of quotations"});
                 if(!storedData.quotations || storedData.quotations.length == 0){
                     var options = {method:"GET",headers:{"Content-type":"application/json","Authorization":"Bearer "+currentUser.accessToken}};
                     var url = quotation_url+"/"+currentUser.id;
@@ -315,6 +314,7 @@ const activateMenu =(target)=>{
                 else{
                     showQuotationList(storedData.quotations);
                 }
+                // console.log("activating quotations menu");
                 break;
                 
             case 'roles':
@@ -954,6 +954,7 @@ const formatConsignmentNumber = (number)=>{
 }
 //showCustomers
 const showCustomers = (data,source=null)=>{
+    greet("Customers",{title:"Customers",description:"List of customers"});
     if(source != null) document.getElementById(source).classList.add("hidden");
     const holder = document.querySelector("#customers_table_summary");  
     Array.from(holder.children).forEach(child=>{
@@ -1148,14 +1149,23 @@ const showConsignmentForm=(source,data=null)=>{
 
 //show quotations
 const showQuotationList = (quotations,source=null)=>{
+    greet("Finance",{title:"Quotations",description:"List of quotations"});
     if(source != null) document.getElementById(source).classList.add("hidden");
+    else{
+        const qContent = document.getElementById("quotations_content");
+        Array.from(qContent.children).forEach((c,i)=>{
+            if(i>1) c.classList.add("hidden");
+        });
+    }
+    document.getElementById("add_quotation").classList.remove("hidden");
     const parent = document.getElementById("quotation_list");
+    parent.classList.remove("hidden");
     Array.from(parent.children).forEach((c,i)=>{
         if(i>0) parent.removeChild(c);
     })
-
     if(quotations.length > 0){
         quotations.forEach((d,i)=>{
+
             const row = document.createElement("span");
             row.classList.add("consignment-row");
             row.classList.add("shadow-minor");
@@ -1183,6 +1193,10 @@ const showQuotationList = (quotations,source=null)=>{
             nContainer.textContent = d.quantity;
             row.appendChild(nContainer);
 
+            const qAmount = document.createElement("span");
+            qAmount.textContent = d.price;
+            row.appendChild(qAmount);
+
             const qStatus = document.createElement("span");
             qStatus.textContent = d.status;
             row.appendChild(qStatus);
@@ -1190,6 +1204,7 @@ const showQuotationList = (quotations,source=null)=>{
             parent.appendChild(row);
 
             row.addEventListener("click",(e)=>{
+                console.log("d: ",d);
                 showQuotationForm("quotation_list",d);
             })
         })
@@ -1202,6 +1217,7 @@ const showQuotationList = (quotations,source=null)=>{
         row.textContent = "No Quotations";
         parent.appendChild(row);
     }
+      
     
 }
 //show Quotation form
@@ -1227,7 +1243,7 @@ const showQuotationForm=(source,data=null)=>{
 
     var client = currentUser.detail;
     clientName.textContent = client.name;
-    clientAddress.textContent = client.address;
+    clientAddress.textContent = client.address.split(",")[0];
     clientRegion.textContent = client.region+", "+client.country;
 
     const form = document.getElementById("my_quote_form");
@@ -1254,14 +1270,14 @@ const showQuotationForm=(source,data=null)=>{
         form.cs_id.value = data.customer_id;
         var customer = storedData.customers.filter(c=>c.id == data.customer_id)[0];
         customerName.textContent = customer.name;
-        customerAddress.textContent = customer.address;
+        customerAddress.textContent = customer.address.split(",")[0];
         customerRegion.textContent = customer.region +", "+ customer.country;
 
         form.goods.value = data.goods;
         form.service.value = data.service;
         form.quantity.value = data.quantity;
-        form.status.value = data.status;
-        form.price.value = data.price;
+        form.discount.value = (data.discount) ? data.discount : 0;
+        // form.price.value = data.price;
 
         var qItemsIds = data.items.split("_").map(id=>parseInt(id));
         var qItems = COST_ITEMS.filter((c,i)=>{
@@ -1283,9 +1299,7 @@ const showQuotationForm=(source,data=null)=>{
                 myQItems.push(q);
             }
         })
-        console.log("ids: ",qItemsIds);
-        console.log("itms: ",qItems);
-        showCostItems(myQItems,costItemList);
+        showCostItems(myQItems,form.discount.value,costItemList);
     }
     form.cs_id.addEventListener("change",(e)=>{
         if(e.target.value == -1) showCustomerDetailForm('quotations_content');
@@ -1293,14 +1307,14 @@ const showQuotationForm=(source,data=null)=>{
             var id = e.target.options[e.target.options.selectedIndex].value;
             var cust = storedData.customers.filter(c=>c.id == id)[0];
             customerName.textContent = cust.name;
-            customerAddress.textContent = cust.address;
+            customerAddress.textContent = cust.address.split(",")[0];
             customerRegion.textContent = cust.region +", "+ cust.country;
         }
         
     })
     var costItems = COST_ITEMS;
     var myCostItems = [];
-    
+    // var myItemIds = myCostItems.map(c=>c.id);
     Array.from(costItemEl.children).forEach((ch,i)=>{
         if(i>0) costItemEl.removeChild(ch);
     })
@@ -1309,29 +1323,22 @@ const showQuotationForm=(source,data=null)=>{
     })
     costItemEl.addEventListener("change",(e)=>{
         let itemId = e.target.options[e.target.options.selectedIndex].value;
+        let item = costItems.filter(c=>c.id == itemId);
+        item[0].count = costItemCountEl.value;
+        myCostItems.push(item[0]);
+        console.log("cil: ",myCostItems);
+        showCostItems(myCostItems,form.discount.value,costItemList);
         
-        let item = costItems.filter((c,i)=>{
-            if(c.id == itemId){
-                return c.id == itemId;
-            }
-           
-        });
-        let quantity = costItemCountEl.value;
-        item[0].count = quantity;
-        if(myCostItems.filter((m,idx)=>m.id == itemId).length > 0){
-            item[0].count++;
-            myCostItems[idx] = item[0];
-        }
-        else myCostItems.push(item[0]);
-        showCostItems(myCostItems,costItemList);
-        var sum = 0;
-        myCostItems.forEach((a)=>{
-            sum += (a.count * a.cost);
-        });
-        form.price.value = sum;
-        console.log("sum: ",sum);
+       
+      costItemCountEl.value = 1;
     })
 
+    form.discount.addEventListener("input",(e)=>{
+        let val = e.target.value;
+        if(val){
+            showCostItems(myCostItems,val,costItemList);
+        }
+    })
     const cancelButton = document.getElementById("close_quote_form");
     if(cancelButton){
         cancelButton.addEventListener("click",(e)=>{
@@ -1352,12 +1359,23 @@ const showQuotationForm=(source,data=null)=>{
         var service = form.service.value;
         var goods = form.goods.value;
         var containerNum = form.quantity.value;
-        var price = form.price.value;
-        var status = form.status.value;
+        var discount = form.discount.value;
+        
         var cost_items = myCostItems.map(i=>i.id).join("_");
-        var data = {customer_id:customerId,service:service,goods:goods,quantity:containerNum,price:price,status:status,items:cost_items};
+        var sum = 0;
+        myCostItems.forEach(i=>{
+            sum += (i.count * i.cost);
+        });
+        var myData = {customer_id:customerId,service:service,goods:goods,quantity:containerNum,discount:discount,items:cost_items,price:sum};
+        var method = "POST";
+        if(data == null) myData.status = "Awaiting Manager's Approval";
+        else{
+            method = "PUT";
+
+        }
         var url = quotation_url +"/"+currentUser.id;
-        var options = {method:"POST",body:JSON.stringify(data),headers:{"Content-type":"application/json","Authorization":"Bearer "+currentUser.accessToken}}
+        var options = {method:"POST",body:JSON.stringify(myData),headers:{"Content-type":"application/json","Authorization":"Bearer "+currentUser.accessToken}}
+        console.log("t: ",myData);
         fetch(url,options)
         .then(res=>res.json())
         .then(result=>{
@@ -1383,12 +1401,13 @@ const closeQuotationForm=() =>{
     showQuotationList(storedData.quotations);
 }
 //show cost items
-const showCostItems = (items,container)=>{
+const showCostItems = (items,discount,container)=>{
     Array.from(container.children).forEach((c,i)=>{
         if(i>0 && i !== container.children.length - 1) container.removeChild(c);
     });
 
     var sum = 0;
+    var disc = 0;
     if(items.length > 0){
         items.forEach((item,idx)=>{
             var amount = item.cost * item.count;
@@ -1401,38 +1420,65 @@ const showCostItems = (items,container)=>{
             const qtty = document.createElement("span");
             const price = document.createElement("span");
             const amt = document.createElement("span");
+            const actionSpan = document.createElement("span");
+            const removeBut = document.createElement("span");
     
             sn.textContent = (idx +1);
             desc.textContent = item.name;
             qtty.textContent = item.count;
             price.textContent = item.cost;
             amt.textContent = amount;
+
+
+            removeBut.classList.add("material-icons");
+            actionSpan.classList.add("actions");
+            removeBut.textContent = "close";
+            actionSpan.appendChild(removeBut);
     
             row.appendChild(sn);
             row.appendChild(desc);
             row.appendChild(qtty);
             row.appendChild(price);
             row.appendChild(amt);
+            row.appendChild(actionSpan);
     
             container.appendChild(row);
+
+            removeBut.addEventListener("click",e=>{
+                var newItems = items.filter(i=>i.id != item.id);
+                showCostItems(newItems,discount,container);
+            })
         });
+        disc = discount * sum /100;
+        
+        const sTotal = document.createElement("span");
+        sTotal.classList.add("row-end");
+        // total.style.textAlign = "right";
+        sTotal.textContent = "Subtotal "+sum;
+        container.appendChild(sTotal);
+
+        const discSpan = document.createElement("span");
+        discSpan.classList.add("row-end");
+        // total.style.textAlign = "right";
+        discSpan.textContent = "Discount ("+discount+"%) "+disc;
+        container.appendChild(discSpan);
 
         const total = document.createElement("span");
         total.classList.add("medium-text");
         total.classList.add("row-end");
         // total.style.textAlign = "right";
-        total.textContent = "TOTAL "+sum;
+        total.textContent = "TOTAL "+(sum - disc);
         container.appendChild(total);
     }
-    else{
-        const row = document.createElement("span");
-            row.classList.add("body-row");
-            row.classList.add("shadow-minor");
-            const nodata = document.createElement("span");
-            nodata.textContent = "no cost items selected";
-            row.appendChild(nodata);
-            container.appendChild(row);
-    }
+    // else{
+    //     const row = document.createElement("span");
+    //         row.classList.add("body-row");
+    //         row.classList.add("shadow-minor");
+    //         const nodata = document.createElement("span");
+    //         nodata.textContent = "no cost items selected";
+    //         row.appendChild(nodata);
+    //         container.appendChild(row);
+    // }
 
    
 }
@@ -2747,20 +2793,13 @@ const getCustomers = ()=>{
         var options = {method:"GET",headers:headers};
     
         fetch(customers_url+"/"+currentUser.id,options)
-        .then(res=>{
+        .then(res=>res.json())
+        .then(result=>{
             hideSpinner();
-            if(res.status == 403){
-                reject({code:-1,msg:"Session expired, please login"});
-                // signoutUser();
-            }
-            else{
-                 res.json().then(result=>{
-                   resolve(result);
-                })
-                .catch(err=>{
-                    reject(err)
-                })
-            }
+            resolve(result);
+        })
+        .catch(err=>{
+            reject(err)
         })
     })
     
@@ -3222,10 +3261,22 @@ if(search){
 //shwo greeting
 const greet=(name,detail=null)=>{
     document.querySelector("#greetings").textContent = name;
+    var crumbs = document.querySelector("#crumbs");
+    var crumbs_c = document.querySelector("#crumbs_child");
     if(detail){
-        document.querySelector("#crumbs").textContent = detail.title+" | "+detail.description;
+        crumbs.textContent = detail.title;
+        crumbs_c.textContent =" | "+detail.description;
+        if(crumbs){
+            crumbs.addEventListener("click",(e)=>{
+               activateMenu(detail.title.toLowerCase());
+            })
+        }
+        console.log("greetings: ",detail.title);
     }
-    else document.querySelector("#crumbs").textContent ="";
+    else {
+        crumbs.textContent ="";
+        crumbs_c.textContent = "";
+    }
          
 }
 //check if current page is dashboard

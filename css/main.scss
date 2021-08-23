@@ -291,17 +291,16 @@ main > div#dashboard_content{
   text-align: right;
   min-width:80px;
   padding:0.25em 0.5em;
-  // border:1px solid blue;
+  // font-weight: bold;
 }
 .customer-details > div.row span.value,.customer-details >div.row-space span.value{
   text-align: left;
-  border:1px solid $primaryDarkColor;
-  @include addRoundCornerTop(4px,4px );
-  padding:0.05em 0.5em;
+  // @include addRoundCornerTop(4px,4px );
+  padding:0.25em 0.5em;
   text-align: left;
   flex-grow: 1;
   max-width: 220px;
-  margin-top:0.5em;
+  // margin-top:0.5em;
 }
 .tab-container{
   width:calc(100% - 1em);
@@ -1141,7 +1140,9 @@ a.nav-item:hover {
   text-decoration: underline;
   color: $primaryDarkColor;
 }
-
+#crumbs{
+  cursor: pointer;
+}
 
 //buttons
 .action-button{
