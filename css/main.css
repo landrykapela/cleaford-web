@@ -325,7 +325,7 @@ main > div#dashboard_content {
 
 .customer-details > div.row span.label, .customer-details > div.row-space span.label {
   text-align: right;
-  min-width: 80px;
+  min-width: 100px;
   padding: 0.25em 0.5em;
 }
 

@@ -770,55 +770,72 @@
                    
                 </div>
                 <div class="can-hide hidden" id="edit_customer_content">
-                    <div class="row-space">
-                        <div id="form-container" class="form-container">
-                            <span class="medium-text">Customer Details</span>
-                            <form id="edit_customer_form" method="POST" class="client_forms">
-                                <input type="hidden" name="customer_id" id="customer_id"/>
-                                <div class="form-group">
-                                    <label for="company_name">Company Name</label>
-                                    <input type="text" id="company_name" name="company_name"  required />
+                    <div class="column shadow customer-details">
+                        <form id="edit_customer_form" name="edit_customer_form" class="consignment-forms">
+                            <div class="row">
+                                <input type="hidden" id="customer_id" name="customer_id"/>
+                                <div class="form-group-no-border">
+                                    <label for="customer_name">Customer Name</label>
+                                    <input type="text" id="customer_name" name="customer_name" />
                                 </div>
-                                <div class="form-group">
-                                    <label for="address">Company Address</label>
-
-                                    <input type="text" id="address" name="address" />
-                                </div> 
-                                <div class="form-group-no-border map" id="map-edit"></div>
-                                <div class="form-group">
-                                    <label for="country">Country</label>
-                                    <input type="text" id="country" name="country"/>
-                                </div> 
-                                <div class="form-group">
+                                
+                                <div class="form-group-no-border">
+                                    <label for="email">E-mail</label>
+                                    <input type="email" id="email" name="email"/>
+                                </div>
+                            </div>
+                            <div class="row-space">
+                                <div class="form-group-no-border">
+                                    <label for="customer_tin">Customer TIN</label>
+                                    <input type="text" id="customer_tin" name="customer_tin" />
+                                    
+                                </div>
+                                <div class="form-group-no-border row">
+                                    <label for="phone">Phone</label>
+                                    <input type="number" id="phone" name="phone"/>
+                                </div>
+                                
+                            </div>
+                            <div class="row-space">
+                                <div class="form-group-no-border">
+                                    <label for="address">Address</label>
+                                    <input type="text" id="address" name="address"/>
+                                </div>
+                                <div class="form-group-no-border">
+                                    <label for="contact_person">Contact Person</label>
+                                    <input type="text" id="contact_person" name="contact_person"/>
+                                </div>
+                                
+                            </div>
+                            <div class="row">
+                                <div class="form-group-no-border">
                                     <label for="region">City/Region</label>
                                     <input type="text" id="region" name="region"/>
-                                </div> 
-                                <div class="form-group">
-                                    <label for="email">Company E-mail</label>
-                                    <input type="email" id="email" name="email"/></div>
-                                <div class="form-group">
-                                    <label for="phone">Company Telephone</label>
-                                    <input type="number" id="phone" name="phone" required/>
                                 </div>
-                                <div class="form-group">
-                                    <label for="contact_person">Contact Person</label>
-                                    <input type="text" id="contact_person" name="contact_person" required />
-                               </div>
-                               <div class="form-group">
-                                   <label for="contact_email">Contact E-mail</label>
-                                   <input type="email" id="contact_email" name="contact_email" required />
-                               </div>
-                               <div class="form-group">
-                                <label for="tin">TIN Number</label>
-                                <input type="text" id="tin" name="tin" placeholder="TIN Number" />
+                                <div class="form-group-no-border">
+                                    <label for="contact_email">Contact E-mail</label>
+                                    <input type="contact_email" id="contact_email" name="contact_email"/>
+                                </div>
+                                
                             </div>
-                              <div class="form-group-no-border row-end">
-                                <input class="no-corner" type="submit" id="btnSubmit" name="btnSubmit" value="SUBMIT"/>
-                                <input type="reset" class="buttons no-corner" id="btnCancelEdit" name="btnCancelEdit" value="Cancel"/>
+                            <div class="row">
+                                <div class="form-group-no-border">
+                                    <label for="country">Country</label>
+                                    <input type="text" id="country" name="country"/>
+                                </div>
+                                <div class="form-group-no-border">
+                                    
+                                </div>
                             </div>
-                            </form>
-                        </div>
-                    </div>
+                            <div class="row-end">
+                                <div class="form-group-no-border row-end">
+                                    <span class="buttons-t" id="cancelCustomerEditButton">CANCEL</span>
+                                    <input type="submit" value="SAVE" />
+                                </div>
+                                
+                            </div>
+                        </form>
+                    </div> 
                 </div>
                 <div class="can-hide hidden" id="profile_content">
                     <div class="row-even">
@@ -928,8 +945,9 @@
                                     <span class="bold">From:</span>
                                     <span id="client_name"></span>
                                     <span id="client_address"></span>
-                                    <span id="client_region"></span>
-                                    <span id="quotation_number" class="bold primary-dark-text"></span>
+                                    <span id="client_region"></span><br />
+                                    <span id="quotation_number" class="bold primary-dark-text"></span><br />
+                                    <span id="status" class="bold"></span><br /><br /><br />
                                 </div>
                                 <div class="column wide">
                                     <label class="bold">Quotation for:</label>
@@ -958,9 +976,14 @@
                                             <option>Half Body</option>
                                         </select>
                                 </div>
+                                
                                 <div class="row">
+                                    <label for="approve_toggle" id="label_approve" class="hidden">Manager Approve</label>
+                                    <span id="approve_toggle" class="material-icons medium-text primary-dark-text hidden">toggle_off</span>
                                 </div>
                                 <div class="row">
+                                    <label for="c_approve_toggle" id="label_c_approve" class="hidden">Client Approve</label>
+                                    <span id="c_approve_toggle" class="material-icons medium-text primary-dark-text hidden">toggle_off</span>
                                 </div>
                             </div>
                             <div class="row">

@@ -435,7 +435,7 @@ const signoutUser = ()=>{
     .then(res=>res.json())
         .then(result=>{
         // console.log("result: ",result);
-        storage.setItem("currentUser",null);
+        storage.clear();
         window.location.pathname = "/signin.html";
     })
     .catch(e=>{
@@ -614,6 +614,27 @@ const showConsignment = ()=>{
     }
     else showExportList(storedData.consignments);
 }
+const selectPlace = (searchInput,targetForm)=>{
+    var fields = ["formatted_address","geometry","name","place_id"];
+    var options = {strictBounds:false,fields:fields,type:"establishment"};
+    var autocomplete = new google.maps.places.Autocomplete(searchInput,options);
+    autocomplete.addListener("place_changed",()=>{
+        const place = autocomplete.getPlace();
+        var geocoder = new google.maps.Geocoder();
+        geocoder.geocode({placeId:place.place_id},(result)=>{
+            var addrComponents = result[0].address_components;
+            var city = addrComponents.filter(cp=>{
+                return cp.types.includes("locality") || cp.types.includes("administrative_area_level_1");
+            })
+            var country = addrComponents.filter(cp=>{
+                return cp.types.includes("country");
+            })
+            targetForm.region.value = city[0].long_name;
+            targetForm.country.value =country[0].long_name;
+        })
+       
+    })
+}
 const initializeMap =(mapHolder,searchInput,targetForm,center={lat:-6.7924, lng:39.2083})=>{   
     const map = new google.maps.Map(mapHolder,{center:center,zoom:13});
     var fields = ["formatted_address","geometry","name","place_id"];
@@ -771,9 +792,12 @@ const showCustomerConsignments = (consignments,flag)=>{
 
 }
 const editCustomerDetail = (customer,source)=>{
+    greet("Customers",{title:"Customers",description:"Edit"});
+    if(source != null) document.getElementById(source).classList.add("hidden");
+    document.getElementById("edit_customer_content").classList.remove("hidden");
     const editForm = document.querySelector("#edit_customer_form");
     editForm.customer_id.value = customer.id;
-    editForm.company_name.value = customer.name;
+    editForm.customer_name.value = customer.name;
     editForm.address.value =  customer.address;
     editForm.email.value = customer.email;
     editForm.contact_person.value = customer.contact_person;
@@ -781,21 +805,22 @@ const editCustomerDetail = (customer,source)=>{
     editForm.contact_email.value = customer.contact_email;
     editForm.region.value = customer.region;
     editForm.country.value = customer.country;
-    editForm.tin.value = customer.tin;
+    editForm.customer_tin.value = customer.tin;
 
-    initializeMap(document.getElementById("map-edit"),editForm.address,editForm);
+    selectPlace(editForm.address,editForm);
+    // initializeMap(document.getElementById("map-edit"),editForm.address,editForm);
 
-    activateMenu('edit_customer');
-    document.getElementById(source).classList.add("hidden");
-    document.querySelector("#edit_customer_content").classList.remove("hidden");
-    document.getElementById("btnCancelEdit").addEventListener('click',()=>{
+    // activateMenu('edit_customer');
+    // document.getElementById(source).classList.add("hidden");
+    // document.querySelector("#edit_customer_content").classList.remove("hidden");
+    document.getElementById("cancelCustomerEditButton").addEventListener('click',()=>{
         closeCustomerForm('edit_customer_content');
     });
 
     editForm.addEventListener("submit",(e)=>{
         e.preventDefault();
         let id = customer.id;
-        let name = (editForm.company_name.value) ? editForm.company_name.value : customer.name;
+        let name = (editForm.customer_name.value) ? editForm.customer_name.value : customer.name;
         let address = (editForm.address.value) ? editForm.address.value : customer.address;
         let email = (editForm.email.value) ? editForm.email.value : customer.email;
         let phone = (editForm.phone.value) ? editForm.phone.value : customer.phone;
@@ -803,7 +828,7 @@ const editCustomerDetail = (customer,source)=>{
         let region = (editForm.region.value) ? editForm.region.value: customer.region;
         let contact_person = (editForm.contact_person.value) ? editForm.contact_person.value : customer.contact_person;
         let contact_email = (editForm.contact_email.value) ? editForm.contact_email.value : customer.contact_email;
-        let tin = (editForm.tin.value) ? editForm.tin.value : customer.tin;
+        let tin = (editForm.customer_tin.value) ? editForm.customer_tin.value : customer.tin;
         let data = {
             user:currentUser.id,
             name:name,
@@ -827,6 +852,7 @@ const editCustomerDetail = (customer,source)=>{
         }
 
         let update_customer_url = create_customer_url+"/"+id;
+        console.log("url: ",update_customer_url);
         fetch(update_customer_url,options)
             .then(res=>{
                 if(res.status == 403){
@@ -1228,6 +1254,7 @@ const showQuotationForm=(source,data=null)=>{
        
         // activateMenu("exports")
     }
+
     var desc= "Create";
     if(data != null) desc = "View";
     greet("Finance",{title:"Quotations",description:desc});
@@ -1246,6 +1273,11 @@ const showQuotationForm=(source,data=null)=>{
     clientAddress.textContent = client.address.split(",")[0];
     clientRegion.textContent = client.region+", "+client.country;
 
+    var mgrApprove = document.getElementById("approve_toggle");
+    var cApprove = document.getElementById("c_approve_toggle");
+    var labelMgrApprove = document.getElementById("label_approve");
+    var labelCApprove = document.getElementById("label_c_approve");
+    
     const form = document.getElementById("my_quote_form");
 
     Array.from(form.cs_id.children).forEach((c,i)=>{
@@ -1260,11 +1292,17 @@ const showQuotationForm=(source,data=null)=>{
     const costItemEl = document.getElementById("cost_item");
     const costItemCountEl = document.getElementById("item_count");
     const qNumber = document.getElementById("quotation_number");
+    const qStatus = document.getElementById("status");
 
     var customer = storedData.customers.filter(c=>c.id == form.cs_id.value)[0];
     var customerName = document.getElementById("cs_name");
     var customerAddress = document.getElementById("cs_address");
     var customerRegion = document.getElementById("cs_region");
+
+    var newStatus = "Awaiting Manager's Approval";
+    var myQItems = [];
+    var costItems = COST_ITEMS;
+    var myCostItems = [];
     if(data != null){
         qNumber.textContent = "Quotation No: "+formatConsignmentNumber(data.id);
         form.cs_id.value = data.customer_id;
@@ -1277,7 +1315,37 @@ const showQuotationForm=(source,data=null)=>{
         form.service.value = data.service;
         form.quantity.value = data.quantity;
         form.discount.value = (data.discount) ? data.discount : 0;
-        // form.price.value = data.price;
+        
+        qStatus.textContent = "Status: "+data.status;
+        newStatus = data.status;
+        if(data.status.toLowerCase() == "awaiting manager's approval"){
+            mgrApprove.classList.remove("hidden");
+            labelMgrApprove.classList.remove("hidden");
+            mgrApprove.addEventListener("click",(e)=>{
+                if(e.target.textContent == "toggle_off") {
+                    e.target.textContent = "toggle_on";
+                    newStatus = "Awaiting Client Approval";
+                }
+                else {
+                    e.target.textContent = "toggle_off";
+                    newStatus = "Awaiting Manager's Approval";
+                }
+            })
+        }
+        else{
+            cApprove.classList.remove("hidden");
+            labelCApprove.classList.remove("hidden");
+            cApprove.addEventListener("click",(e)=>{
+                if(e.target.textContent == "toggle_off") {
+                    e.target.textContent = "toggle_on";
+                    newStatus = "Approved";
+                }
+                else {
+                    e.target.textContent = "toggle_off";
+                    newStatus = "Awaiting Client Approval";
+                }
+            })
+        }
 
         var qItemsIds = data.items.split("_").map(id=>parseInt(id));
         var qItems = COST_ITEMS.filter((c,i)=>{
@@ -1287,7 +1355,7 @@ const showQuotationForm=(source,data=null)=>{
             return c;
         });
         
-        myQItems = [];
+        
         qItems.forEach((q)=>{
             var mq = myQItems.filter((m,i)=>m.id == q.id);
             if(mq.length > 0){
@@ -1299,7 +1367,7 @@ const showQuotationForm=(source,data=null)=>{
                 myQItems.push(q);
             }
         })
-        showCostItems(myQItems,form.discount.value,costItemList);
+        showCostItems(qItems,form.discount.value,costItemList,data.status);
     }
     form.cs_id.addEventListener("change",(e)=>{
         if(e.target.value == -1) showCustomerDetailForm('quotations_content');
@@ -1312,8 +1380,7 @@ const showQuotationForm=(source,data=null)=>{
         }
         
     })
-    var costItems = COST_ITEMS;
-    var myCostItems = [];
+    
     // var myItemIds = myCostItems.map(c=>c.id);
     Array.from(costItemEl.children).forEach((ch,i)=>{
         if(i>0) costItemEl.removeChild(ch);
@@ -1360,7 +1427,7 @@ const showQuotationForm=(source,data=null)=>{
         var goods = form.goods.value;
         var containerNum = form.quantity.value;
         var discount = form.discount.value;
-        
+        console.log("dx: ",qItems);
         var cost_items = myCostItems.map(i=>i.id).join("_");
         var sum = 0;
         myCostItems.forEach(i=>{
@@ -1371,10 +1438,10 @@ const showQuotationForm=(source,data=null)=>{
         if(data == null) myData.status = "Awaiting Manager's Approval";
         else{
             method = "PUT";
-
+            myData.status = newStatus;
         }
         var url = quotation_url +"/"+currentUser.id;
-        var options = {method:"POST",body:JSON.stringify(myData),headers:{"Content-type":"application/json","Authorization":"Bearer "+currentUser.accessToken}}
+        var options = {method:method,body:JSON.stringify(myData),headers:{"Content-type":"application/json","Authorization":"Bearer "+currentUser.accessToken}}
         console.log("t: ",myData);
         fetch(url,options)
         .then(res=>res.json())
@@ -1401,7 +1468,7 @@ const closeQuotationForm=() =>{
     showQuotationList(storedData.quotations);
 }
 //show cost items
-const showCostItems = (items,discount,container)=>{
+const showCostItems = (items,discount,container,status=null)=>{
     Array.from(container.children).forEach((c,i)=>{
         if(i>0 && i !== container.children.length - 1) container.removeChild(c);
     });
@@ -1420,8 +1487,6 @@ const showCostItems = (items,discount,container)=>{
             const qtty = document.createElement("span");
             const price = document.createElement("span");
             const amt = document.createElement("span");
-            const actionSpan = document.createElement("span");
-            const removeBut = document.createElement("span");
     
             sn.textContent = (idx +1);
             desc.textContent = item.name;
@@ -1429,25 +1494,30 @@ const showCostItems = (items,discount,container)=>{
             price.textContent = item.cost;
             amt.textContent = amount;
 
-
-            removeBut.classList.add("material-icons");
-            actionSpan.classList.add("actions");
-            removeBut.textContent = "close";
-            actionSpan.appendChild(removeBut);
-    
             row.appendChild(sn);
             row.appendChild(desc);
             row.appendChild(qtty);
             row.appendChild(price);
             row.appendChild(amt);
-            row.appendChild(actionSpan);
+            if(status == null){
+                const actionSpan = document.createElement("span");
+                const removeBut = document.createElement("span");
+                removeBut.classList.add("material-icons");
+                actionSpan.classList.add("actions");
+                removeBut.textContent = "close";
+                actionSpan.appendChild(removeBut);
+                row.appendChild(actionSpan);
+                removeBut.addEventListener("click",e=>{
+                    var newItems = items.filter(i=>i.id != item.id);
+                    showCostItems(newItems,discount,container);
+                })
+            }
+            
+    
     
             container.appendChild(row);
 
-            removeBut.addEventListener("click",e=>{
-                var newItems = items.filter(i=>i.id != item.id);
-                showCostItems(newItems,discount,container);
-            })
+            
         });
         disc = discount * sum /100;
         
