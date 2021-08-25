@@ -950,7 +950,10 @@
                                     <span id="status" class="bold"></span><br /><br /><br />
                                 </div>
                                 <div class="column wide">
-                                    <label class="bold">Quotation for:</label>
+                                    <div class="row-space">
+                                        <label class="bold">Quotation for:</label>
+                                        <span class="material-icons hidden" id="print">print</span>
+                                    </div>
                                     <div class="row-top">
                                         <label for="cs_id">Select Customer</label>
                                         <div class="column wide">
@@ -979,11 +982,11 @@
                                 
                                 <div class="row">
                                     <label for="approve_toggle" id="label_approve" class="hidden">Manager Approve</label>
-                                    <span id="approve_toggle" class="material-icons medium-text primary-dark-text hidden">toggle_off</span>
+                                    <img class="img-button-small hidden" id="approve_toggle" src="/img/toggle_off.svg" />
                                 </div>
                                 <div class="row">
                                     <label for="c_approve_toggle" id="label_c_approve" class="hidden">Client Approve</label>
-                                    <span id="c_approve_toggle" class="material-icons medium-text primary-dark-text hidden">toggle_off</span>
+                                    <img class="img-button-small hidden" id="c_approve_toggle" src="/img/toggle_off.svg" />
                                 </div>
                             </div>
                             <div class="row">
@@ -1023,6 +1026,7 @@
                                         </select>
                                     </div>
                                     <div class="row-end">
+                                        <span class="buttons-t fail-text" id="discard_quote">DISCARD</span>
                                         <span class="buttons-t" id="close_quote_form">CLOSE</span>
                                         <input type="submit" id="btnSubmit" name="btnSubmit" value="SAVE"/>
                                     </div>

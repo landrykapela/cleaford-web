@@ -54,6 +54,10 @@ $sideBarSize: 200px;
 html {
   scroll-behavior: smooth;
 }
+body.qt{
+  max-width: 1024px;
+  margin:0 auto;
+}
 .wrap{
   max-width: 100%;
   flex-wrap: wrap !important;
@@ -596,6 +600,11 @@ footer{
   margin:0.25em;
   cursor: pointer;
 }
+.img-button-small{
+  cursor: pointer;
+  width:40px;
+  object-fit: contain;
+}
 .buttons,.buttons-s,.buttons-t{
   padding:0.5em 1em;
   border:none;
@@ -760,11 +769,15 @@ footer{
     padding:0.5em;
     margin:0 0.5em;
   }
-  .actions:hover{
+  .actions >span:hover{
     color:$primaryColor;
   }
+  .actions-dis > span{
+    color:$faint;
+    cursor:not-allowed;
+  }
   .wide{
-    width:calc(100% - 1em);
+    width:calc(100% - 1em) !important;
     margin:0.5em;
   }
 //feedback
@@ -1089,6 +1102,9 @@ footer{
 //end layouts
 
 // texts formats
+.default-bg{
+  background-color: $defaultColor !important;
+}
 .file-link{
   margin-left:1em;
 }

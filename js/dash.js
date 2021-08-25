@@ -34,11 +34,12 @@ const CONTAINER_FIELDS = [{id:"mbl_number",label:"MB/L Number",required:false,ty
 {id:"max_temp",label:"Maximum Temperature",required:false,type:"number"},
 {id:"min_temp",label:"Minimum Temperature",required:false,type:"number"},
 {id:"plug_yn",label:"Refer Plug",required:true,type:"select",options:["Yes","No"]}];
-const COST_ITEMS = [{id:0,name:"Agency Fee",cost:200},{id:1,name:"Bill of Lading",cost:95},{id:2,name:"Phytosanitary Cert",cost:18},{id:3,name:"Treatment",cost:100},{id:4,name:"Inspection",cost:40},{id:5,name:"Port Charges/Welfare and handling",cost:480},];
+const COST_ITEMS = [{id:0,name:"Agency Fee",cost:200},{id:1,name:"Bill of Lading",cost:95},{id:2,name:"Phytosanitary Cert",cost:18},{id:3,name:"Treatment",cost:100},{id:4,name:"Inspection",cost:40},{id:5,name:"Port Charges/Welfare and handling",cost:480}];
     
 var currentUser = (storage.getItem("currentUser")) ? JSON.parse(storage.getItem("currentUser")):null;
-var storedData = (storage.getItem("data")) ? JSON.parse(storage.getItem("data")):{roles:[],client_roles:[],customers:[],roles:[]};
+var storedData = (storage.getItem("data")) ? JSON.parse(storage.getItem("data")):{roles:[],client_roles:[],customers:[],roles:[],consignments:[],clients:[],quotations:[]};
 
+var myCostItems = [];
 const originalSetItem = localStorage.setItem;
 
 localStorage.setItem = function(key, value) {
@@ -1175,6 +1176,7 @@ const showConsignmentForm=(source,data=null)=>{
 
 //show quotations
 const showQuotationList = (quotations,source=null)=>{
+    // quotations = quotations.filter(q=>q.status.toLowerCase() != "discarded");
     greet("Finance",{title:"Quotations",description:"List of quotations"});
     if(source != null) document.getElementById(source).classList.add("hidden");
     else{
@@ -1254,7 +1256,9 @@ const showQuotationForm=(source,data=null)=>{
        
         // activateMenu("exports")
     }
-
+    
+    const form = document.getElementById("my_quote_form");
+    form.reset();
     var desc= "Create";
     if(data != null) desc = "View";
     greet("Finance",{title:"Quotations",description:desc});
@@ -1277,8 +1281,6 @@ const showQuotationForm=(source,data=null)=>{
     var cApprove = document.getElementById("c_approve_toggle");
     var labelMgrApprove = document.getElementById("label_approve");
     var labelCApprove = document.getElementById("label_c_approve");
-    
-    const form = document.getElementById("my_quote_form");
 
     Array.from(form.cs_id.children).forEach((c,i)=>{
         if(i>0) form.cs_id.removeChild(c);
@@ -1302,8 +1304,12 @@ const showQuotationForm=(source,data=null)=>{
     var newStatus = "Awaiting Manager's Approval";
     var myQItems = [];
     var costItems = COST_ITEMS;
-    var myCostItems = [];
     if(data != null){
+        var print = document.getElementById("print");
+        print.classList.remove("hidden");
+        print.addEventListener("click",(e)=>{
+            window.open('https://localhost:3000/dashboard/quotation.html?qid='+data.id);
+        })
         qNumber.textContent = "Quotation No: "+formatConsignmentNumber(data.id);
         form.cs_id.value = data.customer_id;
         var customer = storedData.customers.filter(c=>c.id == data.customer_id)[0];
@@ -1318,55 +1324,53 @@ const showQuotationForm=(source,data=null)=>{
         
         qStatus.textContent = "Status: "+data.status;
         newStatus = data.status;
-        if(data.status.toLowerCase() == "awaiting manager's approval"){
+        if(data.status != null && data.status.toLowerCase() == "awaiting manager's approval"){
             mgrApprove.classList.remove("hidden");
             labelMgrApprove.classList.remove("hidden");
+            cApprove.classList.add("hidden");
+            labelCApprove.classList.add("hidden");
             mgrApprove.addEventListener("click",(e)=>{
-                if(e.target.textContent == "toggle_off") {
-                    e.target.textContent = "toggle_on";
+                if(e.target.src.includes("toggle_off.svg")) {
+                    e.target.src = "/img/toggle_on.svg";
                     newStatus = "Awaiting Client Approval";
                 }
                 else {
-                    e.target.textContent = "toggle_off";
+                    e.target.src = "/img/toggle_off.svg";
                     newStatus = "Awaiting Manager's Approval";
                 }
             })
         }
-        else{
+        else if(data.status != null && data.status.toLowerCase() == "awaiting client approval"){
+            mgrApprove.classList.add("hidden");
+            labelMgrApprove.classList.add("hidden");
             cApprove.classList.remove("hidden");
             labelCApprove.classList.remove("hidden");
             cApprove.addEventListener("click",(e)=>{
-                if(e.target.textContent == "toggle_off") {
-                    e.target.textContent = "toggle_on";
+                if(e.target.src.includes("toggle_off.svg")) {
+                    e.target.src = "/img/toggle_on.svg";
                     newStatus = "Approved";
                 }
                 else {
-                    e.target.textContent = "toggle_off";
+                    e.target.src = "/img/toggle_off.svg";
                     newStatus = "Awaiting Client Approval";
                 }
             })
         }
+        else{
+            mgrApprove.classList.add("hidden");
+            labelMgrApprove.classList.add("hidden");
+            cApprove.classList.add("hidden");
+            labelCApprove.classList.add("hidden");
+        }
 
         var qItemsIds = data.items.split("_").map(id=>parseInt(id));
-        var qItems = COST_ITEMS.filter((c,i)=>{
+        var qItems = costItems.filter((c,i)=>{
             return qItemsIds.indexOf(c.id) !== -1;
         }).map(c=>{
             c.count = 1;
             return c;
         });
         
-        
-        qItems.forEach((q)=>{
-            var mq = myQItems.filter((m,i)=>m.id == q.id);
-            if(mq.length > 0){
-                mq[0].count ++;
-                myQItems[i] = mq[0];
-            }
-            else{
-                q.count = 1;
-                myQItems.push(q);
-            }
-        })
         showCostItems(qItems,form.discount.value,costItemList,data.status);
     }
     form.cs_id.addEventListener("change",(e)=>{
@@ -1389,15 +1393,22 @@ const showQuotationForm=(source,data=null)=>{
         costItemEl.options.add(new Option(ci.name,ci.id));
     })
     costItemEl.addEventListener("change",(e)=>{
-        let itemId = e.target.options[e.target.options.selectedIndex].value;
+        let itemId = parseInt(e.target.value);
         let item = costItems.filter(c=>c.id == itemId);
-        item[0].count = costItemCountEl.value;
-        myCostItems.push(item[0]);
+        
+        if(costItemCountEl.value && typeof(costItemCountEl.value) == "number"){
+            for(let i=0;i<parseInt(costItemCountEl.value);i++){
+                item[0].count = 1;
+                myCostItems.push(item[0]);
+            }
+        }
+        else{
+            item[0].count = 1;
+            myCostItems.push(item[0]);
+        }
         console.log("cil: ",myCostItems);
         showCostItems(myCostItems,form.discount.value,costItemList);
-        
-       
-      costItemCountEl.value = 1;
+        costItemCountEl.value = 1;
     })
 
     form.discount.addEventListener("input",(e)=>{
@@ -1420,6 +1431,34 @@ const showQuotationForm=(source,data=null)=>{
             closeQuotationForm();
         })
     }
+    const discardButton = document.getElementById("discard_quote");
+    if(data != null && data.status == null || data.status.toLowerCase() == "awaiting manager's approval" || data.status == -1){
+        if(discardButton){
+            discardButton.classList.remove("hidden");
+            discardButton.addEventListener("click",(e)=>{
+                alertDialog("Are you sure you want to discard this quotation?","Discard",()=>{
+                    var url = quotation_url +"/"+currentUser.id;
+                    var options = {method:"PUT",body:JSON.stringify({id:data.id,status:"Discarded"}),headers:{"Content-type":"application/json","Authorization":"Bearer "+currentUser.accessToken}}
+                    // console.log("t: "+method,myData);
+                    fetch(url,options)
+                    .then(res=>res.json())
+                    .then(result=>{
+                        console.log("result: ",result);
+                        storedData.quotations = result.data;
+                        storage.setItem("data",JSON.stringify(storedData));
+                        showFeedback(result.msg,result.code);
+                        closeQuotationForm('my_quote_form');
+                    })
+                    .catch(er=>{
+                        console.log("er: ",er);
+                        showFeedback("Something went wrong: "+e,1);
+                    })
+                })
+            })
+        }
+    }
+    else discardButton.classList.add("hidden");
+    
     form.addEventListener("submit",(e)=>{
         e.preventDefault();
         var customerId = form.cs_id.value;
@@ -1439,10 +1478,11 @@ const showQuotationForm=(source,data=null)=>{
         else{
             method = "PUT";
             myData.status = newStatus;
+            myData.id = data.id;
         }
         var url = quotation_url +"/"+currentUser.id;
         var options = {method:method,body:JSON.stringify(myData),headers:{"Content-type":"application/json","Authorization":"Bearer "+currentUser.accessToken}}
-        console.log("t: ",myData);
+        console.log("t: "+method,myData);
         fetch(url,options)
         .then(res=>res.json())
         .then(result=>{
@@ -1458,6 +1498,70 @@ const showQuotationForm=(source,data=null)=>{
         })
     })
 }
+//show printable Quotation
+const showPrintableQuotation=(data)=>{
+   
+    const form = document.getElementById("my_quote_form");
+    form.reset();
+    
+    const parent = document.getElementById("quotation_print");
+    parent.classList.remove("hidden");
+
+    const clientName = document.getElementById("client_name");
+    const clientAddress = document.getElementById("client_address");
+    const clientRegion = document.getElementById("client_region");
+
+    const dateCreated = document.getElementById("d_created");
+    const dateModified = document.getElementById("d_modified");
+    const dateDue = document.getElementById("d_expire");
+
+    var cdate = new Date(data.date_created);
+    var mdate = new Date(data.date_modified);
+    var edate = new Date(data.date_modified + (7*24*3600*1000));
+
+    dateCreated.textContent = "Created on: "+cdate.getDate()+"/"+(cdate.getMonth()+1)+"/"+cdate.getFullYear();
+    dateModified.textContent = "Last modified: "+mdate.getDate()+"/"+(mdate.getMonth()+1)+"/"+mdate.getFullYear();
+    dateDue.textContent = "Valid until: "+edate.getDate()+"/"+(edate.getMonth()+1)+"/"+edate.getFullYear();
+
+    var client = currentUser.detail;
+    clientName.textContent = client.name;
+    clientAddress.textContent = client.address.split(",")[0];
+    clientRegion.textContent = client.region+", "+client.country;
+
+    
+    const costItemList = document.getElementById("cost_item_list");
+    const qNumber = document.getElementById("quotation_number");
+
+    var customer = storedData.customers.filter(c=>c.id == parseInt(data.customer_id))[0];
+    var customerName = document.getElementById("cs_name");
+    var customerAddress = document.getElementById("cs_address");
+    var customerRegion = document.getElementById("cs_region");
+
+    var costItems = COST_ITEMS;
+    qNumber.textContent = "Quotation No: "+formatConsignmentNumber(data.id);
+    
+    var customer = storedData.customers.filter(c=>c.id == data.customer_id)[0];
+    customerName.textContent = customer.name;
+    customerAddress.textContent = customer.address.split(",")[0];
+    customerRegion.textContent = customer.region +", "+ customer.country;
+
+    form.goods.value = data.goods;
+    form.service.value = data.service;
+    form.quantity.value = data.quantity;
+    form.discount.value = (data.discount) ? data.discount : 0;
+    
+    var qItemsIds = data.items.split("_").map(id=>parseInt(id));
+    var qItems = costItems.filter((c,i)=>{
+        return qItemsIds.indexOf(c.id) !== -1;
+    }).map(c=>{
+        c.count = 1;
+        return c;
+    });
+    
+    showCostItems(qItems,data.discount,costItemList,"-1");
+    
+    
+}
 const closeQuotationForm=() =>{
     var form = document.getElementById("my_quote_form");
     form.reset();
@@ -1469,14 +1573,33 @@ const closeQuotationForm=() =>{
 }
 //show cost items
 const showCostItems = (items,discount,container,status=null)=>{
+    if(discount == null) discount = 0;
     Array.from(container.children).forEach((c,i)=>{
-        if(i>0 && i !== container.children.length - 1) container.removeChild(c);
+        if(i>0) container.removeChild(c);
     });
-
+    
+    var myItems =[];
+    items.forEach((item)=>{
+        let idx = 0;
+        var myids = myItems.filter((i,k)=>{
+            if(i.id == item.id){
+                idx = k;
+                return i;
+            }
+        });
+        if(myids.length > 0){
+            item.count ++;
+            myItems[idx] = item;
+        }
+        else{
+            item.count = 1;
+            myItems.push(item);
+        }
+    })
     var sum = 0;
     var disc = 0;
-    if(items.length > 0){
-        items.forEach((item,idx)=>{
+    if(myItems.length > 0){
+        myItems.forEach((item,idx)=>{
             var amount = item.cost * item.count;
             sum += amount;
             const row = document.createElement("span");
@@ -1499,22 +1622,25 @@ const showCostItems = (items,discount,container,status=null)=>{
             row.appendChild(qtty);
             row.appendChild(price);
             row.appendChild(amt);
-            if(status == null){
-                const actionSpan = document.createElement("span");
-                const removeBut = document.createElement("span");
-                removeBut.classList.add("material-icons");
-                actionSpan.classList.add("actions");
-                removeBut.textContent = "close";
-                actionSpan.appendChild(removeBut);
-                row.appendChild(actionSpan);
+            
+            const actionSpan = document.createElement("span");
+            const removeBut = document.createElement("span");
+            removeBut.classList.add("material-icons");
+            actionSpan.classList.add("actions-dis");
+            removeBut.textContent = "close";
+            actionSpan.appendChild(removeBut);
+            row.appendChild(actionSpan);
+            if(status == null || status.toLowerCase() == "awaiting manager's approval"){
+                actionSpan.classList.remove("actions");
+                actionSpan.classList.add("actions-dis");
                 removeBut.addEventListener("click",e=>{
-                    var newItems = items.filter(i=>i.id != item.id);
-                    showCostItems(newItems,discount,container);
+                    myCostItems = myItems.filter(i=>i.id != item.id);
+                    showCostItems(myCostItems,discount,container);
                 })
             }
-            
-    
-    
+            else if(status == -1){
+                actionSpan.classList.add("hidden");
+            }
             container.appendChild(row);
 
             

@@ -3,6 +3,11 @@ html {
   scroll-behavior: smooth;
 }
 
+body.qt {
+  max-width: 1024px;
+  margin: 0 auto;
+}
+
 .wrap {
   max-width: 100%;
   flex-wrap: wrap !important;
@@ -699,6 +704,12 @@ footer {
   cursor: pointer;
 }
 
+.img-button-small {
+  cursor: pointer;
+  width: 40px;
+  object-fit: contain;
+}
+
 .buttons, .buttons-s, form input[type=submit], .buttons-t {
   padding: 0.5em 1em;
   border: none;
@@ -904,12 +915,17 @@ td > select .wide-select {
   margin: 0 0.5em;
 }
 
-.actions:hover {
+.actions > span:hover {
   color: #ffcc00;
 }
 
+.actions-dis > span {
+  color: #a8a2a2;
+  cursor: not-allowed;
+}
+
 .wide {
-  width: calc(100% - 1em);
+  width: calc(100% - 1em) !important;
   margin: 0.5em;
 }
 
@@ -1295,6 +1311,10 @@ td > select .wide-select {
 .progress-step {
   border: 1px solid #666262;
   color: #666262;
+}
+
+.default-bg {
+  background-color: #ffffff !important;
 }
 
 .file-link {

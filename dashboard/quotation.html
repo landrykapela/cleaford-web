@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="eng">
+    <head>
+        <title>Quotation</title>
+        <meta name="keyword" content="Cleaford, clearing and forwarding, clearing and forwarding system, customs management, landry kapela">
+        <meta name="author" content="Landry Kapela">
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <link rel="icon" href="/img/favicon.png"/>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Baloo+Thambi+2&display=swap" rel="stylesheet"> 
+        <link href="/css/main.css" rel="stylesheet"/>
+    </head>
+
+    <body class="qt">
+        <header>
+            <!-- <img class="logo" src="/img/logo.png" alt="cleaford logo" /> -->
+            <div class="theme-band">
+                <div class="colors">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+                <div class="row-end"><span id="menu" class="material-icons">menu</span><img id="client_logo" src="/img/logo.png" /></div>
+            </div>
+        </header>
+        <main class="default-bg">
+            <div class="column-center consignment-forms" id="quotation_print">
+                <form class="wide" id="my_quote_form">
+                    <div class="row-space">
+                        <div class="column wide">
+                            <span class="bold">From:</span>
+                            <span id="client_name"></span>
+                            <span id="client_address"></span>
+                            <span id="client_region"></span><br />
+                            <!-- <span id="status" class="bold">Approved by Client</span><br /><br /><br /> -->
+                        </div>
+                        <div class="column wide">
+                            <label class="bold">Quotation for:</label>
+                            <div class="row-top">
+                                <div class="column wide">
+                                    <span id="cs_name"></span>
+                                    <span id="cs_address"></span>
+                                    <span id="cs_region"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="column wide">
+                            <label class="" id="d_created">Created: 25/08/2021</label>
+                            <div class="row-top">
+                                <div class="column wide">
+                                    <span id="d_modified">Modified: 25/08/2021</span>
+                                    <span id="d_expire">Expires: 31/08/2021</span>
+                                    <span id="quotation_number" class="bold primary-dark-text">Quotation #: 9999090</span><br />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row-space">
+                        <div class="row">
+                                <label for="service">Service</label>
+                                <input type="text" class="wide-select" id="service" name="service" value="Full Body"/>
+                               
+                        </div>
+                        <div class="row">
+                            <label for="quantity">No. of Containers</label>
+                            <input type="number" id="quantity" name="quantity" placeholder="No. of containers" value="3"/>
+                            
+                        </div>
+                    
+                        
+                    </div>
+                    <div class="row">
+                        
+                        
+                        <div class="row">
+                            <label for="goods">Goods</label>
+                            <input type="text" id="goods" name="goods" value="Goods description"/>
+                            
+                    </div>
+                    <div class="row">
+                        <label for="discount">Discount (%)</label>
+                        <input type="number" id="discount" name="discount" min=0 max=100 value="0"/>
+                        
+                    </div>
+                    </div>
+                    <div class="wide summary-table" id="cost_item_list">
+                        <span class="head-row row-space">
+                            <span>SN#</span>
+                            <span>Description</span>
+                            <span>Quantity</span>
+                            <span>Price</span>
+                            <span>Amount</span>
+                        </span>
+                       
+                    </div>   
+                    <div class="body-row"></div>
+                    
+                
+                </form>
+            </div>
+        </main>
+        <script src="/js/dash.js"></script>
+        <script>
+        if(window.location.href.includes("/quotation.html")){
+            var urlObj = new URL(window.location.href);
+            var qId = urlObj.searchParams.get("qid");
+            var quotation = JSON.parse(window.localStorage.getItem("data")).quotations.filter(q=>q.id == qId);
+            showPrintableQuotation(quotation[0]);
+        }
+        </script>
+    </body>
+</html>
