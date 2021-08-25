@@ -1308,7 +1308,7 @@ const showQuotationForm=(source,data=null)=>{
         var print = document.getElementById("print");
         print.classList.remove("hidden");
         print.addEventListener("click",(e)=>{
-            window.open('https://localhost:3000/dashboard/quotation.html?qid='+data.id);
+            window.open(print_url+"/dashboard/quotation.html?qid="+data.id);
         })
         qNumber.textContent = "Quotation No: "+formatConsignmentNumber(data.id);
         form.cs_id.value = data.customer_id;
