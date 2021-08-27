@@ -192,7 +192,6 @@
                             <span>ETA</span>
                             <span>Destination</span>
                             <span>Status</span>
-                            <span>TANCIS Status</span>
                         </span>
                       
                     </div>
@@ -643,137 +642,10 @@
                    
                 </div>
                 <div class="can-hide hidden" id="add_customer_content">
-                    <div class="row-space">
-                        <div id="form-container" class="form-container">
-                            <span class="medium-text">Customer Details</span>
-                            <form id="customer_profile_form" method="POST" class="client_forms">
-                                <div class="form-group">
-                                    <label for="company_name">Company Name</label>
-                                    <input type="text" id="company_name" name="company_name"  required />
-                                </div>
-                                <div class="form-group">
-                                    <label for="address">Company Address</label>
-                                    <input type="text" id="address" name="address" />
-                                    <!-- <textarea rows=5 id="address" name="address"></textarea> -->
-                                </div> 
-                                <div class="form-group-no-border map" id="map-add"></div>
-                                <div class="form-group">
-                                    <label for="country">Country</label>
-                                    <input type="text" id="country" name="country"/>
-                                </div> 
-                                <div class="form-group">
-                                    <label for="region">City/Region</label>
-                                    <input type="text" id="region" name="region"/>
-                                </div> 
-                                <div class="form-group">
-                                    <label for="email">Company E-mail</label>
-                                    <input type="email" id="email" name="email"/></div>
-                                <div class="form-group">
-                                    <label for="phone">Company Telephone</label>
-                                    <input type="number" id="phone" name="phone" required/>
-                                </div>
-                                <div class="form-group">
-                                    <label for="contact_person">Contact Person</label>
-                                    <input type="text" id="contact_person" name="contact_person" required />
-                               </div>
-                               <div class="form-group">
-                                   <label for="contact_email">Contact E-mail</label>
-                                   <input type="email" id="contact_email" name="contact_email" required />
-                               </div>
-                               <div class="form-group">
-                                <label for="tin">TIN Number</label>
-                                <input type="text" id="tin" name="tin" placeholder="TIN Number" />
-                            </div>
-                              <div class="form-group-no-border row-end">
-                                <input class="no-corner" type="submit" id="btnSubmit" name="btnSubmit" value="SUBMIT"/>
-                                <input type="reset" class="buttons no-corner" icrud="btnCancelAdd" name="btnCancelAdd" value="Cancel"/>
-                            </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-                <div class="can-hide hidden" id="view_customer_content">
                     <div class="column shadow customer-details">
-                        <div class="row-space">
-                            <div class="column">
-                                <div class="row">
-                                    <div class="vspace">
-
-                                    </div>
-                                    <div class="column wide">
-                                        <span class="medium-text" id="customer_name"></span>
-                                        <span id="c_tin" class="primary-dark-text">TIN: N/A</span>
-                                        <span id="c_address">N/A</span>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <span class="label">City/Region:</span>
-                                    <span class="value" id="region">Dar es Salaam</span>
-                                </div>
-                                <div class="row">
-                                    <span class="label">Country:</span>
-                                    <span class="value" id="country">Tanzania</span>
-                                </div>
-                                <div class="row">
-                                    <span class="label">E-mail:</span>
-                                    <span class="value" id="email">info@domain.com</span>
-                                </div>
-                                <div class="row">
-                                    <span class="label">Phone:</span>
-                                    <span class="value" id="phone">+255686868058</span>
-                                </div>
-                            </div>
-                            <div class="column">
-                                <div class="row-end">
-                                    <span class="buttons" id="editCustomerButton">Edit</span>
-                                </div>
-                                <div>
-
-                                </div>
-                                <div class="row-end">
-                                    <span class="label">Contact Person:</span>
-                                    <span class="value" id="contact_p"></span>
-                                </div>
-                                <div class="row-end">
-                                    <span class="label">Contact E-mail:</span>
-                                    <span class="value" id="contact_e"></span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="tab-container">
-                            <span class="primary-dark-text">Consignments</span>
-                            <div class="row underline-primary">
-                                <div class="tab tab-active" id="tab-inprogress">
-                                    In progress
-                                </div>
-                                <div class="tab" id="tab-complete">
-                                    Complete
-                                </div>
-                                <!-- <div class="row-end"> -->
-                                <span class="row-end">Status Report: &nbsp;<a href="" id="download-report">Download</a> &nbsp;| &nbsp;<a href="" id="email-report" >Email to customer</a></span>
-                                <!-- </div> -->
-                            </div>
-                        </div>
-                        <div class="row-top summary-table" id="consignment_list">
-                            <span class="head-row">
-                                <span>Consignment #</span>
-                                <span>S/L</span>
-                                <span>Vessel Name</span>
-                                <span>ETA</span>
-                                <span>Destination</span>
-                                <span>Status</span>
-                                <span>TANCIS Status</span>
-                            </span>
-                          
-                        </div>
-                    </div>
-                   
-                </div>
-                <div class="can-hide hidden" id="edit_customer_content">
-                    <div class="column shadow customer-details">
-                        <form id="edit_customer_form" name="edit_customer_form" class="consignment-forms">
+                        <form id="add_customer_form" name="add_customer_form" class="consignment-forms">
                             <div class="row">
-                                <input type="hidden" id="customer_id" name="customer_id"/>
+                                <!-- <input type="hidden" id="customer_id" name="customer_id"/> -->
                                 <div class="form-group-no-border">
                                     <label for="customer_name">Customer Name</label>
                                     <input type="text" id="customer_name" name="customer_name" />
@@ -790,7 +662,7 @@
                                     <input type="text" id="customer_tin" name="customer_tin" />
                                     
                                 </div>
-                                <div class="form-group-no-border row">
+                                <div class="form-group-no-border">
                                     <label for="phone">Phone</label>
                                     <input type="number" id="phone" name="phone"/>
                                 </div>
@@ -824,15 +696,201 @@
                                     <input type="text" id="country" name="country"/>
                                 </div>
                                 <div class="form-group-no-border">
-                                    
+                                    <label for="tin_cert">TIN Certificate</label>
+                                    <input type="file" id="tin_cert" name="tin_cert"/>
+                                </div>
+                            </div>
+                            <div class="row">
+                               
+                                <div class="form-group-no-border">
+                                    <label for="inc_cert">Incorporation Certificate</label>
+                                    <input type="file" id="inc_cert" name="inc_cert"/>
+                                </div>
+                                <div class="form-group-no-border">
                                 </div>
                             </div>
                             <div class="row-end">
-                                <div class="form-group-no-border row-end">
-                                    <span class="buttons-t" id="cancelCustomerEditButton">CANCEL</span>
+                                    <span class="buttons-t" id="cancelAddCustomerButton">CANCEL</span>
                                     <input type="submit" value="SAVE" />
+                              
+                            </div>
+                        </form>
+                    </div> 
+                </div>
+                <div class="can-hide hidden" id="view_customer_content">
+                    <div class="column shadow customer-details">
+                        <div class="row-end">
+                            <div class="row-end">
+                                <span class="buttons" id="editCustomerButton">Edit</span>
+                            </div>
+                            <div class="vspace">
+
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="column">
+                                <div class="row-top">
+                                    <div class="vspace">
+
+                                    </div>
+                                    <div class="column wide">
+                                        <span class="medium-text" id="c_name"></span>
+                                        <span id="c_tin" class="primary-dark-text">TIN: N/A</span>
+                                        <span id="c_address">N/A</span>
+                                    </div>
+                                </div>
+                               
+                            </div>
+                            <div class="vspace"></div>
+                            <div class="vspace"></div>
+                            <div class="column">
+                                
+                                <div class="row-space">
+                                    <span class="label">Contact Person:</span>
+                                    <span class="value" id="contact_p"></span>
+                                </div>
+                                <div class="row-space">
+                                    <span class="label">Contact E-mail:</span>
+                                    <span class="value" id="contact_e"></span>
+                                </div>
+                            </div>
+                            <div class="vspace"></div>
+                        </div>
+                        <div class="row">
+                            <div class="column">
+                                <div class="row-space">
+                                    <span class="label">City/Region:</span>
+                                    <span class="value" id="c_region"></span>
+                                </div>
+                                <div class="row-space">
+                                    <span class="label">Country:</span>
+                                    <span class="value" id="c_country"></span>
+                                </div>
+                                <div class="row-space">
+                                    <span class="label">E-mail:</span>
+                                    <span class="value" id="c_email"></span>
+                                </div>
+                                <div class="row-space">
+                                    <span class="label">Phone:</span>
+                                    <span class="value" id="c_phone"></span>
+                                </div>
+                            </div>
+                            <div class="vspace"></div>
+                            <div class="vspace"></div>
+                            <div class="column">
+                                <div class="row-space">
+                                    <span class="label">TIN Certificate:</span>
+                                    <span class="value"><a id="c_tin_cert"></a></span>
+                                </div>
+                                <div class="row-space">
+                                    <span class="label">Certificate of Incorporation:</span>
+                                    <span class="value"><a id="c_inc_cert"></a></span>
+                                </div>
+                            </div>
+                            <!-- <div class="vspace"></div> -->
+                        </div>
+                        
+                        <div class="tab-container">
+                            <span class="primary-dark-text">Consignments</span>
+                            <div class="row underline-primary">
+                                <div class="tab tab-active" id="tab-inprogress">
+                                    In progress
+                                </div>
+                                <div class="tab" id="tab-complete">
+                                    Complete
+                                </div>
+                                <!-- <div class="row-end"> -->
+                                <span class="row-end">Status Report: &nbsp;<a href="" id="download-report">Download</a> &nbsp;| &nbsp;<a href="" id="email-report" >Email to customer</a></span>
+                                <!-- </div> -->
+                            </div>
+                        </div>
+                        <div class="row-top summary-table" id="consignment_list">
+                            <span class="head-row">
+                                <span>Consignment #</span>
+                                <span>S/L</span>
+                                <span>Vessel Name</span>
+                                <span>ETA</span>
+                                <span>Destination</span>
+                                <span>Status</span>
+                            </span>
+                          
+                        </div>
+                    </div>
+                       
+                </div>
+                 
+                <div class="can-hide hidden" id="edit_customer_content">
+                    <div class="column shadow customer-details">
+                        <form id="edit_customer_form" name="edit_customer_form" class="consignment-forms">
+                            <div class="row">
+                                <input type="hidden" id="customer_id" name="customer_id"/>
+                                <div class="form-group-no-border">
+                                    <label for="customer_name">Customer Name</label>
+                                    <input type="text" id="customer_name" name="customer_name" />
                                 </div>
                                 
+                                <div class="form-group-no-border">
+                                    <label for="email">E-mail</label>
+                                    <input type="email" id="email" name="email"/>
+                                </div>
+                            </div>
+                            <div class="row-space">
+                                <div class="form-group-no-border">
+                                    <label for="customer_tin">Customer TIN</label>
+                                    <input type="text" id="customer_tin" name="customer_tin" />
+                                    
+                                </div>
+                                <div class="form-group-no-border">
+                                    <label for="phone">Phone</label>
+                                    <input type="number" id="phone" name="phone"/>
+                                </div>
+                                
+                            </div>
+                            <div class="row-space">
+                                <div class="form-group-no-border">
+                                    <label for="address">Address</label>
+                                    <input type="text" id="address" name="address"/>
+                                </div>
+                                <div class="form-group-no-border">
+                                    <label for="contact_person">Contact Person</label>
+                                    <input type="text" id="contact_person" name="contact_person"/>
+                                </div>
+                                
+                            </div>
+                            <div class="row">
+                                <div class="form-group-no-border">
+                                    <label for="region">City/Region</label>
+                                    <input type="text" id="region" name="region"/>
+                                </div>
+                                <div class="form-group-no-border">
+                                    <label for="contact_email">Contact E-mail</label>
+                                    <input type="contact_email" id="contact_email" name="contact_email"/>
+                                </div>
+                                
+                            </div>
+                            <div class="row">
+                                <div class="form-group-no-border">
+                                    <label for="country">Country</label>
+                                    <input type="text" id="country" name="country"/>
+                                </div>
+                                <div class="form-group-no-border">
+                                    <label for="tin_cert">TIN Certificate</label>
+                                    <input type="file" id="tin_cert" name="tin_cert"/>
+                                </div>
+                            </div>
+                            <div class="row">
+                               
+                                <div class="form-group-no-border">
+                                    <label for="inc_cert">Incorporation Certificate</label>
+                                    <input type="file" id="inc_cert" name="inc_cert"/>
+                                </div>
+                                <div class="form-group-no-border">
+                                </div>
+                            </div>
+                            <div class="row-end">
+                                    <span class="buttons-t" id="cancelCustomerEditButton">CANCEL</span>
+                                    <input type="submit" value="SAVE" />
+                              
                             </div>
                         </form>
                     </div> 
@@ -952,6 +1010,124 @@
                                 <div class="column wide">
                                     <div class="row-space">
                                         <label class="bold">Quotation for:</label>
+                                        <span class="material-icons hidden" id="print">print</span>
+                                    </div>
+                                    <div class="row-top">
+                                        <label for="cs_id">Select Customer</label>
+                                        <div class="column wide">
+                                            <select class="wide-select" id="cs_id" name="cs_id">
+                                                <option value="-2">--select customer--</option>
+                                            </select>
+                                            <span id="cs_name"></span>
+                                            <span id="cs_address"></span>
+                                            <span id="cs_region"></span>
+                                        </div>
+                                    </div>
+                                    
+                                    
+                                </div>
+                               
+                            </div>
+                            <div class="row-space">
+                                <div class="row">
+                                        <label for="service">Service</label>
+                                        <select class="wide-select" id="service" name="service">
+                                            <option value="-1">--select service--</option>
+                                            <option>Full Body</option>
+                                            <option>Half Body</option>
+                                        </select>
+                                </div>
+                                
+                                <div class="row">
+                                    <label for="approve_toggle" id="label_approve" class="hidden">Manager Approve</label>
+                                    <img class="img-button-small hidden" id="approve_toggle" src="/img/toggle_off.svg" />
+                                </div>
+                                <div class="row">
+                                    <label for="c_approve_toggle" id="label_c_approve" class="hidden">Client Approve</label>
+                                    <img class="img-button-small hidden" id="c_approve_toggle" src="/img/toggle_off.svg" />
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="row">
+                                    <label for="quantity">No. of Containers</label>
+                                    <input type="number" id="quantity" name="quantity" placeholder="No. of containers"/>
+                                    
+                                </div>
+                                
+                                <div class="row">
+                                    <label for="goods">Goods</label>
+                                    <input type="text" id="goods" name="goods" placeholder="Goods"/>
+                                    
+                            </div>
+                            <div class="row">
+                                <label for="discount">Discount (%)</label>
+                                <input type="number" id="discount" name="discount" min=0 max=100 value="0"/>
+                                
+                            </div>
+                            </div>
+                            <div class="row-top summary-table" id="cost_item_list">
+                                <span class="head-row">
+                                    <span>SN#</span>
+                                    <span>Description</span>
+                                    <span>Quantity</span>
+                                    <span>Price</span>
+                                    <span>Amount</span>
+                                    <span></span>
+                                </span>
+                             </div>   
+                                <div class="body-row">
+                                    <div class="row">
+                                        <input type="number" name="item_count" id="item_count" min=1 value="1"/>
+                                        <select class="wide-select" name="cost_item" id="cost_item">
+                                            <option>--select cost item--</option>
+                                           
+                                        </select>
+                                    </div>
+                                    <div class="row-end">
+                                        <span class="buttons-t fail-text" id="discard_quote">DISCARD</span>
+                                        <span class="buttons-t" id="close_quote_form">CLOSE</span>
+                                        <input type="submit" id="btnSubmit" name="btnSubmit" value="SAVE"/>
+                                    </div>
+                                </div>
+                            
+                           
+                        </form>
+                   </div>
+                   
+                </div>
+                <div class="can-hide hidden" id="invoices_content">
+                    <div class="row-end">
+                        <span class="action-button shadow-minor" id="add_invoice" onclick="showQuotationForm('invoice_list');">
+                            <span class="material-icons">add</span>
+                            <span>New Invoice</span>
+                        </span> 
+                    </div>
+                    <div class="row-top summary-table" id="quotation_list">
+                        <span class="head-row">
+                            <span>Invoice #</span>
+                            <span>Customer</span>
+                            <span>Service</span>
+                            <span>Goods</span>
+                            <span>No. of Containers</span>
+                            <span>Price</span>
+                            <span>Status</span>
+                        </span>
+                      
+                    </div>
+                    <div class="column-center consignment-forms hidden" id="invoice_form">
+                        <form class="wide shadow" id="my_quote_form">
+                            <div class="row-space">
+                                <div class="column wide">
+                                    <span class="bold">From:</span>
+                                    <span id="client_name"></span>
+                                    <span id="client_address"></span>
+                                    <span id="client_region"></span><br />
+                                    <span id="invoice_number" class="bold primary-dark-text"></span><br />
+                                    <span id="status" class="bold"></span><br /><br /><br />
+                                </div>
+                                <div class="column wide">
+                                    <div class="row-space">
+                                        <label class="bold">Invoice for:</label>
                                         <span class="material-icons hidden" id="print">print</span>
                                     </div>
                                     <div class="row-top">

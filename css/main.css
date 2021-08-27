@@ -325,7 +325,6 @@ main > div#dashboard_content {
 
 .customer-details > div.row :nth-child(2), .customer-details > div.row-space :nth-child(2) {
   text-align: left;
-  flex-grow: 1;
 }
 
 .customer-details > div.row span.label, .customer-details > div.row-space span.label {
@@ -334,12 +333,13 @@ main > div#dashboard_content {
   padding: 0.25em 0.5em;
 }
 
-.customer-details > div.row span.value, .customer-details > div.row-space span.value {
+.customer-details > div.row span.value, .customer-details > div.row-space span.value, .customer-details > div.row-space a.value {
   text-align: left;
   padding: 0.25em 0.5em;
   text-align: left;
   flex-grow: 1;
   max-width: 220px;
+  font-weight: bold;
 }
 
 .tab-container {
@@ -369,7 +369,7 @@ main > div#dashboard_content {
 .vspace {
   display: block;
   height: 5em;
-  width: 126px;
+  width: 156px;
 }
 
 #my-detail {

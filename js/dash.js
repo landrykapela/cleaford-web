@@ -52,6 +52,10 @@ localStorage.setItem = function(key, value) {
 };
 
 
+//Functions start
+const thousandSeparator =(x)=> {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
 const generateRandomData = (count)=>{
     var result = [];
     for(let i=0; i<count;i++){
@@ -317,7 +321,26 @@ const activateMenu =(target)=>{
                 }
                 // console.log("activating quotations menu");
                 break;
-                
+            case 'invoices':
+                // if(!storedData.invoices || storedData.invoices.length == 0){
+                //     var options = {method:"GET",headers:{"Content-type":"application/json","Authorization":"Bearer "+currentUser.accessToken}};
+                //     var url = invoices_url+"/"+currentUser.id;
+                    // fetch(url,options).then(res=>res.json())
+                    // .then(result=>{
+                    //     storedData.invoices = result.data;
+                    //     storage.setItem("data",JSON.stringify(storedData));
+                    //     showQuotationList(result.data);
+                    // })
+                    // .catch(e=>{
+                    //     showFeedback("Something went wrong. Please try again later",1);
+                    // });
+                // }
+                // else{
+                    showInvoiceList(storedData.invoices);
+                // }
+                // console.log("activating quotations menu");
+                break;
+                    
             case 'roles':
                 greet("Settings",{title:"Roles",description:"Manage roles"});
                 if(!storedData.roles || storedData.roles.length == 0){
@@ -558,6 +581,68 @@ const showCustomerDetailForm = (source)=>{
     sourceContent.classList.add("hidden");
     clientForm.classList.remove("hidden");
     greet("Customers",{title:"Customers",description:"Add customer"});
+
+
+        //customer form
+        const customerForm = document.querySelector("#add_customer_form");
+        if(customerForm){
+            customerForm.reset();
+            document.getElementById("cancelAddCustomerButton").addEventListener('click',(e)=>{
+                activateMenu('customers');
+            })
+
+            let data = {inc_cert:null,tin_cert:null};
+            customerForm.tin_cert.addEventListener("change",(e)=>{
+                if(e.target.files[0]){
+                    var reader = new FileReader();
+                    reader.addEventListener("load",()=>{
+                        data.tin_cert = reader.result;
+                    },false);
+
+                    reader.readAsDataURL(e.target.files[0]);
+                }
+            });
+           
+            customerForm.inc_cert.addEventListener("change",(e)=>{
+                if(e.target.files[0]){
+                    var reader = new FileReader();
+                    reader.addEventListener("load",()=>{
+                        data.inc_cert = reader.result;
+                    },false);
+
+                    reader.readAsDataURL(e.target.files[0]);
+                }
+            });
+
+            selectPlace(customerForm.address,customerForm);
+            customerForm.addEventListener("submit",(e)=>{
+                e.preventDefault();
+
+                let name   = customerForm.customer_name.value;
+                let email  = customerForm.email.value;
+                let phone  = customerForm.phone.value;
+                let person = customerForm.contact_person.value;
+                let cemail = customerForm.contact_email.value;
+                let address= customerForm.address.value;
+                let country = customerForm.country.value;
+                let region = customerForm.region.value;
+                let tin = customerForm.customer_tin.value;
+                data.tin=tin,
+                    data.region=region;
+                    data.country=country;
+                    data.company_name=name;
+                    data.email=email;
+                    data.phone=phone;
+                    data.contact_person=person;
+                    data.contact_email=cemail;
+                    data.address=address;
+                    data.user=currentUser.id;
+                let method = "POST";
+                        
+                submitCustomerDetail(data,method);
+
+            })
+        }
 }
 const viewClientProfile = (user)=>{
     const placeholder = document.querySelector("#placeholder");
@@ -674,6 +759,7 @@ const initializeMap =(mapHolder,searchInput,targetForm,center={lat:-6.7924, lng:
 
 }
 const viewCustomerDetails = (customer,source)=>{
+    console.log("sel cu: ",customer);
     greet("Customers",{title:"Customers",description:"View"});
     const detailView = document.getElementById("view_customer_content");
     detailView.classList.remove("hidden");
@@ -686,19 +772,21 @@ const viewCustomerDetails = (customer,source)=>{
         })
     }
     
-    const name = document.getElementById("customer_name");
+    const name = document.getElementById("c_name");
     const tin = document.getElementById("c_tin");
     const address = document.getElementById("c_address");
-    const region = document.getElementById("region");
-    const country = document.getElementById("country");
-    const email = document.getElementById("email");
-    const phone = document.getElementById("phone");
+    const region = document.getElementById("c_region");
+    const country = document.getElementById("c_country");
+    const email = document.getElementById("c_email");
+    const phone = document.getElementById("c_phone");
+    const tin_cert = document.getElementById("c_tin_cert");
+    const inc_cert = document.getElementById("c_inc_cert");
     const contactPerson = document.getElementById("contact_p");
     const contactEmail = document.getElementById("contact_e");
 
     name.textContent = customer.name;
     tin.textContent = customer.tin;
-    address.textContent = customer.address;
+    address.textContent = customer.address.split(",")[0];
     region.textContent = customer.region;
     country.textContent = customer.country;
     email.textContent = customer.email;
@@ -706,6 +794,23 @@ const viewCustomerDetails = (customer,source)=>{
     contactPerson.textContent = customer.contact_person;
     contactEmail.textContent = customer.contact_email;
 
+    if(customer.tin_file != null){
+        tin_cert.textContent = "View TIN Certificate";
+        tin_cert.href = files_url+"/customers/"+customer.tin_file;
+        tin_cert.target = "_blank";
+    }
+    else{
+        tin_cert.textContent = "No Certificate";
+    }
+
+    if(customer.incorporation_file != null){
+        inc_cert.textContent = "View Certificate of Incorporation";
+        inc_cert.href = files_url+"/customers/"+customer.incorporation_file;
+        inc_cert.target = "_blank";
+    }
+    else{
+        inc_cert.textContent = "No Certificate";
+    }
     // var db = JSON.parse(storage.getItem("db"));
     var consignments = storedData.consignments.filter(c=>c.exporter_id == customer.id);
     showCustomerConsignments(consignments,0);
@@ -769,10 +874,6 @@ const showCustomerConsignments = (consignments,flag)=>{
             consStatus.textContent = (d.status_text) ? d.status_text : "N/A";
             row.appendChild(consStatus);
 
-            const tancisStatus = document.createElement("span");
-            tancisStatus.textContent = (d.tancis_status) ? d.tancis_status : "N/A";
-            row.appendChild(tancisStatus);
-
             parent.appendChild(row);
 
             row.addEventListener("click",(e)=>{
@@ -809,15 +910,32 @@ const editCustomerDetail = (customer,source)=>{
     editForm.customer_tin.value = customer.tin;
 
     selectPlace(editForm.address,editForm);
-    // initializeMap(document.getElementById("map-edit"),editForm.address,editForm);
-
-    // activateMenu('edit_customer');
-    // document.getElementById(source).classList.add("hidden");
-    // document.querySelector("#edit_customer_content").classList.remove("hidden");
+   
     document.getElementById("cancelCustomerEditButton").addEventListener('click',()=>{
         closeCustomerForm('edit_customer_content');
     });
+    let data = {tin_cert:null,inc_cert:null};
+    editForm.tin_cert.addEventListener("change",(e)=>{
+        if(e.target.files[0]){
+            var reader = new FileReader();
+            reader.addEventListener("load",()=>{
+                data.tin_cert = reader.result; 
+            },false);
 
+            reader.readAsDataURL(e.target.files[0]);
+        }
+    });
+
+    editForm.inc_cert.addEventListener("change",(e)=>{
+        if(e.target.files[0]){
+            var reader = new FileReader();
+            reader.addEventListener("load",()=>{
+                data.inc_cert = reader.result; 
+            },false);
+
+            reader.readAsDataURL(e.target.files[0]);
+        }
+    })
     editForm.addEventListener("submit",(e)=>{
         e.preventDefault();
         let id = customer.id;
@@ -830,18 +948,17 @@ const editCustomerDetail = (customer,source)=>{
         let contact_person = (editForm.contact_person.value) ? editForm.contact_person.value : customer.contact_person;
         let contact_email = (editForm.contact_email.value) ? editForm.contact_email.value : customer.contact_email;
         let tin = (editForm.customer_tin.value) ? editForm.customer_tin.value : customer.tin;
-        let data = {
-            user:currentUser.id,
-            name:name,
-            address:address,
-            email:email,
-            phone:phone,
-            country:country,
-            region:region,
-            contact_person:contact_person,
-            contact_email:contact_email,
-            tin:tin
-        };
+        data.user=currentUser.id;
+        data.name=name;
+        data.address=address;
+        data.email=email;
+        data.phone=phone
+        data.country=country;
+        data.region=region;
+        data.contact_person=contact_person;
+        data.contact_email=contact_email
+        data.tin=tin;
+        
         let headers = {
             'Content-Type':'application/json',
             'Authorization': 'Bearer '+currentUser.accessToken
@@ -853,7 +970,7 @@ const editCustomerDetail = (customer,source)=>{
         }
 
         let update_customer_url = create_customer_url+"/"+id;
-        console.log("url: ",update_customer_url);
+        console.log("url: ",data);
         fetch(update_customer_url,options)
             .then(res=>{
                 if(res.status == 403){
@@ -1062,10 +1179,6 @@ const showExportList = (data,source=null)=>{
             consStatus.textContent = (d.status_text) ? d.status_text : "N/A";
             row.appendChild(consStatus);
 
-            const tancisStatus = document.createElement("span");
-            tancisStatus.textContent = (d.tancis_status) ? d.tancis_status : "N/A";
-            row.appendChild(tancisStatus);
-
             parent.appendChild(row);
 
             row.addEventListener("click",(e)=>{
@@ -1097,18 +1210,12 @@ const showExportListSummary = (data)=>{
             row.classList.add("consignment-row");
             row.classList.add("shadow-minor");
             row.classList.add("status-indicator-"+d.status);
-            // const consNo = document.createElement("span");
-            // consNo.textContent = formatConsignmentNumber(d.id);
-            // row.appendChild(consNo);
+            
     
             const shippingLine = document.createElement("span");
             shippingLine.textContent = (d.shipping_details) ? d.shipping_details.shipping_line : "N/A";
             row.appendChild(shippingLine);
-    
-            // const vesselName = document.createElement("span");
-            // vesselName.textContent = (d.shipping_details) ? d.shipping_details.vessel_name : "N/A";
-            // row.appendChild(vesselName);
-            
+               
             const eta = document.createElement("span");
             let tcd = "";
             if(d.shipping_details){
@@ -1174,6 +1281,79 @@ const showConsignmentForm=(source,data=null)=>{
     
 }
 
+//show Invoices
+const showInvoiceList = (invoices,source=null)=>{
+    // quotations = quotations.filter(q=>q.status.toLowerCase() != "discarded");
+    greet("Finance",{title:"Invoices",description:"List of invoices"});
+    if(source != null) document.getElementById(source).classList.add("hidden");
+    else{
+        const qContent = document.getElementById("invoices_content");
+        Array.from(qContent.children).forEach((c,i)=>{
+            if(i>1) c.classList.add("hidden");
+        });
+    }
+    document.getElementById("add_invoice").classList.remove("hidden");
+    const parent = document.getElementById("invoice_list");
+    parent.classList.remove("hidden");
+    Array.from(parent.children).forEach((c,i)=>{
+        if(i>0) parent.removeChild(c);
+    })
+    if(invoices.length > 0){
+        invoices.forEach((d,i)=>{
+            const row = document.createElement("span");
+            row.classList.add("consignment-row");
+            row.classList.add("shadow-minor");
+            // row.classList.add("status-indicator-"+d.status);
+            const qNo = document.createElement("span");
+            qNo.textContent = formatConsignmentNumber(d.id);
+            row.appendChild(qNo);
+    
+            const customer = document.createElement("span");
+            var customerInfo = storedData.customers.filter(c=>c.id == d.customer_id)[0];
+            customer.textContent = customerInfo.name;
+            row.appendChild(customer);
+    
+            const service = document.createElement("span");
+            service.textContent = d.service;
+            row.appendChild(service);
+            
+            
+    
+            const goods = document.createElement("span");
+            goods.textContent = d.goods;
+            row.appendChild(goods);
+    
+            const nContainer = document.createElement("span");
+            nContainer.textContent = d.quantity;
+            row.appendChild(nContainer);
+
+            const qAmount = document.createElement("span");
+            qAmount.textContent = d.price;
+            row.appendChild(qAmount);
+
+            const qStatus = document.createElement("span");
+            qStatus.textContent = d.status;
+            row.appendChild(qStatus);
+
+            parent.appendChild(row);
+
+            row.addEventListener("click",(e)=>{
+                console.log("d: ",d);
+                showQuotationForm("quotation_list",d);
+            })
+        })
+        
+    }
+    else{
+        const row = document.createElement("span");
+        row.classList.add("consignment-row");
+        row.classList.add("shadow-minor");
+        row.textContent = "No Quotations";
+        parent.appendChild(row);
+    }
+      
+    
+}
 //show quotations
 const showQuotationList = (quotations,source=null)=>{
     // quotations = quotations.filter(q=>q.status.toLowerCase() != "discarded");
@@ -1610,12 +1790,16 @@ const showCostItems = (items,discount,container,status=null)=>{
             const qtty = document.createElement("span");
             const price = document.createElement("span");
             const amt = document.createElement("span");
+            amt.style.textAlign = "right";
+            price.style.textAlign = "right";
+            qtty.style.textAlign = "right";
+
     
             sn.textContent = (idx +1);
             desc.textContent = item.name;
             qtty.textContent = item.count;
-            price.textContent = item.cost;
-            amt.textContent = amount;
+            price.textContent = thousandSeparator(item.cost);
+            amt.textContent = thousandSeparator(amount);
 
             row.appendChild(sn);
             row.appendChild(desc);
@@ -1640,6 +1824,7 @@ const showCostItems = (items,discount,container,status=null)=>{
             }
             else if(status == -1){
                 actionSpan.classList.add("hidden");
+                row.classList.remove("shadow-minor");
             }
             container.appendChild(row);
 
@@ -1663,7 +1848,7 @@ const showCostItems = (items,discount,container,status=null)=>{
         total.classList.add("medium-text");
         total.classList.add("row-end");
         // total.style.textAlign = "right";
-        total.textContent = "TOTAL "+(sum - disc);
+        total.textContent = "TOTAL "+thousandSeparator(sum - disc);
         container.appendChild(total);
     }
     // else{
@@ -3369,6 +3554,7 @@ const submitClientDetail =(data,verb)=>{
 }
 //submit dlient form
 const submitCustomerDetail =(data,verb)=>{
+    console.log("t: ",data);
     const headers = {
         'Content-type':'application/json',
         'Authorization':'Bearer '+currentUser.accessToken
@@ -3467,7 +3653,6 @@ const greet=(name,detail=null)=>{
                activateMenu(detail.title.toLowerCase());
             })
         }
-        console.log("greetings: ",detail.title);
     }
     else {
         crumbs.textContent ="";
@@ -3504,46 +3689,6 @@ if(window.location.pathname == "/dashboard/"){
                 showFeedback(e.msg,1);
             })
 
-        //customer form
-        const customerForm = document.querySelector("#customer_profile_form");
-        if(customerForm){
-            customerForm.btnCancelAdd.addEventListener('click',()=>{
-                activateMenu('customers');
-            })
-
-            initializeMap(document.getElementById("map-add"),customerForm.address,customerForm);
-
-            customerForm.addEventListener("submit",(e)=>{
-                e.preventDefault();
-
-            let name   = customerForm.company_name.value;
-            let email  = customerForm.email.value;
-            let phone  = customerForm.phone.value;
-            let person = customerForm.contact_person.value;
-            let cemail = customerForm.contact_email.value;
-            let address= customerForm.address.value;
-            let country = customerForm.country.value;
-            let region = customerForm.region.value;
-            let tin = customerForm.code.value;
-            let data = {
-                tin:tin,
-                region:region,
-                country:country,
-                company_name:name,
-                email:email,
-                phone:phone,
-                contact_person:person,
-                contact_email:cemail,
-                address:address,
-                user:currentUser.id,
-                db:currentUser.db
-            };
-            let method = "POST";
-                     
-            submitCustomerDetail(data,method);
-
-            })
-        }
     }
 }
 
