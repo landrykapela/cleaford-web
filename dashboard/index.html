@@ -997,7 +997,7 @@
                       
                     </div>
                     <div class="column-center consignment-forms hidden" id="quotation_form">
-                        <form class="wide shadow" id="my_quote_form">
+                        <form class="wide shadow" id="my_quote_form" method="POST">
                             <div class="row-space">
                                 <div class="column wide">
                                     <span class="bold">From:</span>
@@ -1005,7 +1005,7 @@
                                     <span id="client_address"></span>
                                     <span id="client_region"></span><br />
                                     <span id="quotation_number" class="bold primary-dark-text"></span><br />
-                                    <span id="status" class="bold"></span><br /><br /><br />
+                                    
                                 </div>
                                 <div class="column wide">
                                     <div class="row-space">
@@ -1030,6 +1030,24 @@
                             </div>
                             <div class="row-space">
                                 <div class="row">
+                                    <label>Status: </label>
+                                    <span id="status" class="bold"></span>
+                                </div>
+                                <div class="row">
+                                    <!-- <label for="mgr_yes" id="mgr_approval_label">Manager Approve</label>
+                                    <img class="img-button-small" id="mgr_yes" src="/img/yes_.png" />
+                                    <img class="img-button-small" id="mgr_no" src="/img/no_.png" /> -->
+                                </div>
+                                <div class="row">
+                                    <label for="client_yes" id="client_approval_label">Manager Approve</label>
+                                    <img class="img-button-small" id="client_yes" src="/img/yes_.png" />
+                                    <img class="img-button-small" id="client_no" src="/img/no_.png" />
+                                </div>
+                            </div>
+
+                            <div class="vspace"></div>
+                            <div class="row-space">
+                                <div class="row">
                                         <label for="service">Service</label>
                                         <select class="wide-select" id="service" name="service">
                                             <option value="-1">--select service--</option>
@@ -1037,15 +1055,8 @@
                                             <option>Half Body</option>
                                         </select>
                                 </div>
-                                
-                                <div class="row">
-                                    <label for="approve_toggle" id="label_approve" class="hidden">Manager Approve</label>
-                                    <img class="img-button-small hidden" id="approve_toggle" src="/img/toggle_off.svg" />
-                                </div>
-                                <div class="row">
-                                    <label for="c_approve_toggle" id="label_c_approve" class="hidden">Client Approve</label>
-                                    <img class="img-button-small hidden" id="c_approve_toggle" src="/img/toggle_off.svg" />
-                                </div>
+                                <div class="row"></div>
+                                <div class="row"></div>
                             </div>
                             <div class="row">
                                 <div class="row">
@@ -1076,7 +1087,7 @@
                                 </span>
                              </div>   
                                 <div class="body-row">
-                                    <div class="row">
+                                    <div class="row" id="cost_container">
                                         <input type="number" name="item_count" id="item_count" min=1 value="1"/>
                                         <select class="wide-select" name="cost_item" id="cost_item">
                                             <option>--select cost item--</option>
@@ -1085,14 +1096,14 @@
                                     </div>
                                     <div class="row-end">
                                         <span class="buttons-t fail-text" id="discard_quote">DISCARD</span>
-                                        <span class="buttons-t" id="close_quote_form">CLOSE</span>
+                                        <span class="buttons-t" id="close_quote_form">CANCEL</span>
                                         <input type="submit" id="btnSubmit" name="btnSubmit" value="SAVE"/>
                                     </div>
                                 </div>
                             
                            
                         </form>
-                   </div>
+                    </div>
                    
                 </div>
                 <div class="can-hide hidden" id="invoices_content">
@@ -1157,12 +1168,14 @@
                                 </div>
                                 
                                 <div class="row">
-                                    <label for="approve_toggle" id="label_approve" class="hidden">Manager Approve</label>
-                                    <img class="img-button-small hidden" id="approve_toggle" src="/img/toggle_off.svg" />
+                                    <label for="inv_mgr_yes" id="inv_mgr_approval_label">Manager Approve</label>
+                                    <img class="img-button-small" id="inv_mgr_yes" src="/img/yes.png" />
+                                    <img class="img-button-small" id="inv_mgr_no" src="/img/no.png" />
                                 </div>
                                 <div class="row">
-                                    <label for="c_approve_toggle" id="label_c_approve" class="hidden">Client Approve</label>
-                                    <img class="img-button-small hidden" id="c_approve_toggle" src="/img/toggle_off.svg" />
+                                    <label for="inv_client_yes" id="inv_client_approval_label">Client Approve</label>
+                                    <img class="img-button-small" id="inv_client_yes" src="/img/yes.png" />
+                                    <img class="img-button-small" id="inv_client_no" src="/img/no.png" />
                                 </div>
                             </div>
                             <div class="row">
@@ -1203,7 +1216,7 @@
                                     </div>
                                     <div class="row-end">
                                         <span class="buttons-t fail-text" id="discard_quote">DISCARD</span>
-                                        <span class="buttons-t" id="close_quote_form">CLOSE</span>
+                                        <span class="buttons-t" id="close_quote_form">CANCEL</span>
                                         <input type="submit" id="btnSubmit" name="btnSubmit" value="SAVE"/>
                                     </div>
                                 </div>

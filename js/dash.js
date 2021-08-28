@@ -1,7 +1,7 @@
 const storage = window.localStorage;
 const DATA_COUNT = 12;
 const NUMBER_CFG = {count: DATA_COUNT, min: 0, max: 100};
-
+const CURRENCY = "USD";
 const clientSummaryCount = 5;
 const CONSIGNMENT_NUMBER_FORMAT = 6;
 const PREDOCUMENTS = [
@@ -912,7 +912,7 @@ const editCustomerDetail = (customer,source)=>{
     selectPlace(editForm.address,editForm);
    
     document.getElementById("cancelCustomerEditButton").addEventListener('click',()=>{
-        closeCustomerForm('edit_customer_content');
+        closeCustomerForm('edit_customer_content',customer);
     });
     let data = {tin_cert:null,inc_cert:null};
     editForm.tin_cert.addEventListener("change",(e)=>{
@@ -972,21 +972,15 @@ const editCustomerDetail = (customer,source)=>{
         let update_customer_url = create_customer_url+"/"+id;
         console.log("url: ",data);
         fetch(update_customer_url,options)
-            .then(res=>{
-                if(res.status == 403){
-                    showFeedback("Session expired, please login",1);
-                    // signoutUser();
-                }
-                else{
-                    res.json().then(result=>{
-                        updateCustomers(result.data);
-                        showFeedback(result.msg,result.code);
-                        closeCustomerForm('edit_customer_content')
-                    })
-                    .catch(err=>{
-                        showFeedback(err.msg,err.code);
-                    })
-                }
+            .then(res=>res.json())
+            .then(result=>{
+                console.log("t: ",result);
+                updateCustomers(result.data);
+                showFeedback(result.msg,result.code);
+                closeCustomerForm('edit_customer_content',customer)
+            })
+            .catch(err=>{
+                showFeedback(err.msg,err.code);
             })
             .catch(e=>{
                 showFeedback(e.msg,e.code);
@@ -1328,18 +1322,22 @@ const showInvoiceList = (invoices,source=null)=>{
             row.appendChild(nContainer);
 
             const qAmount = document.createElement("span");
-            qAmount.textContent = d.price;
+            qAmount.textContent = CURRENCY+" "+thousandSeparator(d.price);
             row.appendChild(qAmount);
 
             const qStatus = document.createElement("span");
             qStatus.textContent = d.status;
+            if(d.status.toLowerCase() == "approved") {
+                qStatus.classList.add("success-text");
+            }
+            else qStatus.classList.add("fail-text");
             row.appendChild(qStatus);
 
             parent.appendChild(row);
 
             row.addEventListener("click",(e)=>{
                 console.log("d: ",d);
-                showQuotationForm("quotation_list",d);
+                showQuotationForm("quotation_list",d.id);
             })
         })
         
@@ -1372,7 +1370,7 @@ const showQuotationList = (quotations,source=null)=>{
         if(i>0) parent.removeChild(c);
     })
     if(quotations.length > 0){
-        quotations.forEach((d,i)=>{
+        quotations.filter(q=>q.status.toLowerCase() != "discarded").forEach((d,i)=>{
 
             const row = document.createElement("span");
             row.classList.add("consignment-row");
@@ -1399,21 +1397,26 @@ const showQuotationList = (quotations,source=null)=>{
     
             const nContainer = document.createElement("span");
             nContainer.textContent = d.quantity;
+            nContainer.style.textAlign = "center";
             row.appendChild(nContainer);
 
             const qAmount = document.createElement("span");
-            qAmount.textContent = d.price;
+            qAmount.textContent = CURRENCY+" "+thousandSeparator(((1- d.discount/100) * d.price).toFixed(2));
             row.appendChild(qAmount);
 
             const qStatus = document.createElement("span");
             qStatus.textContent = d.status;
+            if(d.status.toLowerCase() == "approved") {
+                qStatus.classList.add("success-text");
+            }
+            else qStatus.classList.add("fail-text");
             row.appendChild(qStatus);
 
             parent.appendChild(row);
 
             row.addEventListener("click",(e)=>{
                 console.log("d: ",d);
-                showQuotationForm("quotation_list",d);
+                showQuotationForm("quotation_list",d.id);
             })
         })
         
@@ -1429,18 +1432,18 @@ const showQuotationList = (quotations,source=null)=>{
     
 }
 //show Quotation form
-const showQuotationForm=(source,data=null)=>{
+const showQuotationForm=(source,dataId=null)=>{
     if(source != "quotation_list"){
         document.getElementById("quotations_content").classList.remove("hidden");
         document.getElementById("quotation_list").classList.add("hidden");
        
         // activateMenu("exports")
     }
-    
+    var costContainer = document.getElementById("cost_container");
     const form = document.getElementById("my_quote_form");
     form.reset();
     var desc= "Create";
-    if(data != null) desc = "View";
+    if(dataId != null) desc = "View";
     greet("Finance",{title:"Quotations",description:desc});
     document.getElementById(source).classList.add("hidden");
    
@@ -1457,10 +1460,12 @@ const showQuotationForm=(source,data=null)=>{
     clientAddress.textContent = client.address.split(",")[0];
     clientRegion.textContent = client.region+", "+client.country;
 
-    var mgrApprove = document.getElementById("approve_toggle");
-    var cApprove = document.getElementById("c_approve_toggle");
-    var labelMgrApprove = document.getElementById("label_approve");
-    var labelCApprove = document.getElementById("label_c_approve");
+    // var mgrYes = document.getElementById("mgr_yes");
+    // var mgrNo = document.getElementById("mgr_no");
+    var clientYes = document.getElementById("client_yes");
+    var clientNo = document.getElementById("client_no");
+    var clientLabel = document.getElementById("client_approval_label");
+    // var mgrLabel = document.getElementById("mgr_approval_label");
 
     Array.from(form.cs_id.children).forEach((c,i)=>{
         if(i>0) form.cs_id.removeChild(c);
@@ -1475,6 +1480,8 @@ const showQuotationForm=(source,data=null)=>{
     const costItemCountEl = document.getElementById("item_count");
     const qNumber = document.getElementById("quotation_number");
     const qStatus = document.getElementById("status");
+    qStatus.textContent = "";
+    qStatus.style.color = "none";
 
     var customer = storedData.customers.filter(c=>c.id == form.cs_id.value)[0];
     var customerName = document.getElementById("cs_name");
@@ -1484,75 +1491,97 @@ const showQuotationForm=(source,data=null)=>{
     var newStatus = "Awaiting Manager's Approval";
     var myQItems = [];
     var costItems = COST_ITEMS;
-    if(data != null){
+
+    var data = storedData.quotations.filter(q=>q.id == dataId);
+    if(data.length > 0){
         var print = document.getElementById("print");
         print.classList.remove("hidden");
         print.addEventListener("click",(e)=>{
-            window.open(print_url+"/dashboard/quotation.html?qid="+data.id);
+            window.open(print_url+"/dashboard/quotation.html?qid="+dataId);
         })
-        qNumber.textContent = "Quotation No: "+formatConsignmentNumber(data.id);
-        form.cs_id.value = data.customer_id;
-        var customer = storedData.customers.filter(c=>c.id == data.customer_id)[0];
+        qNumber.textContent = "Quotation No: "+formatConsignmentNumber(dataId);
+        form.cs_id.value = data[0].customer_id;
+        var customer = storedData.customers.filter(c=>c.id == data[0].customer_id)[0];
         customerName.textContent = customer.name;
         customerAddress.textContent = customer.address.split(",")[0];
         customerRegion.textContent = customer.region +", "+ customer.country;
 
-        form.goods.value = data.goods;
-        form.service.value = data.service;
-        form.quantity.value = data.quantity;
-        form.discount.value = (data.discount) ? data.discount : 0;
+        form.goods.value = data[0].goods;
+        form.service.value = data[0].service;
+        form.quantity.value = data[0].quantity;
+        form.discount.value = (data[0].discount) ? data[0].discount : 0;
         
-        qStatus.textContent = "Status: "+data.status;
-        newStatus = data.status;
-        if(data.status != null && data.status.toLowerCase() == "awaiting manager's approval"){
-            mgrApprove.classList.remove("hidden");
-            labelMgrApprove.classList.remove("hidden");
-            cApprove.classList.add("hidden");
-            labelCApprove.classList.add("hidden");
-            mgrApprove.addEventListener("click",(e)=>{
-                if(e.target.src.includes("toggle_off.svg")) {
-                    e.target.src = "/img/toggle_on.svg";
-                    newStatus = "Awaiting Client Approval";
-                }
-                else {
-                    e.target.src = "/img/toggle_off.svg";
-                    newStatus = "Awaiting Manager's Approval";
-                }
-            })
+        qStatus.textContent = data[0].status;
+        
+        if(data[0].status.toLowerCase() == "approved") {
+            qStatus.classList.add("success-text");
         }
-        else if(data.status != null && data.status.toLowerCase() == "awaiting client approval"){
-            mgrApprove.classList.add("hidden");
-            labelMgrApprove.classList.add("hidden");
-            cApprove.classList.remove("hidden");
-            labelCApprove.classList.remove("hidden");
-            cApprove.addEventListener("click",(e)=>{
-                if(e.target.src.includes("toggle_off.svg")) {
-                    e.target.src = "/img/toggle_on.svg";
-                    newStatus = "Approved";
-                }
-                else {
-                    e.target.src = "/img/toggle_off.svg";
-                    newStatus = "Awaiting Client Approval";
-                }
+        else qStatus.classList.add("fail-text");
+        newStatus = data[0].status;
+        if(data[0].status.toLowerCase() == "awaiting manager's approval"){
+          
+            clientLabel.textContent = "Manager Approve";
+            clientYes.addEventListener("click",(e)=>{
+                newStatus = "Awaiting Client Approval";
+                clientYes.src = "/img/yes.png";
+                clientNo.src = "/img/no_.png";
+             })
+            clientNo.addEventListener("click",(e)=>{
+                newStatus = "Manager Denied";
+                clientNo.src = "/img/no.png";
+                clientYes.src = "/img/yes_.png";
+                })
+        }
+        else if(data[0].status.toLowerCase() == "awaiting client approval"){
+            clientYes.src = "/img/yes_.png";
+            clientLabel.textContent = "Client Approve";
+            clientYes.addEventListener("click",(e)=>{
+                newStatus = "Approved";
+                clientYes.src = "/img/yes.png";
+                clientNo.src = "/img/no_.png";
             })
+            clientNo.addEventListener("click",(e)=>{
+                newStatus = "Client Denied";
+                clientNo.src = "/img/no.png";
+                clientYes.src = "/img/yes_.png";
+             })
         }
         else{
-            mgrApprove.classList.add("hidden");
-            labelMgrApprove.classList.add("hidden");
-            cApprove.classList.add("hidden");
-            labelCApprove.classList.add("hidden");
+            clientYes.classList.add("hidden");
+            clientNo.classList.add("hidden");
+            clientLabel.classList.add("hidden");
         }
 
-        var qItemsIds = data.items.split("_").map(id=>parseInt(id));
-        var qItems = costItems.filter((c,i)=>{
-            return qItemsIds.indexOf(c.id) !== -1;
-        }).map(c=>{
-            c.count = 1;
-            return c;
-        });
-        
-        showCostItems(qItems,form.discount.value,costItemList,data.status);
+        var qItemsIds = data[0].items.split("_").map(id=>parseInt(id));
+        console.log("qIIs: ",qItemsIds);
+        console.log("cIs: ",costItems);
+        myCostItems = [];
+        qItemsIds.forEach((id)=>{
+            let item = costItems.filter(c=>c.id == id);
+            if(item.length > 0){
+                item[0].count = 1;
+                myCostItems.push(item[0]);
+            }
+        })
+      
+        console.log("mcIs: ",myCostItems);
+        showCostItems(myCostItems,form.discount.value,costItemList,data[0].status);
+
+        if(data[0].status.toLowerCase() == "approved" || data[0].status.toLowerCase().includes("denied")){
+            form.btnSubmit.classList.add('hidden');
+            costContainer.classList.add("hidden");
+        }
+        else{
+            form.btnSubmit.classList.remove('hidden');
+            costContainer.classList.remove("hidden"); 
+        }
     }
+    else{
+        clientYes.classList.add("hidden");
+        clientNo.classList.add("hidden");
+        clientLabel.classList.add("hidden");
+    }
+    
     form.cs_id.addEventListener("change",(e)=>{
         if(e.target.value == -1) showCustomerDetailForm('quotations_content');
         else if(e.target.value != -2){
@@ -1576,7 +1605,8 @@ const showQuotationForm=(source,data=null)=>{
         let itemId = parseInt(e.target.value);
         let item = costItems.filter(c=>c.id == itemId);
         
-        if(costItemCountEl.value && typeof(costItemCountEl.value) == "number"){
+        if(costItemCountEl.value){
+            console.log("value: ",costItemCountEl.value);
             for(let i=0;i<parseInt(costItemCountEl.value);i++){
                 item[0].count = 1;
                 myCostItems.push(item[0]);
@@ -1612,53 +1642,62 @@ const showQuotationForm=(source,data=null)=>{
         })
     }
     const discardButton = document.getElementById("discard_quote");
-    if(data != null && data.status == null || data.status.toLowerCase() == "awaiting manager's approval" || data.status == -1){
-        if(discardButton){
-            discardButton.classList.remove("hidden");
-            discardButton.addEventListener("click",(e)=>{
-                alertDialog("Are you sure you want to discard this quotation?","Discard",()=>{
-                    var url = quotation_url +"/"+currentUser.id;
-                    var options = {method:"PUT",body:JSON.stringify({id:data.id,status:"Discarded"}),headers:{"Content-type":"application/json","Authorization":"Bearer "+currentUser.accessToken}}
-                    // console.log("t: "+method,myData);
-                    fetch(url,options)
-                    .then(res=>res.json())
-                    .then(result=>{
-                        console.log("result: ",result);
-                        storedData.quotations = result.data;
-                        storage.setItem("data",JSON.stringify(storedData));
-                        showFeedback(result.msg,result.code);
-                        closeQuotationForm('my_quote_form');
-                    })
-                    .catch(er=>{
-                        console.log("er: ",er);
-                        showFeedback("Something went wrong: "+e,1);
+    if(dataId == null || data[0].status.toLowerCase() == "approved" || data[0].status.toLowerCase() == "discarded"){
+        discardButton.classList.add("hidden");
+    }
+    if(data.length > 0){
+        if(data[0].status.toLowerCase() == "awaiting manager's approval" || data[0].status.toLowerCase() == "awaiting client approval" || data[0].status == -1){
+            if(discardButton){
+                discardButton.classList.remove("hidden");
+                discardButton.addEventListener("click",(e)=>{
+                    alertDialog("Are you sure you want to discard this quotation?","Discard",()=>{
+                        var url = quotation_url +"/"+currentUser.id;
+                        var options = {method:"PUT",body:JSON.stringify({id:dataId,status:"Discarded"}),headers:{"Content-type":"application/json","Authorization":"Bearer "+currentUser.accessToken}}
+                        // console.log("t: "+method,myData);
+                        fetch(url,options)
+                        .then(res=>res.json())
+                        .then(result=>{
+                            console.log("result: ",data[0]);
+                            storedData.quotations = result.data;
+                            storage.setItem("data",JSON.stringify(storedData));
+                            showFeedback(result.msg,result.code);
+                            closeQuotationForm(data[0]);
+                        })
+                        .catch(er=>{
+                            console.log("er: ",er);
+                            showFeedback("Something went wrong: "+e,1);
+                        })
                     })
                 })
-            })
+            }
         }
     }
     else discardButton.classList.add("hidden");
     
+    
     form.addEventListener("submit",(e)=>{
         e.preventDefault();
-        var customerId = form.cs_id.value;
+        var customerId = form.cs_id.options[form.cs_id.options.selectedIndex].value;
         var service = form.service.value;
         var goods = form.goods.value;
         var containerNum = form.quantity.value;
         var discount = form.discount.value;
-        console.log("dx: ",qItems);
+        console.log("dx: ",myCostItems);
         var cost_items = myCostItems.map(i=>i.id).join("_");
         var sum = 0;
         myCostItems.forEach(i=>{
-            sum += (i.count * i.cost);
+            // var a = (i.count * i.cost)
+            sum += i.cost;
+            console.log("a: ",sum);
         });
+        console.log("x: ",sum);
         var myData = {customer_id:customerId,service:service,goods:goods,quantity:containerNum,discount:discount,items:cost_items,price:sum};
         var method = "POST";
-        if(data == null) myData.status = "Awaiting Manager's Approval";
+        if(dataId == null) myData.status = "Awaiting Manager's Approval";
         else{
             method = "PUT";
             myData.status = newStatus;
-            myData.id = data.id;
+            myData.id = dataId;
         }
         var url = quotation_url +"/"+currentUser.id;
         var options = {method:method,body:JSON.stringify(myData),headers:{"Content-type":"application/json","Authorization":"Bearer "+currentUser.accessToken}}
@@ -1667,10 +1706,16 @@ const showQuotationForm=(source,data=null)=>{
         .then(res=>res.json())
         .then(result=>{
             console.log("result: ",result);
+            
             storedData.quotations = result.data;
             storage.setItem("data",JSON.stringify(storedData));
+            if(dataId == null) {
+                var nQ= result.data.filter(c=>storedData.quotations.map(q=>q.id).indexOf(c.id) === -1);
+                console.log("res: ",nQ);
+                dataId == nQ[0].id;
+            }
             showFeedback(result.msg,result.code);
-            closeQuotationForm('my_quote_form');
+            showQuotationForm("quotation_form",dataId);
         })
         .catch(er=>{
             console.log("er: ",er);
@@ -1697,7 +1742,7 @@ const showPrintableQuotation=(data)=>{
 
     var cdate = new Date(data.date_created);
     var mdate = new Date(data.date_modified);
-    var edate = new Date(data.date_modified + (7*24*3600*1000));
+    var edate = new Date(data.date_modified + (30*24*3600*1000));
 
     dateCreated.textContent = "Created on: "+cdate.getDate()+"/"+(cdate.getMonth()+1)+"/"+cdate.getFullYear();
     dateModified.textContent = "Last modified: "+mdate.getDate()+"/"+(mdate.getMonth()+1)+"/"+mdate.getFullYear();
@@ -1742,14 +1787,20 @@ const showPrintableQuotation=(data)=>{
     
     
 }
-const closeQuotationForm=() =>{
+const closeQuotationForm=(quotation=null) =>{
     var form = document.getElementById("my_quote_form");
     form.reset();
     
     document.getElementById("quotation_form").classList.add("hidden");
-    document.getElementById("quotation_list").classList.remove("hidden");
-    document.querySelector("#add_quotation").classList.remove("hidden");
-    showQuotationList(storedData.quotations);
+    if(quotation == null){
+        document.getElementById("quotation_list").classList.remove("hidden");
+        document.querySelector("#add_quotation").classList.remove("hidden");
+        showQuotationList(storedData.quotations);
+    }
+    else{
+        showQuotationForm("quotation_list",quotation.id);
+    }
+    
 }
 //show cost items
 const showCostItems = (items,discount,container,status=null)=>{
@@ -1757,30 +1808,37 @@ const showCostItems = (items,discount,container,status=null)=>{
     Array.from(container.children).forEach((c,i)=>{
         if(i>0) container.removeChild(c);
     });
+    console.log("items: ",items);
     
-    var myItems =[];
-    items.forEach((item)=>{
-        let idx = 0;
-        var myids = myItems.filter((i,k)=>{
-            if(i.id == item.id){
-                idx = k;
-                return i;
+    var summary =[];
+    summary.push(items[0]);
+    // var myIds = items.map((i)=>i.id);
+    items.forEach((item,x)=>{
+        if(x > 0){
+            let idx = x;
+            var myItem = summary.filter((i,k)=>{
+                if(item.id == i.id){
+                    idx = k;
+                    return i;
+                }
+            });
+            if(myItem.length > 0){
+                myItem[0].count ++;
+                summary[idx] = myItem[0];
             }
-        });
-        if(myids.length > 0){
-            item.count ++;
-            myItems[idx] = item;
+            else{
+                item.count = 1;
+                summary.push(item);
+            }
         }
-        else{
-            item.count = 1;
-            myItems.push(item);
-        }
+     
     })
+    console.log("my items: ",summary);
     var sum = 0;
     var disc = 0;
-    if(myItems.length > 0){
-        myItems.forEach((item,idx)=>{
-            var amount = item.cost * item.count;
+    if(summary.length > 0){
+        summary.forEach((item,idx)=>{
+            var amount = item.count * item.cost;
             sum += amount;
             const row = document.createElement("span");
             row.classList.add("body-row");
@@ -1793,6 +1851,7 @@ const showCostItems = (items,discount,container,status=null)=>{
             amt.style.textAlign = "right";
             price.style.textAlign = "right";
             qtty.style.textAlign = "right";
+            qtty.style.alignSelf = "flex-end";
 
     
             sn.textContent = (idx +1);
@@ -1818,7 +1877,7 @@ const showCostItems = (items,discount,container,status=null)=>{
                 actionSpan.classList.remove("actions");
                 actionSpan.classList.add("actions-dis");
                 removeBut.addEventListener("click",e=>{
-                    myCostItems = myItems.filter(i=>i.id != item.id);
+                    myCostItems = items.filter(i=>i.id != item.id);
                     showCostItems(myCostItems,discount,container);
                 })
             }
@@ -1831,36 +1890,70 @@ const showCostItems = (items,discount,container,status=null)=>{
             
         });
         disc = discount * sum /100;
-        
+        const space = document.createElement("span");
+        space.classList.add("vspace");
+        const space1 = document.createElement("span");
+        space1.classList.add("vspace");
+        const space2 = document.createElement("span");
+        space2.classList.add("vspace");
+        const summaryRow = document.createElement("div");
+        summaryRow.classList.add("row");
+        summaryRow.style.marginTop = "2em";
+
         const sTotal = document.createElement("span");
         sTotal.classList.add("row-end");
         // total.style.textAlign = "right";
-        sTotal.textContent = "Subtotal "+sum;
+        sTotal.textContent = "Subtotal: ";
         container.appendChild(sTotal);
+
+
+        const sTotalVal = document.createElement("span");
+        sTotalVal.classList.add("row-end");
+        // total.style.textAlign = "right";
+        sTotalVal.textContent = CURRENCY+" "+thousandSeparator(sum);
+        container.appendChild(sTotalVal);
+        summaryRow.appendChild(sTotal);
+        summaryRow.appendChild(sTotalVal);
+        summaryRow.appendChild(space);
+        container.appendChild(summaryRow);
+
+        const summaryRow2 = document.createElement("div");
+        summaryRow2.classList.add("row");
+
 
         const discSpan = document.createElement("span");
         discSpan.classList.add("row-end");
         // total.style.textAlign = "right";
-        discSpan.textContent = "Discount ("+discount+"%) "+disc;
-        container.appendChild(discSpan);
+        discSpan.textContent = "Discount ("+discount+"%): ";
+        summaryRow2.appendChild(discSpan);
+
+        const discSpanVal = document.createElement("span");
+        discSpanVal.classList.add("row-end");
+        // total.style.textAlign = "right";
+        discSpanVal.textContent = CURRENCY+" "+thousandSeparator(disc);
+        summaryRow2.appendChild(discSpanVal);
+        summaryRow2.appendChild(space1);
+        container.appendChild(summaryRow2);
+
+        const summaryRow3 = document.createElement("div");
+        summaryRow3.classList.add("row");
 
         const total = document.createElement("span");
         total.classList.add("medium-text");
         total.classList.add("row-end");
         // total.style.textAlign = "right";
-        total.textContent = "TOTAL "+thousandSeparator(sum - disc);
-        container.appendChild(total);
-    }
-    // else{
-    //     const row = document.createElement("span");
-    //         row.classList.add("body-row");
-    //         row.classList.add("shadow-minor");
-    //         const nodata = document.createElement("span");
-    //         nodata.textContent = "no cost items selected";
-    //         row.appendChild(nodata);
-    //         container.appendChild(row);
-    // }
+        total.textContent = "TOTAL: ";
+        summaryRow3.appendChild(total);
 
+        const totalVal = document.createElement("span");
+        totalVal.classList.add("medium-text");
+        totalVal.classList.add("row-end");
+        // total.style.textAlign = "right";
+        totalVal.textContent = CURRENCY+" "+thousandSeparator(sum - disc);
+        summaryRow3.appendChild(totalVal);
+        summaryRow3.appendChild(space2);
+        container.appendChild(summaryRow3);
+    }
    
 }
 
@@ -3160,10 +3253,16 @@ const showCustomersSummary = ()=>{
     }
 }
 //show clientForm
-const closeCustomerForm=(source)=>{
+const closeCustomerForm=(source,customer=null)=>{
     document.getElementById(source).classList.add("hidden");
-    document.getElementById("customers_content").classList.remove("hidden");
-    showCustomers(storedData.customers,source);
+    if(customer != null){
+        var uCustomer = storedData.customers.filter(c=>c.id == customer.id)[0];
+        viewCustomerDetails(uCustomer,source);
+    }
+    else {
+        document.getElementById("customers_content").classList.remove("hidden");
+        showCustomers(storedData.customers,source);
+    }
 }
 //fetch clients
 const getCustomers = ()=>{
@@ -3265,6 +3364,9 @@ const refreshUser=()=>{
 const alertDialog =(msg,actionText,action=null)=>{
     var alert = document.getElementById("alert_dialog");
     alert.classList.remove("hidden");
+    Array.from(alert.children).forEach(c=>{
+        alert.removeChild(c);
+    });
     var dialog = document.createElement("div");
     dialog.classList.add("dialog");
     var dialogTitle = document.createElement("div");

@@ -329,7 +329,7 @@ main > div#dashboard_content{
 }
 .vspace{
   display:block;
-  height:5em;
+  height:1em;
   width:156px;
 }
 #my-detail{
@@ -603,8 +603,9 @@ footer{
 }
 .img-button-small{
   cursor: pointer;
-  width:40px;
+  width:60px;
   object-fit: contain;
+  margin-right:1em;
 }
 .buttons,.buttons-s,.buttons-t{
   padding:0.5em 1em;
@@ -1143,6 +1144,10 @@ footer{
   color:$failColor !important;
   font-size: small !important;
   // text-align: center !important;
+}
+.success-text{
+  color:$successColor !important;
+  
 }
 // links
 a,
