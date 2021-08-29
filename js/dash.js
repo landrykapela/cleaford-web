@@ -487,7 +487,7 @@ const showFeedback =(msg,type)=>{
         case 0:
             feedback.classList.remove("fail");
             feedback.classList.remove("information");
-            feedback.classList.add("succeess");
+            feedback.classList.add("success");
             break;
         case 1:
             feedback.classList.remove("success");
@@ -616,10 +616,15 @@ const showClientStats =()=>{
     })
     fetchInvoices().then(invoices=>{
         updateInvoices(invoices);
+        var pendingInvoices = invoices.filter(inv=>inv.status.toLowerCase() == "pending payment");
+        document.getElementById("pending_invoices").textContent = pendingInvoices.length;
+        var pendingApproval = invoices.filter(inv=>inv.status.toLowerCase() == "awaiting manager's approval");
+        document.getElementById("pending_approval").textContent = pendingApproval.length;
     })
     .catch(e=>{
         console.log("error: ",e);
     })
+    
 }
 //fetch cost items
 const fetchCostItems = ()=>{
@@ -1589,7 +1594,8 @@ const showInvoiceList = (invoices,source=null)=>{
             row.appendChild(nContainer);
 
             const qAmount = document.createElement("span");
-            qAmount.textContent = CURRENCY+" "+thousandSeparator(parseFloat(d.price).toFixed(2));
+            var myprice= parseFloat(d.price) - 0.01 * d.discount * d.price;
+            qAmount.textContent = CURRENCY+" "+thousandSeparator(parseFloat(myprice).toFixed(2));
             row.appendChild(qAmount);
 
             const qStatus = document.createElement("span");
@@ -1676,7 +1682,8 @@ const showQuotationList = (quotations,source=null)=>{
             row.appendChild(nContainer);
 
             const qAmount = document.createElement("span");
-            qAmount.textContent = CURRENCY+" "+thousandSeparator(((1- d.discount/100) * d.price).toFixed(2));
+            var myprice = parseFloat(d.price).toFixed(2) - 0.01*d.price* d.discount;
+            qAmount.textContent = CURRENCY+" "+thousandSeparator(myprice);
             row.appendChild(qAmount);
 
             const qStatus = document.createElement("span");
@@ -1975,7 +1982,7 @@ const showQuotationForm=(source,dataId=null)=>{
                 var sum = 0;
                 myCostItems.forEach(i=>{
                     // var a = (i.count * i.cost)
-                    sum += i.price;
+                    sum += parseInt(i.price);
                     console.log("a: ",sum);
                 });
                 console.log("x: ",sum);
@@ -1995,13 +2002,14 @@ const showQuotationForm=(source,dataId=null)=>{
                 .then(result=>{
                     console.log("result: ",result);
                     
-                    storedData.quotations = result.data;
-                    storage.setItem("data",JSON.stringify(storedData));
                     if(dataId == null) {
                         var nQ= result.data.filter(c=>storedData.quotations.map(q=>q.id).indexOf(c.id) === -1);
                         console.log("res: ",nQ);
                         dataId == nQ[0].id;
                     }
+
+                    storedData.quotations = result.data;
+                    storage.setItem("data",JSON.stringify(storedData));
                     showFeedback(result.msg,result.code);
                     showQuotationForm("quotation_form",dataId);
                 })
@@ -2293,14 +2301,14 @@ const showInvoiceForm=(source,dataId=null)=>{
         .then(res=>res.json())
         .then(result=>{
             console.log("result: ",result);
-            
-            storedData.invoices = result.data;
-            storage.setItem("data",JSON.stringify(storedData));
             if(dataId == null) {
                 var nQ= result.data.filter(c=>storedData.invoices.map(q=>q.id).indexOf(c.id) === -1);
                 console.log("res: ",nQ);
                 dataId == nQ[0].id;
             }
+            storedData.invoices = result.data;
+            storage.setItem("data",JSON.stringify(storedData));
+            
             showFeedback(result.msg,result.code);
             showInvoiceForm("invoice_form",dataId);
         })

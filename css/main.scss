@@ -835,6 +835,7 @@ footer{
 .stat-value{
   font-size: $titleSize;
   color: $primaryColor;
+  padding:0.5em;
 }
 .fail{
 @include setBg($failColorFaint);

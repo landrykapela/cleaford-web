@@ -990,6 +990,7 @@ td > select .wide-select {
 .stat-value {
   font-size: 30px;
   color: #ffcc00;
+  padding: 0.5em;
 }
 
 .fail {
