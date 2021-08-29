@@ -34,10 +34,9 @@ const CONTAINER_FIELDS = [{id:"mbl_number",label:"MB/L Number",required:false,ty
 {id:"max_temp",label:"Maximum Temperature",required:false,type:"number"},
 {id:"min_temp",label:"Minimum Temperature",required:false,type:"number"},
 {id:"plug_yn",label:"Refer Plug",required:true,type:"select",options:["Yes","No"]}];
-const COST_ITEMS = [{id:0,name:"Agency Fee",cost:200},{id:1,name:"Bill of Lading",cost:95},{id:2,name:"Phytosanitary Cert",cost:18},{id:3,name:"Treatment",cost:100},{id:4,name:"Inspection",cost:40},{id:5,name:"Port Charges/Welfare and handling",cost:480}];
     
 var currentUser = (storage.getItem("currentUser")) ? JSON.parse(storage.getItem("currentUser")):null;
-var storedData = (storage.getItem("data")) ? JSON.parse(storage.getItem("data")):{roles:[],client_roles:[],customers:[],roles:[],consignments:[],clients:[],quotations:[]};
+var storedData = (storage.getItem("data")) ? JSON.parse(storage.getItem("data")):{cost_items:[],roles:[],client_roles:[],customers:[],roles:[],consignments:[],clients:[],quotations:[]};
 
 var myCostItems = [];
 const originalSetItem = localStorage.setItem;
@@ -50,7 +49,7 @@ localStorage.setItem = function(key, value) {
 
   originalSetItem.apply(this, arguments);
 };
-
+const COST_ITEMS = storedData.cost_items;
 
 //Functions start
 const thousandSeparator =(x)=> {
@@ -352,6 +351,20 @@ const activateMenu =(target)=>{
                 }
                 else showClientRoles();
                 break;
+            case 'costitems':
+                greet("Finance",{title:"Quotations",description:"Manage Cost Items"});
+                if(!storedData.cost_items || storedData.cost_items.length == 0){
+                    fetchCostItems().then(items=>{
+                        storedData.cost_items = items;
+                        storage.setItem("data",JSON.stringify(storedData));
+                        storedData = JSON.parse(storage.getItem("data"));
+                        listCostItems(items)
+                    }).catch(e=>{
+                        showFeedback(e,1);
+                    });
+                }
+                else listCostItems(storedData.cost_items);
+                break;
             case 'dashboard':
                 greet("Hello Admin",null);
                 showDashboard();
@@ -556,7 +569,209 @@ const showClientStats =()=>{
     })
    
 }
+//fetch cost items
+const fetchCostItems = ()=>{
+    return new Promise((resolve,reject)=>{
+        var options = {method:"GET",headers:{'Content-type':'application/json','Authorization':'Bearer '+currentUser.accessToken}};
+        var url = cost_items_url+"/"+currentUser.id;
+        fetch(url,options)
+        .then(res=>res.json())
+        .then(result=>{
+            console.log("fci: ",result);
+            resolve(result.data);
+        })
+        .catch(e=>{
+            console.log("error: ",e);
+            showFeedback("Oops! Something went wrong, please try again later",1);
+            reject(e);
+        })
+    })
+   
+}
+//show role form
+const showCostItemForm = (holder,item=null)=>{
+    Array.from(holder.children).forEach((c,i)=>{if(c.tagName.toLowerCase() == "form")holder.removeChild(c);});
+    const form = document.createElement("form");
+    form.method = "post";
+    form.id = "add_cost_item_form";
+    form.classList.add("body-row");
+    const nameSpan = document.createElement("span");
+    const inputName = document.createElement("input");
+    inputName.type = "text";
+    // inputName.classList.add("form-control");
+    inputName.id="name";
+    inputName.name = "name";
+    inputName.placeholder = "Item name";
+    inputName.required = true;
+    nameSpan.appendChild(inputName);
+    form.appendChild(nameSpan);
 
+    const desSpan = document.createElement("span");
+    const inputDesc = document.createElement("input");
+    inputDesc.type = "text";
+    inputDesc.classList.add("form-control");
+    inputDesc.id="description";
+    inputDesc.name = "description";
+    inputDesc.placeholder = "Item description";
+    inputDesc.required = true;
+    desSpan.appendChild(inputDesc);
+    form.appendChild(desSpan);
+
+    const spanCost = document.createElement("span");
+    const inputCost = document.createElement("input");
+    inputCost.type = "text";
+    inputCost.classList.add("form-control");
+    inputCost.id="cost";
+    inputCost.name = "cost";
+    inputCost.placeholder = "Item Cost";
+    inputCost.required = true;
+    spanCost.appendChild(inputCost);
+    form.appendChild(spanCost);
+
+
+    const inputAtCost = document.createElement("select");
+    inputAtCost.classList.add("form-control");
+    inputAtCost.id="at_cost";
+    inputAtCost.name = "at_cost";
+    form.appendChild(inputAtCost);
+    inputAtCost.options.add(new Option("YES",1));
+    inputAtCost.options.add(new Option("NO",0));
+    
+
+    const inputSubmit = document.createElement("input");
+    inputSubmit.type = "submit";
+    inputSubmit.classList.add("button-s");
+    inputSubmit.classList.add("no-corner");
+    inputSubmit.id="btnSubmitItem";
+    inputSubmit.name = "btnSubmitItem";
+    inputSubmit.value = "SAVE";
+    form.appendChild(inputSubmit);
+    holder.appendChild(form);
+    let method = "POST";
+    var url = cost_items_url+"/"+currentUser.id;
+    if(item != null){
+        inputName.value = item.name;
+        inputDesc.value = item.description;
+        inputAtCost.value = item.at_cost;
+        inputCost.value =item.price;
+        inputSubmit.value = "UPDATE";
+        method = "PUT";
+        url += "/"+item.id;
+    }
+
+     form.addEventListener('submit',(e)=>{
+             e.preventDefault();
+             
+            let name = inputName.value.trim();
+            let description = inputDesc.value.trim();
+            let atcost = inputAtCost.value;
+            let cost = inputCost.value.trim();//roleForm.permission.value.trim();
+            const data = {name:name,at_cost:atcost,description:description,price:cost};
+        
+            var options = {method:method,body:JSON.stringify(data),headers:{'Content-type':'application/json','Authorization':'Bearer '+currentUser.accessToken}};
+            
+            fetch(url,options).then(res=>res.json())
+            .then(result=>{
+                updateCostItems(result.data);
+                showFeedback(result.msg,result.code);
+            })
+            .catch(er=>{
+                console.log("error: ",er);
+                showFeedback("Oops! Something went wrong, please try again later",1);
+            })
+        // else inputName.classList.add("fail");
+    })
+
+}
+const deleteCostItem = (itemId)=>{
+    fetch(cost_items_url+"/"+currentUser.id+"/"+itemId,{
+        method:"DELETE",headers:{'Content-type':'application/json','Authorization':'Bearer '+currentUser.accessToken}
+    })
+    .then(res=>res.json())
+    .then(result=>{
+        updateCostItems(result.data);
+        listCostItems(result.data);
+        showFeedback(result.msg,result.code);
+            
+    }).catch(e=>{
+        console.log(e);
+        showFeedback("Something went wrong! Please try again later",1)
+    })
+   
+}
+const listCostItems = (items)=>{
+    const holder = document.getElementById("cost-items-table");
+    Array.from(holder.children).forEach(child=>{
+        if(child.classList.contains('body-row') || child.id=="add_cost_item_form") holder.removeChild(child);
+    })
+    if(items.length > 0){
+        items.forEach(item=>{
+            const rowHolder = document.createElement("div");
+            rowHolder.classList.add("body-row");
+            rowHolder.classList.add("shadow-minor");
+            const itemName = document.createElement("span");
+            itemName.textContent = item.name;
+            const itemDesc = document.createElement("span");
+            itemDesc.textContent = item.description;
+            const itemPrice = document.createElement("span");
+            itemPrice.textContent = item.price;
+            const itemAtCost = document.createElement("span");
+            itemAtCost.textContent = (item.at_cost == 0) ? "NO" : "YES";
+
+            const editBut = document.createElement("span");
+            editBut.id = "edit_item_"+item.id;
+            editBut.classList.add("material-icons");
+            editBut.textContent = "edit";
+
+            const delBut = document.createElement("span");
+            delBut.id = "del_item_"+item.id;
+            delBut.classList.add("material-icons");
+            delBut.textContent = "delete";
+
+            const actionSpan = document.createElement("span");
+            actionSpan.classList.add("actions");
+            actionSpan.appendChild(editBut);
+            actionSpan.appendChild(delBut);
+
+            
+            rowHolder.appendChild(itemName);
+            rowHolder.appendChild(itemDesc);
+            rowHolder.appendChild(itemPrice);
+            rowHolder.appendChild(itemAtCost);
+            rowHolder.appendChild(actionSpan);
+            holder.appendChild(rowHolder);
+
+            //add delete button click listener
+            delBut.addEventListener("click",(e)=>{
+                alertDialog("Are you sure you want to delete this cost item?","Delete",()=>{
+                    deleteCostItem(item.id);
+                })
+            })
+
+            //add eidt button click listener
+            editBut.addEventListener("click",(e)=>{
+                showCostItemForm(holder,item);
+            })
+        })
+    }
+    else{
+        const rowHolder = document.createElement("div");
+        rowHolder.classList.add("body-row");
+        rowHolder.classList.add("shadow-minor");
+        const nodata = document.createElement("span");
+        nodata.textContent = "No data";
+        rowHolder.appendChild(nodata);
+        holder.appendChild(rowHolder);
+       
+    }
+    showCostItemForm(holder);
+}
+
+const updateCostItems = (items)=>{
+    storedData.cost_items = items;
+    storage.setItem("data",JSON.stringify(storedData));
+    listCostItems(items);
+}
 //show profile
 const showProfile = ()=>{
     document.getElementById("profile_content").classList.remove("hidden");
@@ -1439,289 +1654,294 @@ const showQuotationForm=(source,dataId=null)=>{
        
         // activateMenu("exports")
     }
-    var costContainer = document.getElementById("cost_container");
-    const form = document.getElementById("my_quote_form");
-    form.reset();
-    var desc= "Create";
-    if(dataId != null) desc = "View";
-    greet("Finance",{title:"Quotations",description:desc});
-    document.getElementById(source).classList.add("hidden");
-   
-    document.querySelector("#add_quotation").classList.add("hidden");
-    const parent = document.getElementById("quotation_form");
-    parent.classList.remove("hidden");
-
-    const clientName = document.getElementById("client_name");
-    const clientAddress = document.getElementById("client_address");
-    const clientRegion = document.getElementById("client_region");
-
-    var client = currentUser.detail;
-    clientName.textContent = client.name;
-    clientAddress.textContent = client.address.split(",")[0];
-    clientRegion.textContent = client.region+", "+client.country;
-
-    // var mgrYes = document.getElementById("mgr_yes");
-    // var mgrNo = document.getElementById("mgr_no");
-    var clientYes = document.getElementById("client_yes");
-    var clientNo = document.getElementById("client_no");
-    var clientLabel = document.getElementById("client_approval_label");
-    // var mgrLabel = document.getElementById("mgr_approval_label");
-
-    Array.from(form.cs_id.children).forEach((c,i)=>{
-        if(i>0) form.cs_id.removeChild(c);
-    });
-    storedData.customers.forEach(c=>{
-        form.cs_id.options.add(new Option(c.name,c.id));
-    })
-
-    form.cs_id.options.add(new Option("--add new customer--",-1));
-    const costItemList = document.getElementById("cost_item_list");
-    const costItemEl = document.getElementById("cost_item");
-    const costItemCountEl = document.getElementById("item_count");
-    const qNumber = document.getElementById("quotation_number");
-    const qStatus = document.getElementById("status");
-    qStatus.textContent = "";
-    qStatus.style.color = "none";
-
-    var customer = storedData.customers.filter(c=>c.id == form.cs_id.value)[0];
-    var customerName = document.getElementById("cs_name");
-    var customerAddress = document.getElementById("cs_address");
-    var customerRegion = document.getElementById("cs_region");
-
-    var newStatus = "Awaiting Manager's Approval";
-    var myQItems = [];
-    var costItems = COST_ITEMS;
-
-    var data = storedData.quotations.filter(q=>q.id == dataId);
-    if(data.length > 0){
-        var print = document.getElementById("print");
-        print.classList.remove("hidden");
-        print.addEventListener("click",(e)=>{
-            window.open(print_url+"/dashboard/quotation.html?qid="+dataId);
-        })
-        qNumber.textContent = "Quotation No: "+formatConsignmentNumber(dataId);
-        form.cs_id.value = data[0].customer_id;
-        var customer = storedData.customers.filter(c=>c.id == data[0].customer_id)[0];
-        customerName.textContent = customer.name;
-        customerAddress.textContent = customer.address.split(",")[0];
-        customerRegion.textContent = customer.region +", "+ customer.country;
-
-        form.goods.value = data[0].goods;
-        form.service.value = data[0].service;
-        form.quantity.value = data[0].quantity;
-        form.discount.value = (data[0].discount) ? data[0].discount : 0;
-        
-        qStatus.textContent = data[0].status;
-        
-        if(data[0].status.toLowerCase() == "approved") {
-            qStatus.classList.add("success-text");
-        }
-        else qStatus.classList.add("fail-text");
-        newStatus = data[0].status;
-        if(data[0].status.toLowerCase() == "awaiting manager's approval"){
-          
-            clientLabel.textContent = "Manager Approve";
-            clientYes.addEventListener("click",(e)=>{
-                newStatus = "Awaiting Client Approval";
-                clientYes.src = "/img/yes.png";
-                clientNo.src = "/img/no_.png";
-             })
-            clientNo.addEventListener("click",(e)=>{
-                newStatus = "Manager Denied";
-                clientNo.src = "/img/no.png";
-                clientYes.src = "/img/yes_.png";
-                })
-        }
-        else if(data[0].status.toLowerCase() == "awaiting client approval"){
-            clientYes.src = "/img/yes_.png";
-            clientLabel.textContent = "Client Approve";
-            clientYes.addEventListener("click",(e)=>{
-                newStatus = "Approved";
-                clientYes.src = "/img/yes.png";
-                clientNo.src = "/img/no_.png";
-            })
-            clientNo.addEventListener("click",(e)=>{
-                newStatus = "Client Denied";
-                clientNo.src = "/img/no.png";
-                clientYes.src = "/img/yes_.png";
-             })
-        }
-        else{
-            clientYes.classList.add("hidden");
-            clientNo.classList.add("hidden");
-            clientLabel.classList.add("hidden");
-        }
-
-        var qItemsIds = data[0].items.split("_").map(id=>parseInt(id));
-        console.log("qIIs: ",qItemsIds);
-        console.log("cIs: ",costItems);
-        myCostItems = [];
-        qItemsIds.forEach((id)=>{
-            let item = costItems.filter(c=>c.id == id);
-            if(item.length > 0){
-                item[0].count = 1;
-                myCostItems.push(item[0]);
-            }
-        })
-      
-        console.log("mcIs: ",myCostItems);
-        showCostItems(myCostItems,form.discount.value,costItemList,data[0].status);
-
-        if(data[0].status.toLowerCase() == "approved" || data[0].status.toLowerCase().includes("denied")){
-            form.btnSubmit.classList.add('hidden');
-            costContainer.classList.add("hidden");
-        }
-        else{
-            form.btnSubmit.classList.remove('hidden');
-            costContainer.classList.remove("hidden"); 
-        }
-    }
-    else{
-        clientYes.classList.add("hidden");
-        clientNo.classList.add("hidden");
-        clientLabel.classList.add("hidden");
-    }
     
-    form.cs_id.addEventListener("change",(e)=>{
-        if(e.target.value == -1) showCustomerDetailForm('quotations_content');
-        else if(e.target.value != -2){
-            var id = e.target.options[e.target.options.selectedIndex].value;
-            var cust = storedData.customers.filter(c=>c.id == id)[0];
-            customerName.textContent = cust.name;
-            customerAddress.textContent = cust.address.split(",")[0];
-            customerRegion.textContent = cust.region +", "+ cust.country;
-        }
+            var costItems = COST_ITEMS;
+            var costContainer = document.getElementById("cost_container");
+            const form = document.getElementById("my_quote_form");
+            form.reset();
+            var desc= "Create";
+            if(dataId != null) desc = "View";
+            greet("Finance",{title:"Quotations",description:desc});
+            document.getElementById(source).classList.add("hidden");
         
-    })
-    
-    // var myItemIds = myCostItems.map(c=>c.id);
-    Array.from(costItemEl.children).forEach((ch,i)=>{
-        if(i>0) costItemEl.removeChild(ch);
-    })
-    costItems.forEach(ci=>{
-        costItemEl.options.add(new Option(ci.name,ci.id));
-    })
-    costItemEl.addEventListener("change",(e)=>{
-        let itemId = parseInt(e.target.value);
-        let item = costItems.filter(c=>c.id == itemId);
-        
-        if(costItemCountEl.value){
-            console.log("value: ",costItemCountEl.value);
-            for(let i=0;i<parseInt(costItemCountEl.value);i++){
-                item[0].count = 1;
-                myCostItems.push(item[0]);
-            }
-        }
-        else{
-            item[0].count = 1;
-            myCostItems.push(item[0]);
-        }
-        console.log("cil: ",myCostItems);
-        showCostItems(myCostItems,form.discount.value,costItemList);
-        costItemCountEl.value = 1;
-    })
+            document.querySelector("#add_quotation").classList.add("hidden");
+            const parent = document.getElementById("quotation_form");
+            parent.classList.remove("hidden");
 
-    form.discount.addEventListener("input",(e)=>{
-        let val = e.target.value;
-        if(val){
-            showCostItems(myCostItems,val,costItemList);
-        }
-    })
-    const cancelButton = document.getElementById("close_quote_form");
-    if(cancelButton){
-        cancelButton.addEventListener("click",(e)=>{
-            myCostItems = [];
-            Array.from(costItemList.children).forEach((c,i)=>{
-                if(i>0) costItemList.removeChild(c);
+            const clientName = document.getElementById("client_name");
+            const clientAddress = document.getElementById("client_address");
+            const clientRegion = document.getElementById("client_region");
+
+            var client = currentUser.detail;
+            clientName.textContent = client.name;
+            clientAddress.textContent = client.address.split(",")[0];
+            clientRegion.textContent = client.region+", "+client.country;
+
+            // var mgrYes = document.getElementById("mgr_yes");
+            // var mgrNo = document.getElementById("mgr_no");
+            var clientYes = document.getElementById("client_yes");
+            var clientNo = document.getElementById("client_no");
+            var clientLabel = document.getElementById("client_approval_label");
+            // var mgrLabel = document.getElementById("mgr_approval_label");
+
+            Array.from(form.cs_id.children).forEach((c,i)=>{
+                if(i>0) form.cs_id.removeChild(c);
             });
-            qNumber.textContent = "";
-            customerAddress.textContent = "";
-            customerName.textContent = "";
-            customerRegion.textContent = "";
-            closeQuotationForm();
-        })
-    }
-    const discardButton = document.getElementById("discard_quote");
-    if(dataId == null || data[0].status.toLowerCase() == "approved" || data[0].status.toLowerCase() == "discarded"){
-        discardButton.classList.add("hidden");
-    }
-    if(data.length > 0){
-        if(data[0].status.toLowerCase() == "awaiting manager's approval" || data[0].status.toLowerCase() == "awaiting client approval" || data[0].status == -1){
-            if(discardButton){
-                discardButton.classList.remove("hidden");
-                discardButton.addEventListener("click",(e)=>{
-                    alertDialog("Are you sure you want to discard this quotation?","Discard",()=>{
-                        var url = quotation_url +"/"+currentUser.id;
-                        var options = {method:"PUT",body:JSON.stringify({id:dataId,status:"Discarded"}),headers:{"Content-type":"application/json","Authorization":"Bearer "+currentUser.accessToken}}
-                        // console.log("t: "+method,myData);
-                        fetch(url,options)
-                        .then(res=>res.json())
-                        .then(result=>{
-                            console.log("result: ",data[0]);
-                            storedData.quotations = result.data;
-                            storage.setItem("data",JSON.stringify(storedData));
-                            showFeedback(result.msg,result.code);
-                            closeQuotationForm(data[0]);
-                        })
-                        .catch(er=>{
-                            console.log("er: ",er);
-                            showFeedback("Something went wrong: "+e,1);
-                        })
+            storedData.customers.forEach(c=>{
+                form.cs_id.options.add(new Option(c.name,c.id));
+            })
+
+            form.cs_id.options.add(new Option("--add new customer--",-1));
+            const costItemList = document.getElementById("cost_item_list");
+            const costItemEl = document.getElementById("cost_item");
+            const costItemCountEl = document.getElementById("item_count");
+            const qNumber = document.getElementById("quotation_number");
+            const qStatus = document.getElementById("status");
+            qStatus.textContent = "";
+            qStatus.style.color = "none";
+
+            var customer = storedData.customers.filter(c=>c.id == form.cs_id.value)[0];
+            var customerName = document.getElementById("cs_name");
+            var customerAddress = document.getElementById("cs_address");
+            var customerRegion = document.getElementById("cs_region");
+
+            var newStatus = "Awaiting Manager's Approval";
+            var myQItems = [];
+            
+
+            var data = storedData.quotations.filter(q=>q.id == dataId);
+            if(data.length > 0){
+                var print = document.getElementById("print");
+                print.classList.remove("hidden");
+                print.addEventListener("click",(e)=>{
+                    window.open(print_url+"/dashboard/quotation.html?qid="+dataId);
+                })
+                qNumber.textContent = "Quotation No: "+formatConsignmentNumber(dataId);
+                form.cs_id.value = data[0].customer_id;
+                var customer = storedData.customers.filter(c=>c.id == data[0].customer_id)[0];
+                customerName.textContent = customer.name;
+                customerAddress.textContent = customer.address.split(",")[0];
+                customerRegion.textContent = customer.region +", "+ customer.country;
+
+                form.goods.value = data[0].goods;
+                form.service.value = data[0].service;
+                form.quantity.value = data[0].quantity;
+                form.discount.value = (data[0].discount) ? data[0].discount : 0;
+                
+                qStatus.textContent = data[0].status;
+                
+                if(data[0].status.toLowerCase() == "approved") {
+                    qStatus.classList.add("success-text");
+                }
+                else qStatus.classList.add("fail-text");
+                newStatus = data[0].status;
+                if(data[0].status.toLowerCase() == "awaiting manager's approval"){
+                
+                    clientLabel.textContent = "Manager Approve";
+                    clientYes.addEventListener("click",(e)=>{
+                        newStatus = "Awaiting Client Approval";
+                        clientYes.src = "/img/yes.png";
+                        clientNo.src = "/img/no_.png";
                     })
+                    clientNo.addEventListener("click",(e)=>{
+                        newStatus = "Manager Denied";
+                        clientNo.src = "/img/no.png";
+                        clientYes.src = "/img/yes_.png";
+                        })
+                }
+                else if(data[0].status.toLowerCase() == "awaiting client approval"){
+                    clientYes.src = "/img/yes_.png";
+                    clientLabel.textContent = "Client Approve";
+                    clientYes.addEventListener("click",(e)=>{
+                        newStatus = "Approved";
+                        clientYes.src = "/img/yes.png";
+                        clientNo.src = "/img/no_.png";
+                    })
+                    clientNo.addEventListener("click",(e)=>{
+                        newStatus = "Client Denied";
+                        clientNo.src = "/img/no.png";
+                        clientYes.src = "/img/yes_.png";
+                    })
+                }
+                else{
+                    clientYes.classList.add("hidden");
+                    clientNo.classList.add("hidden");
+                    clientLabel.classList.add("hidden");
+                }
+
+                var qItemsIds = data[0].items.split("_").map(id=>parseInt(id));
+                console.log("qIIs: ",qItemsIds);
+                console.log("cIs: ",costItems);
+                myCostItems = [];
+                qItemsIds.forEach((id)=>{
+                    let item = costItems.filter(c=>c.id == id);
+                    if(item.length > 0){
+                        item[0].count = 1;
+                        myCostItems.push(item[0]);
+                    }
+                })
+            
+                console.log("mcIs: ",myCostItems);
+                showCostItems(myCostItems,form.discount.value,costItemList,data[0].status);
+
+                if(data[0].status.toLowerCase() == "approved" || data[0].status.toLowerCase().includes("denied")){
+                    form.btnSubmit.classList.add('hidden');
+                    costContainer.classList.add("hidden");
+                }
+                else{
+                    form.btnSubmit.classList.remove('hidden');
+                    costContainer.classList.remove("hidden"); 
+                }
+            }
+            else{
+                clientYes.classList.add("hidden");
+                clientNo.classList.add("hidden");
+                clientLabel.classList.add("hidden");
+            }
+            
+            form.cs_id.addEventListener("change",(e)=>{
+                if(e.target.value == -1) showCustomerDetailForm('quotations_content');
+                else if(e.target.value != -2){
+                    var id = e.target.options[e.target.options.selectedIndex].value;
+                    var cust = storedData.customers.filter(c=>c.id == id)[0];
+                    customerName.textContent = cust.name;
+                    customerAddress.textContent = cust.address.split(",")[0];
+                    customerRegion.textContent = cust.region +", "+ cust.country;
+                }
+                
+            })
+            
+            // var myItemIds = myCostItems.map(c=>c.id);
+            Array.from(costItemEl.children).forEach((ch,i)=>{
+                if(i>0) costItemEl.removeChild(ch);
+            })
+            costItems.forEach(ci=>{
+                costItemEl.options.add(new Option(ci.name,ci.id));
+            })
+            costItemEl.addEventListener("change",(e)=>{
+                let itemId = parseInt(e.target.value);
+                let item = costItems.filter(c=>c.id == itemId);
+                
+                if(costItemCountEl.value){
+                    console.log("value: ",costItemCountEl.value);
+                    for(let i=0;i<parseInt(costItemCountEl.value);i++){
+                        item[0].count = 1;
+                        myCostItems.push(item[0]);
+                    }
+                }
+                else{
+                    item[0].count = 1;
+                    myCostItems.push(item[0]);
+                }
+                console.log("cil: ",myCostItems);
+                showCostItems(myCostItems,form.discount.value,costItemList);
+                costItemCountEl.value = 1;
+            })
+
+            form.discount.addEventListener("input",(e)=>{
+                let val = e.target.value;
+                if(val){
+                    showCostItems(myCostItems,val,costItemList);
+                }
+            })
+            const cancelButton = document.getElementById("close_quote_form");
+            if(cancelButton){
+                cancelButton.addEventListener("click",(e)=>{
+                    myCostItems = [];
+                    Array.from(costItemList.children).forEach((c,i)=>{
+                        if(i>0) costItemList.removeChild(c);
+                    });
+                    qNumber.textContent = "";
+                    customerAddress.textContent = "";
+                    customerName.textContent = "";
+                    customerRegion.textContent = "";
+                    closeQuotationForm();
                 })
             }
-        }
-    }
-    else discardButton.classList.add("hidden");
-    
-    
-    form.addEventListener("submit",(e)=>{
-        e.preventDefault();
-        var customerId = form.cs_id.options[form.cs_id.options.selectedIndex].value;
-        var service = form.service.value;
-        var goods = form.goods.value;
-        var containerNum = form.quantity.value;
-        var discount = form.discount.value;
-        console.log("dx: ",myCostItems);
-        var cost_items = myCostItems.map(i=>i.id).join("_");
-        var sum = 0;
-        myCostItems.forEach(i=>{
-            // var a = (i.count * i.cost)
-            sum += i.cost;
-            console.log("a: ",sum);
-        });
-        console.log("x: ",sum);
-        var myData = {customer_id:customerId,service:service,goods:goods,quantity:containerNum,discount:discount,items:cost_items,price:sum};
-        var method = "POST";
-        if(dataId == null) myData.status = "Awaiting Manager's Approval";
-        else{
-            method = "PUT";
-            myData.status = newStatus;
-            myData.id = dataId;
-        }
-        var url = quotation_url +"/"+currentUser.id;
-        var options = {method:method,body:JSON.stringify(myData),headers:{"Content-type":"application/json","Authorization":"Bearer "+currentUser.accessToken}}
-        console.log("t: "+method,myData);
-        fetch(url,options)
-        .then(res=>res.json())
-        .then(result=>{
-            console.log("result: ",result);
-            
-            storedData.quotations = result.data;
-            storage.setItem("data",JSON.stringify(storedData));
-            if(dataId == null) {
-                var nQ= result.data.filter(c=>storedData.quotations.map(q=>q.id).indexOf(c.id) === -1);
-                console.log("res: ",nQ);
-                dataId == nQ[0].id;
+            const discardButton = document.getElementById("discard_quote");
+            if(dataId == null || data[0].status.toLowerCase() == "approved" || data[0].status.toLowerCase() == "discarded"){
+                discardButton.classList.add("hidden");
             }
-            showFeedback(result.msg,result.code);
-            showQuotationForm("quotation_form",dataId);
-        })
-        .catch(er=>{
-            console.log("er: ",er);
-            showFeedback("Something went wrong: "+e,1);
-        })
-    })
+            if(data.length > 0){
+                if(data[0].status.toLowerCase() == "awaiting manager's approval" || data[0].status.toLowerCase() == "awaiting client approval" || data[0].status == -1){
+                    if(discardButton){
+                        discardButton.classList.remove("hidden");
+                        discardButton.addEventListener("click",(e)=>{
+                            alertDialog("Are you sure you want to discard this quotation?","Discard",()=>{
+                                var url = quotation_url +"/"+currentUser.id;
+                                var options = {method:"PUT",body:JSON.stringify({id:dataId,status:"Discarded"}),headers:{"Content-type":"application/json","Authorization":"Bearer "+currentUser.accessToken}}
+                                // console.log("t: "+method,myData);
+                                fetch(url,options)
+                                .then(res=>res.json())
+                                .then(result=>{
+                                    console.log("result: ",data[0]);
+                                    storedData.quotations = result.data;
+                                    storage.setItem("data",JSON.stringify(storedData));
+                                    showFeedback(result.msg,result.code);
+                                    closeQuotationForm(data[0]);
+                                })
+                                .catch(er=>{
+                                    console.log("er: ",er);
+                                    showFeedback("Something went wrong: "+e,1);
+                                })
+                            })
+                        })
+                    }
+                }
+            }
+            else discardButton.classList.add("hidden");
+            
+            
+            form.addEventListener("submit",(e)=>{
+                e.preventDefault();
+                var customerId = form.cs_id.options[form.cs_id.options.selectedIndex].value;
+                var service = form.service.value;
+                var goods = form.goods.value;
+                var containerNum = form.quantity.value;
+                var discount = form.discount.value;
+                console.log("dx: ",myCostItems);
+                var cost_items = myCostItems.map(i=>i.id).join("_");
+                var sum = 0;
+                myCostItems.forEach(i=>{
+                    // var a = (i.count * i.cost)
+                    sum += i.cost;
+                    console.log("a: ",sum);
+                });
+                console.log("x: ",sum);
+                var myData = {customer_id:customerId,service:service,goods:goods,quantity:containerNum,discount:discount,items:cost_items,price:sum};
+                var method = "POST";
+                if(dataId == null) myData.status = "Awaiting Manager's Approval";
+                else{
+                    method = "PUT";
+                    myData.status = newStatus;
+                    myData.id = dataId;
+                }
+                var url = quotation_url +"/"+currentUser.id;
+                var options = {method:method,body:JSON.stringify(myData),headers:{"Content-type":"application/json","Authorization":"Bearer "+currentUser.accessToken}}
+                console.log("t: "+method,myData);
+                fetch(url,options)
+                .then(res=>res.json())
+                .then(result=>{
+                    console.log("result: ",result);
+                    
+                    storedData.quotations = result.data;
+                    storage.setItem("data",JSON.stringify(storedData));
+                    if(dataId == null) {
+                        var nQ= result.data.filter(c=>storedData.quotations.map(q=>q.id).indexOf(c.id) === -1);
+                        console.log("res: ",nQ);
+                        dataId == nQ[0].id;
+                    }
+                    showFeedback(result.msg,result.code);
+                    showQuotationForm("quotation_form",dataId);
+                })
+                .catch(er=>{
+                    console.log("er: ",er);
+                    showFeedback("Something went wrong: "+e,1);
+                })
+            })
+        
+    
+    
 }
 //show printable Quotation
 const showPrintableQuotation=(data)=>{

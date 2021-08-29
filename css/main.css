@@ -820,7 +820,7 @@ main > div.content .summary-table > span.summary-head, .subscription-forms .summ
   overflow-x: scroll;
 }
 
-.head-row > span, .body-row > span, .consignment-row > span {
+.head-row > span, .body-row > span, .consignment-row > span, form.body-row > span > input, form.consignment-row > span > input, form.body-row > span > select, form.consignment-row > span > select {
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
@@ -829,6 +829,22 @@ main > div.content .summary-table > span.summary-head, .subscription-forms .summ
   padding: 0.25em;
   font-size: small;
   text-align: left;
+}
+
+form.body-row, form.consignment-row {
+  margin-top: 1em !important;
+  width: calc(100% - 0.5em - 2px) !important;
+}
+
+form.body-row > input, form.consignment-row > input, form.body-row > select, form.consignment-row > select {
+  flex-grow: 0;
+  width: calc(100% - 1em) !important;
+  align-self: left;
+}
+
+form.body-row > span, form.consignment-row > span {
+  padding: 0 !important;
+  width: calc(100% - 5em) !important;
 }
 
 #container_form .head-row, .hform {

@@ -698,12 +698,25 @@ footer{
  .summary-table{
    overflow-x: scroll;
  }
-  .head-row > span,.body-row >span{
+  .head-row > span,.body-row >span,form.body-row > span > input,form.body-row > span > select{
     @include flex(row,flex-start,center);
     width: 100%;
     padding:0.25em;
     font-size: small;
     text-align: left;
+  }
+  form.body-row{
+    margin-top:1em !important;
+    width:calc(100% - 0.5em - 2px) !important;
+  }
+  form.body-row > input,form.body-row > select{
+    flex-grow:0;
+    width:calc(100% - 1em) !important;
+    align-self: left;
+  }
+  form.body-row >span{
+    padding:0 !important;
+    width:calc(100% - 5em) !important;
   }
   #container_form .head-row,.hform{
     width:calc(100% - 0.5em) !important;
