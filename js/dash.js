@@ -1683,18 +1683,18 @@ const showQuotationList = (quotations,source=null)=>{
             qStatus.textContent = d.status;
             if(d.status.toLowerCase() == "paid") {
                 qStatus.classList.add("success-text");
-                q.Status.classList.remove("info-text");
-                q.Status.classList.remove("fail-text");
+                qStatus.classList.remove("info-text");
+                qStatus.classList.remove("fail-text");
             }
             else if(d.status.toLowerCase() == "pending payment") {
-                q.Status.classList.add("info-text");
-                q.Status.classList.remove("success-text");
-                q.Status.classList.remove("fail-text");
+                qStatus.classList.add("info-text");
+                qStatus.classList.remove("success-text");
+                qStatus.classList.remove("fail-text");
             }
             else {
                 qStatus.classList.add("fail-text");
-                q.Status.classList.remove("success-text");
-                q.Status.classList.remove("info-text");
+                qStatus.classList.remove("success-text");
+                qStatus.classList.remove("info-text");
             }
             row.appendChild(qStatus);
 
