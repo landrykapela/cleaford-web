@@ -1108,12 +1108,12 @@
                 </div>
                 <div class="can-hide hidden" id="invoices_content">
                     <div class="row-end">
-                        <span class="action-button shadow-minor" id="add_invoice" onclick="showQuotationForm('invoice_list');">
+                        <span class="action-button shadow-minor" id="add_invoice" onclick="showInvoiceForm('invoice_list');">
                             <span class="material-icons">add</span>
                             <span>New Invoice</span>
                         </span> 
                     </div>
-                    <div class="row-top summary-table" id="quotation_list">
+                    <div class="row-top summary-table" id="invoice_list">
                         <span class="head-row">
                             <span>Invoice #</span>
                             <span>Customer</span>
@@ -1126,30 +1126,41 @@
                       
                     </div>
                     <div class="column-center consignment-forms hidden" id="invoice_form">
-                        <form class="wide shadow" id="my_quote_form">
+                        <form class="wide shadow" id="my_invoice_form" method="POST">
                             <div class="row-space">
                                 <div class="column wide">
-                                    <span class="bold">From:</span>
-                                    <span id="client_name"></span>
-                                    <span id="client_address"></span>
-                                    <span id="client_region"></span><br />
+                                    <span class="label">From:</span>
+                                    <span id="inv_client_name"></span>
+                                    <span id="inv_client_address"></span>
+                                    <span id="inv_client_region"></span><br />
                                     <span id="invoice_number" class="bold primary-dark-text"></span><br />
-                                    <span id="status" class="bold"></span><br /><br /><br />
+                                    
+                                </div>
+                                <div class="column wide">
+                                    <span class="bold">Bank Details:</span>
+                                    <span id="account_name"></span>
+                                    <span id="account_number"></span>
+                                    <span id="bank"></span>
+                                    <span id="swift"></span>
+                                    <span id="bank_country"></span>
                                 </div>
                                 <div class="column wide">
                                     <div class="row-space">
-                                        <label class="bold">Invoice for:</label>
-                                        <span class="material-icons hidden" id="print">print</span>
+                                        <div class="row-top"><label class="">Invoice for:</label>
+                                            <div class="vspace"></div>
+                                        </div>
+                                       
+                                        <span class="material-icons hidden" id="inv_print">print</span>
                                     </div>
                                     <div class="row-top">
-                                        <label for="cs_id">Select Customer</label>
+                                        <label for="inv_cs_id">Select Customer</label>
                                         <div class="column wide">
-                                            <select class="wide-select" id="cs_id" name="cs_id">
+                                            <select class="wide-select" id="inv_cs_id" name="inv_cs_id">
                                                 <option value="-2">--select customer--</option>
                                             </select>
-                                            <span id="cs_name"></span>
-                                            <span id="cs_address"></span>
-                                            <span id="cs_region"></span>
+                                            <span id="inv_cs_name"></span>
+                                            <span id="inv_cs_address"></span>
+                                            <span id="inv_cs_region"></span>
                                         </div>
                                     </div>
                                     
@@ -1159,6 +1170,24 @@
                             </div>
                             <div class="row-space">
                                 <div class="row">
+                                    <label>Status: </label>
+                                    <span id="inv_status" class="bold"></span>
+                                </div>
+                                <div class="row">
+                                    <!-- <label for="mgr_yes" id="mgr_approval_label">Manager Approve</label>
+                                    <img class="img-button-small" id="mgr_yes" src="/img/yes_.png" />
+                                    <img class="img-button-small" id="mgr_no" src="/img/no_.png" /> -->
+                                </div>
+                                <div class="row">
+                                    <label for="inv_yes" id="inv_approval_label">Manager Approve</label>
+                                    <img class="img-button-small" id="inv_yes" src="/img/yes_.png" />
+                                    <img class="img-button-small" id="inv_no" src="/img/no_.png" />
+                                </div>
+                            </div>
+
+                            <div class="vspace"></div>
+                            <div class="row-space">
+                                <div class="row">
                                         <label for="service">Service</label>
                                         <select class="wide-select" id="service" name="service">
                                             <option value="-1">--select service--</option>
@@ -1166,17 +1195,8 @@
                                             <option>Half Body</option>
                                         </select>
                                 </div>
-                                
-                                <div class="row">
-                                    <label for="inv_mgr_yes" id="inv_mgr_approval_label">Manager Approve</label>
-                                    <img class="img-button-small" id="inv_mgr_yes" src="/img/yes.png" />
-                                    <img class="img-button-small" id="inv_mgr_no" src="/img/no.png" />
-                                </div>
-                                <div class="row">
-                                    <label for="inv_client_yes" id="inv_client_approval_label">Client Approve</label>
-                                    <img class="img-button-small" id="inv_client_yes" src="/img/yes.png" />
-                                    <img class="img-button-small" id="inv_client_no" src="/img/no.png" />
-                                </div>
+                                <div class="row"></div>
+                                <div class="row"></div>
                             </div>
                             <div class="row">
                                 <div class="row">
@@ -1196,7 +1216,7 @@
                                 
                             </div>
                             </div>
-                            <div class="row-top summary-table" id="cost_item_list">
+                            <div class="row-top summary-table" id="inv_cost_item_list">
                                 <span class="head-row">
                                     <span>SN#</span>
                                     <span>Description</span>
@@ -1207,24 +1227,23 @@
                                 </span>
                              </div>   
                                 <div class="body-row">
-                                    <div class="row">
-                                        <input type="number" name="item_count" id="item_count" min=1 value="1"/>
-                                        <select class="wide-select" name="cost_item" id="cost_item">
+                                    <div class="row" id="inv_cost_container">
+                                        <input type="number" name="inv_item_count" id="inv_item_count" min=1 value="1"/>
+                                        <select class="wide-select" name="inv_cost_item" id="inv_cost_item">
                                             <option>--select cost item--</option>
                                            
                                         </select>
                                     </div>
                                     <div class="row-end">
-                                        <span class="buttons-t fail-text" id="discard_quote">DISCARD</span>
-                                        <span class="buttons-t" id="close_quote_form">CANCEL</span>
+                                        <span class="buttons-t fail-text" id="discard_invoice">DISCARD</span>
+                                        <span class="buttons-t" id="close_invoice_form">CANCEL</span>
                                         <input type="submit" id="btnSubmit" name="btnSubmit" value="SAVE"/>
                                     </div>
                                 </div>
                             
                            
                         </form>
-                   </div>
-                   
+                    </div>
                 </div>
                 <div class="can-hide hidden" id="costitems_content">
                     <div class="summary-table" id="cost-items-table"> 

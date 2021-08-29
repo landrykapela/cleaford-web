@@ -1004,6 +1004,12 @@ td > select .wide-select {
   color: #0f810f !important;
 }
 
+.information {
+  background-color: #82ccd6 !important;
+  border: 1px solid #18a9bd;
+  color: #ffffff !important;
+}
+
 .no-overflow {
   overflow-x: hidden !important;
 }
@@ -1218,6 +1224,18 @@ td > select .wide-select {
   border-left: 5px solid #0f810f;
 }
 
+.status-indicator-red {
+  border-left: 5px solid #e63030;
+}
+
+.status-indicator-approved {
+  border-left: 5px solid #0f810f;
+}
+
+.status-indicator-pending {
+  border-left: 5px solid #18a9bd;
+}
+
 .gap {
   row-gap: 2em;
 }
@@ -1385,6 +1403,10 @@ td > select .wide-select {
 
 .success-text {
   color: #0f810f !important;
+}
+
+.info-text {
+  color: #18a9bd !important;
 }
 
 a,

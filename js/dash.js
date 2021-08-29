@@ -4,6 +4,7 @@ const NUMBER_CFG = {count: DATA_COUNT, min: 0, max: 100};
 const CURRENCY = "USD";
 const clientSummaryCount = 5;
 const CONSIGNMENT_NUMBER_FORMAT = 6;
+const BANK_DETAILS = {account_name:"Test Company 5 Limited",account_number:"01128788998",bank:"Your Investment Bank",branch:"Nearest Branch",swift:"XXXCODE",country:"Tanzania"}
 const PREDOCUMENTS = [
     {id:0,name:"ODG Certificate 1",label:"odg_1"},
     {id:1,name:"ODG Certificate 2",label:"odg_2"},
@@ -36,7 +37,7 @@ const CONTAINER_FIELDS = [{id:"mbl_number",label:"MB/L Number",required:false,ty
 {id:"plug_yn",label:"Refer Plug",required:true,type:"select",options:["Yes","No"]}];
     
 var currentUser = (storage.getItem("currentUser")) ? JSON.parse(storage.getItem("currentUser")):null;
-var storedData = (storage.getItem("data")) ? JSON.parse(storage.getItem("data")):{cost_items:[],roles:[],client_roles:[],customers:[],roles:[],consignments:[],clients:[],quotations:[]};
+var storedData = (storage.getItem("data")) ? JSON.parse(storage.getItem("data")):{cost_items:[],roles:[],client_roles:[],customers:[],roles:[],consignments:[],clients:[],quotations:[],invoices:[]};
 
 var myCostItems = [];
 const originalSetItem = localStorage.setItem;
@@ -49,8 +50,20 @@ localStorage.setItem = function(key, value) {
 
   originalSetItem.apply(this, arguments);
 };
-const COST_ITEMS = storedData.cost_items;
 
+const showBankDetails=()=>{
+    var accName = document.getElementById("account_name");
+    var accNumber = document.getElementById("account_number");
+    var bank = document.getElementById("bank");
+    var swift = document.getElementById("swift");
+    var country = document.getElementById("bank_country");
+
+    accName.textContent = "Account Name: "+BANK_DETAILS.account_name;
+    accNumber.textContent = "Account Number: "+BANK_DETAILS.account_number;
+    bank.textContent = "Banker: "+BANK_DETAILS.bank +", "+ BANK_DETAILS.branch;
+    swift.textContent = "SWIFT: "+BANK_DETAILS.swift;
+    country.textContent = "Country: "+BANK_DETAILS.country;
+}
 //Functions start
 const thousandSeparator =(x)=> {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -146,6 +159,29 @@ const showHideSubmenu = (menuId)=>{
     subMenu.classList.toggle("hidden");
     dropArrow.textContent = subMenu.classList.contains("hidden") ? "arrow_drop_down" : "arrow_drop_up";
 }
+const fetchInvoices=()=>{
+    return new Promise((resolve,reject)=>{
+        var options = { method: "GET", headers: { "Content-type": "application/json", "Authorization": "Bearer " + currentUser.accessToken } };
+        var url = invoices_url + "/" + currentUser.id;
+        fetch(url, options).then(res => res.json())
+            .then(result => {
+                resolve(result.data);
+                // showInvoiceList(result.data);
+            })
+            .catch(e => {
+                reject(e);
+                showFeedback("Something went wrong. Please try again later", 1);
+            });
+       
+    })
+    
+}
+const updateInvoices=(invoices)=>{
+    storedData.invoices = invoices;
+    storage.setItem("data", JSON.stringify(storedData));
+    storedData = JSON.parse(storage.getItem("data"));
+}
+
 //display system roles
 const showClientRoles = ()=>{
     const holder = document.getElementById("roles-table");
@@ -321,22 +357,17 @@ const activateMenu =(target)=>{
                 // console.log("activating quotations menu");
                 break;
             case 'invoices':
-                // if(!storedData.invoices || storedData.invoices.length == 0){
-                //     var options = {method:"GET",headers:{"Content-type":"application/json","Authorization":"Bearer "+currentUser.accessToken}};
-                //     var url = invoices_url+"/"+currentUser.id;
-                    // fetch(url,options).then(res=>res.json())
-                    // .then(result=>{
-                    //     storedData.invoices = result.data;
-                    //     storage.setItem("data",JSON.stringify(storedData));
-                    //     showQuotationList(result.data);
-                    // })
-                    // .catch(e=>{
-                    //     showFeedback("Something went wrong. Please try again later",1);
-                    // });
-                // }
-                // else{
+                if(!storedData.invoices || storedData.invoices.length == 0){
+                    fetchInvoices().then(invoices=>{
+                        updateInvoices(invoices);
+                        showInvoiceList(invoices);
+                    }).catch(e=>{
+                        showFeedback("Could not get invoices",2);
+                    });
+                }
+                else{
                     showInvoiceList(storedData.invoices);
-                // }
+                }
                 // console.log("activating quotations menu");
                 break;
                     
@@ -452,14 +483,24 @@ const showFeedback =(msg,type)=>{
     const feedback = document.querySelector("#feedback");
     feedback.textContent = msg;
     feedback.classList.remove("hidden");
-    if(type==0){
-        feedback.classList.remove("fail");
-        feedback.classList.add("success");
+    switch(type){
+        case 0:
+            feedback.classList.remove("fail");
+            feedback.classList.remove("information");
+            feedback.classList.add("succeess");
+            break;
+        case 1:
+            feedback.classList.remove("success");
+            feedback.classList.add("fail");
+            feedback.classList.remove("information");
+            break;
+        case 2:
+            feedback.classList.remove("success");
+            feedback.classList.remove("fail");
+            feedback.classList.add("information");
+            break;
     }
-    else{
-        feedback.classList.remove("success");
-        feedback.classList.add("fail");
-    }
+    
     setTimeout(()=>{
         feedback.classList.add("hidden");
     },5000);
@@ -568,6 +609,17 @@ const showClientStats =()=>{
         console.log("err: ",e);
     })
    
+    fetchCostItems().then(items=>{
+        updateCostItems(items);
+    }).catch(e=>{
+        console.log("fetchCostItems(): ",e);
+    })
+    fetchInvoices().then(invoices=>{
+        updateInvoices(invoices);
+    })
+    .catch(e=>{
+        console.log("error: ",e);
+    })
 }
 //fetch cost items
 const fetchCostItems = ()=>{
@@ -1537,22 +1589,30 @@ const showInvoiceList = (invoices,source=null)=>{
             row.appendChild(nContainer);
 
             const qAmount = document.createElement("span");
-            qAmount.textContent = CURRENCY+" "+thousandSeparator(d.price);
+            qAmount.textContent = CURRENCY+" "+thousandSeparator(parseFloat(d.price).toFixed(2));
             row.appendChild(qAmount);
 
             const qStatus = document.createElement("span");
             qStatus.textContent = d.status;
-            if(d.status.toLowerCase() == "approved") {
+            if(d.status.toLowerCase() == "pending payment") {
                 qStatus.classList.add("success-text");
+                row.classList.add("status-indicator-pending")
             }
             else qStatus.classList.add("fail-text");
+            if(d.status.toLowerCase() == "awaiting manager's approval"){
+                row.classList.add("status-indicator-red");
+            }
+            if(d.status.toLowerCase() == "paid"){
+                row.classList.add("status-indicator-approved");
+            }
+            
             row.appendChild(qStatus);
 
             parent.appendChild(row);
 
             row.addEventListener("click",(e)=>{
                 console.log("d: ",d);
-                showQuotationForm("quotation_list",d.id);
+                showInvoiceForm("invoice_list",d.id);
             })
         })
         
@@ -1561,7 +1621,7 @@ const showInvoiceList = (invoices,source=null)=>{
         const row = document.createElement("span");
         row.classList.add("consignment-row");
         row.classList.add("shadow-minor");
-        row.textContent = "No Quotations";
+        row.textContent = "No Invoices";
         parent.appendChild(row);
     }
       
@@ -1621,10 +1681,21 @@ const showQuotationList = (quotations,source=null)=>{
 
             const qStatus = document.createElement("span");
             qStatus.textContent = d.status;
-            if(d.status.toLowerCase() == "approved") {
+            if(d.status.toLowerCase() == "paid") {
                 qStatus.classList.add("success-text");
+                q.Status.classList.remove("info-text");
+                q.Status.classList.remove("fail-text");
             }
-            else qStatus.classList.add("fail-text");
+            else if(d.status.toLowerCase() == "pending payment") {
+                q.Status.classList.add("info-text");
+                q.Status.classList.remove("success-text");
+                q.Status.classList.remove("fail-text");
+            }
+            else {
+                qStatus.classList.add("fail-text");
+                q.Status.classList.remove("success-text");
+                q.Status.classList.remove("info-text");
+            }
             row.appendChild(qStatus);
 
             parent.appendChild(row);
@@ -1655,7 +1726,7 @@ const showQuotationForm=(source,dataId=null)=>{
         // activateMenu("exports")
     }
     
-            var costItems = COST_ITEMS;
+            var costItems = storedData.cost_items;
             var costContainer = document.getElementById("cost_container");
             const form = document.getElementById("my_quote_form");
             form.reset();
@@ -1904,7 +1975,7 @@ const showQuotationForm=(source,dataId=null)=>{
                 var sum = 0;
                 myCostItems.forEach(i=>{
                     // var a = (i.count * i.cost)
-                    sum += i.cost;
+                    sum += i.price;
                     console.log("a: ",sum);
                 });
                 console.log("x: ",sum);
@@ -1941,6 +2012,319 @@ const showQuotationForm=(source,dataId=null)=>{
             })
         
     
+    
+}
+
+//show Invoice form
+const showInvoiceForm=(source,dataId=null)=>{
+    if(source != "invoice_list"){
+        document.getElementById("invoices_content").classList.remove("hidden");
+        document.getElementById("invoice_list").classList.add("hidden");
+    }
+    showBankDetails();
+    var costItems = storedData.cost_items;
+    var costContainer = document.getElementById("inv_cost_container");
+    const form = document.getElementById("my_invoice_form"); 
+    const cancelButton = document.getElementById("close_invoice_form");
+    const discardButton = document.getElementById("discard_invoice");
+   
+    form.reset();
+
+    myCostItems = [];
+    var desc= "Create";
+    if(dataId != null) desc = "View";
+    greet("Finance",{title:"Invoices",description:desc});
+    document.getElementById(source).classList.add("hidden");
+
+    document.querySelector("#add_invoice").classList.add("hidden");
+    const parent = document.getElementById("invoice_form");
+    parent.classList.remove("hidden");
+
+    const clientName = document.getElementById("inv_client_name");
+    const clientAddress = document.getElementById("inv_client_address");
+    const clientRegion = document.getElementById("inv_client_region");
+
+    var client = currentUser.detail;
+    clientName.textContent = client.name;
+    clientAddress.textContent = client.address.split(",")[0];
+    clientRegion.textContent = client.region+", "+client.country;
+
+    var clientYes = document.getElementById("inv_yes");
+    var clientNo = document.getElementById("inv_no");
+    var clientLabel = document.getElementById("inv_approval_label");
+
+    Array.from(form.inv_cs_id.children).forEach((c,i)=>{
+        if(i>0) form.inv_cs_id.removeChild(c);
+    });
+    storedData.customers.forEach(c=>{
+        form.inv_cs_id.options.add(new Option(c.name,c.id));
+    })
+
+    form.inv_cs_id.options.add(new Option("--add new customer--",-1));
+    const costItemList = document.getElementById("inv_cost_item_list");
+    const costItemEl = document.getElementById("inv_cost_item");
+    const costItemCountEl = document.getElementById("inv_item_count");
+    const qNumber = document.getElementById("invoice_number");
+    const qStatus = document.getElementById("inv_status");
+    qStatus.textContent = "";
+    qStatus.style.color = "none";
+
+    var customer = storedData.customers.filter(c=>c.id == form.inv_cs_id.value)[0];
+    var customerName = document.getElementById("inv_cs_name");
+    var customerAddress = document.getElementById("inv_cs_address");
+    var customerRegion = document.getElementById("inv_cs_region");
+
+    var newStatus = "Awaiting Manager's Approval";
+    
+    var data = storedData.invoices.filter(q=>q.id == dataId);
+    if(data.length > 0){
+        var print = document.getElementById("inv_print");
+        print.classList.remove("hidden");
+        print.addEventListener("click",(e)=>{
+            window.open(print_url+"/dashboard/invoice.html?id="+dataId);
+        })
+        qNumber.textContent = "Invoice No: "+formatConsignmentNumber(dataId);
+        form.inv_cs_id.value = data[0].customer_id;
+        var customer = storedData.customers.filter(c=>c.id == data[0].customer_id)[0];
+        customerName.textContent = customer.name;
+        customerAddress.textContent = customer.address.split(",")[0];
+        customerRegion.textContent = customer.region +", "+ customer.country;
+
+        form.goods.value = data[0].goods;
+        form.service.value = data[0].service;
+        form.quantity.value = data[0].quantity;
+        form.discount.value = (data[0].discount) ? data[0].discount : 0;
+        
+        qStatus.textContent = data[0].status;
+        
+        if(data[0].status.toLowerCase() == "paid") {
+            qStatus.classList.add("success-text");
+            discardButton.classList.add("hidden");
+            print.classList.remove("hidden");
+            // clientLabel.classList.add("hidden");
+            // clientYes.classList.add("hidden");
+            // clientNo.classList.add("hidden");
+        }
+        else qStatus.classList.add("fail-text");
+        newStatus = data[0].status;
+        if(data[0].status.toLowerCase() == "awaiting manager's approval"){
+        
+            clientLabel.textContent = "Manager Approve";
+            clientYes.addEventListener("click",(e)=>{
+                newStatus = "Pending Payment";
+                clientYes.src = "/img/yes.png";
+                clientNo.src = "/img/no_.png";
+            })
+            clientNo.addEventListener("click",(e)=>{
+                newStatus = "Manager Denied";
+                clientNo.src = "/img/no.png";
+                clientYes.src = "/img/yes_.png";
+                })
+        }
+        else if(data[0].status.toLowerCase() == "pending payment"){
+            clientYes.src = "/img/yes_.png";
+            clientLabel.textContent = "Client Paid?";
+            clientYes.addEventListener("click",(e)=>{
+                newStatus = "Paid";
+                clientYes.src = "/img/yes.png";
+                clientNo.src = "/img/no_.png";
+            })
+            clientNo.addEventListener("click",(e)=>{
+                newStatus = "Pending Payment";
+                clientNo.src = "/img/no.png";
+                clientYes.src = "/img/yes_.png";
+            })
+        }
+        else{
+            clientYes.classList.add("hidden");
+            clientNo.classList.add("hidden");
+            clientLabel.classList.add("hidden");
+        }
+
+        var qItemsIds = data[0].items.split("_").map(id=>parseInt(id));
+        console.log("qIIs: ",qItemsIds);
+        console.log("cIs: ",costItems);
+        qItemsIds.forEach((id)=>{
+            let item = costItems.filter(c=>c.id == id);
+            if(item.length > 0){
+                item[0].count = 1;
+                myCostItems.push(item[0]);
+            }
+        })
+    
+        console.log("mcIs: ",myCostItems);
+        showCostItems(myCostItems,form.discount.value,costItemList,data[0].status);
+
+        if(data[0].status.toLowerCase() == "paid"){
+            form.btnSubmit.classList.add('hidden');
+            costContainer.classList.add("hidden");
+        }
+        else{
+            form.btnSubmit.classList.remove('hidden');
+            costContainer.classList.remove("hidden"); 
+        }
+    }
+    else{
+        clientYes.classList.add("hidden");
+        clientNo.classList.add("hidden");
+        clientLabel.classList.add("hidden");
+    }
+    
+    form.inv_cs_id.addEventListener("change",(e)=>{
+        if(e.target.value == -1) showCustomerDetailForm('invoices_content');
+        else if(e.target.value != -2){
+            var id = e.target.options[e.target.options.selectedIndex].value;
+            var cust = storedData.customers.filter(c=>c.id == id)[0];
+            customerName.textContent = cust.name;
+            customerAddress.textContent = cust.address.split(",")[0];
+            customerRegion.textContent = cust.region +", "+ cust.country;
+        }
+        
+    })
+    
+    // var myItemIds = myCostItems.map(c=>c.id);
+    Array.from(costItemEl.children).forEach((ch,i)=>{
+        if(i>0) costItemEl.removeChild(ch);
+    })
+    costItems.forEach(ci=>{
+        costItemEl.options.add(new Option(ci.name,ci.id));
+    })
+    costItemEl.addEventListener("change",(e)=>{
+        let itemId = parseInt(e.target.value);
+        let item = costItems.filter(c=>c.id == itemId);
+        
+        if(costItemCountEl.value){
+            console.log("value: ",costItemCountEl.value);
+            for(let i=0;i<parseInt(costItemCountEl.value);i++){
+                item[0].count = 1;
+                myCostItems.push(item[0]);
+            }
+        }
+        else{
+            item[0].count = 1;
+            myCostItems.push(item[0]);
+        }
+        console.log("cil: ",myCostItems);
+        showCostItems(myCostItems,form.discount.value,costItemList);
+        costItemCountEl.value = 1;
+    })
+
+    form.discount.addEventListener("input",(e)=>{
+        let val = e.target.value;
+        if(val){
+            showCostItems(myCostItems,val,costItemList);
+        }
+    })
+    if(cancelButton){
+        cancelButton.addEventListener("click",(e)=>{
+            myCostItems = [];
+            Array.from(costItemList.children).forEach((c,i)=>{
+                if(i>0) costItemList.removeChild(c);
+            });
+            qNumber.textContent = "";
+            customerAddress.textContent = "";
+            customerName.textContent = "";
+            customerRegion.textContent = "";
+            closeInvoiceForm();
+        })
+    }
+    if(dataId == null || data[0].status.toLowerCase() == "approved" || data[0].status.toLowerCase() == "discarded"){
+        discardButton.classList.add("hidden");
+        // form.btnSubmit.classList.add("hidden");
+    }
+    if(data.length > 0){
+        if(data[0].status.toLowerCase() == "awaiting manager's approval" || data[0].status.toLowerCase() == "pending payment" || data[0].status == -1){
+            if(discardButton){
+                discardButton.classList.remove("hidden");
+                discardButton.addEventListener("click",(e)=>{
+                    alertDialog("Are you sure you want to discard this invoice?","Discard",()=>{
+                        var url = invoices_url +"/"+currentUser.id;
+                        var options = {method:"PUT",body:JSON.stringify({id:dataId,status:"Discarded"}),headers:{"Content-type":"application/json","Authorization":"Bearer "+currentUser.accessToken}}
+                        // console.log("t: "+method,myData);
+                        fetch(url,options)
+                        .then(res=>res.json())
+                        .then(result=>{
+                            console.log("result: ",data[0]);
+                            storedData.invoices = result.data;
+                            storage.setItem("data",JSON.stringify(storedData));
+                            showFeedback(result.msg,result.code);
+                            // closeInvoiceForm(data[0]);
+                        })
+                        .catch(er=>{
+                            console.log("er: ",er);
+                            showFeedback("Something went wrong: "+e,1);
+                        })
+                    })
+                })
+            }
+        }
+    }
+    else discardButton.classList.add("hidden");
+    
+    
+    form.addEventListener("submit",(e)=>{
+        e.preventDefault();
+        var customerId = form.inv_cs_id.options[form.inv_cs_id.options.selectedIndex].value;
+        var service = form.service.value;
+        var goods = form.goods.value;
+        var containerNum = form.quantity.value;
+        var discount = form.discount.value;
+        console.log("dx: ",myCostItems);
+        var cost_items = myCostItems.map(i=>i.id).join("_");
+        var sum = 0;
+        myCostItems.forEach(i=>{
+            // var a = (i.count * i.cost)
+            sum += parseInt(i.price);
+            console.log("a: ",sum);
+        });
+        console.log("x: ",sum);
+        var myData = {customer_id:customerId,service:service,goods:goods,quantity:containerNum,discount:discount,items:cost_items,price:sum};
+        var method = "POST";
+        if(dataId == null) myData.status = "Awaiting Manager's Approval";
+        else{
+            method = "PUT";
+            myData.status = newStatus;
+            myData.id = dataId;
+        }
+        var url = invoices_url +"/"+currentUser.id;
+        var options = {method:method,body:JSON.stringify(myData),headers:{"Content-type":"application/json","Authorization":"Bearer "+currentUser.accessToken}}
+        console.log("t: "+method,myData);
+        fetch(url,options)
+        .then(res=>res.json())
+        .then(result=>{
+            console.log("result: ",result);
+            
+            storedData.invoices = result.data;
+            storage.setItem("data",JSON.stringify(storedData));
+            if(dataId == null) {
+                var nQ= result.data.filter(c=>storedData.invoices.map(q=>q.id).indexOf(c.id) === -1);
+                console.log("res: ",nQ);
+                dataId == nQ[0].id;
+            }
+            showFeedback(result.msg,result.code);
+            showInvoiceForm("invoice_form",dataId);
+        })
+        .catch(er=>{
+            console.log("er: ",er);
+            showFeedback("Something went wrong: "+e,1);
+        })
+    })
+    
+}
+//close invoice form
+const closeInvoiceForm=(invoice=null) =>{
+    var form = document.getElementById("my_invoice_form");
+    form.reset();
+    
+    document.getElementById("invoice_form").classList.add("hidden");
+    // if(invoice == null){
+        document.getElementById("invoice_list").classList.remove("hidden");
+        document.querySelector("#add_invoice").classList.remove("hidden");
+        showInvoiceList(storedData.invoices);
+    // }
+    // else{
+    //     showInvoiceForm("invoice_list",invoice.id);
+    // }
     
 }
 //show printable Quotation
@@ -1982,8 +2366,72 @@ const showPrintableQuotation=(data)=>{
     var customerAddress = document.getElementById("cs_address");
     var customerRegion = document.getElementById("cs_region");
 
-    var costItems = COST_ITEMS;
+    var costItems = storedData.cost_items;
     qNumber.textContent = "Quotation No: "+formatConsignmentNumber(data.id);
+    
+    var customer = storedData.customers.filter(c=>c.id == data.customer_id)[0];
+    customerName.textContent = customer.name;
+    customerAddress.textContent = customer.address.split(",")[0];
+    customerRegion.textContent = customer.region +", "+ customer.country;
+
+    form.goods.value = data.goods;
+    form.service.value = data.service;
+    form.quantity.value = data.quantity;
+    form.discount.value = (data.discount) ? data.discount : 0;
+    
+    var qItemsIds = data.items.split("_").map(id=>parseInt(id));
+    var qItems = costItems.filter((c,i)=>{
+        return qItemsIds.indexOf(c.id) !== -1;
+    }).map(c=>{
+        c.count = 1;
+        return c;
+    });
+    
+    showCostItems(qItems,data.discount,costItemList,"-1");
+    
+    
+}
+//show printable invoice
+const showPrintableInvoice=(data)=>{
+   showBankDetails();
+    const form = document.getElementById("my_invoice_form");
+    form.reset();
+    
+    const parent = document.getElementById("quotation_print");
+    parent.classList.remove("hidden");
+
+    const clientName = document.getElementById("client_name");
+    const clientAddress = document.getElementById("client_address");
+    const clientRegion = document.getElementById("client_region");
+
+    const dateCreated = document.getElementById("d_created");
+    const dateModified = document.getElementById("d_modified");
+    const dateDue = document.getElementById("d_due");
+
+    var cdate = new Date(data.date_created);
+    var mdate = new Date(data.date_modified);
+    var duedate = new Date(data.date_modified + (30*24*3600*1000));
+
+    dateCreated.textContent = "Created on: "+cdate.getDate()+"/"+(cdate.getMonth()+1)+"/"+cdate.getFullYear();
+    dateModified.textContent = "Last modified: "+mdate.getDate()+"/"+(mdate.getMonth()+1)+"/"+mdate.getFullYear();
+    dateDue.textContent = "Due on: "+duedate.getDate()+"/"+(duedate.getMonth()+1)+"/"+duedate.getFullYear();
+
+    var client = currentUser.detail;
+    clientName.textContent = client.name;
+    clientAddress.textContent = client.address.split(",")[0];
+    clientRegion.textContent = client.region+", "+client.country;
+
+    
+    const costItemList = document.getElementById("cost_item_list");
+    const qNumber = document.getElementById("quotation_number");
+
+    var customer = storedData.customers.filter(c=>c.id == parseInt(data.customer_id))[0];
+    var customerName = document.getElementById("cs_name");
+    var customerAddress = document.getElementById("cs_address");
+    var customerRegion = document.getElementById("cs_region");
+
+    var costItems = storedData.cost_items;
+    qNumber.textContent = "Invoice No: "+formatConsignmentNumber(data.id);
     
     var customer = storedData.customers.filter(c=>c.id == data.customer_id)[0];
     customerName.textContent = customer.name;
@@ -2058,7 +2506,7 @@ const showCostItems = (items,discount,container,status=null)=>{
     var disc = 0;
     if(summary.length > 0){
         summary.forEach((item,idx)=>{
-            var amount = item.count * item.cost;
+            var amount = item.count * item.price;
             sum += amount;
             const row = document.createElement("span");
             row.classList.add("body-row");
@@ -2077,7 +2525,7 @@ const showCostItems = (items,discount,container,status=null)=>{
             sn.textContent = (idx +1);
             desc.textContent = item.name;
             qtty.textContent = item.count;
-            price.textContent = thousandSeparator(item.cost);
+            price.textContent = thousandSeparator(item.price);
             amt.textContent = thousandSeparator(amount);
 
             row.appendChild(sn);

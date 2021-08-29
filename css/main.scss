@@ -10,6 +10,8 @@ $failColor:#e63030;
 $failColorFaint:#e63030ab;
 $successColorFaint:#3cbe3c9a;
 $successColor:#0f810f;
+$infoColor:#18a9bd;
+$infoColorFaint:#82ccd6;
 $marve:#f6b0ff;
 $yellow:#ecec09;
 $tickBlue: #203164;
@@ -844,6 +846,11 @@ footer{
   border: 1px solid $successColor;
   color:$successColor !important;
 }
+.information{
+  @include setBg($infoColorFaint);
+  border: 1px solid $infoColor;
+  color:$defaultColor !important;
+}
 .no-overflow{
   overflow-x: hidden !important;
 }
@@ -1022,6 +1029,15 @@ footer{
 .status-indicator-9,.status-indicator-10{
   border-left:5px solid $successColor;
 }
+.status-indicator-red{
+  border-left: 5px solid $failColor;
+}
+.status-indicator-approved{
+  border-left: 5px solid $successColor;
+}
+.status-indicator-pending{
+  border-left: 5px solid $infoColor;
+}
 .gap{
   row-gap:2em;
 }
@@ -1161,6 +1177,9 @@ footer{
 .success-text{
   color:$successColor !important;
   
+}
+.info-text{
+  color: $infoColor !important;
 }
 // links
 a,
