@@ -50,7 +50,7 @@
                     <span id="invoices" class="menu-item">Invoices</span>
                     <span id="vouchers" class="menu-item">Vouchers</span>
                     <span id="receipts" class="menu-item">Receipts</span>
-                    <span id="petty_cash" class="menu-item">Petty Cash</span>
+                    <span id="pettycash" class="menu-item">Petty Cash</span>
                     <span id="costitems" class="menu-item">Cost Items</span>
                 </div>
               
@@ -1255,6 +1255,55 @@
                             <span class="actions">Action</span> 
                         </div>
                     </div>
+                </div>
+                <div class="can-hide hidden" id="pettycash_content">
+                    <div class="row-end">
+                        <input type="text" id="pettycash_search" placeholder="search"/>
+                        <span class="material-icons" id="btn_pettycash_search">search</span>
+                    </div>
+                    <div class="tab-container">
+                        <div class="row underline-primary" id="date_tabs">
+                            
+                        </div>
+                    </div>
+                    <div class="row my-2">
+                        <span id="opening_balance" class="bold mx-2">&nbsp;&nbsp;Opening Balance: Tsh.240,000</span>
+                        <span id="closing_balance" class="bold mx-2">&nbsp;|&nbsp;Closing Balance: Tsh. 90,000</span>
+                    </div>
+                    <div class="row-top summary-table" id="pettycash_list">
+                        <span class="head-row shadow-minor">
+                            <span>Entry #</span>
+                            <span>Date</span>
+                            <span>Voucher #</span>
+                            <span>Description</span>
+                            <span>Name</span>
+                            <span>Amount</span>
+                            <span>Type</span>
+                            <span>Opening Bal</span>
+                            <span>Closing Bal</span>
+                        </span>
+                       
+                        <form class="body-row shadow-minor" id="pettycash_form">
+                        
+                           
+                            <span>
+                                <input type="date" id="pettycash_date"/>
+                            </span>
+                            <span><input placeholder="voucher" type="text" id="pettycash_voucher" name="pettycash_voucher"/></span>
+                            <span><input placeholder="description" type="text" id="pettycash_description" name="pettycash_description"/></span>
+                            <span><input placeholder="name" type="text" id="pettycash_name" name="pettycash_name"/></span>
+                            <span><input placeholder="amount" type="text" id="pettycash_amount" name="pettycash_amount"/></span>
+                            <span>
+                                <select id="pettycash_type">
+                                    <option value=0>Cash Out</option>
+                                    <option value=1>Cash In</option>
+                                </select>
+                            </span>
+                            <span class="column-center"><input type="submit" id="pettycash_save" name="pettycash_save" value="SAVE"/></span>
+                        
+                        </form>
+                    </div>
+                   
                 </div>
             </div>
         </main>

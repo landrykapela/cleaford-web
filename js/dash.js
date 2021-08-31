@@ -370,7 +370,10 @@ const activateMenu =(target)=>{
                 }
                 // console.log("activating quotations menu");
                 break;
-                    
+            case 'pettycash':
+                greet("Finance",{title:"Petty Cash",description:"View"});
+                getPettyCash();
+                break;
             case 'roles':
                 greet("Settings",{title:"Roles",description:"Manage roles"});
                 if(!storedData.roles || storedData.roles.length == 0){
@@ -523,109 +526,6 @@ const signoutUser = ()=>{
   
 };
 
-//show admin stats
-const showClientStats =()=>{
-    if(currentUser.detail){
-        getCustomers()
-        .then(result=>{
-            updateCustomers(result.data);
-            greet("Hello "+currentUser.detail.contact_person.split(" ")[0],null);
-            const numberOfCustomers = document.getElementById("no_of_customers");
-            numberOfCustomers.textContent = (storedData.customers) ? storedData.customers.length:0; 
-
-            //show charts and maps
-            let chartArea = document.getElementById("chart-area");
-            while(chartArea.hasChildNodes()){
-                chartArea.removeChild(chartArea.childNodes[0]);
-            }
-            const canvas = document.createElement("canvas");
-            chartArea.appendChild(canvas);
-            
-            const labels = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-            let data = {
-                labels: labels,
-                datasets: [
-                    {
-                    label: 'Sales',
-                    data: generateRandomData(NUMBER_CFG.count),
-                    borderColor: "#cc9900",
-                    backgroundColor: "#ffcc00",
-                    },
-                    
-                ]
-            }
-            let config = {
-                type: 'line',   
-                data: data,
-                options: {
-                responsive: true,
-                maintainAspectRatio:false,
-                plugins: {
-                    title: {
-                    display: true,
-                    text: 'Annual Sales'
-                    }
-                }
-                },
-            }
-                    var myChart = drawChart(config,canvas);
-                    // myChart.homeZoomLevel = 50;
-                    // showCustomersSummary();
-                    mapChart();
-        })
-        .catch(er=>{
-            if(er.code == -1){
-                showFeedback(er.msg,1);
-                // signoutUser();
-            }
-            else{
-                console.log("stw: ",er);
-                showFeedback("something wrong",1);
-            }
-        })             
-    }
-    else{
-        greet("Hello "+currentUser.email,null);
-    }
-    //show client summary
-    fetchClientRoles();
-    fetchConsignments().then(result=>{
-        storedData.consignments = result.data;
-        storage.setItem("data",JSON.stringify(storedData));
-        storedData = JSON.parse(storage.getItem("data"));
-        var consignments = (storedData.consignments) ? storedData.consignments : [];
-        const numberOfConsignments = document.getElementById("no_of_consignments");
-        numberOfConsignments.textContent = consignments.length;
-        var readyForShipping = consignments.filter(c=>c.status == 9);
-        var loadingPermission = consignments.filter(c=>c.status == 6);
-
-        document.getElementById("ready_for_shipping").textContent = readyForShipping.length;
-        document.getElementById("loading_permission").textContent = loadingPermission.length;
-
-
-        showExportListSummary(result.data);
-    })
-    .catch(e=>{
-        console.log("err: ",e);
-    })
-   
-    fetchCostItems().then(items=>{
-        updateCostItems(items);
-    }).catch(e=>{
-        console.log("fetchCostItems(): ",e);
-    })
-    fetchInvoices().then(invoices=>{
-        updateInvoices(invoices);
-        var pendingInvoices = invoices.filter(inv=>inv.status.toLowerCase() == "pending payment");
-        document.getElementById("pending_invoices").textContent = pendingInvoices.length;
-        var pendingApproval = invoices.filter(inv=>inv.status.toLowerCase() == "awaiting manager's approval");
-        document.getElementById("pending_approval").textContent = pendingApproval.length;
-    })
-    .catch(e=>{
-        console.log("error: ",e);
-    })
-    
-}
 //fetch cost items
 const fetchCostItems = ()=>{
     return new Promise((resolve,reject)=>{
@@ -1266,11 +1166,118 @@ const showSpinner=()=>{
     if(spinner) spinner.classList.remove("hidden");
 }
 
-
 //hide spinner
 const hideSpinner=()=>{
     const spinner = document.querySelector("#spinner");
     if(spinner) spinner.classList.add("hidden");
+}
+
+
+//show admin stats
+const showClientStats =()=>{
+    if(currentUser.detail){
+        getCustomers()
+        .then(result=>{
+            updateCustomers(result.data);
+            greet("Hello "+currentUser.detail.contact_person.split(" ")[0],null);
+            const numberOfCustomers = document.getElementById("no_of_customers");
+            numberOfCustomers.textContent = (storedData.customers) ? storedData.customers.length:0; 
+
+            //show charts and maps
+            let chartArea = document.getElementById("chart-area");
+            while(chartArea.hasChildNodes()){
+                chartArea.removeChild(chartArea.childNodes[0]);
+            }
+            const canvas = document.createElement("canvas");
+            chartArea.appendChild(canvas);
+            
+            const labels = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+            let data = {
+                labels: labels,
+                datasets: [
+                    {
+                    label: 'Sales',
+                    data: generateRandomData(NUMBER_CFG.count),
+                    borderColor: "#cc9900",
+                    backgroundColor: "#ffcc00",
+                    },
+                    
+                ]
+            }
+            let config = {
+                type: 'line',   
+                data: data,
+                options: {
+                responsive: true,
+                maintainAspectRatio:false,
+                plugins: {
+                    title: {
+                    display: true,
+                    text: 'Annual Sales'
+                    }
+                }
+                },
+            }
+            var myChart = drawChart(config,canvas);
+            // myChart.homeZoomLevel = 50;
+            // showCustomersSummary();
+            mapChart();
+
+            fetchConsignments()
+            .then(result=>{
+                storedData.consignments = result.data;
+                storage.setItem("data",JSON.stringify(storedData));
+                storedData = JSON.parse(storage.getItem("data"));
+                var consignments = (storedData.consignments) ? storedData.consignments : [];
+                const numberOfConsignments = document.getElementById("no_of_consignments");
+                numberOfConsignments.textContent = consignments.length;
+                var readyForShipping = consignments.filter(c=>c.status == 9);
+                var loadingPermission = consignments.filter(c=>c.status == 6);
+        
+                document.getElementById("ready_for_shipping").textContent = readyForShipping.length;
+                document.getElementById("loading_permission").textContent = loadingPermission.length;
+        
+        
+                showExportListSummary(result.data);
+
+                fetchCostItems()
+                .then(items=>{
+                    updateCostItems(items);
+                    fetchInvoices()
+                    .then(invoices=>{
+                        updateInvoices(invoices);
+                        var pendingInvoices = invoices.filter(inv=>inv.status.toLowerCase() == "pending payment");
+                        document.getElementById("pending_invoices").textContent = pendingInvoices.length;
+                        var pendingApproval = invoices.filter(inv=>inv.status.toLowerCase() == "awaiting manager's approval");
+                        document.getElementById("pending_approval").textContent = pendingApproval.length;
+                        fetchClientRoles();
+                    })
+                    .catch(e=>{
+                        console.log("error: ",e);
+                    })
+                }).catch(e=>{
+                    console.log("fetchCostItems(): ",e);
+                })
+            })
+            .catch(e=>{
+                console.log("err: ",e);
+            })
+        })
+        .catch(er=>{
+            if(er.code == -1){
+                showFeedback(er.msg,1);
+                // signoutUser();
+            }
+            else{
+                console.log("stw: ",er);
+                showFeedback("something wrong",1);
+            }
+        })             
+    }
+    else{
+        greet("Hello "+currentUser.email,null);
+    }
+   
 }
 //create row
 const createCustomerRow = (row,holder)=>{
@@ -2632,6 +2639,232 @@ const showCostItems = (items,discount,container,status=null)=>{
     }
    
 }
+
+//petty cash
+
+const savePettyCash = (data)=>{
+    if(data != null && data != undefined){
+        var url = petty_cash_url+"/"+currentUser.id;
+        var body = JSON.stringify(data);
+        var options = {method:"POST",body:body,headers:{
+            'Content-type':'application/json','Authorization': 'Bearer '+currentUser.accessToken
+        }}
+
+        fetch(url,options)
+        .then(res=>res.json())
+        .then(result=>{
+            console.log("result: ",result);
+            storedData.petty_cash = result.data;
+            storage.setItem("data",JSON.stringify(storedData));
+            storedData = JSON.parse(storage.getItem("data"));
+            showFeedback(result.msg,result.code);
+            showPettyCash(storedData.petty_cash);
+
+        })
+        .catch(e=>{
+            console.log("error: ",e);
+            showFeedback("Oops! Something went wrong! Please try again later",1)
+        })
+    }
+}
+
+const showPettyCashDates = (dates,activeDate)=>{
+    var dateTabs = document.getElementById("date_tabs");
+    Array.from(dateTabs.children).forEach(c=>dateTabs.removeChild(c));
+    dates.sort((a,b)=>{
+        if(a - b < 0) return -1;
+        else return 1;
+    }).forEach(d=>{
+        const tab = document.createElement("span");
+        tab.classList.add("tab");
+        if(d == activeDate) tab.classList.add("tab-active");
+        var date = new Date(d);
+        tab.id = d;
+        tab.textContent = date.getDate()+"/"+(date.getMonth()+1)+"/"+date.getFullYear();
+        dateTabs.appendChild(tab);
+        tab.addEventListener("click",(e)=>{
+            Array.from(dateTabs.children).forEach(c=>c.classList.remove("tab-active"));
+            tab.classList.add("tab-active");
+            var records = storedData.petty_cash;
+            showPettyCash(records,d,{startDate:dates[0],endDate:dates[dates.length -1]});
+        })
+    })
+}
+const showPettyCash = (records,activeDate,period=null)=>{
+    var container = document.getElementById("pettycash_list");
+    var oBal = document.getElementById("opening_balance");
+    var cBal = document.getElementById("closing_balance");
+    Array.from(container.children).forEach(c=>{
+        if(c.tagName.toLowerCase() == "div") container.removeChild(c);
+    })
+
+    var form = document.getElementById("pettycash_form");
+    var displayDates = [];
+    
+    if(period != null){
+        displayDates = [];
+        var startDate = (typeof(period.startDate) == "number") ? period.startDate : Date.parse(period.startDate);
+        var endDate =  (typeof(period.endDate) == "number") ? period.endDate : Date.parse(period.endDate);
+        var interval = (endDate - startDate)/86400000;
+        for(let i=0;i<=interval;i++){
+            let d = startDate + i*86400000;
+            displayDates.push(d);
+        }
+    }
+    else{
+        displayDates = [];
+        for(let i=0; i<7;i++){
+            let d = activeDate - i*86400000;
+            displayDates.push(d);
+        }
+    
+    }
+
+    showPettyCashDates(displayDates,activeDate);
+    var openingBal = 0;
+    var closingBal = 0;
+    if(records && records.length > 0){
+        var myRecs = records.sort((a,b)=>{
+            if(parseInt(a.date_created) < parseInt(b.date_created)) return -1;
+            else return 1;
+        });
+
+        var balData = records.filter(r=>{
+            return parseInt(r.date_created) == parseInt(activeDate);
+        });
+        if(balData.length > 0) {
+            console.log("balD: ",activeDate);
+            openingBal = balData[0].opening_balance;
+            closingBal = balData[balData.length -1].balance;
+        }
+        else{
+            console.log("balD_: ",activeDate);
+            var balData_ = records.filter(r=>{
+                return parseInt(r.date_created) < parseInt(activeDate);
+            });
+            if(balData_.length > 0){
+                openingBal = balData_[balData_.length -1].balance;
+                closingBal = balData_[balData_.length -1].balance;
+            }
+        }
+        
+
+        var refDate = new Date(parseInt(activeDate));
+        var refDateString = refDate.getDate()+"/"+(refDate.getMonth()+1)+"/"+refDate.getFullYear();
+        myRecs = myRecs.filter(r=>{
+            var date = new Date(parseInt(r.date_created));
+            var dateString = date.getDate()+"/"+(date.getMonth()+1)+"/"+date.getFullYear();       
+            
+            return dateString == refDateString;
+        });
+       
+       
+        myRecs.forEach(data=>{
+            // bal = (data.type == 0) ? bal + parseInt(data.amount) : bal - parseInt(data.amount);
+            const row = document.createElement("div");
+            row.className = "body-row shadow-minor";
+            const spNum = document.createElement("span");
+            spNum.textContent = data.id;
+            row.appendChild(spNum);
+    
+            const spDate = document.createElement("span");
+            var date = new Date(parseInt(data.date_created));
+            spDate.textContent = date.getDate()+"/"+(date.getMonth()+1)+"/"+date.getFullYear();
+            row.appendChild(spDate);
+    
+            const spVoucher = document.createElement("span");
+            spVoucher.textContent = data.voucher;
+            row.appendChild(spVoucher);
+    
+            const spDesc = document.createElement("span");
+            spDesc.textContent = data.description;
+            row.appendChild(spDesc);
+    
+            const spName = document.createElement("span");
+            spName.textContent = data.name;
+            row.appendChild(spName);
+    
+            const spAmount = document.createElement("span");
+            spAmount.textContent = thousandSeparator(data.amount);
+            row.appendChild(spAmount);
+
+            const spType = document.createElement("span");
+            spType.textContent = (data.type == 0) ? "Cash Out" : "Cash In";
+            row.appendChild(spType);
+    
+            const spOpeningBal = document.createElement("span");
+            spOpeningBal.textContent = (data.opening_balance < 0) ? "("+thousandSeparator(Math.abs(data.opening_balance))+")" : thousandSeparator(Math.abs(data.opening_balance));
+            row.appendChild(spOpeningBal);
+    
+            const spBal = document.createElement("span");
+            spBal.textContent = (data.balance < 0) ? "("+thousandSeparator(Math.abs(data.balance))+")" : thousandSeparator(Math.abs(data.balance));
+            row.appendChild(spBal);
+    
+            container.insertBefore(row,form);
+        })
+    }
+    else{
+        const row = document.createElement("div");
+        row.className = "body-row shadow-minor";
+        const spNoData = document.createElement("span");
+        spNoData.textContent = "No data";
+        row.appendChild(spNoData);
+        container.insertBefore(row,form);
+    }
+
+    if(form){
+        form.addEventListener("submit",(e)=>{
+            e.preventDefault();
+            
+            let date = Date.now();
+            let dateString = form.pettycash_date.value;
+            date = Date.parse(dateString);
+            let voucher = form.pettycash_voucher.value.trim();
+            let desc = form.pettycash_description.value.trim();
+            let type = form.pettycash_type.value;
+            let amount = form.pettycash_amount.value.trim();
+            let name = form.pettycash_name.value.trim();
+
+            var opening_bal = closingBal;
+            var closing_bal = closingBal - amount;
+            if(records.length > 0){
+                let rec = records[records.length -1];
+                opening_bal = (rec.balance == null) ? 0 : rec.balance;
+                closing_bal = (rec.balance == null) ? parseInt(amount) : parseInt(amount) + parseInt(rec.balance);
+                balance = (rec.balance == 0) ? 0: rec.balance;
+            }
+            let formData = {date_created:date,voucher:voucher,description:desc,type:type,amount:amount,name:name,opening_balance:opening_bal,balance:closing_bal};
+            console.log("formdata: ",formData);
+            savePettyCash(formData);
+        })
+    }
+
+    oBal.textContent = "Opening Balance: Tsh. "+((openingBal < 0) ? "("+thousandSeparator(Math.abs(openingBal))+")" : thousandSeparator(Math.abs(openingBal)));
+    cBal.textContent = "Closing Balance: Tsh. "+((closingBal < 0) ? "("+thousandSeparator(Math.abs(closingBal))+")" : thousandSeparator(Math.abs(closingBal)));
+}
+const getPettyCash = ()=>{
+    var url = petty_cash_url+"/"+currentUser.id;
+        var options = {method:"GET",headers:{
+            'Content-type':'application/json','Authorization': 'Bearer '+currentUser.accessToken
+        }}
+
+        fetch(url,options)
+        .then(res=>res.json())
+        .then(result=>{
+            console.log("result: ",result);
+            storedData.petty_cash = result.data;
+            storage.setItem("data",JSON.stringify(storedData));
+            storedData = JSON.parse(storage.getItem("data"));
+            // showFeedback(result.msg,result.code);
+            showPettyCash(storedData.petty_cash,Date.now());
+
+        })
+        .catch(e=>{
+            console.log("error: ",e);
+            showFeedback("Oops! Something went wrong! Please try again later",1)
+        })
+}
+//end petty cash
 
 //show odg files
 const showODGFiles = (files,tag)=>{

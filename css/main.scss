@@ -313,6 +313,7 @@ main > div#dashboard_content{
   width:calc(100% - 1em);
   margin:2em auto;
   margin-bottom: 0;
+  // overflow-x: scroll;
 }
 .tab{
   @include addRoundCornerTop(4px,4px);
@@ -320,7 +321,7 @@ main > div#dashboard_content{
   color:$primaryDarkColor;
   min-width:120px !important;
   padding:0.5em 1em;
-
+  text-align: center;
 }
 .tab-active{
   @include setBg($primaryDarkColor);
@@ -629,6 +630,7 @@ footer{
 .buttons-s{
   @include setBg($primaryDarkColor);
   color:$defaultColor;
+  text-align: center !important;
 }
 .buttons-t{
   background-color: transparent;
@@ -719,6 +721,13 @@ footer{
   form.body-row >span{
     padding:0 !important;
     width:calc(100% - 5em) !important;
+  }
+  form.body-row > span > input[type="submit"]{
+    align-self: center;
+    text-align: center !important;
+  }
+  .body-row :nth-child(1){
+    flex-shrink: 1;
   }
   #container_form .head-row,.hform{
     width:calc(100% - 0.5em) !important;
@@ -1133,6 +1142,88 @@ footer{
 }
 //end layouts
 
+//margins and padding
+.my-1{
+  margin-top: 1em !important;
+  margin-bottom: 1em !important;
+}
+.my-2{
+  margin-top: 2em !important;
+  margin-bottom: 2em !important;
+}
+.my-3{
+  margin-top: 3em !important;
+  margin-bottom: 3em !important;
+}
+.my-4{
+  margin-top: 4em !important;
+  margin-bottom: 4em !important;
+}
+.my-5{
+  margin-top: 5em !important;
+  margin-right: 5em !important;
+}
+.mx-1{
+  margin-left: 1em !important;
+  margin-right: 1em !important;
+}
+.mx-2{
+  margin-left: 2em !important;
+  margin-right: 2em !important;
+}
+.mx-3{
+  margin-left: 3em !important;
+  margin-right: 3em !important;
+}
+.mx-4{
+  margin-left: 4em !important;
+  margin-right: 4em !important;
+}
+.mx-5{
+  margin-left: 5em !important;
+  margin-right: 5em !important;
+}
+.py-1{
+  margin-top: 1em !important;
+  margin-bottom: 1em !important;
+}
+.py-2{
+  margin-top: 2em !important;
+  margin-bottom: 2em !important;
+}
+.py-3{
+  margin-top: 3em !important;
+  margin-bottom: 3em !important;
+}
+.py-4{
+  margin-top: 4em !important;
+  margin-bottom: 4em !important;
+}
+.py-5{
+  margin-top: 5em !important;
+  margin-right: 5em !important;
+}
+.px-1{
+  margin-left: 1em !important;
+  margin-right: 1em !important;
+}
+.px-2{
+  margin-left: 2em !important;
+  margin-right: 2em !important;
+}
+.px-3{
+  margin-left: 3em !important;
+  margin-right: 3em !important;
+}
+.px-4{
+  margin-left: 4em !important;
+  margin-right: 4em !important;
+}
+.px-5{
+  margin-left: 5em !important;
+  margin-right: 5em !important;
+}
+//end of margins and paddings
 // texts formats
 .default-bg{
   background-color: $defaultColor !important;
