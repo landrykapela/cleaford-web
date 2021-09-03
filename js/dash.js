@@ -2658,7 +2658,7 @@ const savePettyCash = (data)=>{
             storage.setItem("data",JSON.stringify(storedData));
             storedData = JSON.parse(storage.getItem("data"));
             showFeedback(result.msg,result.code);
-            showPettyCash(storedData.petty_cash);
+            showPettyCash(storedData.petty_cash,data.date_created);
 
         })
         .catch(e=>{
@@ -2690,15 +2690,39 @@ const showPettyCashDates = (dates,activeDate)=>{
         })
     })
 }
+const showPettyCashForm = (records,openingBal)=>{
+    var form = document.getElementById("pettycash_form");
+    if(form){
+        form.addEventListener("submit",(e)=>{
+            e.preventDefault();
+            
+            let date = Date.now();
+            let dateString = form.pettycash_date.value;
+            date = Date.parse(dateString);
+            let voucher = form.pettycash_voucher.value.trim();
+            let desc = form.pettycash_description.value.trim();
+            let type = parseInt(form.pettycash_type.options[form.pettycash_type.options.selectedIndex].value);
+            let amount = form.pettycash_amount.value.trim();
+            let name = form.pettycash_name.value.trim();
+
+            var opening_bal = openingBal;
+            var closing_bal = (type == 0) ? parseInt(opening_bal) - parseInt(amount) : parseInt(opening_bal) + parseInt(amount);
+            
+            let formData = {date_created:date,voucher:voucher,description:desc,type:type,amount:amount,name:name,balance:closing_bal};
+            console.log("formdata: ",formData);
+            savePettyCash(formData);
+        })
+    }
+}
 const showPettyCash = (records,activeDate,period=null)=>{
     var container = document.getElementById("pettycash_list");
+    var form = document.getElementById("pettycash_form");
     var oBal = document.getElementById("opening_balance");
     var cBal = document.getElementById("closing_balance");
     Array.from(container.children).forEach(c=>{
         if(c.tagName.toLowerCase() == "div") container.removeChild(c);
     })
 
-    var form = document.getElementById("pettycash_form");
     var displayDates = [];
     
     if(period != null){
@@ -2724,43 +2748,24 @@ const showPettyCash = (records,activeDate,period=null)=>{
     var openingBal = 0;
     var closingBal = 0;
     if(records && records.length > 0){
-        var myRecs = records.sort((a,b)=>{
-            if(parseInt(a.date_created) < parseInt(b.date_created)) return -1;
-            else return 1;
-        });
-
-        var balData = records.filter(r=>{
-            return parseInt(r.date_created) == parseInt(activeDate);
-        });
-        if(balData.length > 0) {
-            console.log("balD: ",activeDate);
-            openingBal = balData[0].opening_balance;
-            closingBal = balData[balData.length -1].balance;
-        }
-        else{
-            console.log("balD_: ",activeDate);
-            var balData_ = records.filter(r=>{
-                return parseInt(r.date_created) < parseInt(activeDate);
-            });
-            if(balData_.length > 0){
-                openingBal = balData_[balData_.length -1].balance;
-                closingBal = balData_[balData_.length -1].balance;
-            }
-        }
-        
-
+        console.log("sc1: ",records);
+       
         var refDate = new Date(parseInt(activeDate));
         var refDateString = refDate.getDate()+"/"+(refDate.getMonth()+1)+"/"+refDate.getFullYear();
-        myRecs = myRecs.filter(r=>{
+        var myRecs = records.filter(r=>{
             var date = new Date(parseInt(r.date_created));
             var dateString = date.getDate()+"/"+(date.getMonth()+1)+"/"+date.getFullYear();       
             
             return dateString == refDateString;
         });
        
-       
-        myRecs.forEach(data=>{
-            // bal = (data.type == 0) ? bal + parseInt(data.amount) : bal - parseInt(data.amount);
+        console.log("sc12: ",myRecs);
+       if(myRecs.length > 0){
+        myRecs.forEach((data,i)=>{
+            // if(data.length)
+           if(i == 0) openingBal = (data.type == 0) ? parseInt(data.balance) + parseInt(data.amount): parseInt(data.balance) - parseInt(data.amount);
+           if(i == myRecs.length -1) closingBal = data.balance;
+           
             const row = document.createElement("div");
             row.className = "body-row shadow-minor";
             const spNum = document.createElement("span");
@@ -2793,7 +2798,14 @@ const showPettyCash = (records,activeDate,period=null)=>{
             row.appendChild(spType);
     
             const spOpeningBal = document.createElement("span");
-            spOpeningBal.textContent = (data.opening_balance < 0) ? "("+thousandSeparator(Math.abs(data.opening_balance))+")" : thousandSeparator(Math.abs(data.opening_balance));
+            var myBal;
+            if(data.type == 0){
+                myBal = parseInt(data.balance) + parseInt(data.amount);
+            }
+            else 
+            myBal = parseInt(data.balance) - parseInt(data.amount);
+
+            spOpeningBal.textContent = (parseInt(data.balance) < parseInt(data.amount)) ? "("+thousandSeparator(Math.abs(myBal))+")" : thousandSeparator(Math.abs(myBal));
             row.appendChild(spOpeningBal);
     
             const spBal = document.createElement("span");
@@ -2802,8 +2814,19 @@ const showPettyCash = (records,activeDate,period=null)=>{
     
             container.insertBefore(row,form);
         })
+       }
+       else{
+        var recs = storedData.petty_cash.filter(d=>parseInt(d.date_created) < activeDate);
+        console.log("sc: ",recs);
+        if(recs.length > 0){
+            openingBal = recs[recs.length -1].balance;
+            closingBal = recs[recs.length -1].balance;
+        }
+       }
+       
     }
     else{
+       
         const row = document.createElement("div");
         row.className = "body-row shadow-minor";
         const spNoData = document.createElement("span");
@@ -2812,32 +2835,7 @@ const showPettyCash = (records,activeDate,period=null)=>{
         container.insertBefore(row,form);
     }
 
-    if(form){
-        form.addEventListener("submit",(e)=>{
-            e.preventDefault();
-            
-            let date = Date.now();
-            let dateString = form.pettycash_date.value;
-            date = Date.parse(dateString);
-            let voucher = form.pettycash_voucher.value.trim();
-            let desc = form.pettycash_description.value.trim();
-            let type = form.pettycash_type.value;
-            let amount = form.pettycash_amount.value.trim();
-            let name = form.pettycash_name.value.trim();
-
-            var opening_bal = closingBal;
-            var closing_bal = closingBal - amount;
-            if(records.length > 0){
-                let rec = records[records.length -1];
-                opening_bal = (rec.balance == null) ? 0 : rec.balance;
-                closing_bal = (rec.balance == null) ? parseInt(amount) : parseInt(amount) + parseInt(rec.balance);
-                balance = (rec.balance == 0) ? 0: rec.balance;
-            }
-            let formData = {date_created:date,voucher:voucher,description:desc,type:type,amount:amount,name:name,opening_balance:opening_bal,balance:closing_bal};
-            console.log("formdata: ",formData);
-            savePettyCash(formData);
-        })
-    }
+    showPettyCashForm(records,closingBal);
 
     oBal.textContent = "Opening Balance: Tsh. "+((openingBal < 0) ? "("+thousandSeparator(Math.abs(openingBal))+")" : thousandSeparator(Math.abs(openingBal)));
     cBal.textContent = "Closing Balance: Tsh. "+((closingBal < 0) ? "("+thousandSeparator(Math.abs(closingBal))+")" : thousandSeparator(Math.abs(closingBal)));

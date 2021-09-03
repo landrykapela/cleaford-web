@@ -550,6 +550,8 @@ form input[type=submit] :disabled {
 
 form input[type=submit] {
   max-width: 150px;
+  padding: unset;
+  padding: 0.5em !important;
 }
 
 .form-group, .form-group-no-border {
