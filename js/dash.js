@@ -2690,7 +2690,7 @@ const showPettyCashDates = (dates,activeDate)=>{
         })
     })
 }
-const showPettyCashForm = (records,openingBal)=>{
+const showPettyCashForm = (openingBal)=>{
     var form = document.getElementById("pettycash_form");
     if(form){
         form.addEventListener("submit",(e)=>{
@@ -2711,6 +2711,7 @@ const showPettyCashForm = (records,openingBal)=>{
             let formData = {date_created:date,voucher:voucher,description:desc,type:type,amount:amount,name:name,balance:closing_bal};
             console.log("formdata: ",formData);
             savePettyCash(formData);
+            form.reset();
         })
     }
 }
@@ -2834,9 +2835,7 @@ const showPettyCash = (records,activeDate,period=null)=>{
         row.appendChild(spNoData);
         container.insertBefore(row,form);
     }
-
-    showPettyCashForm(records,closingBal);
-
+    showPettyCashForm(closingBal);
     oBal.textContent = "Opening Balance: Tsh. "+((openingBal < 0) ? "("+thousandSeparator(Math.abs(openingBal))+")" : thousandSeparator(Math.abs(openingBal)));
     cBal.textContent = "Closing Balance: Tsh. "+((closingBal < 0) ? "("+thousandSeparator(Math.abs(closingBal))+")" : thousandSeparator(Math.abs(closingBal)));
 }
