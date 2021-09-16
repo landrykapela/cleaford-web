@@ -1,7 +1,7 @@
 const storage = window.localStorage;
 const DATA_COUNT = 12;
 const NUMBER_CFG = {count: DATA_COUNT, min: 0, max: 100};
-const CURRENCY = "USD";
+// const CURRENCY = "USD";
 const clientSummaryCount = 5;
 const CONSIGNMENT_NUMBER_FORMAT = 6;
 const BANK_DETAILS = {account_name:"Test Company 5 Limited",account_number:"01128788998",bank:"Your Investment Bank",branch:"Nearest Branch",swift:"XXXCODE",country:"Tanzania"}
@@ -331,6 +331,10 @@ const activateMenu =(target)=>{
                 greet("Settings",{title:"Users",description:"Manage users"});
                 
                 break;
+            case 'general':
+                greet("Settings",{title:"Settings",description:"General Settings"});
+                
+                break;
             case 'exports':
                 showConsignment();
                 break;
@@ -481,6 +485,26 @@ const getActiveEticket =()=>{
     }
 }
 
+
+//settings functions
+const currencySetting = document.getElementById("currency_setting");
+if(currencySetting){
+    currencySetting.addEventListener("change",(e)=>{
+        let cur = e.target.value;
+        setCurrency(cur);
+    })
+}
+const setCurrency = (currency)=>{
+    var settings = (storedData.settings) ? storedData.settings : {};
+    settings.currency = currency;
+    storedData.settings = settings;
+    storage.setItem("data",JSON.stringify(storedData));
+}
+
+
+
+
+//end of settings functions
 //show error
 const showFeedback =(msg,type)=>{
     const feedback = document.querySelector("#feedback");
@@ -1531,7 +1555,7 @@ const closeConsignmentForm = ()=>{
     document.querySelector("#export_list").classList.remove("hidden");
 }
 //show consignment form
-const showConsignmentForm=(source,data=null)=>{
+const showConsignmentForm =(source,data=null)=>{
     if(source != "export_list"){
         document.getElementById("exports_content").classList.remove("hidden");
         document.getElementById("export_list").classList.add("hidden");
@@ -1553,7 +1577,112 @@ const showConsignmentForm=(source,data=null)=>{
 
     
 }
+//switch steps
+const switchISteps = (position,data)=>{
+    var progressSteps = Array.from(document.getElementById("iprogress-card-1").children);
+    progressSteps.forEach((step)=>{
+        step.classList.remove("current");
+    });
+    position = (position >=5 ) ? 5 :position;
+    progressSteps[position-1].classList.add("current");
+    switchIDetails(position,data);
+}
+const switchIDetails=(position,data)=>{
+    var container = document.getElementById("import_forms");
+    Array.from(container.children).forEach(d=>{
+        if(d.id.includes("idetail_") && d.id.split("_")[1] == position) d.classList.remove("hidden");
+        else d.classList.add("hidden");
+    });
+    document.getElementById("iprogress-card-1").classList.remove("hidden");
+    if(position == 1){
+        var importForm = document.getElementById("import_form");
+        if(importForm){
+            var customerSelect = importForm.customer_select;
+            var selectedCustomer;
+            
+            if(customerSelect){
+                Array.from(customerSelect.children).forEach((child,idx)=>{
+                    if(idx > 0) customerSelect.removeChild(child);
+                });
 
+                var customers = (storedData.customers) ? storedData.customers : [];
+                customers.forEach(customer=>{
+                    customerSelect.options.add(new Option(customer.name,customer.id));
+                });
+                customerSelect.options.add(new Option("--add new customer--",-1));
+                
+                customerSelect.addEventListener("change",(e)=>{
+                    if(e.target.value == -1) showCustomerDetailForm('exports_content');
+                    else if(e.target.value != -2){
+                        selectedCustomer = customers.filter(c=>{
+                            return c.id == customerSelect.options[customerSelect.options.selectedIndex].value;
+                        })[0];
+            
+                        importForm.importer_phone.value = selectedCustomer.phone;
+                        importForm.importer_name.value = selectedCustomer.name;
+                        importForm.importer_address.value = selectedCustomer.address+"\n\r"+selectedCustomer.region+","+selectedCustomer.country;
+                        importForm.importer_tin.value = selectedCustomer.tin;
+                   
+                    }
+                    
+                });   
+            }
+            var clientDetail = currentUser.detail;
+            importForm.clearer_name.value = clientDetail.name;
+            importForm.clearer_phone.value = clientDetail.phone;
+            importForm.clearer_address.value = clientDetail.address;
+            importForm.clearer_code.value = clientDetail.code;
+        }
+    }
+}
+//show import form
+const showImportForm =(source,data=null)=>{
+    if(source != "import_list"){
+        document.getElementById("imports_content").classList.remove("hidden");
+        document.getElementById("import_list").classList.add("hidden");
+        greet("Operations",{title:"Consignments",description:"View"});
+        // activateMenu("exports")
+    }
+    document.getElementById(source).classList.add("hidden");
+    const progressSteps = Array.from(document.getElementById("iprogress-card-1").children);
+    progressSteps.forEach((step,index)=>{
+        step.addEventListener("click",(e)=>{
+            switchISteps(index+1,data);
+        })
+    })
+    document.querySelector("#add_import").classList.add("hidden");
+    const parent = document.getElementById("import_forms");
+    parent.classList.remove("hidden");
+    var position = (data == null) ? 1: data.status;
+    switchISteps(position,data);
+
+    
+}
+const addMoreDocsField=()=>{
+    var addMoreRow = document.getElementById("add_more_row");
+    var parent = document.getElementById("checklist_collapsible");
+
+    const rowDiv = document.createElement("div");
+    rowDiv.className = "row-space";
+    const innerDiv = document.createElement("div");
+    innerDiv.className = "row";
+    const inputName = document.createElement("input");
+    inputName.name="file_name";
+    inputName.id="file_name";
+    inputName.type="text";
+    inputName.placeholder = "Enter document name";
+    innerDiv.appendChild(inputName);
+    const inputFile = document.createElement("input");
+    inputFile.type = "file";
+    inputFile.name = "more_file";
+    innerDiv.appendChild(inputFile);
+    rowDiv.appendChild(innerDiv);
+    const spaceDiv = document.createElement("div");
+    spaceDiv.className = "row";
+    rowDiv.appendChild(spaceDiv);
+    parent.insertBefore(rowDiv,addMoreRow);
+    
+}
 //show Invoices
 const showInvoiceList = (invoices,source=null)=>{
     // quotations = quotations.filter(q=>q.status.toLowerCase() != "discarded");
@@ -1602,7 +1731,7 @@ const showInvoiceList = (invoices,source=null)=>{
 
             const qAmount = document.createElement("span");
             var myprice= parseFloat(d.price) - 0.01 * d.discount * d.price;
-            qAmount.textContent = CURRENCY+" "+thousandSeparator(parseFloat(myprice).toFixed(2));
+            qAmount.textContent = storedData.settings.currency+" "+thousandSeparator(parseFloat(myprice).toFixed(2));
             row.appendChild(qAmount);
 
             const qStatus = document.createElement("span");
@@ -1690,7 +1819,7 @@ const showQuotationList = (quotations,source=null)=>{
 
             const qAmount = document.createElement("span");
             var myprice = parseFloat(d.price).toFixed(2) - 0.01*d.price* d.discount;
-            qAmount.textContent = CURRENCY+" "+thousandSeparator(myprice);
+            qAmount.textContent = storedData.settings.currency+" "+thousandSeparator(myprice);
             row.appendChild(qAmount);
 
             const qStatus = document.createElement("span");
@@ -2593,7 +2722,7 @@ const showCostItems = (items,discount,container,status=null)=>{
         const sTotalVal = document.createElement("span");
         sTotalVal.classList.add("row-end");
         // total.style.textAlign = "right";
-        sTotalVal.textContent = CURRENCY+" "+thousandSeparator(sum);
+        sTotalVal.textContent = storedData.settings.currency+" "+thousandSeparator(sum);
         container.appendChild(sTotalVal);
         summaryRow.appendChild(sTotal);
         summaryRow.appendChild(sTotalVal);
@@ -2613,7 +2742,7 @@ const showCostItems = (items,discount,container,status=null)=>{
         const discSpanVal = document.createElement("span");
         discSpanVal.classList.add("row-end");
         // total.style.textAlign = "right";
-        discSpanVal.textContent = CURRENCY+" "+thousandSeparator(disc);
+        discSpanVal.textContent = storedData.settings.currency+" "+thousandSeparator(disc);
         summaryRow2.appendChild(discSpanVal);
         summaryRow2.appendChild(space1);
         container.appendChild(summaryRow2);
@@ -2632,7 +2761,7 @@ const showCostItems = (items,discount,container,status=null)=>{
         totalVal.classList.add("medium-text");
         totalVal.classList.add("row-end");
         // total.style.textAlign = "right";
-        totalVal.textContent = CURRENCY+" "+thousandSeparator(sum - disc);
+        totalVal.textContent = storedData.settings.currency+" "+thousandSeparator(sum - disc);
         summaryRow3.appendChild(totalVal);
         summaryRow3.appendChild(space2);
         container.appendChild(summaryRow3);
@@ -2836,8 +2965,8 @@ const showPettyCash = (records,activeDate,period=null)=>{
         container.insertBefore(row,form);
     }
     showPettyCashForm(closingBal);
-    oBal.textContent = "Opening Balance: Tsh. "+((openingBal < 0) ? "("+thousandSeparator(Math.abs(openingBal))+")" : thousandSeparator(Math.abs(openingBal)));
-    cBal.textContent = "Closing Balance: Tsh. "+((closingBal < 0) ? "("+thousandSeparator(Math.abs(closingBal))+")" : thousandSeparator(Math.abs(closingBal)));
+    oBal.textContent = "Opening Balance: "+storedData.settings.currency+" "+((openingBal < 0) ? "("+thousandSeparator(Math.abs(openingBal))+")" : thousandSeparator(Math.abs(openingBal)));
+    cBal.textContent = "Closing Balance:"+storedData.settings.currency+" "+((closingBal < 0) ? "("+thousandSeparator(Math.abs(closingBal))+")" : thousandSeparator(Math.abs(closingBal)));
 }
 const getPettyCash = ()=>{
     var url = petty_cash_url+"/"+currentUser.id;

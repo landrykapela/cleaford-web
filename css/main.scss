@@ -557,6 +557,11 @@ form input[type="submit"]{
   padding:0.5em 1.5em;
   }
 
+  .special{
+    padding:0.5em;
+    outline: none;
+    margin:0.25em 0.5em;
+  }
 //footer
 footer{
   text-align: center;
@@ -762,8 +767,9 @@ footer{
     padding:0.25em;
     // width:20%;
   }
-  td > select .wide-select{
+  td > select .wide-select,.wide-select{
     width:100% !important;
+    max-width:256px;
   }
  
   .body-row > span.actions{

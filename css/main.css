@@ -656,6 +656,12 @@ form.client_forms .form-group textarea, form.client_forms .form-group input[type
   padding: 0.5em 1.5em;
 }
 
+.special {
+  padding: 0.5em;
+  outline: none;
+  margin: 0.25em 0.5em;
+}
+
 footer {
   text-align: center;
   color: #ffffff;
@@ -898,8 +904,9 @@ td > input[type=number], td > select, th .select, th .num {
   padding: 0.25em;
 }
 
-td > select .wide-select {
+td > select .wide-select, .wide-select {
   width: 100% !important;
+  max-width: 256px;
 }
 
 .body-row > span.actions, .consignment-row > span.actions {
