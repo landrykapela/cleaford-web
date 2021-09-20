@@ -1547,7 +1547,28 @@ const showExportListSummary = (data)=>{
         parent.appendChild(row);
     }
 }
+//show consignment summary
+const showConsignmentSummary=(consignment,type)=>{
+    var customer = storedData.customers.filter(c=>c.id == consignment.exporter_id)[0];
+    document.getElementById("cons_cust_name").textContent = customer.name;
+    document.getElementById("cons_cust_add").textContent = customer.address;
+    document.getElementById("cons_no").textContent = "Consignment #: "+formatConsignmentNumber(consignment.id);
+    document.getElementById("cons_type").textContent = "Consignment type: "+((type.toLowerCase() == "export") ? "Export": "Import");
+    document.getElementById("cons_port_o").textContent = "Port of Origin: "+consignment.port_of_origin;
+    document.getElementById("cons_port_d").textContent = "Port of Delivery: "+consignment.port_of_discharge;
+    let quote = 0;
+    consignment.invoices.forEach(iv=>{
+        quote += iv.price - iv.price*iv.discount*0.01;
+    });
+    let cost = 0;
+    consignment.expenses.forEach(c=>{
+        cost += 1.0 * c.amount;
+    });
+    document.getElementById("cons_quote").textContent = "Quoted Amount: TSH."+thousandSeparator(quote);
+    document.getElementById("cons_cost").textContent = "Total Expenses: TSH."+thousandSeparator(cost);
+    document.getElementById("cons_status").textContent = "Status: "+consignment.status_text;
 
+}
 //close consignmentForm
 const closeConsignmentForm = ()=>{
     document.querySelector("#add_export").classList.remove("hidden");
@@ -1573,10 +1594,12 @@ const showConsignmentForm =(source,data=null)=>{
     const parent = document.getElementById("export_form");
     parent.classList.remove("hidden");
     var position = (data == null) ? 1: data.status;
+    if(data != null) showConsignmentSummary(data,"export");
     switchSteps(position,data);
 
     
 }
+
 //switch steps
 const switchISteps = (position,data)=>{
     var progressSteps = Array.from(document.getElementById("iprogress-card-1").children);
@@ -1731,7 +1754,7 @@ const showInvoiceList = (invoices,source=null)=>{
 
             const qAmount = document.createElement("span");
             var myprice= parseFloat(d.price) - 0.01 * d.discount * d.price;
-            qAmount.textContent = storedData.settings.currency+" "+thousandSeparator(parseFloat(myprice).toFixed(2));
+            qAmount.textContent = ((storedData.settings) ? storedData.settings.currency : "USD")+" "+thousandSeparator(parseFloat(myprice).toFixed(2));
             row.appendChild(qAmount);
 
             const qStatus = document.createElement("span");
@@ -2196,7 +2219,7 @@ const showInvoiceForm=(source,dataId=null)=>{
     var clientYes = document.getElementById("inv_yes");
     var clientNo = document.getElementById("inv_no");
     var clientLabel = document.getElementById("inv_approval_label");
-
+    const consSelect = form.consignment_no;
     Array.from(form.inv_cs_id.children).forEach((c,i)=>{
         if(i>0) form.inv_cs_id.removeChild(c);
     });
@@ -2218,6 +2241,7 @@ const showInvoiceForm=(source,dataId=null)=>{
     var customerAddress = document.getElementById("inv_cs_address");
     var customerRegion = document.getElementById("inv_cs_region");
 
+    
     var newStatus = "Awaiting Manager's Approval";
     
     var data = storedData.invoices.filter(q=>q.id == dataId);
@@ -2322,7 +2346,17 @@ const showInvoiceForm=(source,dataId=null)=>{
             customerName.textContent = cust.name;
             customerAddress.textContent = cust.address.split(",")[0];
             customerRegion.textContent = cust.region +", "+ cust.country;
+            consSelect.classList.remove("hidden");
+
+    var cons = storedData.consignments.filter(c=>c.exporter_id == id);
+    console.log("cons: ",cons);
+    Array.from(consSelect.children).forEach((c,i)=>{if(i>0)consSelect.removeChild(c);})
+    cons.forEach(c=>{
+        consSelect.options.add(new Option(formatConsignmentNumber(c.id),c.id));
+    })
+
         }
+        else consSelect.classList.add("hidden");
         
     })
     
@@ -2413,16 +2447,13 @@ const showInvoiceForm=(source,dataId=null)=>{
         var goods = form.goods.value;
         var containerNum = form.quantity.value;
         var discount = form.discount.value;
-        console.log("dx: ",myCostItems);
+        var consignment = form.consignee_no.value
         var cost_items = myCostItems.map(i=>i.id).join("_");
         var sum = 0;
         myCostItems.forEach(i=>{
-            // var a = (i.count * i.cost)
             sum += parseInt(i.price);
-            console.log("a: ",sum);
         });
-        console.log("x: ",sum);
-        var myData = {customer_id:customerId,service:service,goods:goods,quantity:containerNum,discount:discount,items:cost_items,price:sum};
+        var myData = {customer_id:customerId,service:service,goods:goods,quantity:containerNum,discount:discount,items:cost_items,price:sum,consignment:consignment};
         var method = "POST";
         if(dataId == null) myData.status = "Awaiting Manager's Approval";
         else{

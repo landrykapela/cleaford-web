@@ -241,6 +241,31 @@
                       
                     </div>
                     <div class="column-center hidden" id="export_form">
+                        
+                        <div class="row-space shadow py-3" id="">
+                            <div class="vspace"></div>
+                            <div class="column wide">
+                                <span class="bold">Customer</span>
+                                <span id="cons_cust_name"></span>
+                                <span id="cons_cust_add"></span>
+                            </div>
+                            <div class="column wide">
+                                <span class="bold">Consignment Summary</span>
+                                <span id="cons_no">Consignment #:</span>
+                                <span id="cons_type">Type: </span>
+                                <span id="cons_port_o">Port of Origin: </span>
+                                <span id="cons_port_d">Port of Delivery: </span>
+                            </div>
+                            <div class="column wide">
+                                <span class="bold">Status</span>
+                                <span id="cons_quote"></span>
+                                <span id="cons_cost"></span>
+                                <span id="cons_status"></span>
+                                <!-- <span>Port of Origin: Dar es Salaam</span>
+                                <span>Port of Delivery: Amsterdam</span> -->
+                            </div>
+                            <div class="vspace"></div>
+                        </div>
                        <div class="row-top progress-card" id="progress-card-1">
                            <div class="column-center current" id="step-1">
                             <span class="progress-step">1</span>   
@@ -1714,6 +1739,11 @@
                                             <span id="inv_cs_name"></span>
                                             <span id="inv_cs_address"></span>
                                             <span id="inv_cs_region"></span>
+
+                                            <select class="wide-select hidden" id="consignment_no" name="consignment_no">
+                                                <option value="-1">--select consignment--</option>
+                                            </select>
+                                           
                                         </div>
                                     </div>
                                     
