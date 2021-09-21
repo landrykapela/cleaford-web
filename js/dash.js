@@ -37,7 +37,7 @@ const CONTAINER_FIELDS = [{id:"mbl_number",label:"MB/L Number",required:false,ty
 {id:"plug_yn",label:"Refer Plug",required:true,type:"select",options:["Yes","No"]}];
     
 var currentUser = (storage.getItem("currentUser")) ? JSON.parse(storage.getItem("currentUser")):null;
-var storedData = (storage.getItem("data")) ? JSON.parse(storage.getItem("data")):{cost_items:[],roles:[],client_roles:[],customers:[],roles:[],consignments:[],clients:[],quotations:[],invoices:[]};
+var storedData = (storage.getItem("data")) ? JSON.parse(storage.getItem("data")):{cost_items:[],roles:[],client_roles:[],customers:[],roles:[],consignments:[],clients:[],quotations:[],invoices:[],settings:{}};
 
 var myCostItems = [];
 const originalSetItem = localStorage.setItem;
@@ -50,7 +50,6 @@ localStorage.setItem = function(key, value) {
 
   originalSetItem.apply(this, arguments);
 };
-
 const showBankDetails=()=>{
     var accName = document.getElementById("account_name");
     var accNumber = document.getElementById("account_number");
@@ -2853,6 +2852,11 @@ const showPettyCashDates = (dates,activeDate)=>{
 const showPettyCashForm = (openingBal)=>{
     var form = document.getElementById("pettycash_form");
     if(form){
+        var cons = storedData.consignments.filter(c=>c.status < 10);
+        Array.from(form.pettycash_consignment.children).forEach((c,i)=>{if(i>0) form.pettycash_consignment.removeChild(c);});
+        cons.forEach(c=>{
+            form.pettycash_consignment.options.add(new Option((formatConsignmentNumber(c.id)),c.id));
+        })
         form.addEventListener("submit",(e)=>{
             e.preventDefault();
             
@@ -2864,11 +2868,12 @@ const showPettyCashForm = (openingBal)=>{
             let type = parseInt(form.pettycash_type.options[form.pettycash_type.options.selectedIndex].value);
             let amount = form.pettycash_amount.value.trim();
             let name = form.pettycash_name.value.trim();
+            let consignment = form.pettycash_consignment.value;
 
             var opening_bal = openingBal;
             var closing_bal = (type == 0) ? parseInt(opening_bal) - parseInt(amount) : parseInt(opening_bal) + parseInt(amount);
             
-            let formData = {date_created:date,voucher:voucher,description:desc,type:type,amount:amount,name:name,balance:closing_bal};
+            let formData = {date_created:date,voucher:voucher,description:desc,type:type,amount:amount,name:name,balance:closing_bal,consignment:consignment};
             console.log("formdata: ",formData);
             savePettyCash(formData);
             form.reset();
@@ -2930,7 +2935,7 @@ const showPettyCash = (records,activeDate,period=null)=>{
             const row = document.createElement("div");
             row.className = "body-row shadow-minor";
             const spNum = document.createElement("span");
-            spNum.textContent = data.id;
+            spNum.textContent = formatConsignmentNumber(data.id);
             row.appendChild(spNum);
     
             const spDate = document.createElement("span");
