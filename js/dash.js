@@ -37,6 +37,9 @@ const CONTAINER_FIELDS = [{id:"mbl_number",label:"MB/L Number",required:false,ty
 {id:"plug_yn",label:"Refer Plug",required:true,type:"select",options:["Yes","No"]}];
     
 var currentUser = (storage.getItem("currentUser")) ? JSON.parse(storage.getItem("currentUser")):null;
+// var stor = JSON.parse(storage.getItem("data"));
+// stor.settings = {currency:"USD"};
+// storage.setItem("data",JSON.stringify(stor));
 var storedData = (storage.getItem("data")) ? JSON.parse(storage.getItem("data")):{cost_items:[],roles:[],client_roles:[],customers:[],roles:[],consignments:[],imports:[],clients:[],quotations:[],invoices:[],settings:{}};
 
 var myCostItems = [];
@@ -500,9 +503,10 @@ const setCurrency = (currency)=>{
     settings.currency = currency;
     storedData.settings = settings;
     storage.setItem("data",JSON.stringify(storedData));
+    storedData = JSON.parsee(storage.getItem("data"));
 }
 
-
+if(!storedData.settings.currency) setCurrency("USD");
 
 
 //end of settings functions
@@ -912,7 +916,7 @@ const showConsignment = (tag="export")=>{
         if(consignments.length == 0){
             fetchConsignments().then(result=>{
                 storedData.consignments = result.data;
-                storage.setItem("db",JSON.stringify(storedData));
+                storage.setItem("data",JSON.stringify(storedData));
                 showExportList(result.data);
             })
         }
@@ -926,7 +930,7 @@ const showConsignment = (tag="export")=>{
             fetchImports().then(result=>{
                 console.log("fetchImports(): ",result);
                 storedData.imports = result.data;
-                storage.setItem("db",JSON.stringify(storedData));
+                storage.setItem("data",JSON.stringify(storedData));
                 showImportList(result.data);
             })
             .catch(e=>{
@@ -2548,7 +2552,7 @@ const showStandardDocs = (data)=>{
         innerDiv.appendChild(inputFile);
         const check = document.createElement("span");
         check.id = file.name+"_check";
-        check.className = "material-icons primary-text hidden";
+        check.className = "material-icons primary-text-dark hidden";
         check.textContent = "check_circle";
         innerDiv.appendChild(check);
         rowDiv.appendChild(innerDiv);
@@ -2628,7 +2632,7 @@ const showPredocuments = (data)=>{
             innerDiv.appendChild(inputFile);
             const check = document.createElement("span");
             check.id = file.name+"_check";
-            check.className = "material-icons primary-text";
+            check.className = "material-icons primary-dark-text";
             check.textContent = "check_circle";
             innerDiv.appendChild(check);
             rowDiv.appendChild(innerDiv);
@@ -2696,7 +2700,7 @@ const addMoreDocsField=(cid)=>{
     addMoreBut.classList.add("hidden");
     const check = document.createElement("span");
     check.id = "more_file_check";
-    check.className = "material-icons primary-text hidden";
+    check.className = "material-icons primary-dark-text hidden";
     check.textContent = "check_circle";
     innerDiv.appendChild(check);
     rowDiv.appendChild(innerDiv);

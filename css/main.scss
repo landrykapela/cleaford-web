@@ -696,7 +696,7 @@ footer{
   text-align: center;
 }
 .highlight:hover{
-  @include setBg($primaryColor);
+  @include setBg($primaryDarkColor);
 }
 .no-corner{
   @include squareCorner();
