@@ -2445,7 +2445,7 @@ const switchIDetails=(position,data)=>{
         else d.classList.add("hidden");
     });
     
-    showConsignmentSummary(data,"import");
+    if(data != null) showConsignmentSummary(data,"import");
     document.getElementById("iprogress-card-1").classList.remove("hidden");
     
     var importForm = document.getElementById("import_form");
