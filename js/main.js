@@ -2,7 +2,7 @@ const storage = window.localStorage;
 const clientSummaryCount = 5;
 var userObj = storage.getItem("currentUser");
 var currentUser = (userObj !== null && userObj !== undefined && userObj !=="") ? JSON.parse(userObj):null;
-var storedData = (storage.getItem("data")) ? JSON.parse(storage.getItem("data")):{regions:[],client_roles:[],clients:[],roles:[],features:[]};
+var storedData = (storage.getItem("data")) ? JSON.parse(storage.getItem("data")):{regions:[],client_roles:[],clients:[],roles:[],features:[],settings:{currency:"Tsh"}};
 const DATA_COUNT = 12;
 const NUMBER_CFG = {count: DATA_COUNT, min: 0, max: 100};
 const originalSetItem = localStorage.setItem;
@@ -465,7 +465,9 @@ if(loginForm){
             else{
                 currentUser = response.data;
                 storage.setItem("currentUser",JSON.stringify(currentUser));
-                if(currentUser.id == 0) showAdmin();
+                if(currentUser.id == 0) {
+                    showAdmin();
+                }
                 else{
                     if(currentUser.db == null) showProfile();
                     else showDashboard();

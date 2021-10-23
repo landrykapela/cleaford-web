@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/icon?family=Material+Icons");
+// @import url("./material_font.woff2");
 $primaryColor: #ffcc00;
 $primaryDarkColor: #cc9900;
 $secondaryColor: #d3d3d3;
@@ -82,6 +82,9 @@ body {
 }
 
 //layouts
+.summary_cons{
+  height:50px !important;
+}
 .row-top{
   @include flex(row,flex-start,flex-start);
   width:100%;
@@ -98,7 +101,7 @@ body {
 }
 .row-space{
   @include flex(row,space-between,flex-start);
-  width: 100%;
+  width: calc(100% - 2em);
 }
 .row-end{
   @include flex(row,flex-end,center);
@@ -293,13 +296,14 @@ main > div#dashboard_content{
   text-align: left;
   // flex-grow:s 1;
 }
-.customer-details > div.row span.label,.customer-details >div.row-space span.label{
+.customer-details > div.row span.label,.customer-details >div.row-space span.label,.label{
   text-align: right;
   min-width:100px;
   padding:0.25em 0.5em;
   // font-weight: bold;
+  width:140px;
 }
-.customer-details > div.row span.value,.customer-details >div.row-space span.value,.customer-details >div.row-space a.value{
+.customer-details > div.row span.value,.customer-details >div.row-space span.value,.customer-details >div.row-space a.value,.value{
   text-align: left;
   // @include addRoundCornerTop(4px,4px );
   padding:0.25em 0.5em;
@@ -449,7 +453,7 @@ text-align: left;
 //forms
 form {
   @include flex(column,flex-start ,center );
-  padding: 1em;
+  // padding: 1em;
   margin: 0 auto;
   // border:1px solid $primaryDarkColor;
 }
@@ -562,6 +566,11 @@ form input[type="submit"]{
     outline: none;
     margin:0.25em 0.5em;
   }
+  #import_form,#export_form{
+    width:calc(100% - 2em);
+  }
+
+  //paddings and margins
   .py-1{
     padding-top:1em;
     padding-bottom: 1em;
@@ -714,8 +723,12 @@ footer{
   object-fit: contain;
   margin-right:1em;
 }
+.clickable:hover{
+  color:$primaryDarkColor;
+  cursor: pointer;
+}
 .buttons,.buttons-s,.buttons-t{
-  padding:0.5em 1em;
+  padding:0.35em 1em;
   border:none;
   border-radius: 8px;
   cursor: pointer;
@@ -1006,9 +1019,7 @@ footer{
  width:90%;
  margin:1em auto;
 }
-.consignment-forms{
-  border-bottom:1px solid $faint;
-}
+
 .subscription-forms{
   width:50%;
 }
@@ -1216,8 +1227,6 @@ footer{
 
 }
 .progress-card{
-  // border-bottom: 1px solid $faint;
-  margin-bottom: 2em;
   border-bottom: 1px solid $primaryDarkColor;
   width:calc(100% - 2em);
 }
@@ -1277,9 +1286,45 @@ footer{
   border:1px solid $defaultColor !important;//faintDark;
   color:$defaultColor !important;
 }
+.border{
+  border: 1px solid blue;
+}
 //end layouts
 
 //margins and padding
+
+.mt-1{
+  margin-top: 1em !important;
+}
+.mt-2{
+  margin-top: 2em !important;
+}
+.mt-3{
+  margin-top: 3em !important;
+}
+.mt-4{
+  margin-top: 4em !important;
+}
+.mt-5{
+  margin-top: 5em !important;
+}
+
+.mb-1{
+  margin-bottom: 1em !important;
+}
+.mb-2{
+  margin-bottom: 2em !important;
+}
+.mb-3{
+  margin-bottom: 3em !important;
+}
+.mb-4{
+  margin-bottom: 4em !important;
+}
+.mb-5{
+  // margin-top: 5em !important;
+  margin-bottom: 5em !important;
+}
 .my-1{
   margin-top: 1em !important;
   margin-bottom: 1em !important;
@@ -1298,7 +1343,7 @@ footer{
 }
 .my-5{
   margin-top: 5em !important;
-  margin-right: 5em !important;
+  margin-bottom: 5em !important;
 }
 .mx-1{
   margin-left: 1em !important;
@@ -1319,6 +1364,37 @@ footer{
 .mx-5{
   margin-left: 5em !important;
   margin-right: 5em !important;
+}
+
+.mr-1{
+  margin-right: 1em !important;
+}
+.mr-2{
+  margin-right: 2em !important;
+}
+.mr-3{
+  margin-right: 3em !important;
+}
+.mr-4{
+  margin-right: 4em !important;
+}
+.mr-5{
+  margin-right: 5em !important;
+}
+.ml-1{
+  margin-left: 1em !important;
+}
+.ml-2{
+  margin-left: 2em !important;
+}
+.ml-3{
+  margin-left: 3em !important;
+}
+.ml-4{
+  margin-left: 4em !important;
+}
+.ml-5{
+  margin-left: 5em !important;
 }
 .py-1{
   margin-top: 1em !important;
@@ -1403,9 +1479,16 @@ footer{
   font-size: small !important;
   // text-align: center !important;
 }
+.fail-text-normal{
+  color:$failColor !important;
+  // font-size: small !important;
+}
 .success-text{
   color:$successColor !important;
   
+}
+.success-text-faint{
+  color:$successColorFaint !important;
 }
 .info-text{
   color: $infoColor !important;
@@ -1543,8 +1626,79 @@ a.nav-item:hover {
   display:none !important;
 }
 //material icons
-.material-icons{
+/* fallback */
+@font-face {
+  font-family: 'Material Icons';
+  font-style: normal;
+  font-weight: 400;
+  src: url(material_font.woff2) format('woff2');
+}
+
+.material-icons {
+  font-family: 'Material Icons';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  font-feature-settings: 'liga';
+  -webkit-font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
   cursor: pointer;
+}
+//google font
+/* tamil */
+@font-face {
+  font-family: 'Baloo Thambi 2';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(thambi.woff2) format('woff2');
+  unicode-range: U+0964-0965, U+0B82-0BFA, U+200C-200D, U+20B9, U+25CC;
+  font-feature-settings: 'liga';
+  -webkit-font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Baloo Thambi 2';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(thambi.woff2) format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+1EA0-1EF9, U+20AB;
+  font-feature-settings: 'liga';
+  -webkit-font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Baloo Thambi 2';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(thambi.woff2) format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+  font-feature-settings: 'liga';
+  -webkit-font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+}
+/* latin */
+@font-face {
+  font-family: 'Baloo Thambi 2';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(thambi.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+  font-feature-settings: 'liga';
+  -webkit-font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
 }
 //animations
 @keyframes spin{

@@ -37,10 +37,8 @@ const CONTAINER_FIELDS = [{id:"mbl_number",label:"MB/L Number",required:false,ty
 {id:"plug_yn",label:"Refer Plug",required:true,type:"select",options:["Yes","No"]}];
     
 var currentUser = (storage.getItem("currentUser")) ? JSON.parse(storage.getItem("currentUser")):null;
-// var stor = JSON.parse(storage.getItem("data"));
-// stor.settings = {currency:"USD"};
-// storage.setItem("data",JSON.stringify(stor));
-var storedData = (storage.getItem("data")) ? JSON.parse(storage.getItem("data")):{cost_items:[],roles:[],client_roles:[],customers:[],roles:[],consignments:[],imports:[],clients:[],quotations:[],invoices:[],settings:{}};
+
+var storedData = (storage.getItem("data")) ? JSON.parse(storage.getItem("data")):{cost_items:[],roles:[],client_roles:[],customers:[],roles:[],consignments:[],imports:[],clients:[],quotations:[],invoices:[],settings:{currency:"Tsh"}};
 
 var myCostItems = [];
 const originalSetItem = localStorage.setItem;
@@ -67,8 +65,15 @@ const showBankDetails=()=>{
     country.textContent = "Country: "+BANK_DETAILS.country;
 }
 //Functions start
-const thousandSeparator =(x)=> {
-    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+const thousandSeparator =(val,short=false)=> {
+    if(short){
+        let ans = val;
+        if(val>= 1000) ans = (val/1000).toFixed(1) +"K";
+        if(val >= 1000000) ans = (val/1000000).toFixed(1) +"M";
+        if(val >= 1000000000) ans = (val/1000000000).toFixed(1) +"B";
+        return ans;
+    }
+    return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 const generateRandomData = (count)=>{
     var result = [];
@@ -489,7 +494,6 @@ const getActiveEticket =()=>{
     }
 }
 
-
 //settings functions
 const currencySetting = document.getElementById("currency_setting");
 if(currencySetting){
@@ -506,7 +510,7 @@ const setCurrency = (currency)=>{
     storedData = JSON.parsee(storage.getItem("data"));
 }
 
-if(!storedData.settings.currency) setCurrency("USD");
+if(storedData.settings) setCurrency("Tsh");
 
 
 //end of settings functions
@@ -898,9 +902,6 @@ const uploadImportFiles = (file,cid,name,filename=null)=>{
         .then(result=>{
             console.log("result: ",result);
             resolve(result);
-            // updateConsignmentList(result.data);
-            // showImportList(result.data);
-            showFeedback(result.msg,result.code);
         })
         .catch(e=>{
             reject("Something went wrong! Please try again later");
@@ -931,13 +932,17 @@ const showConsignment = (tag="export")=>{
                 console.log("fetchImports(): ",result);
                 storedData.imports = result.data;
                 storage.setItem("data",JSON.stringify(storedData));
+                console.log("fetchImports(): ",result.data);
                 showImportList(result.data);
             })
             .catch(e=>{
                 showFeedback(e,1);
             })
         }
-        else showImportList(storedData.imports); 
+        else {
+            console.log("showConsignment: ",storedData.imports);
+            showImportList(storedData.imports); 
+        }
     }
     
 }
@@ -1052,7 +1057,7 @@ const viewCustomerDetails = (customer,source)=>{
     else{
         inc_cert.textContent = "No Certificate";
     }
-    // var db = JSON.parse(storage.getItem("db"));
+    
     var consignments = storedData.consignments.filter(c=>c.exporter_id == customer.id);
     showCustomerConsignments(consignments,0);
 
@@ -1119,7 +1124,7 @@ const showCustomerConsignments = (consignments,flag)=>{
 
             row.addEventListener("click",(e)=>{
                 console.log("clicked data: ",d);
-                showConsignmentForm("view_customer_content",d);
+                showConsignmentDetail(d);
             })
         })
        
@@ -1525,7 +1530,7 @@ const showExportList = (data,source=null)=>{
 
             row.addEventListener("click",(e)=>{
                 console.log("clicked data: ",d);
-                showConsignmentForm("export_list",d);
+                showConsignmentDetail(d);
             })
         })
        
@@ -1565,7 +1570,7 @@ const showImportList = (data,source=null)=>{
     });
 
     if(data && data.length > 0){
-        data.forEach(d=>{
+        sortConsignments(data).forEach(d=>{
             const row = document.createElement("span");
             row.classList.add("consignment-row");
             row.classList.add("shadow-minor");
@@ -1604,7 +1609,7 @@ const showImportList = (data,source=null)=>{
 
             row.addEventListener("click",(e)=>{
                 console.log("clicked data: ",d);
-                showImportForm("import_list",d);
+                showImportDetail("import_list",d);
             })
         })
        
@@ -1673,49 +1678,109 @@ const showExportListSummary = (data)=>{
 }
 //show consignment summary
 const showConsignmentSummary=(consignment,type)=>{
+   console.log("x: ",consignment);
     let quote = 0;
-    consignment.invoices.forEach(iv=>{
+    if(consignment.invoices){
+        consignment.invoices.forEach(iv=>{
         quote += iv.price - iv.price*iv.discount*0.01;
     });
-    quote = 2340 * quote;
+}
+    quote = USD_RATE * quote;
     let cost = 0;
-    consignment.expenses.forEach(c=>{
+    if(consignment.expenses){
+        consignment.expenses.forEach(c=>{
         cost += 1.0 * c.amount;
-    });
+        }); 
+    }
+    if(consignment.tax_amount) cost =+ parseInt(consignment.tax_amount);
     let paid = 0.5*quote;
+    var chartArea;
+    var chartCtx;
     if(type == "export"){
+        document.getElementById("export_consignment_summary").classList.remove("hidden");
         var customer = storedData.customers.filter(c=>c.id == consignment.exporter_id)[0];
         document.getElementById("cons_cust_name").textContent = customer.name;
         document.getElementById("cons_cust_add").textContent = customer.address;
-        document.getElementById("cons_no").textContent = "Consignment #: "+formatConsignmentNumber(consignment.id);
-        document.getElementById("cons_type").textContent = "Consignment type: Export";
-        document.getElementById("cons_port_o").textContent = "Port of Origin: "+consignment.port_of_origin;
-        document.getElementById("cons_port_d").textContent = "Port of Delivery: "+consignment.port_of_discharge;
-        document.getElementById("cons_quote").textContent = "Quoted Amount: TSH."+thousandSeparator(quote);
-        document.getElementById("cons_amount_paid").textContent = "Paid Amount: TSH."+thousandSeparator(paid);
-        document.getElementById("cons_amount_spent").textContent = "Expenses: TSH."+thousandSeparator(cost);
+        document.getElementById("cons_no").textContent = formatConsignmentNumber(consignment.id);
+        document.getElementById("cons_type").textContent = "Export";
+        document.getElementById("cons_port_o").textContent = consignment.port_of_origin;
+        document.getElementById("cons_port_d").textContent = consignment.port_of_discharge;
+        document.getElementById("cons_quote").textContent = "Tsh."+thousandSeparator(quote,true);
+        document.getElementById("cons_amount_paid").textContent = "Tsh."+thousandSeparator(paid,true);
+        document.getElementById("cons_amount_spent").textContent = "Tsh."+thousandSeparator(cost,true);
+      
+        document.getElementById("cons_status").textContent = consignment.status_text;
+        chartArea = document.getElementById("summary_cons");
         
-        var costBar = document.getElementById("cons_cost");//.textContent = "Total Expenses: TSH."+thousandSeparator(cost);
-        var paidBar = document.getElementById("cons_paid");//.textContent = "Status: "+consignment.status_text;
-        let pgEx = quote > 0 ? (100*cost / quote) : 100;
-        let pgPd = quote > 0 ? (100*paid/quote) : 0;
-        costBar.style.width = pgEx+"%";
-        paidBar.style.width = pgPd+"%";
     }
     else{
-        var customer = storedData.customers.filter(c=>c.id == consignment.importer)[0];
+        document.getElementById("import_summary").classList.remove("hidden");
+        chartArea = document.getElementById("summary_imp");
+        var customer = storedData.customers.filter(c=>c.id == consignment.exporter_id)[0];
         document.getElementById("imp_cust_name").textContent = customer.name;
         document.getElementById("imp_cust_add").textContent = customer.address;
-        document.getElementById("imp_no").textContent = "Consignment #: "+formatConsignmentNumber(consignment.id);
-        document.getElementById("imp_type").textContent = "Consignment type: Import";
-        document.getElementById("imp_port_o").textContent = "Port of Origin: "+consignment.port_of_origin;
-        document.getElementById("imp_port_d").textContent = "Port of Delivery: "+consignment.port_of_discharge;
-        document.getElementById("imp_quote").textContent = "Quoted Amount: TSH."+thousandSeparator(quote);
-        document.getElementById("imp_cost").textContent = "Total Expenses: TSH."+thousandSeparator(cost);
-        document.getElementById("imp_status").textContent = "Status: "+consignment.status_text;
+        document.getElementById("imp_no").textContent = formatConsignmentNumber(consignment.id);
+        document.getElementById("imp_type").textContent = "Import";
+        document.getElementById("imp_port_o").textContent = consignment.port_of_origin;
+        document.getElementById("imp_port_d").textContent = consignment.port_of_discharge;
+        document.getElementById("imp_quote").textContent = "Tsh."+thousandSeparator(quote,true);
+        document.getElementById("imp_status").textContent = consignment.status_text;
+        document.getElementById("imp_amount_paid").textContent = "Tsh."+thousandSeparator(paid,true);
+        document.getElementById("imp_amount_spent").textContent = "Tsh."+thousandSeparator(cost,true);
+        
     }
-    
-   
+    if(chartArea.hasChildNodes()){
+        Array.from(chartArea.children).forEach(c=>chartArea.removeChild(c));
+        
+    }
+    chartCtx = document.createElement("canvas");
+    chartArea.appendChild(chartCtx);
+    var config = {
+        type:"bar",
+        data:{
+            labels:["Quoted Amount","Expenses","Amount Paid"],
+            datasets:[{
+                axis:'y',
+                barThickness:16,
+                data:[quote,cost,paid],
+                backgroundColor:['rgba(0,255,0,0.4)','rgba(255,0,0,1)','rgba(0,128,0,1)'],
+                borderColor:['rgba(0,255,0,0.4)','rgba(255,0,0,1)','rgba(0,128,0,1)']
+            }]
+
+        },
+        options:{
+            indexAxis:'y',
+            scales:{
+                x:{
+                    ticks:{
+                        callback:(val,idx,values)=>{
+                            let ans = val;
+                            if(val>= 1000) ans = (val/1000).toFixed(1) +"K";
+                            if(val >= 1000000) ans = (val/1000000).toFixed(1) +"M";
+                            if(val >= 1000000000) ans = (val/1000000000).toFixed(1) +"B";
+                            return ans;
+                        }
+                    },
+                    grid:{
+                        display:true
+                    }
+                },
+                y:{
+                    grid:{
+                        display:true
+                    }
+                }
+            },
+            plugins:{
+                legend:{
+                    display:false
+                }
+            }
+            
+        }
+    }
+    let chart = new Chart(chartCtx,config);
+    // chart.destroy();
 
 }
 //close consignmentForm
@@ -1725,14 +1790,38 @@ const closeConsignmentForm = ()=>{
     document.querySelector("#export_list").classList.remove("hidden");
 }
 //show consignment form
-const showConsignmentForm =(source,data=null)=>{
-    if(source != "export_list"){
+const showConsignmentForm =(source)=>{
+    document.getElementById("export_consignment_summary").classList.add("hidden");
+    if(source !="export_list"){
+        document.getElementById("exports_content").classList.remove("hidden");
+        document.getElementById("export_list").classList.add("hidden");
+        greet("Operations",{title:"Consignments",description:"Add"});
+        // activateMenu("exports")
+    }
+    document.getElementById(source).classList.add("hidden");
+    const progressSteps = Array.from(document.getElementById("progress-card-1").children);
+    progressSteps.forEach((step,index)=>{
+        step.addEventListener("click",(e)=>{
+            switchSteps(index+1,data);
+        })
+    })
+    document.querySelector("#add_export").classList.add("hidden");
+    const parent = document.getElementById("export_form");
+    parent.classList.remove("hidden");
+    document.getElementById("consignment_form").reset();
+    
+    switchSteps(1,null);
+
+    
+}
+const showConsignmentDetail =(data)=>{
+   
         document.getElementById("exports_content").classList.remove("hidden");
         document.getElementById("export_list").classList.add("hidden");
         greet("Operations",{title:"Consignments",description:"View"});
         // activateMenu("exports")
-    }
-    document.getElementById(source).classList.add("hidden");
+    
+    document.getElementById("export_list").classList.add("hidden");
     const progressSteps = Array.from(document.getElementById("progress-card-1").children);
     progressSteps.forEach((step,index)=>{
         step.addEventListener("click",(e)=>{
@@ -1765,6 +1854,7 @@ const switchDetails = (index,data)=>{
         else d.classList.add("hidden");
     });
    
+    showConsignmentSummary(data,"export");
     if(index == 1){
         var consignmentDataForm = document.getElementById("consignment_form");
         consignmentDataForm.reset();
@@ -1948,7 +2038,7 @@ const switchDetails = (index,data)=>{
             var portSearch = document.getElementById("port_of_origin");
             var searchablePorts = document.getElementById("searchable_ports");
             portSearch.addEventListener("focus",(e)=>{
-                var filteredPorts=filteredPorts = PORTS.map(p=>(p.name + ", "+p.code));
+                var filteredPorts= PORTS.map(p=>(p.name + ", "+p.code));
                 loadPorts(filteredPorts,searchablePorts,portSearch);
             })
             portSearch.addEventListener("input",(e)=>{
@@ -2337,7 +2427,6 @@ const switchDetails = (index,data)=>{
 }
 //switch steps
 const switchISteps = (position,data)=>{
-    console.log("fck: ",data);
     var progressSteps = Array.from(document.getElementById("iprogress-card-1").children);
     progressSteps.forEach((step)=>{
         step.classList.remove("current");
@@ -2349,20 +2438,23 @@ const switchISteps = (position,data)=>{
 
 const switchIDetails=(position,data)=>{
     console.log("fckd: ",data);
-    var container = document.getElementById("import_forms");
+    var container = document.getElementById("import_form");
     Array.from(container.children).forEach((d,i)=>{
-        if(i==0) d.classList.remove("hidden");
+        if(d.id == "submit_row") d.classList.remove("hidden");
         else if(d.id.includes("idetail_") && d.id.split("_")[1] == position) d.classList.remove("hidden");
         else d.classList.add("hidden");
     });
     
+    showConsignmentSummary(data,"import");
     document.getElementById("iprogress-card-1").classList.remove("hidden");
-    if(position == 1){
-        var importForm = document.getElementById("import_form");
-        if(importForm){
+    
+    var importForm = document.getElementById("import_form");
+    if(importForm){
+        let formData = data == null ? {}:data;
+        if(position == 1){
             var customerSelect = importForm.icustomer_select;
             var customers = (storedData.customers) ? storedData.customers : [];
-            var selectedCustomer = (data ==null) ? {}:storedData.customers.filter(c=>c.id == data.importer)[0];
+            var selectedCustomer = (data ==null) ? null:storedData.customers.filter(c=>c.id == data.exporter_id)[0];
             
             if(customerSelect){
                 Array.from(customerSelect.children).forEach((child,idx)=>{
@@ -2388,9 +2480,21 @@ const switchIDetails=(position,data)=>{
                     document.getElementById("checklist_fieldset").classList.remove("hidden");
                     document.getElementById("submit_row").classList.remove("hidden");
                     
-                    if(data.files) showPredocuments(data);
-                    else showStandardDocs(data);
-                   
+                    if(data.files){
+                        var notPredocs = ["tax_assessment_report","tax_assessment_receipt","release_order","tasad_receipt","delivery_order"];
+                        var myF = [... new Set(data.files.map(f=>f.name.toLowerCase()))].filter(f=>notPredocs.indexOf(f) === -1);
+                        console.log("wow: ",myF);
+                        console.log("wow: ",data.files);
+                        showPredocuments(data);
+
+                    }
+                    else {
+                        var notPredocs = ["tax_assessment_report","tax_assessment_receipt","release_order","tasad_receipt","delivery_order"];
+                        var myF = [... new Set(data.files.map(f=>f.name.toLowerCase()))].filter(f=>notPredocs.indexOf(f) === -1);
+                        console.log("wowwer: ",myF);
+                        showStandardDocs(data);
+                    }
+                    
                 }
                 else{
                     document.getElementById("checklist_fieldset").classList.add("hidden");
@@ -2412,56 +2516,364 @@ const switchIDetails=(position,data)=>{
                         importForm.clearer_phone.value = clientDetail.phone;
                         importForm.clearer_address.value = clientDetail.address;
                         importForm.clearer_code.value = clientDetail.code;
+
                         if(data == null){
-                            let formData = {importer:selectedCustomer.id,clearer:currentUser.id};
-                            let options = {
-                                body:JSON.stringify(formData),
-                                method:"POST",
-                                headers:{'content-type':'application/json','authorization':'Bearer '+currentUser.accessToken}
-                            }
-                            console.log("fd: ",formData);
-                            fetch(create_import_url+"/"+currentUser.id,options)
-                            .then(res=>res.json())
-                            .then(result=>{
-                                console.log("reesult: ",result);
-                                data = result.data;
-                                document.getElementById("checklist_fieldset").classList.remove("hidden");
-                                showStandardDocs(data);
-                                document.getElementById("submit_row").classList.remove("hidden");
-                            
+                            let url = create_import_url+"/"+currentUser.id;
+                            var body = {importer:selectedCustomer.id,clearer:clientDetail.id,code:clientDetail.code,type:1};
+                            var options = {method:"POST",body:JSON.stringify(body),headers:
+                            {'Content-type':'application/json','Authorization':'Bearer '+currentUser.accessToken}};
+                            fetch(url,options)
+                            .then(res=>res.json()).then(result=>{
+                                console.log("new imprt: ",result);
+                                if(result.code == 0){
+                                    var imports = storedData.imports;
+                                    imports.push(result.data);
+                                    storage.setItem("data",JSON.stringify(storedData));
+                                    storedData = JSON.parse(storage.getItem("data"));
+                                    data = result.data;
+                                    document.getElementById("checklist_fieldset").classList.remove("hidden");
+                                    if(data && data.files.length > 0) showPredocuments(data);
+                                    else showStandardDocs(data);
+                                }
+                                else showFeedback("Oops! Something went wrong!",1)
                             })
                             .catch(e=>{
-                                console.log("e: ",e);
-                                showFeedback("Oops! Could not initialize import",1);
+                                console.log("c: ",e);
                             })
                         }
-                        
                     }
-                    
                 });   
             }
-            
-            
-        }
-        var addMoreButton = document.getElementById("btn_more_documents");
-        
+            var addMoreButton = document.getElementById("btn_more_documents");
+            if(data && data.files.length > 0) {
+                var notPredocs = ["tax_assessment_report","tax_assessment_receipt","release_order","tasad_receipt","delivery_order"];
+                var myF = [... new Set(data.files.map(f=>f.name.toLowerCase()))];
+                console.log("my: ",myF);
+                showPredocuments(data);
+            }
+            else showStandardDocs(data);
             addMoreButton.addEventListener("click",(e)=>{
                 addMoreDocsField(data.id);
             })
-        
-    }
-    if(data != null){
-        var summaryDetail = document.getElementById("import_summary");
-        summaryDetail.classList.remove("hidden");
-        showConsignmentSummary(data,"import");
-    }
-   
-    if(position >1 && data == null){
-        console.log("data: ",data);
-        alertDialog({description:"Please complete stage 1",actionText:"Go Back",title:"Required Information"},()=>{
-            switchISteps(1,data);
+            
+        }
+        if(position == 2){
+            importForm.cargo_classification.value = data.cargo_classification;
+            importForm.place_of_destination.value = data.place_of_destination;
+            importForm.place_of_delivery.value = data.place_of_delivery;
+            if(data.place_of_delivery && data.place_of_delivery.length > 0){
+                var ports = PORTS.filter(p=>p.country.toLowerCase() == data.place_of_destination.toLowerCase() && p.name.toLowerCase() == data.place_of_delivery.toLowerCase())
+                ports.forEach(p=>importForm.port_of_discharge.options.add(new Option(p.name+", "+p.code,p.code)));
+                var myPort = ports.filter(p=>p.name.toLowerCase() == data.place_of_delivery.toLowerCase());
+                importForm.port_of_discharge.value = (myPort.length > 0) ? ports.filter(p=>p.name.toLowerCase() == data.place_of_delivery.toLowerCase())[0].code : data.port_of_discharge;
+            }
+            else{
+                importForm.place_of_destination.addEventListener("input",(e)=>{
+                    importForm.port_of_discharge.options.forEach(c=>importForm.port_of_discharge.removeChild(c));
+                    let country = e.target.value.toLowerCase();
+                    var ports = PORTS.filter(p=>p.country.toLowerCase().includes(country) || p.name.toLowerCase().includes(country));
+                    ports.forEach(p=>importForm.port_of_discharge.options.add(new Option(p.name+", "+p.code,p.code)));
+                })
+            }
+            // PORTS.forEach(p=>importForm.port_of_origin.options.add(new Option(p.name+", "+p.code,p.code)));
+            importForm.port_of_origin.addEventListener("input",e=>{
+                let org = e.target.value.toLowerCase();
+                var ports = PORTS.filter(p=>p.name.toLowerCase().includes(org) || p.country.toLowerCase().includes(org)).map(p=>p.name+", "+p.code);
+                loadPorts(ports,document.getElementById("isearchable_ports"),importForm.port_of_origin);
+            })
+            importForm.port_of_origin.value = data.port_of_origin;
+            importForm.no_of_containers.value = data.no_of_containers;
+            importForm.goods_description.value = data.goods_description;
+            importForm.no_of_packages.value = data.no_of_packages;
+            importForm.package_unit.value = data.package_unit;
+            importForm.gross_weight.value = data.gross_weight;
+            importForm.gross_weight_unit.value = data.gross_weight_unit;
+            importForm.gross_volume.value = data.gross_volume;
+            importForm.gross_volume_unit.value = data.gross_volume_unit;
+            importForm.net_weight.value = data.net_weight;
+            importForm.net_weight_unit.value = data.net_weight_unit;
+            importForm.invoice_value.value = data.invoice_value;
+            importForm.invoice_currency.value = data.invoice_currency;
+            importForm.freight_charge.value = data.freight_charge;
+            importForm.freight_currency.value = data.freight_currency;
+            importForm.imdg_code.value = data.imdg_code;
+            importForm.packing_type.value = data.packing_type;
+            importForm.oil_type.value = data.oil_type;
+            importForm.shipping_mark.value = data.shipping_mark;
+            // importForm.consignee_name.value = data.consignee_name;
+            // importForm.consignee_phone.value = data.consignee_phone;
+            // importForm.consignee_address.value = data.consignee_address;
+            // importForm.consignee_tin.value = data.consignee_tin;
+            // importForm.notify_name.value = data.notify_name;
+            // importForm.notify_phone.value = data.notify_phone;
+            // importForm.notify_address.value = data.notify_address;
+            // importForm.notify_tin.value = data.notify_tin;
+            // importForm.clearer_name.value = currentUser.detail.name;
+            // importForm.clearer_address.value = currentUser.detail.address;
+            // importForm.clearer_phone.value = currentUser.detail.phone;
+            // importForm._code.value = (data && data.forwarder_code) ? data.forwarder_code: currentUser.detail.code;
+            importForm.icustomer_select.value = data.exporter_id;
+            
+                    
+        }
+        if(position == 3){
+            if(data.assessment_date) {
+                importForm.import_assessment_date.type = "text";
+                importForm.import_assessment_date.value = data.assessment_date;
+            }
+            if(data.assessment_appealed >= 0){
+                importForm.assessment_appeal.value = data.assessment_appealed;
+                importForm.tax_appeal_comment.value = data.comments;
+                document.getElementById("tax_comments").classList.remove("hidden");
+            }
+            importForm.tax_amount.value = data.tax_amount;
+            importForm.tax_currency.value = data.tax_currency;
+
+            if(data && (data.files.map(f=>f.name.toLowerCase()).includes("tax_assessment_report") || data.files.map(f=>f.name.toLowerCase()).includes("tax_assessment_receipt")) ){
+                data.files.forEach(file=>{
+                    if(file.name.toLowerCase() == "tax_assessment_report" || file.name.toLowerCase() == "tax_assessment_receipt"){
+                        let key = file.name.toLowerCase();
+                        var check = document.getElementById(key+"_check");
+                        check.className = "material-icons primary-dark-text";
+                        var link = document.getElementById(key+"_link");
+                        link.classList.remove("hidden");
+                        link.href = files_url+"/"+file.filename;
+
+                        let myFileInput = document.getElementById(key);
+                        if(myFileInput){
+                            myFileInput.addEventListener("change",e=>{
+                                let reader = new FileReader();
+                                if(e.target.files[0]){
+                                    reader.addEventListener("load",()=>{
+                                        uploadImportFiles(reader.result,data.id,key,file.filename)
+                                        .then(result=>{
+                                            if(result.code == 0){
+                                                let tmpLink = URL.createObjectURL(inputFile.files[0]);
+                                                link.href = tmpLink;
+                                                data.files = result.data.files;
+                                                let myfilenames = data.files.map(f=>f.name.toLowerCase());
+                                                if(myfilenames.includes("tax_assessment_receipt")){
+                                                    if(data.status <=3) data.status = 4;
+                                                }
+                                              
+                                            }
+                                            showFeedback(result.msg,result.code);
+                                        })
+                                        .catch(e=>{
+                                            console.log("uploadImportFiles(): ",e);
+                                            showFeedback("Oops! Something went wrong!",1);
+                                        })
+                                    },false);
+                                    reader.readAsDataURL(e.target.files[0]);
+                                }
+                                
+                                
+                            })
+                        }
+                    }
+                })
+            }
+            else{
+                console.log("what's up")
+                let reportFileInput = document.getElementById("tax_assessment_report");
+                var check = document.getElementById("tax_assessment_report_check");
+                check.className = "material-icons primary-dark-text hidden";
+                var link = document.getElementById("tax_assessment_report_link");
+                        
+                if(reportFileInput){
+                    reportFileInput.addEventListener("change",e=>{
+                        e.preventDefault();
+                        console.log("tax report...")
+                        let reader = new FileReader();
+                        if(e.target.files[0]){
+                            reader.addEventListener("load",()=>{
+                                uploadImportFiles(reader.result,data.id,"tax_assessment_report",null)
+                                .then(result=>{
+                                    console.log('result1: ',result);
+                                    if(result.code == 0){
+                                        storedData.imports = result.data;
+                                        storage.setItem("data",JSON.stringify(storedData));
+                                        storedData = JSON.parse(storage.getItem("data"));
+                                        let tmpLink = URL.createObjectURL(reportFileInput.files[0]);
+                                        link.href = tmpLink;
+                                        link.classList.remove("hidden");
+                                        check.classList.remove("hidden");
+                                        data.files = result.data.files;
+                                       
+                                    }
+                                    showFeedback(result.msg,result.code);
+                                })
+                                .catch(e=>{
+                                    console.log("uploadImportFiles(): ",e);
+                                    showFeedback("Oops! Something went wrong!",1);
+                                })
+                            },false);
+                            reader.readAsDataURL(e.target.files[0]);
+                        }
+                        
+                        
+                    })
+                }
+                let receiptFileInput = document.getElementById("tax_assessment_receipt");
+                var check2 = document.getElementById("tax_assessment_receipt_check");
+                check2.className = "material-icons primary-dark-text hidden";
+                var link2 = document.getElementById("tax_assessment_receipt_link");
+                      
+                if(receiptFileInput){
+                    receiptFileInput.addEventListener("change",e=>{
+                        let reader = new FileReader();
+                        if(e.target.files[0]){
+                            reader.addEventListener("load",()=>{
+                                uploadImportFiles(reader.result,data.id,"tax_assessment_receipt",null)
+                                .then(result=>{
+                                    console.log("res: ",result);
+                                    showFeedback(result.msg,result.code);
+                                    if(result.code == 0){
+                                        storedData.imports = result.data;
+                                        storage.setItem("data",JSON.stringify(storedData));
+                                        storedData = JSON.parse(storage.getItem("data"));
+                                        let tmpLink = URL.createObjectURL(reportFileInput.files[0]);
+                                        link2.href = tmpLink;
+                                        link2.classList.remove("hidden");
+                                        check2.classList.remove("hidden");
+                                        data = result.data.find(d=>d.id == data.id);
+                                        switchISteps(data.status,data);
+                                    }
+                                })
+                                .catch(e=>{
+                                    console.log("uploadImportFiles(): ",e);
+                                    showFeedback("Oops! Something went wrong!",1);
+                                })
+                            },false);
+                            reader.readAsDataURL(e.target.files[0]);
+                        }
+                        
+                        
+                    })
+                }
+            }
+        }
+        if(position == 4){
+            if(data.verification_date){
+                importForm.verification_date.type = "text";
+                var d = data.verification_date.split(" ");
+                importForm.verification_date.value = d[0];
+                importForm.verification_time.type = "text";
+                importForm.verification_time.value = d[1];
+            }
+            if(data.verification_booking){
+                importForm.verification_booking_no.value = data.verification_booking;
+            }
+        }
+        importForm.addEventListener("submit",(e)=>{
+            e.preventDefault();
+            if(position == 1){
+                formData.exporter_id = importForm.icustomer_select.value;
+                formData.forwarder_code = importForm.forwarder_code.value;
+            }
+            if(position == 2){
+                formData.cargo_classification = importForm.cargo_classification.value;
+                formData.place_of_destination = importForm.place_of_destination.value;
+                formData.place_of_delivery =    importForm.place_of_delivery.value;
+                formData.type =1;
+                formData.port_of_discharge = importForm.port_of_discharge.value;
+                formData.port_of_origin = importForm.port_of_origin.value;
+                formData.no_of_containers = importForm.no_of_containers.value;
+                formData.goods_description = importForm.goods_description.value;
+                formData.no_of_packages = importForm.no_of_packages.value;
+                formData.package_unit = importForm.package_unit.value;
+                formData.gross_weight = importForm.gross_weight.value;
+                formData.gross_weight_unit=importForm.gross_weight_unit.value;
+                formData.gross_volume=importForm.gross_volume.value;
+                formData.gross_volume_unit=importForm.gross_volume_unit.value;
+                formData.net_weight=importForm.net_weight.value;
+                formData.net_weight_unit = importForm.net_weight_unit.value;
+                formData.invoice_value = importForm.invoice_value.value;
+                formData.invoice_currency = importForm.invoice_currency.value;
+                formData.freight_charge = importForm.freight_charge.value;
+                formData.freight_currency = importForm.freight_currency.value;
+                formData.imdg_code = importForm.imdg_code.value;
+                formData.packing_type=importForm.packing_type.value;
+                formData.oil_type=importForm.oil_type.value;
+                formData.shipping_mark = importForm.shipping_mark.value;
+              
+                formData.forwarder_code = (formData && formData.forwarder_code) ? formData.forwarder_code: currentUser.detail.code;
+                formData.exporter_id = importForm.icustomer_select.value;
+                formData.status = (data.status <= 2)?3:data.status;
+    
+            }
+            if(position == 3){
+                formData.tax_amount = importForm.tax_amount.value;
+                formData.tax_currency = importForm.tax_currency.value;
+                formData.assessment_appealed = importForm.assessment_appeal.value;
+                formData.assessment_date = Date.parse(importForm.import_assessment_date.value);
+                formData.comments = importForm.tax_appeal_comment.value;
+                
+            }
+            if(position == 4){
+                formData.verification_date = importForm.verification_date.value +" "+importForm.verification_time.value;
+                formData.verification_booking = importForm.verification_booking_no.value;
+                formData.verification_status = importForm.verification_status.value;
+                if(formData.verification_date){
+                    if(formData.status <= 4) formData.status = 5;
+                }
+
+                importForm.release_order.addEventListener("change",(e)=>{
+                    if(e.target.files[0]){
+                        let reader = new FileReader();
+                        reader.addEventListener("load",()=>{
+                            uploadImportFiles(reader.result,data.id,"release_order",null)
+                            .then(result=>{
+                                console.log("result2: ",result);
+                                if(result.code == 0){
+                                    storedData.imports = result.data;
+                                    storage.setItem("data",JSON.stringify(storedData));
+                                    storedData = JSON.parse(storage.getItem("data"));
+                                }
+                                showFeedback(result.msg,result.code);
+                                
+                            })
+                            .catch(e=>{
+                                showFeedback("Oops! Something went wrong",1);
+                            })
+                        },false);
+                        reader.readAsDataURL(e.target.files[0]);
+                    }
+                })
+            }
+            console.log("fd: ",formData);
+            delete formData.expenses;
+            delete formData.files;
+            delete formData.invoices;
+            delete formData.container_details;
+            delete formData.status_text;
+            var method = (data == null) ? "POST" : "PUT";
+            var options ={
+                method:method,body:JSON.stringify(formData),headers:{
+                    'Content-type':'application/json','Authorization': 'Bearer '+currentUser.accessToken
+                }
+            }
+            var url = (data == null) ? consignment_url : consignment_url+"/"+currentUser.id+"/"+data.id;
+            
+            fetch(url,options)
+            .then(res=>res.json())
+            .then(result=>{
+                console.log("ok result: ",result);
+                if(result.code ==0){
+                    storedData.imports = result.data;
+                    let newData = result.data.find(d=>d.id == data.id);
+                    storage.setItem("data",JSON.stringify(storedData));
+                    storedData = JSON.parse(storage.getItem("data"));
+                    switchISteps(newData.status,newData);
+                }                   
+                showFeedback(result.msg,result.code);
+            })
+            .catch(e=>{
+                console.log("e consg: ",e);
+                showFeedback(e,1);
+            })
+                                
         })
-       
     }
 }
 //clsoe import form
@@ -2471,6 +2883,8 @@ const closeImportForm=()=>{
     document.getElementById("import_forms").classList.add("hidden");
     document.getElementById("import_list").classList.remove("hidden");
     document.getElementById("add_import").classList.remove("hidden");
+    console.log("check close: ",storedData.imports);
+    showImportList(storedData.imports);
 }
 //get imports data
 const fetchImports =()=>{
@@ -2489,13 +2903,39 @@ const fetchImports =()=>{
         })
     })
 }
-
+const sortConsignments = (data)=>{
+    if(data == null || data == undefined) return [];
+    return data.sort((a,b)=>{
+        if(parseInt(a.id) - parseInt(b.id) === 0) return 0;
+        else if(parseInt(b.id) - parseInt(a.id) < 0) return -1;
+        else return 1;
+    })
+}
 //show import form
-const showImportForm =(source,data=null)=>{
-    console.log("well: ",data);
+const showImportForm =(source)=>{
         document.getElementById("imports_content").classList.remove("hidden");
         document.getElementById("import_list").classList.add("hidden");
-        greet("Operations",{title:"Consignments",description:"View"});
+        greet("Operations",{title:"Consignments",description:"Add"});
+   
+    document.getElementById(source).classList.add("hidden");
+    const progressSteps = Array.from(document.getElementById("iprogress-card-1").children);
+    progressSteps.forEach((step,index)=>{
+        step.addEventListener("click",(e)=>{
+            switchISteps(index+1,null);
+        })
+    })
+    document.querySelector("#add_import").classList.add("hidden");
+    document.querySelector("#import_summary").classList.add("hidden");
+    const parent = document.getElementById("import_forms");
+    parent.classList.remove("hidden");
+    switchISteps(1,null);
+
+    
+}
+const showImportDetail =(source,data)=>{
+    document.getElementById("imports_content").classList.remove("hidden");
+    document.getElementById("import_list").classList.add("hidden");
+    greet("Operations",{title:"Consignments",description:"View"});
    
     document.getElementById(source).classList.add("hidden");
     const progressSteps = Array.from(document.getElementById("iprogress-card-1").children);
@@ -2508,7 +2948,11 @@ const showImportForm =(source,data=null)=>{
     const parent = document.getElementById("import_forms");
     parent.classList.remove("hidden");
     var position = (data == null) ? 1: data.status;
-    console.log("well1: ",data);
+    if(data != null){
+        var summaryDetail = document.getElementById("import_summary");
+        summaryDetail.classList.remove("hidden");
+        showConsignmentSummary(data,"import");
+    }
     switchISteps(position,data);
 
     
@@ -2523,14 +2967,13 @@ const showStandardDocs = (data)=>{
     console.log("oops no files");
     var myfiles = [{name:"bill_of_lading"},{name:"packing_list"},{name:"certificate_of_origin"},{name:"commercial_invoice"}];
     myfiles.forEach(file=>{
-
         var linkDiv = document.createElement("div");
         var fileLink = document.createElement("a");
         fileLink.textContent = "view file";
-        fileLink.classList.add("hidden");
         fileLink.target = "_target";
-        linkDiv.classList.add("row-end");
         fileLink.classList.add("hidden");
+        linkDiv.className ="row ml-2";
+        fileLink.href = files_url+"/"+file.filename;
         linkDiv.appendChild(fileLink);
         
         const rowDiv = document.createElement("div");
@@ -2552,12 +2995,13 @@ const showStandardDocs = (data)=>{
         innerDiv.appendChild(inputFile);
         const check = document.createElement("span");
         check.id = file.name+"_check";
-        check.className = "material-icons primary-text-dark hidden";
+        check.className = "material-icons primary-dark-text hidden";
         check.textContent = "check_circle";
         innerDiv.appendChild(check);
         rowDiv.appendChild(innerDiv);
         rowDiv.appendChild(linkDiv);
         parent.insertBefore(rowDiv,addMoreRow);
+
         if(inputFile){
             inputFile.addEventListener("change",(e)=>{
             var reader = new FileReader();
@@ -2566,18 +3010,17 @@ const showStandardDocs = (data)=>{
                     console.log("is it happening?");
                     uploadImportFiles(reader.result,data.id,file.name,null)
                     .then(result=>{
-                        console.log("yeahP: ",result);
+                        console.log("uploadfiles: ",result);
                         if(result.code == 0){
                             check.classList.remove("hidden");
                             let tmpLink = URL.createObjectURL(inputFile.files[0]);
                             fileLink.href = tmpLink;
                             fileLink.classList.remove("hidden");
-                            data.files = result.data.files;
-                            let myfilenames = data.files.map(f=>f.name.toLowerCase());
-                            if(myfilenames.includes("bill_of_lading") && myfilenames.includes("certificate_of_origin") && myfilenames.includes("commercial_invoice") && myfilenames.includes("packing_list")){
-                                if(data.status == 1) data.status = 2;
-                            }
-                            if(data.files.length >= 4) addMoreBut.classList.remove("hidden");
+                            
+                            storedData.imports = result.data;
+                            storage.setItem("data",JSON.stringify(storedData));
+                            storedData = JSON.parse(storage.getItem("data"));
+
                         }
                         showFeedback(result.msg,result.code);
                     })
@@ -2592,24 +3035,29 @@ const showStandardDocs = (data)=>{
         }
         
     })
+    addMoreBut.classList.add("hidden");
 }
 const showPredocuments = (data)=>{
     console.log("ok let u see")
     var addMoreRow = document.getElementById("add_more_row");
-        var addMoreBut = document.getElementById("btn_more_documents");
-        var parent = document.getElementById("checklist_collapsible");
-        Array.from(parent.children).forEach(child=>{
-            if(child.id != "add_more_row") parent.removeChild(child);
-        })
+    var addMoreBut = document.getElementById("btn_more_documents");
+    var parent = document.getElementById("checklist_collapsible");
+    Array.from(parent.children).forEach(child=>{
+        if(child.id != "add_more_row") parent.removeChild(child);
+    })
     if(data.files.length > 0){
-        
-        data.files.forEach(file=>{
-            
+        var notPredocs = ["tax_assessment_report","tax_assessment_receipt","release_order","tasad_receipt","delivery_order"];
+        var predocs = [... new Set(data.files.map(f=>f.name.toLowerCase()))].filter(f=>notPredocs.indexOf(f) === -1).map(f=>{
+            let file = f;
+            file = data.files.find(mf=>mf.name.toLowerCase() == f);
+            return file;
+        });
+        predocs.forEach(file=>{
             var linkDiv = document.createElement("div");
             var fileLink = document.createElement("a");
             fileLink.textContent = "view file";
             fileLink.target = "_target";
-            linkDiv.classList.add("row-end");
+            linkDiv.className ="row ml-2";
             fileLink.href = files_url+"/"+file.filename;
             linkDiv.appendChild(fileLink);
             
@@ -2646,13 +3094,24 @@ const showPredocuments = (data)=>{
                         
                         uploadImportFiles(reader.result,data.id,file.name,file.filename)
                         .then(result=>{
-                            if(result.code == 0){
-                                check.classList.remove("hidden");
-                                let tmpLink = files_url+"/"+file.filename;
-                                fileLink.href = tmpLink;
-                                fileLink.classList.remove("hidden");
-                                
-                            }
+                             if(result.code == 0){
+                            check.classList.remove("hidden");
+                            let tmpLink = URL.createObjectURL(inputFile.files[0]);
+                            fileLink.href = tmpLink;
+                            fileLink.classList.remove("hidden");
+                            data.files = result.data.files;
+                            var imports = storedData.imports;
+                            let d = imports.find(i=>i.id == result.data.id);
+                            imports = storedData.imports.map(i=>{
+                                let ni = i;
+                                if(i.id == d.id) ni = d;
+                                return ni;
+                            });
+                            storedData.imports = imports;
+                            storage.setItem("data",JSOn.stringify(storedData));
+                            storedData = JSON.parse(storage.getItem("data"));
+
+                        }
                             showFeedback(result.msg,result.code);
                         })
                         .catch(e=>{
@@ -2676,7 +3135,7 @@ const addMoreDocsField=(cid)=>{
     fileLink.textContent = "view file";
     fileLink.classList.add("hidden");
     fileLink.target = "_target";
-    linkDiv.classList.add("row-end");
+    linkDiv.className = "row ml-2";
     linkDiv.appendChild(fileLink);
 
     const rowDiv = document.createElement("div");
@@ -2731,6 +3190,9 @@ const addMoreDocsField=(cid)=>{
                         label.textContent = inputName.value;
                         label.classList.remove("hidden");
                         inputName.classList.add("hidden");
+                        storedData.imports = result.data;
+                        storage.setItem("data",JSON.stringify(storedData));
+                        storedData = JSON.parse(storage.getItem("data"));
                     }
                     showFeedback(result.msg,result.code);
                 })
@@ -3388,7 +3850,7 @@ const showInvoiceForm=(source,dataId=null)=>{
             consSelect.classList.remove("hidden");
 
     var cons = storedData.consignments.filter(c=>c.exporter_id == id);
-    console.log("cons: ",cons);
+    
     Array.from(consSelect.children).forEach((c,i)=>{if(i>0)consSelect.removeChild(c);})
     cons.forEach(c=>{
         consSelect.options.add(new Option(formatConsignmentNumber(c.id),c.id));
@@ -4092,7 +4554,7 @@ const showODGFiles = (files,tag)=>{
             div.appendChild(anchor);
 
             var del = document.createElement("span");
-            del.classList.add("material-icons");
+            del.className="material-icons clickable";
             del.textContent = "delete";
 
             div.appendChild(del);
@@ -4833,8 +5295,7 @@ const updateClientDetail = (detail)=>{
 //show customer distribution map
 //draw map
 const mapChart = ()=>{
-    //    let randomData = generateRandomData(am4geodata_worldLow.features.length);
-    //    let x = storedData.clients.
+    
        let myData = am4geodata_worldLow;
        let newFeatures = am4geodata_worldLow.features.map((feature,index)=>{
            var feat = feature;
@@ -4872,7 +5333,7 @@ const mapChart = ()=>{
         // Create hover state and set alternative fill color
         var hs = polygonTemplate.states.create("hover");
             hs.properties.fill = am4core.color("#644c04");
-    }
+}
     
 
 //show pie chart

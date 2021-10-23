@@ -197,13 +197,14 @@
                 </div>
                 <div class="can-hide hidden shadow" id="customers_content">
                    <div class="row-end">
-                    <span class="action-button shadow-minor" id="add_customer" onclick="showCustomerDetailForm('customers_content');">
-                        <span class="material-icons">add</span>
-                        <span>Add Customer</span>
-                    </span> </div>
+                        <span class="action-button shadow-minor" id="add_customer" onclick="showCustomerDetailForm('customers_content');">
+                            <span class="material-icons">add</span>
+                            <span>Add Customer</span>
+                        </span> 
+                    </div>
                    <div class="info"><a class="hidden" download="customer_list.csv" id="downloadcsv"></a>
                        <span class="pl-1">Output: <button id="csv" class="export-buttons">CSV</button><button id="excel" class="export-buttons">Excel</button><button id="pdf" class="export-buttons">PDF</button></span>
-                   <input class="search" id="search_customers" placeholder="search"/>
+                    <input class="search" id="search_customers" placeholder="search"/>
                     </div>
                     <div class="summary-table" id="customers_table_summary">
                         <div class="head-row" id="clients-head-row">
@@ -241,8 +242,10 @@
                       
                     </div>
                     <div class="column-center hidden" id="export_form">
-                       
-                        <div class="row-space p-1 mb-2 mx-auto" id="">
+                        <div class="row-end pt-1 pr-2">
+                            <span class="material-icons highlight" onClick="showConsignment()">close</span>
+                         </div>
+                        <div class="row-space p-1 mb-2 mx-auto" id="export_consignment_summary">
                             <div class="column wide">
                                 <span class="bold">Customer</span>
                                 <span id="cons_cust_name"></span>
@@ -250,28 +253,33 @@
                             </div>
                             <div class="column wide">
                                 <span class="bold">Consignment Summary</span>
-                                <span id="cons_no">Consignment #:</span>
-                                <span id="cons_type">Type: </span>
-                                <span id="cons_port_o">Port of Origin: </span>
-                                <span id="cons_port_d">Port of Delivery: </span>
+                                <div class="row-even"><span class="label">Consignment #:</span><span class="value" id="cons_no"></span></div>
+                                <div class="row-even"><span class="label">Type:</span><span class="value" id="cons_type"></span></div>
+                                <div class="row-even"><span class="label">Port of Origin:</span><span class="value" id="cons_port_o"></span></div>
+                                <div class="row-even"><span class="label">Port of Delivery:</span> <span class="value" id="cons_port_d"></span></div>
+                                <div class="row-even"><span class="label">Consignment Status:</span><span class="value" id="cons_status"></span></div>
                             </div>
                             <div class="column wide">
-                                <span class="bold">Status</span>
-                                <span id="cons_quote"></span>
-                                <span id="cons_amount_paid">Amount Paid (TZS)</span>
-                                <div class="progress-bar-container bg-success-faint">
-                                    <div class="progress-bar bg-success" id="cons_paid"></div>
+                                <span class="bold">Financial Status</span>
+                                <div id="summary_cons">
+
                                 </div>
-                                <span id="cons_amount_spent">Expenses (TZS)</span>
-                                <div class="progress-bar-container bg-fail-faint">
-                                    <div class="progress-bar bg-fail" id="cons_cost"></div>
+                                <div class="row-space" id="summary_cons_nums">
+                                    <div class="column-center">
+                                        <span>Quoted</span>
+                                        <span id="cons_quote" class="success-text bold"></span>
+                                    </div>
+                                    <div class="column-center">
+                                        <span>Spent</span>
+                                        <span id="cons_amount_spent" class="fail-text-normal bold"></span>
+                                    </div>
+                                    <div class="column-center">
+                                        <span>Paid</span>
+                                        <span id="cons_amount_paid" class="success-text bold"></span>
+                                    </div>
                                 </div>
-                                <!-- <span>Port of Origin: Dar es Salaam</span>
-                                <span>Port of Delivery: Amsterdam</span> -->
                             </div>
-                            <div class="row-end pt-1 pr-2">
-                                <span class="material-icons highlight" onClick="showConsignment()">close</span>
-                             </div>
+                            
                         
                         
                         </div>
@@ -704,7 +712,7 @@
                                     <div class="row">
                                         <input type="file" name="document_file_input" id="document_file_input" class="hidden"/>
                                     </div>
-                                    <div class="column" id="docs_list">
+                                    <div class="column wide" id="docs_list">
                                     </div>
                                 </div>
                             </div>                          
@@ -713,7 +721,7 @@
                    
                 </div>
                 <div class="can-hide hidden shadow" id="imports_content">
-                    <div class="row-end"><span class="action-button shadow-minor" id="add_import" onclick="showImportForm('add_import',null);">
+                    <div class="row-end"><span class="action-button shadow-minor" id="add_import" onclick="showImportForm('add_import');">
                         <span class="material-icons">add</span>
                         <span>Add Consignment</span>
                     </span> </div>
@@ -733,9 +741,7 @@
                         <div class="row-end pt-1 pr-2">
                             <span class="material-icons highlight" onClick="closeImportForm()">close</span>
                         </div>
-                
-                        <div class="row-space" id="import_summary">
-                            <div class="vspace"></div>
+                        <div class="row-space p-1 mb-2 mx-auto" id="import_summary">
                             <div class="column wide">
                                 <span class="bold">Customer</span>
                                 <span id="imp_cust_name"></span>
@@ -743,23 +749,38 @@
                             </div>
                             <div class="column wide">
                                 <span class="bold">Consignment Summary</span>
-                                <span id="imp_no">Consignment #:</span>
-                                <span id="imp_type">Type: </span>
-                                <span id="imp_port_o">Port of Origin: </span>
-                                <span id="imp_port_d">Port of Delivery: </span>
+                                <div class="row-even"><span class="label">Consignment #:</span><span class="value" id="imp_no"></span></div>
+                                <div class="row-even"><span class="label">Type:</span><span class="value" id="imp_type"></span></div>
+                                <div class="row-even"><span class="label">Port of Origin:</span><span class="value" id="imp_port_o"></span></div>
+                                <div class="row-even"><span class="label">Port of Delivery:</span> <span class="value" id="imp_port_d"></span></div>
+                                <div class="row-even"><span class="label">Consignment Status:</span><span class="value" id="imp_status"></span></div>
                             </div>
                             <div class="column wide">
-                                <span class="bold">Status</span>
-                                <span id="imp_quote"></span>
-                                <span id="imp_cost"></span>
-                                <span id="imp_status"></span>
-                                <!-- <span>Port of Origin: Dar es Salaam</span>
-                                <span>Port of Delivery: Amsterdam</span> -->
+                                <span class="bold">Financial Status</span>
+                                <div id="summary_imp">
+
+                                </div>
+                                <div class="row-space" id="summary_imp_nums">
+                                    <div class="column-center">
+                                        <span>Quoted</span>
+                                        <span id="imp_quote" class="success-text bold"></span>
+                                    </div>
+                                    <div class="column-center">
+                                        <span>Spent</span>
+                                        <span id="imp_amount_spent" class="fail-text-normal bold"></span>
+                                    </div>
+                                    <div class="column-center">
+                                        <span>Paid</span>
+                                        <span id="imp_amount_paid" class="success-text bold"></span>
+                                    </div>
+                                </div>
                             </div>
                             
                         
+                        
                         </div>
-                       <div class="row-top progress-card my-2" id="iprogress-card-1">
+                       
+                       <div class="row-top progress-card mt-2" id="iprogress-card-1">
                            <div class="column-center current" id="istep-1">
                             <span class="progress-step">1</span>   
                             <span>Required Documents</span>
@@ -782,310 +803,383 @@
                            </div> 
                              
                        </div>
-                   
-                        <div id="idetail_1" class="column consignment-details">
-                           <div class="consignment-forms">
-                            
-                             <form id="import_form" method="POST">
-                               <fieldset class="consignment-section">
-                                    <legend class="row-space">Importer & Clearer Details
-                                        <span class="material-icons" id="importer_collapse" onclick="collapse('importer');">keyboard_arrow_up</span>
-                                    </legend>
-                                    <div id="importer_collapsible" class="consignment-section">
-                                        <div class="row-space">
-                                            <div class="row">
-                                                <label for="icustomer_select">Select Customer</label>
-                                                <select id="icustomer_select" name="icustomer_select" class="wide-select"><option value="-2">--select customer--</option></option></select>
-                                            </div>
-                                            <div class="row">
-                                            </div>
-                                        </div>
-                                        <div class="row-space">
-                                            <div class="row">
-                                                <label for="importer_name">Importer Name</label>
-                                                <input disabled required type="text" id="importer_name" name="importer_name" placeholder="Importer full name"/>
-                                            </div>
-                                            <div class="row">
-                                                <label for="clearer_name">Clearer Name</label>
-                                                <input disabled type="text" id="clearer_name" name="clearer_name" placeholder="Clearer name"/>
-                                            </div>
-                                        </div>
-                                        <div class="row-space">
-                                            <div class="row">
-                                                <label for="importer_phone">Importer Tel</label>
-                                                <input disabled required type="text" id="importer_phone" name="importer_phone" placeholder="Phone number"/>
-                                            </div>
-                                            <div class="row">
-                                                <label for="clearer_phone">Clearer Tel</label>
-                                                <input disabled type="text" id="clearer_phone" name="clearer_phone" placeholder="Phone number"/>
-                                            </div>
-                                            
-                                        </div>
-                                        <div class="row-space">
-                                            <div class="row">
-                                                <label for="importer_tin">Importer TIN</label>
-                                                <input type="text" id="importer_tin" name="importer_tin" placeholder="TIN Number"/>
-                                            </div>
-                                            <div class="row">
-                                                <label for="clearer_code">Clearer Code</label>
-                                                <input type="text" id="clearer_code" name="clearer_code" placeholder="Clearer Code"/>
-                                            </div>
-                                        </div> 
-                                        <div class="row-space">
-                                            <div class="row">
-                                                <label for="importer_address">Importer Address</label>
-                                                <textarea disabled id="importer_address" name="importer_address" rows="5"></textarea>
-                                            </div>
-                                            <div class="row">
-                                                <label for="clearer_address">Clearer Address</label>
-                                                <textarea disabled id="clearer_address" name="clearer_address" rows="5"></textarea>
-                                            </div>
-                                        </div>
-                                        
-                                    </div>
-                               </fieldset>
-                            
-                                <fieldset class="consignment-section hidden" id="checklist_fieldset">
-                                    <legend class="row-space">Document Checklist
-                                        <span class="material-icons" id="checklist_collapse" onclick="collapse('checklist');">keyboard_arrow_up</span>
-                                    </legend>
-                                    <div id="checklist_collapsible" class="consignment-section">
-                                       
-                                        <div class="row-space" id="add_more_row">
-                                            <div class="row">
-                                                <span id="btn_more_documents" name="btn_more_documents" class="buttons-t">ADD MORE</span>
-                                            </div>
-                                            <div class="row">
-                                            </div>
-                                        </div>
-                                    </div>
-                                </fieldset>
-                                
-                                <div class="consignment-forms-no-border row-end hidden" id="submit_row">
-                                    <input type="submit" name="btnSubmitNotify" id="btnSubmitNotify" value="SAVE"/>
-                                </div>
-                             </form>
-                           </div>
-                        </div>
-                        <div id="idetail_2" class="column consignment-details hidden">
-                            
-                            <div class="consignment-forms">
-                                
-                                <form id="import_data_form" method="POST">
-                                  
-                                <fieldset class="consignment-section">
-                                    <legend class="row-space">Consignment Data
-                                        <span class="material-icons" id="data_collapse" onclick="collapse('import_data');">keyboard_arrow_down</span>
-                                    </legend>
-                                    <div id="import_data_collapsible" class="consignment-section hidden">
-                                        <div class="row-space">
-                                            <div class="row">
-                                                <label for="cargo_classification">Cargo Classification *</label>
-                                                <input required type="text" id="cargo_classification" name="cargo_classification" placeholder="Cargo classification"/>
-                                            </div>
-                                            <div class="row">
-                                                <label for="goods_description">Description of Goods *</label>
-                                                <input required type="text" id="goods_description" name="goods_description" placeholder="Description of goods"/>
-                                
-                                            </div>
-                                        </div>
-                                        <div class="row-space">
-                                            <div class="row-top">
-                                                <label for="place_of_destination">Place of Destination *</label>
-                                                <div class="searchable_container">
-                                                    <input required type="text" id="place_of_destination" name="place_of_destination" placeholder="Place of destination"/>
-                                                    <div class="searchable_select hidden" id="searchable_countries"></div>
+                       
+                       <form id="import_form" method="POST">
+                            <div id="idetail_1" class="consignment-details hidden">
+                                <div class="consignment-forms">
+                                    <fieldset class="consignment-section">
+                                            <legend class="row-space">Importer & Clearer Details
+                                                <span class="material-icons" id="importer_collapse" onclick="collapse('importer');">keyboard_arrow_up</span>
+                                            </legend>
+                                            <div id="importer_collapsible" class="consignment-section">
+                                                <div class="row-space">
+                                                    <div class="row">
+                                                        <label for="icustomer_select">Select Customer</label>
+                                                        <select id="icustomer_select" name="icustomer_select" class="wide-select"><option value="-2">--select customer--</option></option></select>
+                                                    </div>
+                                                    <div class="row">
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div class="row">
-                                                <label for="place_of_delivery">Place of Delivery *</label>
-                                                <div class="searchable_container">
-                                                    <input required type="text" id="place_of_delivery" name="place_of_delivery" placeholder="Place of Delivery"/>
-                                                    <div class="searchable_select hidden" id="searchable_city"></div>
+                                                <div class="row-space">
+                                                    <div class="row">
+                                                        <label for="importer_name">Importer Name</label>
+                                                        <input disabled required type="text" id="importer_name" name="importer_name" placeholder="Importer full name"/>
+                                                    </div>
+                                                    <div class="row">
+                                                        <label for="clearer_name">Clearer Name</label>
+                                                        <input disabled type="text" id="clearer_name" name="clearer_name" placeholder="Clearer name"/>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </div>
-                                        <div class="row-space">
-                                            <div class="row">
-                                                <label for="port_of_discharge">Port of Discharge *</label>
-                                                <select class="wide-select" required id="port_of_discharge" name="port_of_discharge"></select>
-                                            </div>
-                                            <div class="row">
-                                                <label for="port_of_origin">Port of Origin *</label>
-                                                <div class="searchable_container">
-                                                    <input required type="text" id="port_of_origin" name="port_of_origin" placeholder="Port of origin"/>
-                                                    <div class="searchable_select hidden" id="searchable_ports"></div>
+                                                <div class="row-space">
+                                                    <div class="row">
+                                                        <label for="importer_phone">Importer Tel</label>
+                                                        <input disabled required type="text" id="importer_phone" name="importer_phone" placeholder="Phone number"/>
+                                                    </div>
+                                                    <div class="row">
+                                                        <label for="clearer_phone">Clearer Tel</label>
+                                                        <input disabled type="text" id="clearer_phone" name="clearer_phone" placeholder="Phone number"/>
+                                                    </div>
+                                                    
                                                 </div>
-                                            </div>
-                                        </div>
-                                        <div class="row-space">
-                                            <div class="row">
-                                                <label for="no_of_containers">Number of Containers *</label>
-                                                <input required type="number" id="no_of_containers" name="no_of_containers" placeholder="Number of Containers"/>
-                                            </div>
-                                            <div class="row">
-                                                <label for="no_of_packages">Number of Packages *</label>
-                                                <input required type="number" id="no_of_packages" name="no_of_packages" placeholder="No. of packages"/>
-                                                <select required id="package_unit" name="package_unit">
-                                                    <option>Bag</option>
-                                                    <option>Box</option>
-                                                    <option>Case</option>
-                                                    <option>Drum</option>
-                                                    <option>Gallon</option>
-                                                    <option>Pieces</option>
-                                                    <option>Units</option>
-                                                </select>
+                                                <div class="row-space">
+                                                    <div class="row">
+                                                        <label for="importer_tin">Importer TIN</label>
+                                                        <input type="text" id="importer_tin" name="importer_tin" placeholder="TIN Number"/>
+                                                    </div>
+                                                    <div class="row">
+                                                        <label for="clearer_code">Clearer Code</label>
+                                                        <input type="text" id="clearer_code" name="clearer_code" placeholder="Clearer Code"/>
+                                                    </div>
+                                                </div> 
+                                                <div class="row-space">
+                                                    <div class="row">
+                                                        <label for="importer_address">Importer Address</label>
+                                                        <textarea disabled id="importer_address" name="importer_address" rows="5"></textarea>
+                                                    </div>
+                                                    <div class="row">
+                                                        <label for="clearer_address">Clearer Address</label>
+                                                        <textarea disabled id="clearer_address" name="clearer_address" rows="5"></textarea>
+                                                    </div>
+                                                </div>
                                                 
+                                            </div>
+                                    </fieldset>
+                                    <fieldset class="consignment-section hidden" id="checklist_fieldset">
+                                        <legend class="row-space">Document Checklist
+                                            <span class="material-icons" id="checklist_collapse" onclick="collapse('checklist');">keyboard_arrow_up</span>
+                                        </legend>
+                                        <div id="checklist_collapsible" class="consignment-section">
+                                        
+                                            <div class="row-space" id="add_more_row">
+                                                <div class="row">
+                                                    <span id="btn_more_documents" name="btn_more_documents" class="buttons-t">ADD MORE</span>
                                                 </div>
-                                        </div>
-                            
-                                        <div class="row-space">
-                                            <div class="row">
-                                                <label for="gross_weight">Gross Weight *</label>
-                                                <input required type="number" id="gross_weight" name="gross_weight" placeholder="Gross weight"/>
-                                                <select id="gross_weight_unit" name="gross_weight_unit">
-                                                    <option selected>Ton</option>
-                                                    <option>Lb</option>
-                                                    <option>KG</option>
-                                                </select>
-                                            </div>
-                                            <div class="row">
-                                                <label for="gross_volume">Gross Volume *</label>
-                                                <input required type="number" id="gross_volume" name="gross_volume" placeholder="Gross Volume"/>
-                                                <select id="gross_volume_unit" name="gross_volume_unit">
-                                                    <option selected>Cubic Meter</option>
-                                                    <option>Cubic Ft</option>
-                                                    <option>Cubic Yard</option>
-                                                </select>
-                                            </div>
-                                        </div>  
-                                        
-                                        <div class="row-space">
-                                            <div class="row">
-                                                <label for="net_weight">Net Weight</label>
-                                                <input type="number" id="net_weight" name="net_weight" placeholder="Net Weight"/>
-                                                <select id="net_weight_unit" name="net_weight_unit">
-                                                    <option selected>Ton</option>
-                                                    <option>Lb</option>
-                                                    <option>KG</option>
-                                                </select>
-                                            </div>
-                                            <div class="row">
-                                                <label for="invoice_value">Invoice Value</label>
-                                                <input type="number" id="invoice_value" name="invoice_value" placeholder="Invoice Value"/>
-                                                <select id="invoice_currency" name="invoice_currency">
-                                                    <option selected>USD</option>
-                                                    <option>Euro</option>
-                                                    <option>Pound</option>
-                                                    <option>TZS</option>
-                                                </select>
+                                                <div class="row">
+                                                </div>
                                             </div>
                                         </div>
-                                        
-                                        <div class="row-space">
-                                            <div class="row">
-                                                <label for="freight_charge">Freight Charge</label>
-                                                <input type="number" id="freight_charge" name="freight_charge" placeholder="Freight charge"/>
-                                                <select id="freight_currency" name="freight_currency">
-                                                    <option selected>USD</option>
-                                                    <option>Euro</option>
-                                                    <option>Pound</option>
-                                                    <option>TZS</option>
-                                                </select>
+                                    </fieldset>
+                                </div>
+                            </div>
+                            <div id="idetail_2" class="consignment-details hidden">
+                                
+                                <div class="consignment-forms">
+                                    <fieldset class="consignment-section">
+                                        <legend class="row-space">Consignment Data
+                                            <span class="material-icons" id="data_collapse" onclick="collapse('import_data');">keyboard_arrow_up</span>
+                                        </legend>
+                                        <div id="import_data_collapsible" class="consignment-section">
+                                            <div class="row-space">
+                                                <div class="row">
+                                                    <label for="cargo_classification">Cargo Classification *</label>
+                                                    <input  type="text" id="cargo_classification" name="cargo_classification" placeholder="Cargo classification"/>
+                                                </div>
+                                                <div class="row">
+                                                    <label for="goods_description">Description of Goods *</label>
+                                                    <input  type="text" id="goods_description" name="goods_description" placeholder="Description of goods"/>
+                                    
+                                                </div>
                                             </div>
-                                            <div class="row">
-                                                <label for="imdg_code">IMDG Code</label>
-                                                <input type="text" id="imdg_code" name="imdg_code" placeholder="IMDG Code"/>
+                                            <div class="row-space">
+                                                <div class="row-top">
+                                                    <label for="place_of_destination">Place of Destination *</label>
+                                                    <div class="searchable_container">
+                                                        <input  type="text" id="place_of_destination" name="place_of_destination" placeholder="Place of destination"/>
+                                                        <div class="searchable_select hidden" id="searchable_countries"></div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <label for="place_of_delivery">Place of Delivery *</label>
+                                                    <div class="searchable_container">
+                                                        <input  type="text" id="place_of_delivery" name="place_of_delivery" placeholder="Place of Delivery"/>
+                                                        <div class="searchable_select hidden" id="searchable_city"></div>
+                                                    </div>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div class="row-space"> 
-                                            <div class="row">
-                                                <label for="packing_type">Packing Type *</label>
-                                                <select id="packing_type" name="packing_type">
-                                                    <option selected>Type I</option>
-                                                    <option>Type II</option>
-                                                    <option>Type III</option>
-                                                </select>
+                                            <div class="row-space">
+                                                <div class="row">
+                                                    <label for="port_of_discharge">Port of Discharge *</label>
+                                                    <select class="wide-select"  id="port_of_discharge" name="port_of_discharge"></select>
+                                                </div>
+                                                <div class="row">
+                                                    <label for="port_of_origin">Port of Origin *</label>
+                                                    <div class="searchable_container">
+                                                        <input  type="text" id="port_of_origin" name="port_of_origin" placeholder="Port of origin"/>
+                                                        <div class="searchable_select hidden" id="isearchable_ports"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row-space">
+                                                <div class="row">
+                                                    <label for="no_of_containers">Number of Containers *</label>
+                                                    <input  type="number" id="no_of_containers" name="no_of_containers" placeholder="Number of Containers"/>
+                                                </div>
+                                                <div class="row">
+                                                    <label for="no_of_packages">Number of Packages *</label>
+                                                    <input  type="number" id="no_of_packages" name="no_of_packages" placeholder="No. of packages"/>
+                                                    <select  id="package_unit" name="package_unit">
+                                                        <option>Bag</option>
+                                                        <option>Box</option>
+                                                        <option>Case</option>
+                                                        <option>Drum</option>
+                                                        <option>Gallon</option>
+                                                        <option>Pieces</option>
+                                                        <option>Units</option>
+                                                    </select>
+                                                    
+                                                    </div>
+                                            </div>
+                                
+                                            <div class="row-space">
+                                                <div class="row">
+                                                    <label for="gross_weight">Gross Weight *</label>
+                                                    <input  type="number" id="gross_weight" name="gross_weight" placeholder="Gross weight"/>
+                                                    <select id="gross_weight_unit" name="gross_weight_unit">
+                                                        <option selected>Ton</option>
+                                                        <option>Lb</option>
+                                                        <option>KG</option>
+                                                    </select>
+                                                </div>
+                                                <div class="row">
+                                                    <label for="gross_volume">Gross Volume *</label>
+                                                    <input  type="number" id="gross_volume" name="gross_volume" placeholder="Gross Volume"/>
+                                                    <select id="gross_volume_unit" name="gross_volume_unit">
+                                                        <option selected>Cubic Meter</option>
+                                                        <option>Cubic Ft</option>
+                                                        <option>Cubic Yard</option>
+                                                    </select>
+                                                </div>
+                                            </div>  
+                                            
+                                            <div class="row-space">
+                                                <div class="row">
+                                                    <label for="net_weight">Net Weight</label>
+                                                    <input type="number" id="net_weight" name="net_weight" placeholder="Net Weight"/>
+                                                    <select id="net_weight_unit" name="net_weight_unit">
+                                                        <option selected>Ton</option>
+                                                        <option>Lb</option>
+                                                        <option>KG</option>
+                                                    </select>
+                                                </div>
+                                                <div class="row">
+                                                    <label for="invoice_value">Invoice Value</label>
+                                                    <input type="number" id="invoice_value" name="invoice_value" placeholder="Invoice Value"/>
+                                                    <select id="invoice_currency" name="invoice_currency">
+                                                        <option selected>USD</option>
+                                                        <option>Euro</option>
+                                                        <option>Pound</option>
+                                                        <option>TZS</option>
+                                                    </select>
+                                                </div>
                                             </div>
                                             
+                                            <div class="row-space">
+                                                <div class="row">
+                                                    <label for="freight_charge">Freight Charge</label>
+                                                    <input type="number" id="freight_charge" name="freight_charge" placeholder="Freight charge"/>
+                                                    <select id="freight_currency" name="freight_currency">
+                                                        <option selected>USD</option>
+                                                        <option>Euro</option>
+                                                        <option>Pound</option>
+                                                        <option>TZS</option>
+                                                    </select>
+                                                </div>
+                                                <div class="row">
+                                                    <label for="imdg_code">IMDG Code</label>
+                                                    <input type="text" id="imdg_code" name="imdg_code" placeholder="IMDG Code"/>
+                                                </div>
+                                            </div>
+                                            <div class="row-space"> 
+                                                <div class="row">
+                                                    <label for="packing_type">Packing Type *</label>
+                                                    <select id="packing_type" name="packing_type">
+                                                        <option selected>Type I</option>
+                                                        <option>Type II</option>
+                                                        <option>Type III</option>
+                                                    </select>
+                                                </div>
+                                                
+                                                <div class="row">
+                                                    <label for="shipping_mark">Shipping Mark</label>
+                                                    <input type="text" id="shipping_mark" name="shipping_mark" placeholder="Shipping Mark"/>
+                                                </div>
+                                            </div>
+                                            <div class="row-space">
                                             <div class="row">
-                                                <label for="shipping_mark">Shipping Mark</label>
-                                                <input type="text" id="shipping_mark" name="shipping_mark" placeholder="Shipping Mark"/>
+                                                <label for="oil_type">Oil Type</label>
+                                                <select id="oil_type" name="oil_type">
+                                                    <option selected>Type A</option>
+                                                    <option>Type B</option>
+                                                    <option>Type C</option>
+                                                </select>
+                                            </div>
+                                            <div class="row"></div>
                                             </div>
                                         </div>
-                                        <div class="row-space">
-                                        <div class="row">
-                                            <label for="oil_type">Oil Type</label>
-                                            <select id="oil_type" name="oil_type">
-                                                <option selected>Type A</option>
-                                                <option>Type B</option>
-                                                <option>Type C</option>
-                                            </select>
-                                        </div>
-                                        <div class="row"></div>
-                                        </div>
-                                    </div>
-                                </fieldset>
-                                    <div class="consignment-forms-no-border row-end">
-                                       
-                                        <input class="buttons-s" type="submit" name="btnSubmitShipping" id="btnSubmitShipping" value="SAVE"/>
-                                   
-                                    </div>
-                                   
-                                </form>
-                            </div>                          
-                        </div>
-                        <div id="idetail_3" class="consignment-details hidden">
-                            <div class="consignment-forms-no-border row-space">
-                                <div class="row">
-                                    <span class="medium-text">Upload Certificates</span>
-                                </div>
-                               
+                                    </fieldset>
+                                    
+                                </div>                          
                             </div>
-                            <div class="consignment-forms">                              
-                               <div id="certificates_collapsible" class="column consignment-section">
-                                    <div class="row-space">
-                                        <label for="odg_file">Select a certificate to upload </label>
-                                         <select class="wide-select" id="odg_file_select" name="odg_file_select"><option value="-1">--select file--</option></select>
-                                    </div>
-                                    <div class="row">
-                                        <input type="file" name="odg_file_input" id="odg_file_input" class="hidden"/>
-                                    </div>
-                                    <div class="column" id="odg_list">
-                                    </div>
-                                </div>
-                            </div>                          
-                        </div> 
-                        <div id="idetail_4" class="consignment-details hidden">
-                            
-                            <div class="column" id="container_form">   
-                                
-                             
-                            </div>   
+                            <div id="idetail_3" class="consignment-details hidden">
+                                <div class="consignment-forms">
+                                    <fieldset class="consignment-section">
+                                        <legend class="row-space">Tax Assessment
+                                            <span class="material-icons" id="assessment_collapse" onclick="collapse('import_assessment');">keyboard_arrow_up</span>
+                                        </legend>
+                                        <div id="import_assessment_collapsible" class="consignment-section">
+                                            <div class="row-space">
+                                                <div class="row">
+                                                    <label for="import_assessment_date">Date</label>
+                                                    <input  type="date" id="import_assessment_date" name="import_assessment_date" />
+                                                </div>
+                                                <div class="row">
+                                                    <label for="tax_amount">Amount</label>
+                                                    <input type="number" id="tax_amount" name="tax_amount" placeholder="Tax amount"/>
+                                                    <select id="tax_currency" name="tax_currency">
+                                                        <option>USD</option>
+                                                        <option>Euro</option>
+                                                        <option>Pound</option>
+                                                        <option selected>TZS</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="row-space">
+                                                <div class="row">
+                                                    <label for="assessment_appeal">Appealed?</label>
+                                                    <select class="wide-select"  id="assessment_appeal" name="assessment_appeal" onchange="if(this.value !=-1) document.getElementById('tax_comments').classList.remove('hidden');else document.getElementById('tax_comments').classList.add('hidden');">
+                                                        <option value="-1"></option>
+                                                        <option value="1">Yes</option>
+                                                        <option value="0">No</option>
+                                                    </select>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="row hidden" id="tax_comments">
+                                                        <label for="tax_appeal_comment">Comment</label>
+                                                        <textarea id="tax_appeal_comment" name="tax_appeal_comment" placeholder="Comments on appeal"></textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- <div class="row-space"> -->
+                                                <div class="row-space mt-2">
+                                                    <label for="tax_assessment_report">Tax Assessment Report</label>
+                                                    <input type="file" id="tax_assessment_report" name="tax_assessment_report"/>
+                                                    <span id="tax_assessment_report_check" class="material-icons hidden">check_circle</span>
+                                                    <div class="row ml-2">
+                                                        <a class="hidden" href="" target="_blank" id="tax_assessment_report_link">view file</a>
+                                                    </div>
+                                                </div>
+                                                <div class="row-space">
+                                                    <label for="tax_assessment_receipt">Tax Receipt</label>
+                                                    <input type="file" id="tax_assessment_receipt" name="tax_assessment_receipt"/>
+                                                    <span id="tax_assessment_receipt_check" class="material-icons hidden">check_circle</span>
+                                                    <div class="row ml-2">
+                                                        <a class="hidden" href="" target="_blank" id="tax_assessment_receipt_link">view file</a>
+                                                    </div>
+                                                </div>
+                                            <!-- </div> -->
+                                        </div>
+                                    </fieldset>
+                                    
+                                </div>                           
+                            </div> 
+                            <div id="idetail_4" class="consignment-details hidden">
+                                <div class="consignment-forms">
+                                    <fieldset class="consignment-section">
+                                        <legend class="row-space">Verification
+                                            <span class="material-icons" id="assessment_collapse" onclick="collapse('import_assessment');">keyboard_arrow_up</span>
+                                        </legend>
+                                        <div id="import_assessment_collapsible" class="consignment-section">
+                                            <div class="row-space">
+                                                <div class="row">
+                                                    <label for="verification_date">Date</label>
+                                                    <input  type="date" id="verification_date" name="verification_date" />
+                                                </div>
+                                                <div class="row">
+                                                    <label for="verification_time">Time</label>
+                                                    <input  type="time" id="verification_time" name="verification_time" />
+                                                </div>
+                                                
+                                            </div>
+                                            
+                                            <div class="row-space">
+                                                <div class="row">
+                                                    <label for="verification_booking_no">Booking Number</label>
+                                                    <input type="text" id="verification_booking_no" name="verification_booking_no" placeholder="Booking number"/>
                                                    
-                        </div> 
-                        <div id="idetail_5" class="consignment-details hidden">
-                            <div class="consignment-forms-no-border row-space">
-                                <div class="row">
-                                    <span class="medium-text">Upload Other Documents</span>
-                                </div>
-                                
-                            </div>
-                            <div class="consignment-forms">                              
-                               <div id="documents_collapsible" class="column consignment-section">
+                                                </div>
+                                                <div class="row">
+                                                    <label for="verification_status">Verification Status</label>
+                                                    <input type="text"  id="verification_status" name="verification_status"/>
+                                                   
+                                                </div>
+                                                
+                                            </div>
+                                            <!-- <div class="row-space"> -->
+                                                <div class="row-space mt-2">
+                                                    <label for="release_order">Release Order</label>
+                                                    <input type="file" id="release_order" name="release_order"/>
+                                                    <span id="release_order_check" class="material-icons hidden">check_circle</span>
+                                                    <div class="row ml-2">
+                                                        <a class="hidden" href="" target="_blank" id="release_order_link">view file</a>
+                                                    </div>
+                                                </div>
+                                                <div class="row-space">
+                                                    
+                                                </div>
+                                            <!-- </div> -->
+                                        </div>
+                                    </fieldset>
+                                    
+                                </div>             
+                            </div> 
+                            <div id="idetail_5" class="consignment-details hidden">
+                                <div class="consignment-forms-no-border row-space">
                                     <div class="row">
-                                        <label for="document_file">Select Document </label>
-                                        <select class="wide-select" id="document_file_select" name="document_file_select"><option>--select file--</option></select>
+                                        <span class="medium-text">Upload Other Documents</span>
                                     </div>
                                     
-                                    <div class="row">
-                                        <input type="file" name="document_file_input" id="document_file_input" class="hidden"/>
-                                    </div>
-                                    <div class="column" id="docs_list">
-                                    </div>
                                 </div>
-                            </div>                          
-                        </div> 
+                                <div class="consignment-forms">                              
+                                <div id="documents_collapsible" class="column consignment-section">
+                                        <div class="row">
+                                            <label for="document_file">Select Document </label>
+                                            <select class="wide-select" id="document_file_select" name="document_file_select"><option>--select file--</option></select>
+                                        </div>
+                                        
+                                        <div class="row">
+                                            <input type="file" name="document_file_input" id="document_file_input" class="hidden"/>
+                                        </div>
+                                        <div class="column" id="docs_list">
+                                        </div>
+                                    </div>
+                                </div>                          
+                            </div> 
+                            <div class="consignment-forms-no-border row-end hidden" id="submit_row">
+                                <span class="buttons-t" onClick="closeImportForm()">CANCEL</span>
+                                <input class="buttons-s" type="submit" name="btnSaveImport" id="btnSaveImport" value="SAVE"/>
+                            </div>
+                         </form>
                    </div>
                    
                 </div>
@@ -1168,19 +1262,14 @@
                 <div class="can-hide hidden" id="view_customer_content">
                     <div class="column shadow customer-details">
                         <div class="row-end">
-                            <div class="row-end">
+                            <div class="row-end mt-1">
                                 <span class="buttons" id="editCustomerButton">Edit</span>
                             </div>
-                            <div class="vspace">
-
-                            </div>
+                           
                         </div>
-                        <div class="row">
-                            <div class="column">
-                                <div class="row-top">
-                                    <div class="vspace">
-
-                                    </div>
+                        <div class="row-space">
+                            <div class="column wide mx-3">
+                                <div class="mx-3 row-even">
                                     <div class="column wide">
                                         <span class="medium-text" id="c_name"></span>
                                         <span id="c_tin" class="primary-dark-text">TIN: N/A</span>
@@ -1189,48 +1278,46 @@
                                 </div>
                                
                             </div>
-                            <div class="vspace"></div>
-                            <div class="vspace"></div>
-                            <div class="column">
+                            
+                            <div class="column wide mx-3">
                                 
-                                <div class="row-space">
+                                <div class="row-even">
                                     <span class="label">Contact Person:</span>
                                     <span class="value" id="contact_p"></span>
                                 </div>
-                                <div class="row-space">
+                                <div class="row-even">
                                     <span class="label">Contact E-mail:</span>
                                     <span class="value" id="contact_e"></span>
                                 </div>
                             </div>
-                            <div class="vspace"></div>
+                           
                         </div>
-                        <div class="row">
-                            <div class="column">
-                                <div class="row-space">
+                        <div class="row-space">
+                            <div class="column wide">
+                                <div class="row-even">
                                     <span class="label">City/Region:</span>
                                     <span class="value" id="c_region"></span>
                                 </div>
-                                <div class="row-space">
+                                <div class="row-even">
                                     <span class="label">Country:</span>
                                     <span class="value" id="c_country"></span>
                                 </div>
-                                <div class="row-space">
+                                <div class="row-even">
                                     <span class="label">E-mail:</span>
                                     <span class="value" id="c_email"></span>
                                 </div>
-                                <div class="row-space">
+                                <div class="row-even">
                                     <span class="label">Phone:</span>
                                     <span class="value" id="c_phone"></span>
                                 </div>
                             </div>
-                            <div class="vspace"></div>
-                            <div class="vspace"></div>
-                            <div class="column">
-                                <div class="row-space">
+                            <!-- <div class="column wide"></div> -->
+                            <div class="column wide mx-3">
+                                <div class="row-even">
                                     <span class="label">TIN Certificate:</span>
                                     <span class="value"><a id="c_tin_cert"></a></span>
                                 </div>
-                                <div class="row-space">
+                                <div class="row-even mx-3">
                                     <span class="label">Certificate of Incorporation:</span>
                                     <span class="value"><a id="c_inc_cert"></a></span>
                                 </div>
@@ -1768,13 +1855,13 @@
         <div class="alert hidden" id="alert_dialog">
             
         </div>
-        <footer>&copy; 2021, Cleaford. All rights reserved</footer>
+        <footer>2021 &copy; Cleaford. All rights reserved</footer>
    <script src="/js/config.js"></script>
    <script src="/libs/amcharts4/core.js"></script>
 <script src="/libs/amcharts4/charts.js"></script>
 <script src="/libs/amcharts4/maps.js"></script>
 <script src="/libs/geodata/worldLow.js"></script>
-   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+   <script src="/libs/chartsjs/chart.js"></script>
    <script src="https://maps.googleapis.com/maps/api/js?libraries=places&key=AIzaSyAWALPfQrbJypNehyEnoFKFKs1nDOoqOGk"></script>
    <script src="/js/dash.js"></script>
     </body>
