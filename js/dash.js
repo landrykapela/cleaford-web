@@ -2451,6 +2451,10 @@ const switchIDetails=(position,data)=>{
     var importForm = document.getElementById("import_form");
     if(importForm){
         let formData = data == null ? {}:data;
+        formData.type =1;
+        formData.tax_assessment_report = null;
+        formData.tax_assessment_receipt = null;
+        formData.release_order = null;
         if(position == 1){
             var customerSelect = importForm.icustomer_select;
             var customers = (storedData.customers) ? storedData.customers : [];
@@ -2481,7 +2485,7 @@ const switchIDetails=(position,data)=>{
                     document.getElementById("submit_row").classList.remove("hidden");
                     
                     if(data.files){
-                        var notPredocs = ["tax_assessment_report","tax_assessment_receipt","release_order","tasad_receipt","delivery_order"];
+                        var notPredocs = ["tax_assessment_report","tax_assessment_receipt","release_order","tasad_invoice","tasad_delivery_order"];
                         var myF = [... new Set(data.files.map(f=>f.name.toLowerCase()))].filter(f=>notPredocs.indexOf(f) === -1);
                         console.log("wow: ",myF);
                         console.log("wow: ",data.files);
@@ -2489,9 +2493,6 @@ const switchIDetails=(position,data)=>{
 
                     }
                     else {
-                        var notPredocs = ["tax_assessment_report","tax_assessment_receipt","release_order","tasad_receipt","delivery_order"];
-                        var myF = [... new Set(data.files.map(f=>f.name.toLowerCase()))].filter(f=>notPredocs.indexOf(f) === -1);
-                        console.log("wowwer: ",myF);
                         showStandardDocs(data);
                     }
                     
@@ -2545,8 +2546,8 @@ const switchIDetails=(position,data)=>{
                 });   
             }
             var addMoreButton = document.getElementById("btn_more_documents");
-            if(data && data.files.length > 0) {
-                var notPredocs = ["tax_assessment_report","tax_assessment_receipt","release_order","tasad_receipt","delivery_order"];
+            if(data.files && data.files.length > 0) {
+                var notPredocs = ["tax_assessment_report","tax_assessment_receipt","release_order","tasad_invoice","delivery_order"];
                 var myF = [... new Set(data.files.map(f=>f.name.toLowerCase()))];
                 console.log("my: ",myF);
                 showPredocuments(data);
@@ -2619,17 +2620,18 @@ const switchIDetails=(position,data)=>{
         if(position == 3){
             if(data.assessment_date) {
                 importForm.import_assessment_date.type = "text";
-                importForm.import_assessment_date.value = data.assessment_date;
+                var date = new Date(data.assessment_date);
+                importForm.import_assessment_date.value = date.getDate()+"-"+(date.getMonth()+1)+"-"+date.getFullYear();
             }
-            if(data.assessment_appealed >= 0){
+            if(parseInt(data.assessment_appealed) >= 0){
                 importForm.assessment_appeal.value = data.assessment_appealed;
                 importForm.tax_appeal_comment.value = data.comments;
                 document.getElementById("tax_comments").classList.remove("hidden");
             }
-            importForm.tax_amount.value = data.tax_amount;
+            importForm.tax_amount.value = parseInt(data.tax_amount);
             importForm.tax_currency.value = data.tax_currency;
 
-            if(data && (data.files.map(f=>f.name.toLowerCase()).includes("tax_assessment_report") || data.files.map(f=>f.name.toLowerCase()).includes("tax_assessment_receipt")) ){
+            if(data.files && data.files.length > 0){
                 data.files.forEach(file=>{
                     if(file.name.toLowerCase() == "tax_assessment_report" || file.name.toLowerCase() == "tax_assessment_receipt"){
                         let key = file.name.toLowerCase();
@@ -2645,24 +2647,23 @@ const switchIDetails=(position,data)=>{
                                 let reader = new FileReader();
                                 if(e.target.files[0]){
                                     reader.addEventListener("load",()=>{
-                                        uploadImportFiles(reader.result,data.id,key,file.filename)
-                                        .then(result=>{
-                                            if(result.code == 0){
-                                                let tmpLink = URL.createObjectURL(inputFile.files[0]);
-                                                link.href = tmpLink;
-                                                data.files = result.data.files;
-                                                let myfilenames = data.files.map(f=>f.name.toLowerCase());
-                                                if(myfilenames.includes("tax_assessment_receipt")){
-                                                    if(data.status <=3) data.status = 4;
-                                                }
-                                              
-                                            }
-                                            showFeedback(result.msg,result.code);
-                                        })
-                                        .catch(e=>{
-                                            console.log("uploadImportFiles(): ",e);
-                                            showFeedback("Oops! Something went wrong!",1);
-                                        })
+                                       
+                                        let tmpLink = URL.createObjectURL(inputFile.files[0]);
+                                        link.href = tmpLink;
+                                        data.files = result.data.files;
+                                        let myfilenames = data.files.map(f=>f.name.toLowerCase());
+                                        if(myfilenames.includes("tax_assessment_receipt")){
+                                            if(data.status <=3) formData.status = 4;
+                                        }
+                                        formData[key] = reader.result;
+                                        if(key == "tax_assessment_report"){
+                                            formData.tax_assessment_report = reader.result;
+                                            formData.isUpdateTap = true;
+                                        }
+                                        if(key == "tax_assessment_receipt"){
+                                            formData.tax_assessment_receipt = reader.result;
+                                            formData.isUpdateTar = true;
+                                        }
                                     },false);
                                     reader.readAsDataURL(e.target.files[0]);
                                 }
@@ -2687,26 +2688,12 @@ const switchIDetails=(position,data)=>{
                         let reader = new FileReader();
                         if(e.target.files[0]){
                             reader.addEventListener("load",()=>{
-                                uploadImportFiles(reader.result,data.id,"tax_assessment_report",null)
-                                .then(result=>{
-                                    console.log('result1: ',result);
-                                    if(result.code == 0){
-                                        storedData.imports = result.data;
-                                        storage.setItem("data",JSON.stringify(storedData));
-                                        storedData = JSON.parse(storage.getItem("data"));
-                                        let tmpLink = URL.createObjectURL(reportFileInput.files[0]);
-                                        link.href = tmpLink;
-                                        link.classList.remove("hidden");
-                                        check.classList.remove("hidden");
-                                        data.files = result.data.files;
-                                       
-                                    }
-                                    showFeedback(result.msg,result.code);
-                                })
-                                .catch(e=>{
-                                    console.log("uploadImportFiles(): ",e);
-                                    showFeedback("Oops! Something went wrong!",1);
-                                })
+                                let tmpLink = URL.createObjectURL(reportFileInput.files[0]);
+                                link.href = tmpLink;
+                                link.classList.remove("hidden");
+                                check.classList.remove("hidden");
+                                formData.tax_assessment_report = reader.result;
+                                formData.isUpdateTap = false;
                             },false);
                             reader.readAsDataURL(e.target.files[0]);
                         }
@@ -2724,26 +2711,12 @@ const switchIDetails=(position,data)=>{
                         let reader = new FileReader();
                         if(e.target.files[0]){
                             reader.addEventListener("load",()=>{
-                                uploadImportFiles(reader.result,data.id,"tax_assessment_receipt",null)
-                                .then(result=>{
-                                    console.log("res: ",result);
-                                    showFeedback(result.msg,result.code);
-                                    if(result.code == 0){
-                                        storedData.imports = result.data;
-                                        storage.setItem("data",JSON.stringify(storedData));
-                                        storedData = JSON.parse(storage.getItem("data"));
-                                        let tmpLink = URL.createObjectURL(reportFileInput.files[0]);
-                                        link2.href = tmpLink;
-                                        link2.classList.remove("hidden");
-                                        check2.classList.remove("hidden");
-                                        data = result.data.find(d=>d.id == data.id);
-                                        switchISteps(data.status,data);
-                                    }
-                                })
-                                .catch(e=>{
-                                    console.log("uploadImportFiles(): ",e);
-                                    showFeedback("Oops! Something went wrong!",1);
-                                })
+                                let tmpLink = URL.createObjectURL(receiptFileInput.files[0]);
+                                link2.href = tmpLink;
+                                link2.classList.remove("hidden");
+                                check2.classList.remove("hidden");
+                                formData.tax_assessment_receipt = reader.result;
+                                formData.isUpdateTar = false;
                             },false);
                             reader.readAsDataURL(e.target.files[0]);
                         }
@@ -2756,26 +2729,155 @@ const switchIDetails=(position,data)=>{
         if(position == 4){
             if(data.verification_date){
                 importForm.verification_date.type = "text";
-                var d = data.verification_date.split(" ");
-                importForm.verification_date.value = d[0];
+                var d = new Date(Date.parse(data.verification_date));
+                importForm.verification_date.value = d.getDate()+"-"+(d.getMonth()+1)+"-"+d.getFullYear();
                 importForm.verification_time.type = "text";
-                importForm.verification_time.value = d[1];
-            }
-            if(data.verification_booking){
+                importForm.verification_time.value = d.getHours()+":"+d.getMinutes()+":"+d.getSeconds();
                 importForm.verification_booking_no.value = data.verification_booking;
+                importForm.verification_status.value = data.verification_status;
             }
+            var check = document.getElementById("release_order_check");
+            var link = document.getElementById("release_order_link");
+            if(data.files){
+                var file = data.files.filter(f=>f.name.toLowerCase() == "release_order")
+                if(file.length > 0){
+                    check.classList.remove("hidden");
+                    link.href = files_url +"/"+file[0].filename;
+                    link.classList.remove("hidden");
+                }
+           }
+           importForm.release_order.addEventListener("change",(e)=>{
+                if(e.target.files[0]){
+                    let reader = new FileReader();
+                    reader.addEventListener("load",()=>{
+                        check.classList.remove("hidden");
+                        link.href = URL.createObjectURL(e.target.files[0]);
+                        link.classList.remove("hidden");
+                        formData.release_order = reader.result;
+                        var file = data.files.filter(f=>f.name.toLowerCase() == "release_order")
+                        if(file.length > 0){
+                            formData.isUpdateRelease = true;
+                        }
+                        else formData.isUpdateRelease = false;
+                    },false);
+                    reader.readAsDataURL(e.target.files[0]);
+                }
+            })
+        }
+        if(position == 5){
+            
+            if(parseInt(data.tasad_paid) >= 0){
+                importForm.tasad_paid = data.tasad_paid;
+                importForm.tasad_fee.value = parseInt(data.tasad_fee);
+                importForm.tasad_currency.value = data.tasad_currency;
+                document.getElementById("tasad_fee_holder").classList.remove("hidden");
+            }
+            
+            if(data.files && data.files.length > 0){
+                data.files.forEach(file=>{
+                    if(file.name.toLowerCase() == "tasad_invoice" || file.name.toLowerCase() == "tasad_delivery_order"){
+                        let key = file.name.toLowerCase();
+                        var check = document.getElementById(key+"_check");
+                        check.className = "material-icons primary-dark-text";
+                        var link = document.getElementById(key+"_link");
+                        link.classList.remove("hidden");
+                        link.href = files_url+"/"+file.filename;
+
+                        let myFileInput = document.getElementById(key);
+                        if(myFileInput){
+                            myFileInput.addEventListener("change",e=>{
+                                let reader = new FileReader();
+                                if(e.target.files[0]){
+                                    reader.addEventListener("load",()=>{
+                                       
+                                        let tmpLink = URL.createObjectURL(inputFile.files[0]);
+                                        link.href = tmpLink;
+                                        data.files = result.data.files;
+                                        let myfilenames = data.files.map(f=>f.name.toLowerCase());
+                                        if(myfilenames.includes("tasad_delivery_order")){
+                                            if(data.status <=5) formData.status = 6;
+                                        }
+                                        
+                                        if(key == "tasad_delivery_order"){
+                                            formData.tasad_delivery_order = reader.result;
+                                            formData.isUpdateTsd = true;
+                                        }
+                                        if(key == "tasad_invoice"){
+                                            formData.tasad_invoice = reader.result;
+                                            formData.isUpdateTsr = true;
+                                        }
+                                    },false);
+                                    reader.readAsDataURL(e.target.files[0]);
+                                }
+                                
+                                
+                            })
+                        }
+                    }
+                })
+            }
+            
+            console.log("what's up yoh")
+            let orderFileInput = document.getElementById("tasad_delivery_order");
+            var check = document.getElementById("tasad_delivery_order_check");
+            check.className = "material-icons primary-dark-text hidden";
+            var link = document.getElementById("tasad_delivery_order_link");
+                    
+            if(orderFileInput){
+                orderFileInput.addEventListener("change",e=>{
+                    e.preventDefault();
+                    console.log("tasad order...")
+                    let reader = new FileReader();
+                    if(e.target.files[0]){
+                        reader.addEventListener("load",()=>{
+                            let tmpLink = URL.createObjectURL(orderFileInput.files[0]);
+                            link.href = tmpLink;
+                            link.classList.remove("hidden");
+                            check.classList.remove("hidden");
+                            formData.tasad_delivery_order = reader.result;
+                            formData.isUpdateTsd = false;
+                        },false);
+                        reader.readAsDataURL(e.target.files[0]);
+                    }
+                    
+                    
+                })
+            }
+            let tasadReceiptFileInput = document.getElementById("tasad_invoice");
+            var check2 = document.getElementById("tasad_invoice_check");
+            check2.className = "material-icons primary-dark-text hidden";
+            var link2 = document.getElementById("tasad_invoice_link");
+                    
+            if(tasadReceiptFileInput){
+                tasadReceiptFileInput.addEventListener("change",e=>{
+                    let reader = new FileReader();
+                    if(e.target.files[0]){
+                        reader.addEventListener("load",()=>{
+                            let tmpLink = URL.createObjectURL(tasadReceiptFileInput.files[0]);
+                            link2.href = tmpLink;
+                            link2.classList.remove("hidden");
+                            check2.classList.remove("hidden");
+                            formData.tasad_invoice = reader.result;
+                            formData.isUpdateTsr = false;
+                        },false);
+                        reader.readAsDataURL(e.target.files[0]);
+                    }
+                    
+                    
+                })
+            }
+        
         }
         importForm.addEventListener("submit",(e)=>{
             e.preventDefault();
             if(position == 1){
                 formData.exporter_id = importForm.icustomer_select.value;
-                formData.forwarder_code = importForm.forwarder_code.value;
+                formData.forwarder_code = importForm.clearer_code.value;
             }
             if(position == 2){
                 formData.cargo_classification = importForm.cargo_classification.value;
                 formData.place_of_destination = importForm.place_of_destination.value;
                 formData.place_of_delivery =    importForm.place_of_delivery.value;
-                formData.type =1;
                 formData.port_of_discharge = importForm.port_of_discharge.value;
                 formData.port_of_origin = importForm.port_of_origin.value;
                 formData.no_of_containers = importForm.no_of_containers.value;
@@ -2808,38 +2910,25 @@ const switchIDetails=(position,data)=>{
                 formData.assessment_appealed = importForm.assessment_appeal.value;
                 formData.assessment_date = Date.parse(importForm.import_assessment_date.value);
                 formData.comments = importForm.tax_appeal_comment.value;
+                if(data.status == 3) formData.status = 4;
                 
             }
             if(position == 4){
                 formData.verification_date = importForm.verification_date.value +" "+importForm.verification_time.value;
                 formData.verification_booking = importForm.verification_booking_no.value;
                 formData.verification_status = importForm.verification_status.value;
-                if(formData.verification_date){
-                    if(formData.status <= 4) formData.status = 5;
+                if(formData.release_order != null){
+                    if(formData.status == 4) formData.status = 5;
                 }
 
-                importForm.release_order.addEventListener("change",(e)=>{
-                    if(e.target.files[0]){
-                        let reader = new FileReader();
-                        reader.addEventListener("load",()=>{
-                            uploadImportFiles(reader.result,data.id,"release_order",null)
-                            .then(result=>{
-                                console.log("result2: ",result);
-                                if(result.code == 0){
-                                    storedData.imports = result.data;
-                                    storage.setItem("data",JSON.stringify(storedData));
-                                    storedData = JSON.parse(storage.getItem("data"));
-                                }
-                                showFeedback(result.msg,result.code);
-                                
-                            })
-                            .catch(e=>{
-                                showFeedback("Oops! Something went wrong",1);
-                            })
-                        },false);
-                        reader.readAsDataURL(e.target.files[0]);
-                    }
-                })
+               
+            }
+            if(position == 5){
+                formData.tasad_fee = importForm.tasad_fee.value;
+                formData.tasad_currency = importForm.tasad_currency.value;
+                formData.tasad_paid = importForm.tasad_paid.value;
+                if(data.status == 5 && formData.tasad_delivery_order != null) formData.status = 6;
+                
             }
             console.log("fd: ",formData);
             delete formData.expenses;
@@ -3046,7 +3135,7 @@ const showPredocuments = (data)=>{
         if(child.id != "add_more_row") parent.removeChild(child);
     })
     if(data.files.length > 0){
-        var notPredocs = ["tax_assessment_report","tax_assessment_receipt","release_order","tasad_receipt","delivery_order"];
+        var notPredocs = ["tax_assessment_report","tax_assessment_receipt","release_order","tasad_invoice","delivery_order"];
         var predocs = [... new Set(data.files.map(f=>f.name.toLowerCase()))].filter(f=>notPredocs.indexOf(f) === -1).map(f=>{
             let file = f;
             file = data.files.find(mf=>mf.name.toLowerCase() == f);

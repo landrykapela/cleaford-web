@@ -246,7 +246,7 @@
                             <span class="material-icons highlight" onClick="showConsignment()">close</span>
                          </div>
                         <div class="row-space p-1 mb-2 mx-auto" id="export_consignment_summary">
-                            <div class="column wide">
+                            <div class="column">
                                 <span class="bold">Customer</span>
                                 <span id="cons_cust_name"></span>
                                 <span id="cons_cust_add"></span>
@@ -257,13 +257,10 @@
                                 <div class="row-even"><span class="label">Type:</span><span class="value" id="cons_type"></span></div>
                                 <div class="row-even"><span class="label">Port of Origin:</span><span class="value" id="cons_port_o"></span></div>
                                 <div class="row-even"><span class="label">Port of Delivery:</span> <span class="value" id="cons_port_d"></span></div>
-                                <div class="row-even"><span class="label">Consignment Status:</span><span class="value" id="cons_status"></span></div>
+                                <div class="row-even"><span class="label">Status:</span><span class="value" id="cons_status"></span></div>
                             </div>
                             <div class="column wide">
                                 <span class="bold">Financial Status</span>
-                                <div id="summary_cons">
-
-                                </div>
                                 <div class="row-space" id="summary_cons_nums">
                                     <div class="column-center">
                                         <span>Quoted</span>
@@ -278,6 +275,10 @@
                                         <span id="cons_amount_paid" class="success-text bold"></span>
                                     </div>
                                 </div>
+                                <div id="summary_cons">
+
+                                </div>
+                                
                             </div>
                             
                         
@@ -742,7 +743,7 @@
                             <span class="material-icons highlight" onClick="closeImportForm()">close</span>
                         </div>
                         <div class="row-space p-1 mb-2 mx-auto" id="import_summary">
-                            <div class="column wide">
+                            <div class="column">
                                 <span class="bold">Customer</span>
                                 <span id="imp_cust_name"></span>
                                 <span id="imp_cust_add"></span>
@@ -753,13 +754,10 @@
                                 <div class="row-even"><span class="label">Type:</span><span class="value" id="imp_type"></span></div>
                                 <div class="row-even"><span class="label">Port of Origin:</span><span class="value" id="imp_port_o"></span></div>
                                 <div class="row-even"><span class="label">Port of Delivery:</span> <span class="value" id="imp_port_d"></span></div>
-                                <div class="row-even"><span class="label">Consignment Status:</span><span class="value" id="imp_status"></span></div>
+                                <div class="row-even"><span class="label">Status:</span><span class="value" id="imp_status"></span></div>
                             </div>
                             <div class="column wide">
                                 <span class="bold">Financial Status</span>
-                                <div id="summary_imp">
-
-                                </div>
                                 <div class="row-space" id="summary_imp_nums">
                                     <div class="column-center">
                                         <span>Quoted</span>
@@ -774,6 +772,10 @@
                                         <span id="imp_amount_paid" class="success-text bold"></span>
                                     </div>
                                 </div>
+                                <div id="summary_imp">
+
+                                </div>
+                                
                             </div>
                             
                         
@@ -1082,9 +1084,9 @@
                                             </div>
                                             <!-- <div class="row-space"> -->
                                                 <div class="row-space mt-2">
-                                                    <label for="tax_assessment_report">Tax Assessment Report</label>
+                                                    <label for="tax_assessment_report">Tax Report</label>
                                                     <input type="file" id="tax_assessment_report" name="tax_assessment_report"/>
-                                                    <span id="tax_assessment_report_check" class="material-icons hidden">check_circle</span>
+                                                    <span id="tax_assessment_report_check" class="material-icons primary-dark-text hidden">check_circle</span>
                                                     <div class="row ml-2">
                                                         <a class="hidden" href="" target="_blank" id="tax_assessment_report_link">view file</a>
                                                     </div>
@@ -1092,7 +1094,7 @@
                                                 <div class="row-space">
                                                     <label for="tax_assessment_receipt">Tax Receipt</label>
                                                     <input type="file" id="tax_assessment_receipt" name="tax_assessment_receipt"/>
-                                                    <span id="tax_assessment_receipt_check" class="material-icons hidden">check_circle</span>
+                                                    <span id="tax_assessment_receipt_check" class="material-icons primary-dark-text hidden">check_circle</span>
                                                     <div class="row ml-2">
                                                         <a class="hidden" href="" target="_blank" id="tax_assessment_receipt_link">view file</a>
                                                     </div>
@@ -1113,7 +1115,7 @@
                                             <div class="row-space">
                                                 <div class="row">
                                                     <label for="verification_date">Date</label>
-                                                    <input  type="date" id="verification_date" name="verification_date" />
+                                                    <input  type="date" id="verification_date" name="verification_date" placeholder="mm/dd/yyyy" />
                                                 </div>
                                                 <div class="row">
                                                     <label for="verification_time">Time</label>
@@ -1139,7 +1141,7 @@
                                                 <div class="row-space mt-2">
                                                     <label for="release_order">Release Order</label>
                                                     <input type="file" id="release_order" name="release_order"/>
-                                                    <span id="release_order_check" class="material-icons hidden">check_circle</span>
+                                                    <span id="release_order_check" class="material-icons primary-dark-text hidden">check_circle</span>
                                                     <div class="row ml-2">
                                                         <a class="hidden" href="" target="_blank" id="release_order_link">view file</a>
                                                     </div>
@@ -1154,26 +1156,58 @@
                                 </div>             
                             </div> 
                             <div id="idetail_5" class="consignment-details hidden">
-                                <div class="consignment-forms-no-border row-space">
-                                    <div class="row">
-                                        <span class="medium-text">Upload Other Documents</span>
-                                    </div>
+                                <div class="consignment-forms">
+                                    <fieldset class="consignment-section">
+                                        <legend class="row-space">Off-loading
+                                            <span class="material-icons" id="offloading_collapse" onclick="collapse('import_offloading');">keyboard_arrow_up</span>
+                                        </legend>
+                                        <div id="import_offloading_collapsible" class="consignment-section">
+                                            <div class="row-space">
+                                                <div class="row">
+                                                    <label for="tasad_paid">TASAD Fees Paid?</label>
+                                                    <select class="wide-select"  id="tasad_paid" name="tasad_paid" onchange="if(parseInt(this.value) == 1) document.getElementById('tasad_fee_holder').classList.remove('hidden');else document.getElementById('tasad_fee_holder').classList.add('hidden');">
+                                                        <option value="-1"></option>
+                                                        <option value="1">Yes</option>
+                                                        <option value="0">No</option>
+                                                    </select>
+                                                </div>
+                                                <div class="row-space">
+                                                    <div class="row hidden" id="tasad_fee_holder">
+                                                        <label for="tasad_fee">Amount</label>
+                                                        <input type="number" id="tasad_fee" name="tasad_fee" placeholder="TASAD fee"/>
+                                                        <select id="tasad_currency" name="tasad_currency">
+                                                            <option selected>TZS</option>
+                                                            <option>USD</option>
+                                                            <option>Euro</option>
+                                                            <option>Pound</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- <div class="row-space"> -->
+                                                
+                                                <div class="row-space mt-2">
+                                                    <label for="tasad_invoice">TASAD Invoice</label>
+                                                    <input type="file" id="tasad_invoice" name="tasad_invoice"/>
+                                                    <span id="tasad_invoice_check" class="material-icons primary-dark-text hidden">check_circle</span>
+                                                    <div class="row ml-2">
+                                                        <a class=" hidden" href="" target="_blank" id="tasad_invoice_link">view file</a>
+                                                    </div>
+                                                </div>
+                                                <div class="row-space">
+                                                    <label for="tasad_delivery_order">Delivery Order</label>
+                                                    <input type="file" id="tasad_delivery_order" name="tasad_delivery_order"/>
+                                                    <span id="tasad_delivery_order_check" class="material-icons primary-dark-text hidden">check_circle</span>
+                                                    <div class="row ml-2">
+                                                        <a class=" hidden" href="" target="_blank" id="tasad_delivery_order_link">view file</a>
+                                                    </div>
+                                                </div>
+                                            <!-- </div> -->
+                                        </div>
+                                    </fieldset>
                                     
-                                </div>
-                                <div class="consignment-forms">                              
-                                <div id="documents_collapsible" class="column consignment-section">
-                                        <div class="row">
-                                            <label for="document_file">Select Document </label>
-                                            <select class="wide-select" id="document_file_select" name="document_file_select"><option>--select file--</option></select>
-                                        </div>
-                                        
-                                        <div class="row">
-                                            <input type="file" name="document_file_input" id="document_file_input" class="hidden"/>
-                                        </div>
-                                        <div class="column" id="docs_list">
-                                        </div>
-                                    </div>
-                                </div>                          
+                                </div>                         
                             </div> 
                             <div class="consignment-forms-no-border row-end hidden" id="submit_row">
                                 <span class="buttons-t" onClick="closeImportForm()">CANCEL</span>
