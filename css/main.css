@@ -1084,7 +1084,7 @@ td > select .wide-select, .wide-select {
 
 .wide {
   width: calc(100% - 1em) !important;
-  margin: 0.5em;
+  margin: 0 0.5em;
 }
 
 #feedback {

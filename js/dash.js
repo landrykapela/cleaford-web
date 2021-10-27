@@ -1692,7 +1692,8 @@ const showConsignmentSummary=(consignment,type)=>{
         cost += 1.0 * c.amount;
         }); 
     }
-    if(consignment.tax_amount) cost =+ parseInt(consignment.tax_amount);
+    if(consignment.tax_amount) cost += parseInt(consignment.tax_amount);
+    if(consignment.tasad_fee) cost += parseInt(consignment.tasad_fee);
     let paid = 0.5*quote;
     var chartArea;
     var chartCtx;
@@ -2487,8 +2488,7 @@ const switchIDetails=(position,data)=>{
                     if(data.files){
                         var notPredocs = ["tax_assessment_report","tax_assessment_receipt","release_order","tasad_invoice","tasad_delivery_order"];
                         var myF = [... new Set(data.files.map(f=>f.name.toLowerCase()))].filter(f=>notPredocs.indexOf(f) === -1);
-                        console.log("wow: ",myF);
-                        console.log("wow: ",data.files);
+                      
                         showPredocuments(data);
 
                     }
@@ -2525,16 +2525,15 @@ const switchIDetails=(position,data)=>{
                             {'Content-type':'application/json','Authorization':'Bearer '+currentUser.accessToken}};
                             fetch(url,options)
                             .then(res=>res.json()).then(result=>{
-                                console.log("new imprt: ",result);
+                                console.log("new import: ",result);
                                 if(result.code == 0){
-                                    var imports = storedData.imports;
-                                    imports.push(result.data);
+                                    storedData.imports.push(result.data);
                                     storage.setItem("data",JSON.stringify(storedData));
                                     storedData = JSON.parse(storage.getItem("data"));
                                     data = result.data;
+                                    showConsignmentSummary(data,"import");
                                     document.getElementById("checklist_fieldset").classList.remove("hidden");
-                                    if(data && data.files.length > 0) showPredocuments(data);
-                                    else showStandardDocs(data);
+                                    showStandardDocs(data);
                                 }
                                 else showFeedback("Oops! Something went wrong!",1)
                             })
@@ -2546,7 +2545,7 @@ const switchIDetails=(position,data)=>{
                 });   
             }
             var addMoreButton = document.getElementById("btn_more_documents");
-            if(data.files && data.files.length > 0) {
+            if(data && data.files.length > 0) {
                 var notPredocs = ["tax_assessment_report","tax_assessment_receipt","release_order","tasad_invoice","delivery_order"];
                 var myF = [... new Set(data.files.map(f=>f.name.toLowerCase()))];
                 console.log("my: ",myF);
@@ -2767,18 +2766,20 @@ const switchIDetails=(position,data)=>{
         if(position == 5){
             
             if(parseInt(data.tasad_paid) >= 0){
-                importForm.tasad_paid = data.tasad_paid;
+                importForm.tasad_paid.value = data.tasad_paid;
                 importForm.tasad_fee.value = parseInt(data.tasad_fee);
                 importForm.tasad_currency.value = data.tasad_currency;
                 document.getElementById("tasad_fee_holder").classList.remove("hidden");
             }
-            
+            let hasFiles = false;
             if(data.files && data.files.length > 0){
                 data.files.forEach(file=>{
+                    console.log("test: ",file.name);
                     if(file.name.toLowerCase() == "tasad_invoice" || file.name.toLowerCase() == "tasad_delivery_order"){
+                        hasFiles = true;
                         let key = file.name.toLowerCase();
                         var check = document.getElementById(key+"_check");
-                        check.className = "material-icons primary-dark-text";
+                        check.classList.remove("hidden")
                         var link = document.getElementById(key+"_link");
                         link.classList.remove("hidden");
                         link.href = files_url+"/"+file.filename;
@@ -2789,13 +2790,12 @@ const switchIDetails=(position,data)=>{
                                 let reader = new FileReader();
                                 if(e.target.files[0]){
                                     reader.addEventListener("load",()=>{
-                                       
                                         let tmpLink = URL.createObjectURL(inputFile.files[0]);
                                         link.href = tmpLink;
                                         data.files = result.data.files;
                                         let myfilenames = data.files.map(f=>f.name.toLowerCase());
                                         if(myfilenames.includes("tasad_delivery_order")){
-                                            if(data.status <=5) formData.status = 6;
+                                            if(data.status <= 5) formData.status = 6;
                                         }
                                         
                                         if(key == "tasad_delivery_order"){
@@ -2873,6 +2873,7 @@ const switchIDetails=(position,data)=>{
             if(position == 1){
                 formData.exporter_id = importForm.icustomer_select.value;
                 formData.forwarder_code = importForm.clearer_code.value;
+
             }
             if(position == 2){
                 formData.cargo_classification = importForm.cargo_classification.value;
@@ -2951,6 +2952,7 @@ const switchIDetails=(position,data)=>{
                 if(result.code ==0){
                     storedData.imports = result.data;
                     let newData = result.data.find(d=>d.id == data.id);
+                    console.log("new data: ",newData);
                     storage.setItem("data",JSON.stringify(storedData));
                     storedData = JSON.parse(storage.getItem("data"));
                     switchISteps(newData.status,newData);
@@ -3053,7 +3055,7 @@ const showStandardDocs = (data)=>{
         Array.from(parent.children).forEach(child=>{
             if(child.id != "add_more_row") parent.removeChild(child);
         })
-    console.log("oops no files");
+        
     var myfiles = [{name:"bill_of_lading"},{name:"packing_list"},{name:"certificate_of_origin"},{name:"commercial_invoice"}];
     myfiles.forEach(file=>{
         var linkDiv = document.createElement("div");
@@ -3109,7 +3111,12 @@ const showStandardDocs = (data)=>{
                             storedData.imports = result.data;
                             storage.setItem("data",JSON.stringify(storedData));
                             storedData = JSON.parse(storage.getItem("data"));
-
+                            data = result.data.filter(r=>r.id == data.id)[0];
+                            var fileNames = [... new Set(data.files.map(f=>f.name.toLowerCase()))];
+                            if(fileNames.includes("bill_of_lading") && fileNames.includes("packing_list") && fileNames.includes("certificate_of_origin") && fileNames.includes("commercial_invoice")){
+                                data.status = 2;
+                                switchISteps(data.status,data);
+                            }
                         }
                         showFeedback(result.msg,result.code);
                     })
@@ -3188,15 +3195,15 @@ const showPredocuments = (data)=>{
                             let tmpLink = URL.createObjectURL(inputFile.files[0]);
                             fileLink.href = tmpLink;
                             fileLink.classList.remove("hidden");
-                            data.files = result.data.files;
-                            var imports = storedData.imports;
-                            let d = imports.find(i=>i.id == result.data.id);
-                            imports = storedData.imports.map(i=>{
-                                let ni = i;
-                                if(i.id == d.id) ni = d;
-                                return ni;
-                            });
-                            storedData.imports = imports;
+                            // data.files = result.data.files;
+                            // var imports = storedData.imports;
+                            // let d = imports.find(i=>i.id == result.data.id);
+                            // imports = storedData.imports.map(i=>{
+                            //     let ni = i;
+                            //     if(i.id == d.id) ni = d;
+                            //     return ni;
+                            // });
+                            storedData.imports = result.data;
                             storage.setItem("data",JSOn.stringify(storedData));
                             storedData = JSON.parse(storage.getItem("data"));
 
