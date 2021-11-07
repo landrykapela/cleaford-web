@@ -247,12 +247,12 @@
                          </div>
                         <div class="row-space p-1 mb-2 mx-auto" id="export_consignment_summary">
                             <div class="column">
-                                <span class="medium-text">Customer</span>
-                                <span id="cons_cust_name"></span>
-                                <span id="cons_cust_add"></span>
+                                <span class="medium-text mb-1">Customer</span>
+                                <span class="bold" id="cons_cust_name"></span>
+                                <span class="bold" id="cons_cust_add"></span>
                             </div>
                             <div class="column wide">
-                                <span class="medium-text">Consignment Summary</span>
+                                <span class="medium-text mb-1">Consignment Summary</span>
                                 <div class="row-even"><span class="label">Consignment #:</span><span class="value" id="cons_no"></span></div>
                                 <div class="row-even"><span class="label">Type:</span><span class="value" id="cons_type"></span></div>
                                 <div class="row-even"><span class="label">Port of Origin:</span><span class="value" id="cons_port_o"></span></div>
@@ -260,7 +260,7 @@
                                 <div class="row-even"><span class="label">Status:</span><span class="value" id="cons_status"></span></div>
                             </div>
                             <div class="column wide">
-                                <span class="medium-text">Financial Status</span>
+                                <span class="medium-text mb-1">Financial Status</span>
                                 <div class="row-space" id="summary_cons_nums">
                                     <div class="column-center">
                                         <span>Quoted</span>
@@ -390,8 +390,10 @@
                                             <div class="row-top">
                                                 <label for="place_of_destination">Place of Destination *</label>
                                                 <div class="searchable_container">
-                                                    <input required type="text" id="place_of_destination" name="place_of_destination" placeholder="Place of destination"/>
-                                                    <div class="searchable_select hidden" id="searchable_countries"></div>
+                                                    <select required id="place_of_destination" name="place_of_destination" class="wide-select">
+                                                        <option>--select country--</option>
+                                                    </select>
+                                                    <!-- <div class="searchable_select hidden" id="searchable_countries"></div> -->
                                                 </div>
                                             </div>
                                             <div class="row">
@@ -405,13 +407,15 @@
                                         <div class="row-space">
                                             <div class="row">
                                                 <label for="port_of_discharge">Port of Discharge *</label>
-                                                <select class="wide-select" required id="port_of_discharge" name="port_of_discharge"></select>
+                                                <select class="wide-select" required id="port_of_discharge" name="port_of_discharge">
+                                                    <option>--select port--</option>
+                                                </select>
                                             </div>
                                             <div class="row">
                                                 <label for="port_of_origin">Port of Origin *</label>
                                                 <div class="searchable_container">
-                                                    <input required type="text" id="port_of_origin" name="port_of_origin" placeholder="Port of origin"/>
-                                                    <div class="searchable_select hidden" id="searchable_ports"></div>
+                                                    <select required id="port_of_origin" name="port_of_origin" class="wide-select"><option>--select port--</option></select>
+                                                    <!-- <div class="searchable_select hidden" id="searchable_ports"></div> -->
                                                 </div>
                                             </div>
                                         </div>
@@ -691,7 +695,7 @@
                         </div> 
                         <div id="detail_4" class="consignment-details hidden">
                             
-                            <div class="column" id="container_form">   
+                            <div class="column" id="container_forms">   
                                 
                              
                             </div>   
@@ -744,12 +748,12 @@
                         </div>
                         <div class="row-space p-1 mb-2 mx-auto" id="import_summary">
                             <div class="column mr-2">
-                                <span class="medium-text">Customer</span>
-                                <span id="imp_cust_name"></span>
-                                <span id="imp_cust_add"></span>
+                                <span class="medium-text mb-1">Customer</span>
+                                <span class="bold" id="imp_cust_name"></span>
+                                <span class="bold" id="imp_cust_add"></span>
                             </div>
                             <div class="column wide">
-                                <span class="medium-text">Consignment Summary</span>
+                                <span class="medium-text mb-1">Consignment Summary</span>
                                 <div class="row-even"><span class="label">Consignment #:</span><span class="value" id="imp_no"></span></div>
                                 <div class="row-even"><span class="label">Type:</span><span class="value" id="imp_type"></span></div>
                                 <div class="row-even"><span class="label">Port of Origin:</span><span class="value" id="imp_port_o"></span></div>
@@ -757,7 +761,7 @@
                                 <div class="row-even"><span class="label">Status:</span><span class="value" id="imp_status"></span></div>
                             </div>
                             <div class="column wide">
-                                <span class="medium-text">Financial Status</span>
+                                <span class="medium-text mb-1">Financial Status</span>
                                 <div class="row-space" id="summary_imp_nums">
                                     <div class="column-center">
                                         <span>Quoted</span>
@@ -906,28 +910,31 @@
                                                 <div class="row-top">
                                                     <label for="place_of_destination">Place of Destination *</label>
                                                     <div class="searchable_container">
-                                                        <input  type="text" id="place_of_destination" name="place_of_destination" placeholder="Place of destination"/>
-                                                        <div class="searchable_select hidden" id="searchable_countries"></div>
+                                                        <select id="place_of_destination" name="place_of_destination" class="wide-select"><option value="-1">--select country--</option></select>
+                                                        <!-- <input  type="text" id="place_of_destination" name="place_of_destination" placeholder="Place of destination"/>
+                                                        <div class="searchable_select hidden" id="searchable_countries"></div> -->
                                                     </div>
                                                 </div>
                                                 <div class="row">
                                                     <label for="place_of_delivery">Place of Delivery *</label>
                                                     <div class="searchable_container">
                                                         <input  type="text" id="place_of_delivery" name="place_of_delivery" placeholder="Place of Delivery"/>
-                                                        <div class="searchable_select hidden" id="searchable_city"></div>
+                                                        <!-- <div class="searchable_select hidden" id="searchable_city"></div> -->
                                                     </div>
                                                 </div>
                                             </div>
                                             <div class="row-space">
                                                 <div class="row">
                                                     <label for="port_of_discharge">Port of Discharge *</label>
-                                                    <select class="wide-select"  id="port_of_discharge" name="port_of_discharge"></select>
+                                                    <select class="wide-select"  id="port_of_discharge" name="port_of_discharge">
+                                                        <option value="-1">--select port--</option>
+                                                    </select>
                                                 </div>
                                                 <div class="row">
                                                     <label for="port_of_origin">Port of Origin *</label>
                                                     <div class="searchable_container">
-                                                        <input  type="text" id="port_of_origin" name="port_of_origin" placeholder="Port of origin"/>
-                                                        <div class="searchable_select hidden" id="isearchable_ports"></div>
+                                                        <select id="port_of_origin" name="port_of_origin" class="wide-select"><option value="-1">--select port--</option></select>
+                                                        <!-- <div class="searchable_select hidden" id="isearchable_ports"></div> -->
                                                     </div>
                                                 </div>
                                             </div>
@@ -1039,7 +1046,14 @@
                                             </div>
                                         </div>
                                     </fieldset>
-                                    
+                                    <fieldset class="consignment-section">
+                                        <legend class="row-space">Container Data
+                                            <span class="material-icons" id="cdata_collapse" onclick="collapse('cdata');">keyboard_arrow_up</span>
+                                        </legend>
+                                        <div id="cdata_collapsible" class="consignment-section">
+                                            <div id="imp_container_detail"></div>
+                                        </div>
+                                    </fieldset>
                                 </div>                          
                             </div>
                             <div id="idetail_3" class="consignment-details hidden">
@@ -1055,7 +1069,7 @@
                                                     <input  type="date" id="import_assessment_date" name="import_assessment_date" />
                                                 </div>
                                                 <div class="row">
-                                                    <label for="tax_amount">Amount</label>
+                                                    <label for="tax_amount">Initial Amount</label>
                                                     <input type="number" id="tax_amount" name="tax_amount" placeholder="Tax amount"/>
                                                     <select id="tax_currency" name="tax_currency">
                                                         <option>USD</option>
@@ -1069,7 +1083,7 @@
                                             <div class="row-space">
                                                 <div class="row">
                                                     <label for="assessment_appeal">Appealed?</label>
-                                                    <select class="wide-select"  id="assessment_appeal" name="assessment_appeal" onchange="if(this.value !=-1) document.getElementById('tax_comments').classList.remove('hidden');else document.getElementById('tax_comments').classList.add('hidden');">
+                                                    <select class="wide-select"  id="assessment_appeal" name="assessment_appeal">
                                                         <option value="-1"></option>
                                                         <option value="1">Yes</option>
                                                         <option value="0">No</option>
@@ -1081,6 +1095,23 @@
                                                         <textarea id="tax_appeal_comment" name="tax_appeal_comment" placeholder="Comments on appeal"></textarea>
                                                     </div>
                                                 </div>
+                                            </div>
+                                            <div class="row-space hidden" id="appeal_detail">
+                                                <div class="row">
+                                                    <label for="appeal_assessment_date">Appeal Date</label>
+                                                    <input  type="date" id="appeal_assessment_date" name="appeal_assessment_date" />
+                                                </div>
+                                                <div class="row">
+                                                    <label for="tax_amount">Final Amount</label>
+                                                    <input type="number" id="appeal_tax_amount" name="appeal_tax_amount" placeholder=""/>
+                                                    <select id="appeal_tax_currency" name="appeal_tax_currency">
+                                                        <option>USD</option>
+                                                        <option>Euro</option>
+                                                        <option>Pound</option>
+                                                        <option selected>TZS</option>
+                                                    </select>
+                                                </div>
+                                               
                                             </div>
                                             <!-- <div class="row-space"> -->
                                                 <div class="row-space mt-2">
@@ -1131,12 +1162,14 @@
                                                    
                                                 </div>
                                                 <div class="row">
-                                                    <label for="verification_status">Verification Status</label>
+                                                    <!-- <label for="verification_status">Verification Status</label>
                                                     <input type="text"  id="verification_status" name="verification_status"/>
-                                                   
+                                                    -->
                                                 </div>
                                                 
                                             </div>
+                                            
+                                             
                                             <!-- <div class="row-space"> -->
                                                 <div class="row-space mt-2">
                                                     <label for="release_order">Release Order</label>
@@ -1151,6 +1184,12 @@
                                                 </div>
                                             <!-- </div> -->
                                         </div>
+                                    </fieldset>
+                                    <fieldset class="consignment-section">
+                                        <!-- <div class="row-space"> -->
+                                            <div id="icontainer_forms">   
+                                            </div> 
+                                        <!-- </div> -->
                                     </fieldset>
                                     
                                 </div>             
@@ -1207,6 +1246,11 @@
                                         </div>
                                     </fieldset>
                                     
+                                    <fieldset class="consignment-section">
+                                        <div id="ocontainer_forms">
+
+                                        </div>
+                                    </fieldset>
                                 </div>                         
                             </div> 
                             <div class="consignment-forms-no-border row-end hidden" id="submit_row">

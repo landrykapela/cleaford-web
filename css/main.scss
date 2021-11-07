@@ -860,7 +860,7 @@ footer{
     // font-weight: bold;
   }
   th,td{
-    width:10%;
+    // width:10%;
     text-align: left;
   }
   th > span,th input{
@@ -1040,6 +1040,11 @@ footer{
 .consignment-forms .column{
   width:40%;
 }
+.consignment-forms #icontainer_forms,#container_forms,#imp_container_detail{
+  width:calc(100% - 2em);
+  margin:0 1em;
+  overflow-x: scroll;
+}
 .consignment-forms .column > label{
   text-align: left;
   width: 100%;
@@ -1057,8 +1062,35 @@ footer{
   flex-grow: 0;
   width:20%;
 }
+#icontainer_forms td, #imp_container_detail td{
+  width:fit-content !important;
+}
+#icontainer_forms td, #imp_container_detail td > input{
+  width:calc(100% - 1em) !important;
+  
+}
+#icontainer_forms form,#imp_container_detail form{
+  display:unset;
+}
+.radios{
+  border: 1px solid;
+}
+.radios input[type="radio"]{
+  width:unset;
+}
+// #icontainer_forms input[type="number"],.consignment-forms select{
+//   width:40%;
+// }
 .consignment-forms select{
-  max-width:40%;
+  width:fit-content;
+  min-width: 70px !important;
+}
+.consignment-forms .radios{
+  @include flex(row,center ,center );
+}
+.consignment-forms textarea{
+ 
+  min-width: 250px !important;
 }
 .consignment-section{
   margin-top:1em;
@@ -1288,6 +1320,9 @@ footer{
 }
 .border{
   border: 1px solid blue;
+}
+fieldset{
+  min-width: 0;
 }
 //end layouts
 

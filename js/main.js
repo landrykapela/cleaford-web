@@ -99,11 +99,14 @@ if(window.location.pathname != "/signin.html" && window.location.pathname != "/s
     document.addEventListener('mouseup',(e)=>{
     
     var dropDown = document.getElementById("drop-down");
-    var arrowDrop = document.getElementById("arrow-drop");
-    if(!dropDown.contains(e.target)) {
-        dropDown.classList.add("hidden");
-        arrowDrop.innerHTML = "arrow_drop_down";
+    if(dropDown){
+       var arrowDrop = document.getElementById("arrow-drop");
+        if(!dropDown.contains(e.target)) {
+            dropDown.classList.add("hidden");
+            arrowDrop.innerHTML = "arrow_drop_down";
+        } 
     }
+    
       
 })
 }
