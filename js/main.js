@@ -1,7 +1,7 @@
 const storage = window.localStorage;
 const clientSummaryCount = 5;
 var userObj = storage.getItem("currentUser");
-var currentUser = (userObj !== null && userObj !== undefined && userObj !=="") ? JSON.parse(userObj):null;
+var currentUser = (userObj) ? JSON.parse(userObj):null;
 var storedData = (storage.getItem("data")) ? JSON.parse(storage.getItem("data")):{regions:[],client_roles:[],clients:[],roles:[],features:[],settings:{currency:"Tsh"}};
 const DATA_COUNT = 12;
 const NUMBER_CFG = {count: DATA_COUNT, min: 0, max: 100};
@@ -459,7 +459,9 @@ if(loginForm){
         submit.classList.add("hidden");
         if(spinner) spinner.classList.remove("hidden");
         fetch(signin_url,{method:"POST",body:JSON.stringify(user),headers:{'Content-type':'application/json'}})
-        .then(res=>res.json()).then(response=>{
+        .then(res=>{
+            console.log("res: ",res);
+            return res.json();}).then(response=>{
             submit.classList.remove("hidden");
             if(spinner) spinner.classList.add("hidden");
             if(response.code == 1){

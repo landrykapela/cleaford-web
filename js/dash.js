@@ -18,22 +18,22 @@ const PREDOCUMENTS = [
         {id:2,name:"export permission",label:"Export Permission"},
         {id:3,name:"screening report",label:"Screening Report"},
         {id:4,name:"bill of lading",label:"Bill of Lading"},];
-const CONTAINER_FIELDS = [{id:"mbl_number",label:"MB/L Number",required:false,forImport:false,type:"text"},
-{id:"container_type",label:"Container Type",required:true,forImport:false,type:"select",options:["General Purpose","ISO Reefer","Insulated","Flat Rack","Open Top"]},
-{id:"container_no",label:"Container Number",required:true,forImport:true,type:"text"},
-{id:"container_size",label:"Container size",required:true,type:"select",options:["20 Feet","40 Feet"]},
+const CONTAINER_FIELDS = [{id:"mbl_number",label:"#MB/L No",required:false,forImport:false,type:"text"},
+{id:"container_type",label:"Type",required:true,forImport:false,type:"select",options:["Standard","General Purpose","ISO Reefer","Insulated","Flat Rack","Open Top"]},
+{id:"container_no",label:"Container No",required:true,forImport:true,type:"text"},
+{id:"container_size",label:"Size",required:true,type:"select",options:["20 Feet","40 Feet"]},
 {id:"seal_1",label:"Shipping Seal",required:false,type:"text"},
 {id:"seal_2",label:"Exporter Seal",required:false,type:"text"},
-{id:"seal_3",label:"Seal Number 3",required:false,type:"text"},
+{id:"seal_3",label:"Seal #3",required:false,type:"text"},
 {id:"freight_indicator",label:"Freight Indicator",required:false,type:"text"},
 {id:"no_of_packages",label:"Number of Packages",required:false,forImport:true,type:"number"},
 {id:"package_unit",label:"Package Unit",required:false,forImport:true,type:"select",options:["Bag","Box","Carton","Piece"]},
-{id:"volume",label:"Volume",required:false,type:"number"},
-{id:"volume_unit",label:"Voulume Unit",required:false,type:"select",options:["Cubic Meter","Cubic Foot","Lt"]},
+{id:"volume",label:"Vol",required:false,type:"number"},
+{id:"volume_unit",label:"Vol Unit",required:false,type:"select",options:["Cubic Meter","Cubic Foot","Lt"]},
 {id:"weight",label:"Weight",required:true,forImport:true,type:"number"},
 {id:"weight_unit",label:"Weight Unit",required:true,forImport:true,type:"select",options:["KG","Lb","Ton"]},
-{id:"max_temp",label:"Maximum Temperature",required:false,type:"number"},
-{id:"min_temp",label:"Minimum Temperature",required:false,type:"number"},
+{id:"max_temp",label:"Max Temp",required:false,type:"number"},
+{id:"min_temp",label:"Min Temp",required:false,type:"number"},
 {id:"plug_yn",label:"Refer Plug",required:true,type:"select",options:["Yes","No"]}];
     
 var currentUser = (storage.getItem("currentUser")) ? JSON.parse(storage.getItem("currentUser")):null;
@@ -2443,7 +2443,6 @@ const switchISteps = (position,data)=>{
 }
 
 const switchIDetails=(position,data)=>{
-    console.log("fckd: ",data);
     var container = document.getElementById("import_form");
     Array.from(container.children).forEach((d,i)=>{
         if(d.id == "submit_row") d.classList.remove("hidden");
@@ -2608,6 +2607,12 @@ const switchIDetails=(position,data)=>{
             importForm.shipping_mark.value = data.shipping_mark;
            
             importForm.icustomer_select.value = data.exporter_id;
+            var fileInput = document.getElementById('excel_input');
+            fileInput.addEventListener('change',(e)=>{
+                if(e.target.files[0]){
+                    importContainersFromExcel(data,e.target.files[0]);
+                }
+            })
             addContainerForm(data,CONTAINER_FIELDS,"imp_container_detail");
         }
         if(position == 3){
@@ -2991,6 +2996,117 @@ const closeImportForm=()=>{
     document.getElementById("add_import").classList.remove("hidden");
     console.log("check close: ",storedData.imports);
     showImportList(storedData.imports);
+}
+//import containers from xlsx
+const importContainersFromExcel=(data,file)=>{
+    let result = [];
+    if(file){
+        var reader = new FileReader();   
+        reader.addEventListener("load",()=>{
+            var wb = XLSX.read(reader.result,{type:'array'});
+            var containerSheet = wb.Sheets["Containers"];
+            var containers = XLSX.utils.sheet_to_json(containerSheet,{header:1});
+            var columns = containers[0];
+            var containerList = containers.slice(1).filter(i=>i.length > 0);
+            console.log("data: ",containerList); 
+            data.no_of_containers = containerList.length;
+            containerList = containerList.map((cl,i)=>{
+                let c={
+                    id:i,
+                    cid:currentUser.id,
+                    mbl_number:cl[0],container_type:cl[1],container_no:cl[2],container_size:cl[3],seal_1:cl[4],seal_2:cl[5],seal_3:cl[6], 
+                    freight_indicator:cl[7],no_of_packages:cl[8],package_unit:cl[9],volume:cl[10],volume_unit:cl[11],
+                    weight:cl[12],weight_unit:cl[13],min_temp:cl[14],max_temp:cl[15],date_modified:Date.now()
+                }
+                return c;
+            });
+            data.container_details = containerList;
+            columns = columns.map((c,i)=>{
+                let ci = c.replaceAll("*","").replaceAll("#","").replaceAll(".","");
+                let col={label:ci,id:ci.replaceAll(" ",'_').toLowerCase(),required:false,forImport:false,type:"text"};
+                if(col.id == "type_of_container"){
+                    col.id = "container_type";
+                    col.label = "Type";
+                    col.forImport=true;
+                    col.required = true;
+                    col.type = "select";
+                    col.options = ["Standard","General Purpose","ISO Reefer","Insulated","Flat Rack","Open Top"];
+                }
+                if(col.id == "m_b/l_no" || col.id == "mb/l_no"){
+                    col.id = "mbl_number";
+                    col.label = "MBL No";
+                    col.type = "text";
+                }
+                if(col.id == "container_no"){
+                    col.forImport=true;
+                    col.required=true;
+                }
+                if(col.id == "container_size"){
+                    col.label = "Container Size";
+                    col.type="text";
+                }
+                if(col.id == "seal_no1"){
+                    col.id = "seal_1";
+                    col.label = "Seal #1";
+                    col.type="text"
+                }
+                if(col.id == "seal_no2"){
+                    col.id = "seal_2";
+                    col.label = "Seal #2";
+                    col.type="text"
+                }
+                if(col.id == "seal_no3/out_of_gague"){
+                    col.id = "seal_3";
+                    col.label = "Seal #3";
+                    col.type="text"
+                }
+                if(col.id == "no_of_package"){
+                    col.id = "no_of_packages";
+                    col.type = "number";
+                    col.label = "No. Packages";
+                }
+                if(col.id == "minmum_temperature" || col.id=="minimum_temperature"){
+                    col.id = "min_temp";
+                    col.type = "number";
+                    col.label = "Min Temp";
+                }
+                if(col.id == "maxmum_temperature" || col.id=="maximum_temperature"){
+                    col.id = "max_temp";
+                    col.type = "number";
+                    col.label = "Max Temp";
+                }
+                if(col.id == "refer_plug_y/n"){
+                    col.id = "plug_yn"
+                    col.type = "select";
+                    col.label = "Refer Plug";
+                    col.options=["Y","N"];
+                }
+                
+                return col;
+            })
+            console.log("col: ",columns);
+//             const CONTAINER_FIELDS = [{id:"mbl_number",label:"#MB/L No",required:false,forImport:false,type:"text"},
+// {id:"container_type",label:"Type",required:true,forImport:false,type:"select",options:["Standard","General Purpose","ISO Reefer","Insulated","Flat Rack","Open Top"]},
+// {id:"container_no",label:"Container No",required:true,forImport:true,type:"text"},
+// {id:"container_size",label:"Size",required:true,type:"select",options:["20 Feet","40 Feet"]},
+// {id:"seal_1",label:"Shipping Seal",required:false,type:"text"},
+// {id:"seal_2",label:"Exporter Seal",required:false,type:"text"},
+// {id:"seal_3",label:"Seal #3",required:false,type:"text"},
+// {id:"freight_indicator",label:"Freight Indicator",required:false,type:"text"},
+// {id:"no_of_packages",label:"Number of Packages",required:false,forImport:true,type:"number"},
+// {id:"package_unit",label:"Package Unit",required:false,forImport:true,type:"select",options:["Bag","Box","Carton","Piece"]},
+// {id:"volume",label:"Vol",required:false,type:"number"},
+// {id:"volume_unit",label:"Vol Unit",required:false,type:"select",options:["Cubic Meter","Cubic Foot","Lt"]},
+// {id:"weight",label:"Weight",required:true,forImport:true,type:"number"},
+// {id:"weight_unit",label:"Weight Unit",required:true,forImport:true,type:"select",options:["KG","Lb","Ton"]},
+// {id:"max_temp",label:"Max Temp",required:false,type:"number"},
+// {id:"min_temp",label:"Min Temp",required:false,type:"number"},
+// {id:"plug_yn",label:"Refer Plug",required:true,type:"select",options:["Yes","No"]}];
+            addContainerForm(data,columns,"imp_container_detail");
+
+        },false);
+        reader.readAsArrayBuffer(file);
+    }
 }
 //get imports data
 const fetchImports =()=>{
@@ -4866,6 +4982,7 @@ const addContainerForm = (data,fields,container=null)=>{
                 if(data && data.shipping_details && field.id == "mbl_number"){
                     fieldInput.value = data.shipping_details.mbl_number;
                 }
+                if(fieldInput.value == "undefined") fieldInput.value = "";
                 fieldDiv.appendChild(fieldInput);
             }
             else{
@@ -4875,10 +4992,11 @@ const addContainerForm = (data,fields,container=null)=>{
                 fieldSelect.required = field.required;
                 fieldSelect.classList.add("select");
                 field.options.forEach(opt=>{
-                    fieldSelect.options.add(new Option(opt));
+                    fieldSelect.options.add(new Option(opt,opt.toLowerCase()));
                 })
                 if(data && data.container_details && data.container_details.length >n-1){
-                    fieldSelect.value = data.container_details[n-1][field.id];                   
+                    let val = data.container_details[n-1][field.id];
+                    fieldSelect.value = val ? val.toLowerCase():"";                   
                 }
                
                 fieldDiv.appendChild(fieldSelect);  

@@ -1053,20 +1053,22 @@ footer{
 .subscription-forms input,.subscription-forms textarea, .subscription-forms select,.consignment-forms input,.consignment-forms textarea, .consignment-forms select{
   flex-grow: 1;
   @include addRoundCornerTop(4px,4px );
-  width:calc(50% - 1em);
+  width:calc(100% - 1em);
   padding:0.25em 0.5em;
   border:0.5px solid $secondaryColor;
   // outline-color: $primaryColor;
 }
 .consignment-forms input[type="number"],.consignment-forms select{
   flex-grow: 0;
-  width:20%;
+  width:50px !important;
 }
 #icontainer_forms td, #imp_container_detail td{
-  width:fit-content !important;
+  min-width: 70px !important;
+  width: 100px !important ;
+  // width:fit-content !important;
 }
 #icontainer_forms td, #imp_container_detail td > input{
-  width:calc(100% - 1em) !important;
+  width:calc(100% - 0.5em) !important;
   
 }
 #icontainer_forms form,#imp_container_detail form{

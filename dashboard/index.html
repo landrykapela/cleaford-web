@@ -10,6 +10,7 @@
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Baloo+Thambi+2&display=swap" rel="stylesheet"> 
         <link href="/css/main.css" rel="stylesheet"/>
+        <script src="/libs/xlsx/xlsx.full.min.js"></script>
     </head>
 
     <body>
@@ -1051,6 +1052,7 @@
                                             <span class="material-icons" id="cdata_collapse" onclick="collapse('cdata');">keyboard_arrow_up</span>
                                         </legend>
                                         <div id="cdata_collapsible" class="consignment-section">
+                                            <div class="row-end buttons-t"><span class="material-icons">upload</span>&nbsp;<span onclick="document.getElementById('excel_input').click();">Import</span><input type="file" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" id="excel_input" class="hidden"/></div>
                                             <div id="imp_container_detail"></div>
                                         </div>
                                     </fieldset>
@@ -1942,5 +1944,8 @@
    <script src="/libs/chartsjs/chart.js"></script>
    <script src="https://maps.googleapis.com/maps/api/js?libraries=places&key=AIzaSyAWALPfQrbJypNehyEnoFKFKs1nDOoqOGk"></script>
    <script src="/js/dash.js"></script>
+   <script>
+       
+   </script>
     </body>
 </html>
