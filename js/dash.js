@@ -1,4 +1,5 @@
 const storage = window.localStorage;
+const session = window.sessionStorage;
 const DATA_COUNT = 12;
 const NUMBER_CFG = {count: DATA_COUNT, min: 0, max: 100};
 // const CURRENCY = "USD";
@@ -36,7 +37,7 @@ const CONTAINER_FIELDS = [{id:"mbl_number",label:"#MB/L No",required:false,forIm
 {id:"min_temp",label:"Min Temp",required:false,type:"number"},
 {id:"plug_yn",label:"Refer Plug",required:true,type:"select",options:["Yes","No"]}];
     
-var currentUser = (storage.getItem("currentUser")) ? JSON.parse(storage.getItem("currentUser")):null;
+var currentUser = (session.getItem("currentUser")) ? JSON.parse(session.getItem("currentUser")):null;
 
 var storedData = (storage.getItem("data")) ? JSON.parse(storage.getItem("data")):{cost_items:[],roles:[],client_roles:[],customers:[],roles:[],consignments:[],imports:[],clients:[],quotations:[],invoices:[],settings:{currency:"Tsh"}};
 

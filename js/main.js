@@ -1,7 +1,8 @@
 const storage = window.localStorage;
+const session = window.sessionStorage;
 const clientSummaryCount = 5;
-var userObj = storage.getItem("currentUser");
-var currentUser = (userObj) ? JSON.parse(userObj):null;
+var userObj = session.getItem("currentUser");
+var currentUser = (userObj == "" || userObj == undefined || userObj == null) ? null: JSON.parse(userObj);
 var storedData = (storage.getItem("data")) ? JSON.parse(storage.getItem("data")):{regions:[],client_roles:[],clients:[],roles:[],features:[],settings:{currency:"Tsh"}};
 const DATA_COUNT = 12;
 const NUMBER_CFG = {count: DATA_COUNT, min: 0, max: 100};
@@ -170,6 +171,7 @@ const isValidEmail = (email)=>{
 if(window.location.pathname == "/signin.html"){
     storage.setItem("currentUser",JSON.stringify({}));
     storage.setItem("data",JSON.stringify({}));
+    currentUser = JSON.parse(storage.getItem("currentUser"))
 }
 
 //handle sidebar nav
@@ -459,9 +461,8 @@ if(loginForm){
         submit.classList.add("hidden");
         if(spinner) spinner.classList.remove("hidden");
         fetch(signin_url,{method:"POST",body:JSON.stringify(user),headers:{'Content-type':'application/json'}})
-        .then(res=>{
-            console.log("res: ",res);
-            return res.json();}).then(response=>{
+        .then(res=>res.json()).then(response=>{
+            console.log("signin: ",response);
             submit.classList.remove("hidden");
             if(spinner) spinner.classList.add("hidden");
             if(response.code == 1){
@@ -469,7 +470,7 @@ if(loginForm){
             }
             else{
                 currentUser = response.data;
-                storage.setItem("currentUser",JSON.stringify(currentUser));
+                session.setItem("currentUser",JSON.stringify(currentUser));
                 if(currentUser.id == 0) {
                     showAdmin();
                 }
