@@ -22,20 +22,20 @@ const PREDOCUMENTS = [
 const CONTAINER_FIELDS = [{id:"mbl_number",label:"#MB/L No",required:false,forImport:false,type:"text"},
 {id:"container_type",label:"Type",required:true,forImport:false,type:"select",options:["Standard","General Purpose","ISO Reefer","Insulated","Flat Rack","Open Top"]},
 {id:"container_no",label:"Container No",required:true,forImport:true,type:"text"},
-{id:"container_size",label:"Size",required:true,type:"select",options:["20 Feet","40 Feet"]},
+{id:"container_size",label:"Size",required:true,type:"select",options:["20G0","20G1","20H0","20P0","20P1","20T0","20T1","20T2","22G0","22G1","22H0","22P8","22P7","22P8"]},
 {id:"seal_1",label:"Shipping Seal",required:false,type:"text"},
 {id:"seal_2",label:"Exporter Seal",required:false,type:"text"},
 {id:"seal_3",label:"Seal #3",required:false,type:"text"},
 {id:"freight_indicator",label:"Freight Indicator",required:false,type:"text"},
 {id:"no_of_packages",label:"Number of Packages",required:false,forImport:true,type:"number"},
-{id:"package_unit",label:"Package Unit",required:false,forImport:true,type:"select",options:["Bag","Box","Carton","Piece"]},
+{id:"package_unit",label:"Package Unit",required:false,forImport:true,type:"select",options:["BG","BX","CT","UT"]},
 {id:"volume",label:"Vol",required:false,type:"number"},
-{id:"volume_unit",label:"Vol Unit",required:false,type:"select",options:["Cubic Meter","Cubic Foot","Lt"]},
+{id:"volume_unit",label:"Vol Unit",required:false,type:"select",options:["CM","CF","Lt"]},
 {id:"weight",label:"Weight",required:true,forImport:true,type:"number"},
 {id:"weight_unit",label:"Weight Unit",required:true,forImport:true,type:"select",options:["KG","Lb","Ton"]},
 {id:"max_temp",label:"Max Temp",required:false,type:"number"},
 {id:"min_temp",label:"Min Temp",required:false,type:"number"},
-{id:"plug_yn",label:"Refer Plug",required:true,type:"select",options:["Yes","No"]}];
+{id:"plug_yn",label:"Refer Plug",required:true,type:"select",options:["Y","N"]}];
     
 var currentUser = (session.getItem("currentUser")) ? JSON.parse(session.getItem("currentUser")):null;
 
@@ -1160,6 +1160,7 @@ const editCustomerDetail = (customer,source)=>{
    
     document.getElementById("cancelCustomerEditButton").addEventListener('click',()=>{
         closeCustomerForm('edit_customer_content',customer);
+        // activateMenu("customers");
     });
     let data = {tin_cert:null,inc_cert:null};
     editForm.tin_cert.addEventListener("change",(e)=>{
@@ -2609,12 +2610,13 @@ const switchIDetails=(position,data)=>{
            
             importForm.icustomer_select.value = data.exporter_id;
             var fileInput = document.getElementById('excel_input');
+            console.log("xtest:; ",data.no_of_containers ?data.no_of_containers:data.container_details.length);
+            addContainerForm(data,CONTAINER_FIELDS,"imp_container_detail");
             fileInput.addEventListener('change',(e)=>{
                 if(e.target.files[0]){
                     importContainersFromExcel(data,e.target.files[0]);
                 }
             })
-            addContainerForm(data,CONTAINER_FIELDS,"imp_container_detail");
         }
         if(position == 3){
             if(data.assessment_date) {
@@ -2892,7 +2894,7 @@ const switchIDetails=(position,data)=>{
         importForm.addEventListener("submit",(e)=>{
             e.preventDefault();
             if(position == 1){
-                formData.exporter_id = importForm.icustomer_select.value;
+                formData.forwarder_id = importForm.icustomer_select.value;
                 formData.forwarder_code = importForm.clearer_code.value;
 
             }
@@ -2924,6 +2926,22 @@ const switchIDetails=(position,data)=>{
                 formData.forwarder_code = (formData && formData.forwarder_code) ? formData.forwarder_code: currentUser.detail.code;
                 formData.exporter_id = importForm.icustomer_select.value;
                 formData.status = (data.status <= 2)?3:data.status;
+                if(data.container_details) {
+                    var my_cont_data = [];
+                    data.container_details.forEach((c,i)=>{
+                            let d={id:c.id};
+                        CONTAINER_FIELDS.forEach(fd=>{
+                            let k=i+1;
+                            let id = fd.id+"_"+k;
+                            console.log("fd id: ",id);
+                            let x = document.getElementById(id).value;
+                            d[fd.id] = x;
+                        })
+                        my_cont_data.push(d);
+                    })
+                    formData.container_details = my_cont_data;
+                }
+                console.log("cd: ",formData.container_details);
     
             }
             if(position == 3){
@@ -2956,7 +2974,7 @@ const switchIDetails=(position,data)=>{
             delete formData.expenses;
             delete formData.files;
             delete formData.invoices;
-            delete formData.container_details;
+            // delete formData.container_details;
             delete formData.status_text;
             var method = (data == null) ? "POST" : "PUT";
             var options ={
@@ -3010,11 +3028,12 @@ const importContainersFromExcel=(data,file)=>{
             var columns = containers[0];
             var containerList = containers.slice(1).filter(i=>i.length > 0);
             console.log("data: ",containerList); 
-            data.no_of_containers = containerList.length;
+            data.no_of_containers = (data.no_containers) ? data.no_of_packages+ containerList.length:containerList.length;
             containerList = containerList.map((cl,i)=>{
+                let k = -(i +1);
                 let c={
-                    id:i,
-                    cid:currentUser.id,
+                    id:k,
+                    cid:data.id,
                     mbl_number:cl[0],container_type:cl[1],container_no:cl[2],container_size:cl[3],seal_1:cl[4],seal_2:cl[5],seal_3:cl[6], 
                     freight_indicator:cl[7],no_of_packages:cl[8],package_unit:cl[9],volume:cl[10],volume_unit:cl[11],
                     weight:cl[12],weight_unit:cl[13],min_temp:cl[14],max_temp:cl[15],date_modified:Date.now()
@@ -3085,24 +3104,7 @@ const importContainersFromExcel=(data,file)=>{
                 
                 return col;
             })
-            console.log("col: ",columns);
-//             const CONTAINER_FIELDS = [{id:"mbl_number",label:"#MB/L No",required:false,forImport:false,type:"text"},
-// {id:"container_type",label:"Type",required:true,forImport:false,type:"select",options:["Standard","General Purpose","ISO Reefer","Insulated","Flat Rack","Open Top"]},
-// {id:"container_no",label:"Container No",required:true,forImport:true,type:"text"},
-// {id:"container_size",label:"Size",required:true,type:"select",options:["20 Feet","40 Feet"]},
-// {id:"seal_1",label:"Shipping Seal",required:false,type:"text"},
-// {id:"seal_2",label:"Exporter Seal",required:false,type:"text"},
-// {id:"seal_3",label:"Seal #3",required:false,type:"text"},
-// {id:"freight_indicator",label:"Freight Indicator",required:false,type:"text"},
-// {id:"no_of_packages",label:"Number of Packages",required:false,forImport:true,type:"number"},
-// {id:"package_unit",label:"Package Unit",required:false,forImport:true,type:"select",options:["Bag","Box","Carton","Piece"]},
-// {id:"volume",label:"Vol",required:false,type:"number"},
-// {id:"volume_unit",label:"Vol Unit",required:false,type:"select",options:["Cubic Meter","Cubic Foot","Lt"]},
-// {id:"weight",label:"Weight",required:true,forImport:true,type:"number"},
-// {id:"weight_unit",label:"Weight Unit",required:true,forImport:true,type:"select",options:["KG","Lb","Ton"]},
-// {id:"max_temp",label:"Max Temp",required:false,type:"number"},
-// {id:"min_temp",label:"Min Temp",required:false,type:"number"},
-// {id:"plug_yn",label:"Refer Plug",required:true,type:"select",options:["Yes","No"]}];
+           
             addContainerForm(data,columns,"imp_container_detail");
 
         },false);
@@ -4077,13 +4079,17 @@ const showInvoiceForm=(source,dataId=null)=>{
             customerRegion.textContent = cust.region +", "+ cust.country;
             consSelect.classList.remove("hidden");
 
-    var cons = storedData.consignments.filter(c=>c.exporter_id == id);
-    
-    Array.from(consSelect.children).forEach((c,i)=>{if(i>0)consSelect.removeChild(c);})
-    cons.forEach(c=>{
-        consSelect.options.add(new Option(formatConsignmentNumber(c.id),c.id));
-    })
-
+            var cons = storedData.consignments.filter(c=>c.exporter_id == id);
+            
+            Array.from(consSelect.children).forEach((c,i)=>{if(i>0)consSelect.removeChild(c);})
+            cons.forEach(c=>{
+                consSelect.options.add(new Option(formatConsignmentNumber(c.id),c.id));
+            })
+            consSelect.addEventListener('change',(e)=>{
+                var con = cons.find(c=>c.id == e.target.value);
+                form.quantity.value = con.container_details.length;
+                form.goods.value = con.goods_description;
+            });
         }
         else consSelect.classList.add("hidden");
         
@@ -4176,7 +4182,7 @@ const showInvoiceForm=(source,dataId=null)=>{
         var goods = form.goods.value;
         var containerNum = form.quantity.value;
         var discount = form.discount.value;
-        var consignment = form.consignee_no.value
+        var consignment = form.consignment_no.value
         var cost_items = myCostItems.map(i=>i.id).join("_");
         var sum = 0;
         myCostItems.forEach(i=>{
@@ -4817,7 +4823,7 @@ const deleteFile=(fileId)=>{
     })
 }
 
-//collapse expand fieldset
+//collapse expand fieldsetl
 const collapse = (sourceId)=>{
     const source = document.getElementById(sourceId+"_collapse");
     const target = document.getElementById(sourceId+"_collapsible");
@@ -4926,7 +4932,7 @@ const addContainerForm = (data,fields,container=null)=>{
     })
 
 
-    let count = (data && data.no_of_containers) ? data.no_of_containers : 1;
+    let count = (data.container_details && data.container_details.length >0) ? data.container_details.length : 1;
 
     const form = document.createElement("form");
     form.id = container;
@@ -4970,8 +4976,8 @@ const addContainerForm = (data,fields,container=null)=>{
             if(field.type == "text" || field.type == "number"){
                 const fieldInput = document.createElement("input");
                 if(field.type == "number") fieldInput.step = ".1";
-                fieldInput.id = field.id+"#"+n;
-                fieldInput.name = field.id;
+                fieldInput.id = field.id+"_"+n;
+                fieldInput.name = field.id+"_"+n;
                 fieldInput.type = field.type;
                 fieldInput.required = field.required;
                 // fieldInput.placeholder = field.label;
@@ -4988,8 +4994,8 @@ const addContainerForm = (data,fields,container=null)=>{
             }
             else{
                 const fieldSelect = document.createElement("select");
-                fieldSelect.id = field.id+"#"+n;
-                fieldSelect.name = field.id;
+                fieldSelect.id = field.id+"_"+n;
+                fieldSelect.name = field.id+"_"+n;
                 fieldSelect.required = field.required;
                 fieldSelect.classList.add("select");
                 field.options.forEach(opt=>{
@@ -5223,8 +5229,10 @@ const uploadConsignmentFile = (userId,file,cid,target,name)=>{
 const updateConsignmentList = (data)=>{
     if(data){
         storedData = JSON.parse(storage.getItem("data"));
-        storedData.consignments = data;
+        storedData.consignments = data.filter(d=>d.type == 0);
+        storedData.imports = data.filter(d=>d.type == 1);
         storage.setItem("data",JSON.stringify(storedData));
+        storedData = JSON.parse(storage.getItem("data"));
     }
 }
 const fetchConsignments = ()=>{

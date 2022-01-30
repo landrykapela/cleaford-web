@@ -767,7 +767,7 @@ form#signup {
   width: 50%;
 }
 
-form textarea, form input[type="date"], form input[type="number"], form input[type="text"], form input[type="email"], form input[type="password"], form input[type="select"], form input[type="submit"] {
+form textarea, form input[type="date"], form input[type="number"], form input[type="text"], form input[type="email"], form input[type="password"], form input[type="phone"], form input[type="select"], form input[type="submit"] {
   -webkit-box-flex: 1;
       -ms-flex-positive: 1;
           flex-grow: 1;
@@ -860,7 +860,7 @@ form input[type="submit"] {
   color: #cc9900;
 }
 
-.form-group > input[type="date"], .form-group > input[type="text"], .form-group > input[type="email"], .form-group > input[type="password"] {
+.form-group > input[type="date"], .form-group > input[type="text"], .form-group > input[type="email"], .form-group > input[type="phone"], .form-group > input[type="password"] {
   outline-color: none;
   outline-width: 0;
   border: 0;
