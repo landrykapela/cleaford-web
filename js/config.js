@@ -1,4 +1,4 @@
-const base_url = "https://cleaford.app";
+const base_url = "https://www.cleaford.app";
 const map_api_key = "AIzaSyAWALPfQrbJypNehyEnoFKFKs1nDOoqOGk";
 const places_autocomplete_url = "";
 const signup_url = base_url+":5000/signup";
@@ -6,7 +6,6 @@ const signin_url =base_url+":5000/signin";
 const signout_url = base_url+":5000/signout";
 const token_url = base_url+":5000/token";
 const initialize_url = base_url+":8000/initialize";
-const create_client_url = base_url+":8000/client";
 const clients_url = base_url+":8000/clients";
 const roles_url = base_url+":8000/roles";
 const create_role_url = base_url+":8000/role";
