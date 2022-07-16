@@ -137,7 +137,7 @@ body {
   width: calc(100% - 2em);
 }
 
-.column {
+.column, .column-wide {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -151,6 +151,10 @@ body {
   -webkit-box-align: start;
       -ms-flex-align: start;
           align-items: flex-start;
+}
+
+.column-wide {
+  width: 300px;
 }
 
 .column-center {

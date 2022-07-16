@@ -107,9 +107,12 @@ body {
   @include flex(row,flex-end,center);
   width:calc(100% - 2em);
 }
-.column{
+.column,.column-wide{
   @include flex(column,flex-start,flex-start);
   // border: 1px solid red;
+}
+.column-wide{
+width: 300px;
 }
 .column-center{
   @include flex(column,flex-start ,center );

@@ -695,7 +695,7 @@ const listCostItems = (items)=>{
     Array.from(holder.children).forEach(child=>{
         if(child.classList.contains('body-row') || child.id=="add_cost_item_form") holder.removeChild(child);
     })
-    if(items.length > 0){
+    if(items && items.length > 0){
         items.forEach(item=>{
             const rowHolder = document.createElement("div");
             rowHolder.classList.add("body-row");
@@ -1248,7 +1248,6 @@ const hideSpinner=()=>{
     if(spinner) spinner.classList.add("hidden");
 }
 
-
 //show admin stats
 const showClientStats =()=>{
     if(currentUser.detail){
@@ -1322,9 +1321,9 @@ const showClientStats =()=>{
                     fetchInvoices()
                     .then(invoices=>{
                         updateInvoices(invoices);
-                        var pendingInvoices = invoices.filter(inv=>inv.status.toLowerCase() == "pending payment");
-                        document.getElementById("pending_invoices").textContent = pendingInvoices.length;
-                        var pendingApproval = invoices.filter(inv=>inv.status.toLowerCase() == "awaiting manager's approval");
+                        var pendingInvoices = invoices ? invoices.filter(inv=>inv.status.toLowerCase() == "paid").reduce((a,b)=> a.price + b.price,0):0;
+                        document.getElementById("pending_invoices").textContent = pendingInvoices;
+                        var pendingApproval = invoices ? invoices.filter(inv=>inv.status.toLowerCase() == "awaiting manager's approval"):[];
                         document.getElementById("pending_approval").textContent = pendingApproval.length;
                         fetchClientRoles();
                     })
@@ -1680,22 +1679,23 @@ const showExportListSummary = (data)=>{
 }
 //show consignment summary
 const showConsignmentSummary=(consignment,type)=>{
-   console.log("x: ",consignment);
     let quote = 0;
-    if(consignment.invoices){
-        consignment.invoices.forEach(iv=>{
-        quote += iv.price - iv.price*iv.discount*0.01;
-    });
-}
-    quote = USD_RATE * quote;
-    let cost = 0;
-    if(consignment.expenses){
-        consignment.expenses.forEach(c=>{
-        cost += 1.0 * c.amount;
-        }); 
-    }
-    if(consignment.tax_amount) cost += parseInt(consignment.tax_amount);
-    if(consignment.tasad_fee) cost += parseInt(consignment.tasad_fee);
+    if(consignment){
+         if(consignment.invoices){
+            consignment.invoices.forEach(iv=>{
+            quote += iv.price - iv.price*iv.discount*0.01;
+            });
+        }
+        quote = USD_RATE * quote;
+        let cost = 0;
+        if(consignment.expenses){
+            consignment.expenses.forEach(c=>{
+            cost += 1.0 * c.amount;
+            }); 
+        }
+        if(consignment.tax_amount) cost += parseInt(consignment.tax_amount);
+        if(consignment.tasad_fee) cost += parseInt(consignment.tasad_fee);
+
     let paid = 0.5*quote;
     var chartArea;
     var chartCtx;
@@ -1784,6 +1784,8 @@ const showConsignmentSummary=(consignment,type)=>{
     }
     let chart = new Chart(chartCtx,config);
     // chart.destroy();
+    }
+    
 
 }
 //close consignmentForm
@@ -1883,36 +1885,36 @@ const switchDetails = (index,data)=>{
                 shippingInstructionsLink.textContent = "";
             }
         }
+        shippingInstructionsInput.addEventListener('change',(e)=>{
+            if(shippingInstructionsInput.files[0]){
+            var urlObj = URL.createObjectURL(shippingInstructionsInput.files[0]);
+            shippingInstructionsLink.href = urlObj;
+            shippingInstructionsLink.textContent = "View Shipping Instructions";
+
+            var reader = new FileReader();
+            reader.addEventListener("load",()=>{
+                if(data && data.id){
+                    uploadConsignmentFile(currentUser.id,reader.result,data.id,"consignments_tb","shipping instructions")
+                    .then(result=>{
+                        // console.log("result: ",result);
+                        updateConsignmentList(result.data);
+                        showFeedback(result.msg,result.code);
+                    })
+                    .catch(e=>{
+                        showFeedback(e,1);
+                    })
+                }
+                else{
+                    newData.instructions_file = reader.result;
+                }
+            },false);
+            reader.readAsDataURL(shippingInstructionsInput.files[0]);
+            }
+        })
+        
         uploadShippingInstructionsButton.addEventListener("click",(e)=>{
             shippingInstructionsInput.click();
 
-            shippingInstructionsInput.addEventListener('change',(e)=>{
-                if(shippingInstructionsInput.files[0]){
-                var urlObj = URL.createObjectURL(shippingInstructionsInput.files[0]);
-                shippingInstructionsLink.href = urlObj;
-                shippingInstructionsLink.textContent = "View Shipping Instructions";
-
-                var reader = new FileReader();
-                reader.addEventListener("load",()=>{
-                    if(data && data.id){
-                        uploadConsignmentFile(currentUser.id,reader.result,data.id,"consignments_tb","shipping instructions")
-                        .then(result=>{
-                            // console.log("result: ",result);
-                            updateConsignmentList(result.data);
-                            showFeedback(result.msg,result.code);
-                        })
-                        .catch(e=>{
-                            showFeedback(e,1);
-                        })
-                    }
-                    else{
-                        newData.instructions_file = reader.result;
-                    }
-                },false);
-                reader.readAsDataURL(shippingInstructionsInput.files[0]);
-                }
-            })
-            
         })
        
         if(consignmentDataForm){
@@ -1962,7 +1964,7 @@ const switchDetails = (index,data)=>{
                 COUNTRIES.forEach(p=>consignmentDataForm.place_of_destination.options.add(new Option(p.name)));
                 consignmentDataForm.place_of_destination.value = data.place_of_destination;
                 consignmentDataForm.place_of_delivery.value = data.place_of_delivery;
-                
+                consignmentDataForm.port_of_discharge.value = data.port_of_discharge;
                 consignmentDataForm.port_of_origin.value = data.port_of_origin;
                 consignmentDataForm.no_of_containers.value = data.no_of_containers;
                 consignmentDataForm.goods_description.value = data.goods_description;
@@ -1995,8 +1997,7 @@ const switchDetails = (index,data)=>{
                 consignmentDataForm.forwarder_phone.value = currentUser.detail.phone;
                 consignmentDataForm.forwarder_code.value = (data && data.forwarder_code) ? data.forwarder_code: currentUser.detail.code;
                 consignmentDataForm.customer_select.value = data.exporter_id;
-                
-                
+               
                 selectedCustomer = customers.filter(c=>c.id == data.exporter_id)[0];
                     if(selectedCustomer !=null ){
                         consignmentDataForm.exporter_phone.value = selectedCustomer.phone;
@@ -2015,48 +2016,37 @@ const switchDetails = (index,data)=>{
                 consignmentDataForm.forwarder_name.value = currentUser.detail.name;
             }
 
-            var searchableCountries = document.getElementById("searchable_countries");
+            var countriesSelect = document.getElementById("place_of_origin");
             var countries = [];
-            PORTS.forEach(p=>{
-                if(!countries.includes(p.country)) countries.push(p.country);
-            })
-            // console.log("countries: ",countries);
-            // loadCountries(countries,searchableCountries);
-
-            var countrySearch = document.getElementById("place_of_destination");
-            countrySearch.addEventListener("input",(e)=>{
-                // searchableCountries.classList.remove("hidden");
-                let search = e.target.value.toLowerCase();
-                var filteredCountries;
-                if(search.length == 0) filteredCountries = countries;
-                else filteredCountries = countries.filter(c=>c.toLowerCase().includes(search));
-                loadCountries(filteredCountries,searchableCountries,countrySearch);
-            })
-            countrySearch.addEventListener("focus",(e)=>{
-                // searchableCountries.classList.remove("hidden");
-
-                var filteredCountries = countries;
-                if(e.target.value.length > 0) filteredCountries = countries.filter(c=>c.toLowerCase().includes(e.target.value));
-                loadCountries(filteredCountries,searchableCountries,countrySearch);
-            })
-            countrySearch.addEventListener("blur",(e)=>{
-                // searchableCountries.classList.add("hidden");
-            })
+            // PORTS.forEach(p=>{
+            //     if(!countries.includes(p.country)) countries.push(p.country);
+            // });
+            countries = COUNTRIES.filter(c=>{
+                var pt = PORTS.map(p=>{
+                    let x = p.country.toLowerCase();
+                    if(x.toLowerCase() === c.name.toLowerCase()){
+                        return x;
+                    }
+                });
+                return pt.includes(c.name.toLowerCase());
+            });
+            loadCountries(countries,countriesSelect,null);
 
             var portSearch = document.getElementById("port_of_origin");
-            var searchablePorts = document.getElementById("searchable_ports");
-            portSearch.addEventListener("focus",(e)=>{
-                var filteredPorts= PORTS.map(p=>(p.name + ", "+p.code));
-                loadPorts(filteredPorts,searchablePorts,portSearch);
-            })
-            portSearch.addEventListener("input",(e)=>{
-                // searchableCountries.classList.remove("hidden");
-                let search = e.target.value.toLowerCase();
-                var filteredPorts;
-                if(search.length == 0) filteredPorts = PORTS.map(p=>(p.name + ", "+p.code));
-                else filteredPorts = PORTS.map(p=>(p.name + ", "+p.code)).filter(c=>c.toLowerCase().includes(search));
-                loadPorts(filteredPorts,searchablePorts,portSearch);
-            })
+            // var searchablePorts = document.getElementById("searchable_ports");
+            // portSearch.addEventListener("focus",(e)=>{
+            //     var filteredPorts= PORTS.map(p=>(p.name + ", "+p.code));
+            //     loadPorts(filteredPorts,searchablePorts,portSearch);
+            // })
+            // portSearch.addEventListener("input",(e)=>{
+            //     // searchableCountries.classList.remove("hidden");
+            //     let search = e.target.value.toLowerCase();
+            //     var filteredPorts;
+            //     if(search.length == 0) filteredPorts = PORTS.map(p=>(p.name + ", "+p.code));
+            //     else filteredPorts = PORTS.map(p=>(p.name + ", "+p.code)).filter(c=>c.toLowerCase().includes(search));
+            //     loadPorts(filteredPorts,searchablePorts,portSearch);
+            // })
+            loadPorts(PORTS,portSearch,null);
             consignmentDataForm.addEventListener("submit",(e)=>{
                 e.preventDefault();
                 let cargo_classification = consignmentDataForm.cargo_classification.value;
@@ -2302,12 +2292,13 @@ const switchDetails = (index,data)=>{
                 select.options.add(new Option(doc.name,doc.label));
             });
 
-            select.addEventListener("change",(e)=>{
-                e.stopPropagation();
+            select.addEventListener("change",(ev)=>{
+                ev.stopPropagation();
                 var selectedOption = select.options[select.options.selectedIndex];
-                if(selectedOption.value != "-1"){
+                   if(selectedOption.value != "-1"){
                     fileInput.classList.remove("hidden");
                     fileInput.addEventListener("change",(e)=>{
+                        e.preventDefault();
                         var file = e.target.files[0];
                         if(file){
                             selected = true;
@@ -2356,7 +2347,7 @@ const switchDetails = (index,data)=>{
        
         
     }
-    if(index ==4){
+    if(index == 4){
         addContainerForm(data,CONTAINER_FIELDS);
     }
     if(index == 5){
@@ -2384,11 +2375,13 @@ const switchDetails = (index,data)=>{
                 select.options.add(new Option(doc.label,doc.name));
             });
 
-            select.addEventListener("change",(e)=>{
+            select.addEventListener("change",(ev)=>{
+                ev.preventDefault();
                 var selectedOption = select.options[select.options.selectedIndex];
                 if(selectedOption.value != "--select file--"){
                     fileInput.classList.remove("hidden");
                     fileInput.addEventListener("change",(e)=>{
+                        e.preventDefault();
                         var file = e.target.files[0];
                         if(file){
                             var reader = new FileReader();
@@ -2925,7 +2918,7 @@ const switchIDetails=(position,data)=>{
               
                 formData.forwarder_code = (formData && formData.forwarder_code) ? formData.forwarder_code: currentUser.detail.code;
                 formData.exporter_id = importForm.icustomer_select.value;
-                formData.status = (data.status <= 2)?3:data.status;
+                formData.status = (data.status <= 2) ? 3:data.status;
                 if(data.container_details) {
                     var my_cont_data = [];
                     data.container_details.forEach((c,i)=>{
@@ -2956,12 +2949,11 @@ const switchIDetails=(position,data)=>{
             if(position == 4){
                 formData.verification_date = importForm.verification_date.value +" "+importForm.verification_time.value;
                 formData.verification_booking = importForm.verification_booking_no.value;
-                formData.verification_status = importForm.verification_status.value;
+                // formData.verification_status = importForm.verification_status.value;
                 if(formData.release_order != null){
                     if(formData.status == 4) formData.status = 5;
                 }
-
-               
+                               
             }
             if(position == 5){
                 formData.tasad_fee = importForm.tasad_fee.value;
@@ -4588,7 +4580,7 @@ const showPettyCashDates = (dates,activeDate)=>{
 const showPettyCashForm = (openingBal)=>{
     var form = document.getElementById("pettycash_form");
     if(form){
-        var cons = storedData.consignments.filter(c=>c.status < 10);
+        var cons = storedData.consignments.filter(c=>c.status <= 10);
         Array.from(form.pettycash_consignment.children).forEach((c,i)=>{if(i>0) form.pettycash_consignment.removeChild(c);});
         cons.forEach(c=>{
             form.pettycash_consignment.options.add(new Option((formatConsignmentNumber(c.id)),c.id));
@@ -4719,7 +4711,6 @@ const showPettyCash = (records,activeDate,period=null)=>{
        }
        else{
         var recs = storedData.petty_cash.filter(d=>parseInt(d.date_created) < activeDate);
-        console.log("sc: ",recs);
         if(recs.length > 0){
             openingBal = recs[recs.length -1].balance;
             closingBal = recs[recs.length -1].balance;
@@ -4858,33 +4849,29 @@ const loadCities = (country,el,target)=>{
 }
 //load countriese
 const loadCountries = (countries,el,target)=>{
-    Array.from(el.children).forEach(child=>el.removeChild(child));
-    el.classList.remove("hidden");
+    var ctry;
+    el = document.getElementById("place_of_destination");
+    // Array.from(el.children).forEach(child=>el.removeChild(child));
+    // el.classList.remove("hidden");
     var searchableCities = document.getElementById("searchable_city");
     var citySearch = document.getElementById("place_of_delivery");
     citySearch.value = "";
             
     countries.forEach(country=>{
-        var countrySpan = document.createElement("span");
-        countrySpan.textContent = country;
-        el.appendChild(countrySpan);
-        countrySpan.addEventListener("click",(e)=>{
-            // alert(e.target.textContent);
-            target.value = country;
-            el.classList.add("hidden");
-            
-            citySearch.addEventListener("focus",(e)=>{
-                loadCities(country,searchableCities,citySearch);
-            });
-            citySearch.addEventListener("input",(e)=>{
-                loadCities(country,searchableCities,citySearch)
-            })
-            
-        })
-        
+        var countrySpan = document.createElement("option");
+        // countrySpan.textContent = country;
+        // countrySpan.value = country.code;
+        // el.appendChild(countrySpan);
+        el.options.add(new Option(country.name));
     })
    
-    
+    el.addEventListener("change",(e)=>{
+        ctry = countries.find(c=>c.code.toLowerCase() == e.target.value.toLowerCase());
+        console.log("ctry :",e.target.value,ctry);
+        var portEl = document.getElementById("port_of_discharge");
+        var ports = PORTS.filter(p=>p.country.toLowerCase() === ctry.name.toLowerCase());
+        loadPorts(ports,portEl,null);
+    })
     
 }
 const populatePorts = (city,target)=>{
@@ -4900,23 +4887,16 @@ const loadPorts = (ports,el,target)=>{
     Array.from(el.children).forEach(child=>el.removeChild(child));
     el.classList.remove("hidden");
     ports.forEach(port=>{
-        var portSpan = document.createElement("span");
-        portSpan.textContent = port;
-        el.appendChild(portSpan);
-        portSpan.addEventListener("click",(e)=>{
-            // alert(e.target.textContent);
-            target.value = port;
-            el.classList.add("hidden");
-            
-        })
+        el.options.add(new Option(port.name+", "+port.code,port.code));        
         
-    })
+    });
+   
 }
 
-//update select fields
+//update select fieldss
 const updateSelectFields=(fieldId,value,count)=>{
     for(let i=2;i<=count;i++){
-        var select = document.getElementById(fieldId+"#"+i);
+        var select = document.getElementById(fieldId+"__"+i);
         select.value = value;
     }
 }
@@ -4925,14 +4905,15 @@ const addContainerForm = (data,fields,container=null)=>{
 
     const parent = container == null ? document.getElementById("container_forms"): document.getElementById(container);
     Array.from(parent.children).forEach((child,i)=>{
-       if(container == null){
-           if(i>0)parent.removeChild(child);
-       }
-       else parent.removeChild(child);
+    //    if(container == null){
+    //        if(i>0)parent.removeChild(child);
+    //    }
+    //    else 
+       parent.removeChild(child);
     })
 
 
-    let count = (data.container_details && data.container_details.length >0) ? data.container_details.length : 1;
+    let count = (data.container_details && data.container_details.length >0) ? data.container_details.length : data.no_of_containers;
 
     const form = document.createElement("form");
     form.id = container;
@@ -4945,16 +4926,19 @@ const addContainerForm = (data,fields,container=null)=>{
     var fields = fields.sort((a,b)=>(a.required === b.required) ? 0: a.required ? -1 : 1)
     
     // var miniFields = fields.filter(f=>f.required);
-    fields.forEach(field=>{
+    fields.forEach((field,index)=>{
         var item = document.createElement("th");
-        if(field.type == "select") item.classList.add("select");
+        if(field.type == "select") {
+            item.classList.add("select");
+            // item.id = field.id+"#"+(index+1);
+        }
         // if(container == "icontainer_forms"){
         //     item.classList.remove("select");
         //     item.classList.add("wide-select");
         // }
         if(field.type == "number") item.classList.add("num");
         item.classList.add("bold");
-        item.textContent = field.label + ((field.required) ? "*" : "");
+        item.innerHTML = field.label + ((field.required) ? "<strong style='color:red;'>*</strong>" : "");
         heads.appendChild(item);
     })
     if(container == "icontainer_forms" || container == "ocontainer_forms"){
@@ -4976,8 +4960,8 @@ const addContainerForm = (data,fields,container=null)=>{
             if(field.type == "text" || field.type == "number"){
                 const fieldInput = document.createElement("input");
                 if(field.type == "number") fieldInput.step = ".1";
-                fieldInput.id = field.id+"_"+n;
-                fieldInput.name = field.id+"_"+n;
+                fieldInput.id = field.id+"__"+n;
+                fieldInput.name = field.id+"__"+n;
                 fieldInput.type = field.type;
                 fieldInput.required = field.required;
                 // fieldInput.placeholder = field.label;
@@ -4994,8 +4978,8 @@ const addContainerForm = (data,fields,container=null)=>{
             }
             else{
                 const fieldSelect = document.createElement("select");
-                fieldSelect.id = field.id+"_"+n;
-                fieldSelect.name = field.id+"_"+n;
+                fieldSelect.id = field.id+"__"+n;
+                fieldSelect.name = field.id+"__"+n;
                 fieldSelect.required = field.required;
                 fieldSelect.classList.add("select");
                 field.options.forEach(opt=>{
@@ -5024,12 +5008,12 @@ const addContainerForm = (data,fields,container=null)=>{
             const statusInputY = document.createElement("input");
             const statusInputN = document.createElement("input");
 
-            statusInputY.id = "verification_status_y#"+n;
-            statusInputY.name = "verification_status#"+n;
+            statusInputY.id = "verification_status_y__"+n;
+            statusInputY.name = "verification_status__"+n;
             statusInputY.value = "Passed";
             statusInputY.type = "radio";
-            statusInputN.id = "verification_status_n#"+n;
-            statusInputN.name = "verification_status#"+n;
+            statusInputN.id = "verification_status_n__"+n;
+            statusInputN.name = "verification_status__"+n;
             statusInputN.value = "Failed";
             statusInputN.type = "radio";
 
@@ -5052,8 +5036,8 @@ const addContainerForm = (data,fields,container=null)=>{
             statusDiv.appendChild(radioGroup);
             // statusDiv.appendChild(statusInputN);
 
-            commentInput.id = "verification_comment#"+n;
-            commentInput.name = "verification_comment#"+n;
+            commentInput.id = "verification_comment__"+n;
+            commentInput.name = "verification_comment__"+n;
             commentInput.type = "text";
             commentInput.required = false;
             commentDiv.appendChild(commentInput);
@@ -5167,6 +5151,7 @@ const addContainerForm = (data,fields,container=null)=>{
 //save container details
 const saveContainers=(form,data)=>{
     var containers = data.container_details;
+    var count = data.no_of_containers;
         var containerId = -1;
         var dataItems = [];
         for(let i=1;i<=count;i++){
@@ -5174,15 +5159,20 @@ const saveContainers=(form,data)=>{
                 containerId = containers[i-1].id;
             }
             let dataItem = {id:parseInt(containerId)};
-            Array.from(form.elements).filter(input=>input.id.split("#")[1] == i).forEach(inp=>{
-                let key = inp.id.split("#")[0];
-                dataItem[key] = inp.value;
+            Array.from(form.elements).forEach(inp=>{
+                if(inp.id.length >0){
+                  let key = inp.id;
+                    if(key.includes('__')) key = inp.id.split("__")[0];
+                    dataItem[key] = inp.value;  
+                }
+                
             });
             dataItem.cid = data.id;
+            delete dataItem.file_container_booking;
+            delete dataItem.upload_container_booking;
             dataItems.push(dataItem);
         }
         
-        console.log("form: ",dataItems);
         var method =  "POST";
         var options = {
             method:method,body:JSON.stringify(dataItems),headers:{
@@ -5192,7 +5182,6 @@ const saveContainers=(form,data)=>{
         var url = container_booking_url+"/"+currentUser.id;
         fetch(url,options)
         .then(res=>res.json()).then(result=>{
-            console.log("containers: ",result);
             if(form.id == null || form.id == "container_forms"){
                 updateConsignmentList(result.data);
                 showExportList(result.data,"export_form");
@@ -5201,7 +5190,6 @@ const saveContainers=(form,data)=>{
             showFeedback(result.msg,result.code);
         })
         .catch(e=>{
-            console.log("err: ",e);
             showFeedback(e,1);
         })
 }

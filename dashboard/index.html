@@ -35,7 +35,7 @@
                 <span class="menu-item" id="customers">
                     <span class="material-icons">people</span>Customers</span>
                 <div class="item-expandable" id="operations">
-                    <span class="material-icons">work</span><span>Operations</span>
+                    <span class="material-icons">work</span><span>Impex</span>
                     <span class="material-icons" id="operations_drop">arrow_drop_down</span>
                 </div>
                 <div class="submenu hidden" id="operations_submenu">
@@ -49,8 +49,8 @@
                 <div class="submenu hidden" id="finance_submenu">
                     <span id="quotations" class="menu-item">Quotations</span>
                     <span id="invoices" class="menu-item">Invoices</span>
-                    <span id="vouchers" class="menu-item">Vouchers</span>
-                    <span id="receipts" class="menu-item">Receipts</span>
+                    <!-- <span id="vouchers" class="menu-item">Vouchers</span>
+                    <span id="receipts" class="menu-item">Receipts</span> -->
                     <span id="pettycash" class="menu-item">Petty Cash</span>
                     <span id="costitems" class="menu-item">Cost Items</span>
                 </div>
@@ -62,9 +62,9 @@
                 </div>
                 <div class="submenu hidden" id="hr_submenu">
                     <span id="employees" class="menu-item">Employees</span>
-                    <span id="payroll" class="menu-item">Payroll</span>
+                    <!-- <span id="payroll" class="menu-item">Payroll</span> -->
                 </div>
-                <div class="item-expandable" id="suppliers">
+                <!-- <div class="item-expandable" id="suppliers">
                     <span class="material-icons">local_shipping</span>
                     <span>Suppliers</span>
                     <span class="material-icons" id="suppliers_drop">arrow_drop_down</span>
@@ -73,7 +73,7 @@
                     <span id="vendors" class="menu-item">Vendors</span>
                     <span id="suppliers" class="menu-item">Suppliers</span>
                     <span id="regulators" class="menu-item">Regulators<span>
-                </div>
+                </div> -->
                 <div class="item-expandable" id="settings">
                     <span class="material-icons">settings</span>
                     <span>Settings</span>
@@ -167,16 +167,16 @@
                             <span class="stat-value" id="ready_for_shipping">0</span>
                         </div>
                         <div class="stat-card shadow" onclick="activateMenu('exports');">
-                            <span>Consignments Awaiting Loading Permission</span>
-                            <span class="stat-value" id="loading_permission">0</span>
+                            <span>Total Income (TZS)</span>
+                            <span class="stat-value" id="loading_permission">265.8M</span>
                         </div>
                         <div class="stat-card shadow" onclick="activateMenu('invoices');">
-                            <span>Invoices Pending Approval</span>
-                            <span class="stat-value" id="pending_approval">0</span>
+                            <span>Total Expenses (TZS)</span>
+                            <span class="stat-value" id="pending_approval">245M</span>
                         </div>
                       <div class="stat-card shadow" onclick="activateMenu('invoices');">
-                            <span>Unpaid Invoices</span>
-                            <span class="stat-value" id="pending_invoices">0</span>
+                            <span>Profit (TZS)</span>
+                            <span class="stat-value" id="pending_invoices">20.8M</span>
                         </div>
                     </div>
                     <div class="row-even">
@@ -394,7 +394,7 @@
                                                     <select required id="place_of_destination" name="place_of_destination" class="wide-select">
                                                         <option>--select country--</option>
                                                     </select>
-                                                    <!-- <div class="searchable_select hidden" id="searchable_countries"></div> -->
+                                                    <div class="searchable_select hidden" id="searchable_countries"></div>
                                                 </div>
                                             </div>
                                             <div class="row">
@@ -689,7 +689,7 @@
                                     <div class="row">
                                         <input type="file" name="odg_file_input" id="odg_file_input" class="hidden"/>
                                     </div>
-                                    <div class="column" id="odg_list">
+                                    <div class="column-wide" id="odg_list">
                                     </div>
                                 </div>
                             </div>                          

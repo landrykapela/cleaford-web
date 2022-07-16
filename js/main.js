@@ -93,6 +93,7 @@ const alertDialog =(msg,actionText,action=null)=>{
         cancelButt.textContent = "CLOSE";
     }
 }
+
 if(window.location.pathname != "/signin.html" && window.location.pathname != "/signing.html"){
 
     // setTheme("blue",["theme-band"]);
