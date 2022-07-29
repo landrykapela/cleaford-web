@@ -1628,6 +1628,7 @@ const hideSpinner=()=>{
 //show admin stats
 const showClientStats =()=>{
     if(currentUser.detail){
+        var currentYear = (new Date()).getFullYear();
         getCustomers()
         .then(result=>{
             updateCustomers(result.data);
@@ -1644,20 +1645,52 @@ const showClientStats =()=>{
             chartArea.appendChild(canvas);
             
             const labels = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+            var months = [...new Set(storedData.invoices.map(i=>{
+                let d = new Date(i.date_created);
+                return d.getMonth();
+            }))];
+            var dx = storedData.invoices.map(i=>{
+                let x = i;
+                let d = new Date(i.date_created);
+                x.month = d.getMonth();
+                x.year = d.getFullYear();
+                return x;
+            });
+            var dy = storedData.petty_cash.map(i=>{
+                let x = i;
+                let d = new Date(i.date_created);
+                x.month = d.getMonth();
+                x.year = d.getFullYear();
+                return x;
+            });
+            var yy = [];
+            var yx = [];
+            labels.forEach((l,i)=>{
+                var s = dx.filter(d=>d.month === i && d.year === currentYear).map(i=>parseInt(i.price)).reduce((a,b)=>a+b,0);
+                yx.push(s*USD_RATE);
+                var ex = dy.filter(d=>d.month === i && d.year === currentYear && d.type === 0).map(i=>parseInt(i.amount)).reduce((a,b)=>a+b,0);
+                yy.push(ex);
+            })
             let data = {
                 labels: labels,
                 datasets: [
                     {
-                    label: 'Sales',
-                    data: generateRandomData(NUMBER_CFG.count),
+                    label: 'Sales in Tsh',
+                    data: yx,
                     borderColor: "#cc9900",
-                    backgroundColor: "#ffcc00",
+                    backgroundColor: "#cc9900",
                     },
+                    {
+                        label: 'Expenses in Tsh',
+                        data: yy,
+                        borderColor: "#0f810f",
+                        backgroundColor: "#0f810f",
+                        },
                     
                 ]
             }
             let config = {
-                type: 'line',   
+                type: 'bar',   
                 data: data,
                 options: {
                 responsive: true,
@@ -1665,7 +1698,7 @@ const showClientStats =()=>{
                 plugins: {
                     title: {
                     display: true,
-                    text: 'Annual Sales'
+                    text: 'Annual Sales for '+currentYear
                     }
                 }
                 },
@@ -5069,17 +5102,20 @@ const showPettyCashDates = (dates,activeDate)=>{
     }).forEach(d=>{
         const tab = document.createElement("span");
         tab.classList.add("tab");
-        if(d == activeDate) tab.classList.add("tab-active");
+        if(d == activeDate) {
+            tab.classList.add("tab-active");
+        }
         var date = new Date(d);
         tab.id = d;
-        tab.textContent = date.getDate()+"/"+(date.getMonth()+1)+"/"+date.getFullYear();
+        tab.textContent = date.getDate()+"/"+(date.getMonth()+1)+"/"+date.getFullYear().toString().substring(2);
         dateTabs.appendChild(tab);
         tab.addEventListener("click",(e)=>{
             Array.from(dateTabs.children).forEach(c=>c.classList.remove("tab-active"));
             tab.classList.add("tab-active");
             var records = storedData.petty_cash;
             showPettyCash(records,d,{startDate:dates[0],endDate:dates[dates.length -1]});
-        })
+        });
+        if(d == activeDate) tab.scrollIntoView();
     })
 }
 const showPettyCashForm = (openingBal)=>{
@@ -5136,7 +5172,7 @@ const showPettyCash = (records,activeDate,period=null)=>{
     }
     else{
         displayDates = [];
-        for(let i=0; i<7;i++){
+        for(let i=0; i<15;i++){
             let d = activeDate - i*86400000;
             displayDates.push(d);
         }
@@ -5173,7 +5209,7 @@ const showPettyCash = (records,activeDate,period=null)=>{
     
             const spDate = document.createElement("span");
             var date = new Date(parseInt(data.date_created));
-            spDate.textContent = date.getDate()+"/"+(date.getMonth()+1)+"/"+date.getFullYear();
+            spDate.textContent = date.getDate()+"/"+(date.getMonth()+1)+"/"+date.getFullYear().toString().substring(2);
             row.appendChild(spDate);
     
             const spVoucher = document.createElement("span");
@@ -5210,7 +5246,17 @@ const showPettyCash = (records,activeDate,period=null)=>{
             const spBal = document.createElement("span");
             spBal.textContent = (data.balance < 0) ? "("+thousandSeparator(Math.abs(data.balance))+")" : thousandSeparator(Math.abs(data.balance));
             row.appendChild(spBal);
-    
+            const spDel = document.createElement("span");
+            spDel.classList.add("material-icons");
+            spDel.textContent = "delete";
+            row.appendChild(spDel);
+            spDel.addEventListener("click",(e)=>{
+                e.preventDefault();
+                e.stopPropagation();
+                if(confirm("Are you sure you want to delete this record?")){
+                    deletePettyCash(data.id);
+                }
+            });
             container.insertBefore(row,form);
         })
        }
@@ -5236,6 +5282,36 @@ const showPettyCash = (records,activeDate,period=null)=>{
     oBal.textContent = "Opening Balance: "+storedData.settings.currency+" "+((openingBal < 0) ? "("+thousandSeparator(Math.abs(openingBal))+")" : thousandSeparator(Math.abs(openingBal)));
     cBal.textContent = "Closing Balance:"+storedData.settings.currency+" "+((closingBal < 0) ? "("+thousandSeparator(Math.abs(closingBal))+")" : thousandSeparator(Math.abs(closingBal)));
 }
+const deletePettyCash=(id)=>{
+    var body = {id:id,status:1};
+    var opts = {
+        method:"PUT",body:JSON.stringify(body),headers:{"Content-type":"application/json","Authorization":"Bearer "+currentUser.accessToken}
+    }
+    console.log("body: ",body,opts);
+    fetch(petty_cash_url+"_update",opts)
+    .then(res=>res.json())
+    .then(result=>{
+        console.log("result: ",result);
+        if(result.code === 0){
+            var pc = result.data.map((d,i)=>{
+                let k = d;
+                if(i>0){
+                    let ob = parseInt(result.data[i-1].balance);
+                    k.opening_balance = ob;
+                    let a = parseInt(d.amount);
+                    k.balance = d.type === 0 ? ob - a: ob + a;
+                }
+                return k;
+            })
+            storedData.petty_cash = pc;
+            storage.setItem("data",JSON.stringify(storedData));
+        }
+        showFeedback(result.msg,result.code);
+    })
+    .catch(e=>{
+        showFeedback("Oops! Something went wrong");
+    })
+}
 const getPettyCash = ()=>{
     var url = petty_cash_url+"/"+currentUser.id;
         var options = {method:"GET",headers:{
@@ -5246,7 +5322,17 @@ const getPettyCash = ()=>{
         .then(res=>res.json())
         .then(result=>{
             console.log("result: ",result);
-            storedData.petty_cash = result.data;
+            var pc = result.data.map((d,i)=>{
+                let k = d;
+                if(i>0){
+                    let ob = parseInt(result.data[i-1].balance);
+                    k.opening_balance = ob;
+                    let a = parseInt(d.amount);
+                    k.balance = d.type === 0 ? ob - a: ob + a;
+                }
+                return k;
+            })
+            storedData.petty_cash = pc;
             storage.setItem("data",JSON.stringify(storedData));
             storedData = JSON.parse(storage.getItem("data"));
             // showFeedback(result.msg,result.code);

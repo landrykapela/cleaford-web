@@ -320,7 +320,7 @@ main > div#dashboard_content{
   width:calc(100% - 1em);
   margin:2em auto;
   margin-bottom: 0;
-  // overflow-x: scroll;
+  overflow-x: scroll;
 }
 .tab{
   @include addRoundCornerTop(4px,4px);
