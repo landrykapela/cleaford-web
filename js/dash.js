@@ -39,7 +39,7 @@ const CONTAINER_FIELDS = [{id:"mbl_number",label:"#MB/L No",required:false,forIm
     
 var currentUser = (session.getItem("currentUser")) ? JSON.parse(session.getItem("currentUser")):null;
 
-var storedData = (storage.getItem("data")) ? JSON.parse(storage.getItem("data")):{cost_items:[],roles:[],client_roles:[],customers:[],roles:[],consignments:[],imports:[],clients:[],quotations:[],invoices:[],settings:{currency:"Tsh"}};
+var storedData = (storage.getItem("data")) ? JSON.parse(storage.getItem("data")):{employees:[],cost_items:[],roles:[],client_roles:[],customers:[],roles:[],consignments:[],imports:[],clients:[],quotations:[],invoices:[],settings:{currency:"Tsh"}};
 
 var myCostItems = [];
 const originalSetItem = localStorage.setItem;
@@ -68,6 +68,7 @@ const showBankDetails=()=>{
 //Functions start
 const thousandSeparator =(val,short=false)=> {
     if(short){
+        val = parseInt(val);
         let ans = val;
         if(val>= 1000) ans = (val/1000).toFixed(1) +"K";
         if(val >= 1000000) ans = (val/1000000).toFixed(1) +"M";
@@ -417,6 +418,10 @@ const activateMenu =(target)=>{
                 greet("Hello Admin",null);
                 showDashboard();
                 break;
+            case 'employees':
+                greet("HR",{title:"Employees",description:"List of Employees"});
+                showEmployeeList();
+                break;
         }
     }
     else{//menu menu item does not exist in the side bar (call may have come from button click)
@@ -437,6 +442,10 @@ const activateMenu =(target)=>{
                 break;
             case 'edit_client':
                 document.querySelector("#clients").classList.add("active");
+                if(content) content.classList.remove("hidden");
+                break;
+            case 'add_employee':
+                document.querySelector("#employees").classList.add("active");
                 if(content) content.classList.remove("hidden");
                 break;
         }
@@ -493,6 +502,360 @@ const getActiveEticket =()=>{
         });
         return active;
     }
+}
+//sow employee list
+const showEmployeeList=(source)=>{
+    var s = document.getElementById(source);
+    
+    if(source == "add_employees_content") {
+        var f = document.getElementById("add_employee_form");
+        f.reset();
+    }
+    if(s)s.classList.add("hidden");
+    document.getElementById("employee_list").classList.remove("hidden");
+    getEmployees();
+}
+const showEmployeeDetail=d=>{
+    greet("HR",{title:"Employees",description:"Details"});
+    document.getElementById('employee_list').classList.add("hidden");
+    document.getElementById('edit_employee_content').classList.add("hidden");
+    document.getElementById("detail_employee_content").classList.remove("hidden");
+    var form = document.getElementById("detail_employee_form");
+    form.classList.remove("hidden");
+    console.log("d: ",d);
+    if(form){
+        var dob = new Date(parseInt(d.dob));
+        var idDate = new Date(parseInt(d.id_expire));
+        var sDate = new Date(parseInt(d.start_date));
+        var eDate = new Date(parseInt(d.end_date));
+
+        form.emp_name.value = d.name;
+        form.emp_dob.value = dob.getDate()+"/"+dob.getMonth()+1+"/"+dob.getFullYear();
+        form.emp_address.value = d.address;
+        form.emp_id_type.value = d.id_type;
+        form.emp_id_number.value = d.id_no;
+        form.emp_id_expiration.value = idDate.getDate()+"/"+idDate.getMonth()+1+"/"+idDate.getFullYear();
+        form.emp_type.value = d.employment_type;
+        form.emp_email.value = d.email;
+        form.emp_phone.value = d.phone;
+        form.emp_title.value = d.title;
+        form.emp_emergency_address.value = d.emergency_address;
+        form.emp_emergency_contact.value = d.emergency_contact;
+        form.emp_emergency_phone.value = d.emergency_phone;
+        form.emp_emergency_relationship.value = d.emergency_relationship;
+        form.emp_salary.value = d.salary;
+        form.emp_start_date.value = sDate.getDate()+"/"+sDate.getMonth()+1+"/"+sDate.getFullYear();
+        form.emp_end_date.value = eDate.getDate()+"/"+eDate.getMonth()+1+"/"+eDate.getFullYear();
+        var linkPhoto = document.getElementById("emp_photo_label");
+        var linkId = document.getElementById("emp_id_file_label");
+        var linkContract = document.getElementById("emp_contract_file_label");
+        if(d.photo){            
+            linkPhoto.innerHTML = "<a href='"+employee_files_url+"/"+d.photo+"' target='_blank'>view photo</a>";
+            form.emp_photo.classList.add("hidden");
+        }
+        else linkPhoto.textContent = "No Photo uploaded";
+        if(d.id_file){            
+            linkId.innerHTML = "<a href='"+employee_files_url+"/"+d.id_file+"' target='_blank'>view ID</a>";
+            form.emp_id_file.classList.add("hidden");
+        }
+        else linkId.textContent = "No ID file uploaded";
+        if(d.contract_file){            
+            linkContract.innerHTML = "<a href='"+employee_files_url+"/"+d.contract_file+"' target='_blank'>view contract</a>";
+            form.emp_id_file.classList.add("hidden");
+        }
+        else linkContract.textContent = "No contract file uploaded";
+    }
+}
+const showEmployeeEditForm=(source,d)=>{
+    greet("HR",{title:"Employees",description:"Edit Employee"});
+    document.getElementById(source).classList.add("hidden");
+    document.getElementById("detail_employee_content").classList.add("hidden");
+    document.getElementById("edit_employee_form").reset();
+    document.getElementById("edit_employee_content").classList.remove("hidden");
+    var form = document.getElementById("edit_employee_form");
+    if(form){
+        var dob = new Date(parseInt(d.dob));
+        var idDate = new Date(parseInt(d.id_expire));
+        var sDate = new Date(parseInt(d.start_date));
+        var eDate = new Date(parseInt(d.end_date));
+
+        form.emp_name.value = d.name;
+        form.emp_dob.value = (parseInt(dob.getMonth())+1)+"-"+dob.getDate()+"-"+dob.getFullYear();
+        form.emp_address.value = d.address;
+        form.emp_id_type.value = d.id_type;
+        form.emp_id_number.value = d.id_no;
+        form.emp_id_expiration.value = (parseInt(idDate.getMonth())+1)+"-"+idDate.getDate()+"-"+idDate.getFullYear();
+        form.emp_type.value = d.employment_type;
+        form.emp_email.value = d.email;
+        form.emp_phone.value = d.phone;
+        form.emp_title.value = d.title;
+        form.emp_emergency_address.value = d.emergency_address;
+        form.emp_emergency_contact.value = d.emergency_contact;
+        form.emp_emergency_phone.value = d.emergency_phone;
+        form.emp_emergency_relationship.value = d.emergency_relationship;
+        form.emp_salary.value = d.salary;
+        form.emp_start_date.value = (parseInt(sDate.getMonth())+1)+"-"+sDate.getDate()+"-"+sDate.getFullYear();
+        form.emp_end_date.value = (parseInt(eDate.getMonth())+1)+"-"+eDate.getDate()+"-"+eDate.getFullYear();
+        var linkPhoto = document.getElementById("emp_photo_label");
+        var linkId = document.getElementById("emp_id_file_label");
+        var linkContract = document.getElementById("emp_contract_file_label");
+        if(d.photo){            
+            linkPhoto.innerHTML = "<a href='"+employee_files_url+"/"+d.photo+"' target='_blank'>view photo</a>";
+            // form.emp_photo.classList.add("hidden");
+        }
+        else linkPhoto.textContent = "Upload photo";
+        if(d.id_file){            
+            linkId.innerHTML = "<a href='"+employee_files_url+"/"+d.id_file+"' target='_blank'>view ID</a>";
+            // form.emp_id_file.classList.add("hidden");
+        }
+        else linkId.textContent = "Upload copy of ID";
+        if(d.contract_file){            
+            linkContract.innerHTML = "<a href='"+employee_files_url+"/"+d.contract_file+"' target='_blank'>view contract</a>";
+            // form.emp_id_file.classList.add("hidden");
+        }
+        else linkContract.textContent = "Upload Contract";
+
+        form.addEventListener("submit",(e)=>{
+            e.preventDefault();
+
+            var name = form.emp_name.value.trim();
+            var dob = form.emp_dob.value.trim();
+            var passport = form.emp_photo.files[0];
+            var address = form.emp_address.value.trim();
+            var email = form.emp_email.value.trim();
+            var phone = form.emp_phone.value.trim();
+            var id_type = form.emp_id_type.value;
+            var id_no = form.emp_id_number.value.trim();
+            var id_expire = form.emp_id_expiration.value.trim();
+            var id_file = form.emp_id_file.files[0];
+            var title = form.emp_title.value.trim();
+            var emptype = form.emp_type.value;
+            var salary = form.emp_salary.value.trim();
+            var contract = form.emp_contract_file.files[0];
+            var startDate = form.emp_start_date.value;
+            var endDate = form.emp_end_date.value;
+            var emergency_contact = form.emp_emergency_contact.value.trim();
+            var emergency_relationship = form.emp_emergency_relationship.value.trim();
+            var emergency_phone = form.emp_emergency_phone.value.trim();
+            var emergency_address = form.emp_emergency_address.value.trim();
+
+            var fd = new FormData();
+            fd.append("id",d.id);
+            fd.append("name",name);
+            fd.append("dob",Date.parse(dob));
+            fd.append("emp_photo",passport);
+            fd.append("address",address);
+            fd.append("email",email);
+            fd.append("phone",phone);
+            fd.append("id_type",id_type);
+            fd.append("id_no",id_no);
+            fd.append("id_expire",Date.parse(id_expire));
+            fd.append("emp_id_file",id_file);
+            fd.append("title",title);
+            fd.append("employment_type",emptype);
+            fd.append("salary",salary);
+            fd.append("emp_contract_file",contract);
+            fd.append("start_date",Date.parse(startDate));
+            fd.append("end_date",Date.parse(endDate));
+            fd.append("emergency_contact",emergency_contact);
+            fd.append("emergency_address",emergency_address);
+            fd.append("emergency_phone",emergency_phone);
+            fd.append("emergency_relationship",emergency_relationship);
+            
+            saveEmployee(fd,"edit");
+        })
+    }
+}
+const listEmployees=data=>{
+    var container = document.getElementById("employee_list");
+    if(container){
+        container.classList.remove("hidden");
+        Array.from(container.children).forEach(child=>{
+            if(child.classList.contains("consignment-row")) container.removeChild(child);
+        });
+    
+        if(data && data.length > 0){
+            data.map((d)=>{
+                let k = d;
+                var now = Date.now();
+                k.status = (d.end_date <= now) ? 1:0;
+                return k;
+            }).forEach(d=>{
+                const row = document.createElement("span");
+                row.classList.add("consignment-row");
+                row.classList.add("shadow-minor");
+                row.classList.add("status-indicator-"+(d.status === 0 ? "approved":"red"));
+                const empNo = document.createElement("span");
+                empNo.textContent = formatConsignmentNumber(d.id);
+                row.appendChild(empNo);
+        
+                const empName = document.createElement("span");
+                empName.textContent = d.name;
+                row.appendChild(empName);
+        
+                const title = document.createElement("span");
+                title.textContent = d.title;
+                row.appendChild(title);
+                
+                // const eta = document.createElement("span");
+                // let tcd = "";
+                // if(d.shipping_details){
+                //     let date = new Date(d.shipping_details.eta);
+                //     tcd += (1+ date.getMonth())+"/"+date.getDate()+"/"+date.getFullYear();
+                // }
+                // else tcd = "N/A";
+                // eta.textContent = tcd;
+                // row.appendChild(eta);
+        
+                const email = document.createElement("span");
+                email.textContent = d.email;
+                row.appendChild(email);
+
+                const phone = document.createElement("span");
+                phone.textContent = d.phone;
+                row.appendChild(phone);
+
+                const idnumber = document.createElement("span");
+                idnumber.textContent = d.id_no;
+                row.appendChild(idnumber);
+                                
+                const consStatus = document.createElement("span");
+                consStatus.textContent = (d.status === 1) ? "Inactive" : "Aactive";
+                row.appendChild(consStatus);
+
+                const btnEdit = document.createElement("span");
+                btnEdit.classList.add("material-icons");
+                btnEdit.textContent = "edit";
+                btnEdit.addEventListener('click',(e)=>{
+                    e.stopPropagation();
+                    showEmployeeEditForm('employee_list',d);
+                })
+
+                row.appendChild(btnEdit);
+                container.appendChild(row);
+    
+                row.addEventListener("click",(e)=>{
+                    console.log("clicked data: ",d);
+                    showEmployeeDetail(d);
+                })
+            })
+           
+        }
+        else{
+            const row = document.createElement("span");
+            row.classList.add("consignment-row");
+            row.classList.add("shadow-minor");
+            row.textContent = "No Employees";
+            container.appendChild(row);
+        }
+    }
+}
+const getEmployees=()=>{
+    if(storedData.employees.length == 0){
+        fetch(create_employee_url,{method:"POST",body:JSON.stringify({uid:currentUser.id}),headers:{'Content-type':'application/json','Authorization':'Bearer '+currentUser.accessToken}})
+        .then(res=>res.json())
+        .then(result=>{
+            console.log("getempl: ",result);
+            if(result.code === 1){
+                showFeedback(result.msg,1);
+            }
+            else{
+                listEmployees(result.data);
+            }
+        })
+        .catch(e=>{
+            console.log("err :",e);
+
+        })
+    }
+    else listEmployees(storedData.employees);
+}
+//show employee form
+const showEmployeeForm=(source)=>{
+    greet("HR",{title:"Employees",description:"Add Employee"});
+    document.getElementById("edit_employee_form").reset();
+    document.getElementById("edit_employee_form").classList.add("hidden");
+    document.getElementById(source).classList.add("hidden");
+    document.getElementById("add_employee_content").classList.remove("hidden");
+    var form = document.getElementById("add_employee_form");
+    form.classList.remove("hidden");
+
+    if(form){
+ 
+        form.addEventListener("submit",(e)=>{
+            e.preventDefault();
+
+            var name = form.emp_name.value.trim();
+            var dob = form.emp_dob.value.trim();
+            var passport = form.emp_photo.files[0];
+            var address = form.emp_address.value.trim();
+            var email = form.emp_email.value.trim();
+            var phone = form.emp_phone.value.trim();
+            var id_type = form.emp_id_type.value;
+            var id_no = form.emp_id_number.value.trim();
+            var id_expire = form.emp_id_expiration.value.trim();
+            var id_file = form.emp_id_file.files[0];
+            var title = form.emp_title.value.trim();
+            var emptype = form.emp_type.value;
+            var salary = form.emp_salary.value.trim();
+            var contract = form.emp_contract_file.files[0];
+            var startDate = form.emp_start_date.value;
+            var endDate = form.emp_end_date.value;
+            var emergency_contact = form.emp_emergency_contact.value.trim();
+            var emergency_relationship = form.emp_emergency_relationship.value.trim();
+            var emergency_phone = form.emp_emergency_phone.value.trim();
+            var emergency_address = form.emp_emergency_address.value.trim();
+
+            var fd = new FormData();
+            fd.append("name",name);
+            fd.append("dob",Date.parse(dob));
+            fd.append("emp_photo",passport);
+            fd.append("address",address);
+            fd.append("email",email);
+            fd.append("phone",phone);
+            fd.append("id_type",id_type);
+            fd.append("id_no",id_no);
+            fd.append("id_expire",Date.parse(id_expire));
+            fd.append("emp_id_file",id_file);
+            fd.append("title",title);
+            fd.append("employment_type",emptype);
+            fd.append("salary",salary);
+            fd.append("emp_contract_file",contract);
+            fd.append("start_date",Date.parse(startDate));
+            fd.append("end_date",Date.parse(endDate));
+            fd.append("emergency_contact",emergency_contact);
+            fd.append("emergency_address",emergency_address);
+            fd.append("emergency_phone",emergency_phone);
+            fd.append("emergency_relationship",emergency_relationship);
+            
+            saveEmployee(fd);
+        })
+    }
+
+}
+const saveEmployee=(emp,tag=null)=>{
+    var method = (tag && tag==="edit") ? "PUT":"POST";
+    var url = create_employee_url+"/"+currentUser.id;
+    var options={
+        body:emp,method:method,headers:{'Authorization':"Bearer "+currentUser.accessToken}
+    }
+    console.log("emp: ",...emp);
+    fetch(url,options)
+    .then(res=>res.json())
+    .then(result=>{
+        console.log("xx: ",result);
+        showFeedback(result.msg,result.code);
+        if(result.code === 0){
+            storedData.employees = result.data;
+            storage.setItem("data",JSON.stringify(storedData));
+            storedData = JSON.parse(storage.getItem("data"));
+        }
+        
+    })
+    .catch(e=>{
+        console.log("error; ",e);
+        showFeedback(e,1);
+    })
 }
 
 //settings functions
@@ -627,6 +990,14 @@ const showCostItemForm = (holder,item=null)=>{
     form.appendChild(inputAtCost);
     inputAtCost.options.add(new Option("YES",1));
     inputAtCost.options.add(new Option("NO",0));
+
+    const inputPerCont = document.createElement("select");
+    inputPerCont.classList.add("form-control");
+    inputPerCont.id="per_container";
+    inputPerCont.name = "per_container";
+    form.appendChild(inputPerCont);
+    inputPerCont.options.add(new Option("NO",0));
+    inputPerCont.options.add(new Option("YES",1));
     
 
     const inputSubmit = document.createElement("input");
@@ -645,6 +1016,7 @@ const showCostItemForm = (holder,item=null)=>{
         inputDesc.value = item.description;
         inputAtCost.value = item.at_cost;
         inputCost.value =item.price;
+        inputPerCont.value =item.per_container;
         inputSubmit.value = "UPDATE";
         method = "PUT";
         url += "/"+item.id;
@@ -657,7 +1029,8 @@ const showCostItemForm = (holder,item=null)=>{
             let description = inputDesc.value.trim();
             let atcost = inputAtCost.value;
             let cost = inputCost.value.trim();//roleForm.permission.value.trim();
-            const data = {name:name,at_cost:atcost,description:description,price:cost};
+            let per_container = inputPerCont.value;
+            const data = {name:name,at_cost:atcost,description:description,price:cost,per_container:per_container};
         
             var options = {method:method,body:JSON.stringify(data),headers:{'Content-type':'application/json','Authorization':'Bearer '+currentUser.accessToken}};
             
@@ -709,6 +1082,9 @@ const listCostItems = (items)=>{
             const itemAtCost = document.createElement("span");
             itemAtCost.textContent = (item.at_cost == 0) ? "NO" : "YES";
 
+            const itemPerContainer = document.createElement("span");
+            itemPerContainer.textContent = (item.per_container == 0) ? "NO" : "YES";
+
             const editBut = document.createElement("span");
             editBut.id = "edit_item_"+item.id;
             editBut.classList.add("material-icons");
@@ -729,6 +1105,7 @@ const listCostItems = (items)=>{
             rowHolder.appendChild(itemDesc);
             rowHolder.appendChild(itemPrice);
             rowHolder.appendChild(itemAtCost);
+            rowHolder.appendChild(itemPerContainer);
             rowHolder.appendChild(actionSpan);
             holder.appendChild(rowHolder);
 
@@ -1307,10 +1684,39 @@ const showClientStats =()=>{
                 const numberOfConsignments = document.getElementById("no_of_consignments");
                 numberOfConsignments.textContent = consignments.length;
                 var readyForShipping = consignments.filter(c=>c.status == 9);
-                var loadingPermission = consignments.filter(c=>c.status == 6);
-        
+                // var income = consignments.filter(c=>c.invoices.length > 0).map(e=>{
+                //     var x = e.invoices;
+                //     var p = x.map(i=>parseInt(i.price));
+                //     return p.reduce((a,b)=>a+b,0);
+                //  }).reduce((a,b)=>a+b,0) + storedData.imports.filter(c=>c.invoices.length > 0).map(e=>{
+                //     var x = e.invoices;
+                //     var p = x.map(i=>parseInt(i.price));
+                //     return p.reduce((a,b)=>a+b,0);
+                //  }).reduce((a,b)=>a+b,0);
+                 var income = storedData.invoices.filter(iv=>iv.status.toLowerCase() === "paid").map(i=>{
+                    let k = parseInt(i.price);
+                    if(parseInt(i.discount) > 0) k= parseInt(i.price) * (1 - parseInt(i.discount) * 0.01);
+                    return k;
+                 }).reduce((a,b)=>a+b,0);
+                 income = USD_RATE * income;
+                 var expense = consignments.filter(c=>c.expenses.length > 0).map(e=>{
+                    var x = e.expenses;
+                    var p = x.map(i=>parseInt(i.amount));
+                    return p.reduce((a,b)=>a+b,0);
+                 }).reduce((a,b)=>a+b,0)
+               expense = parseInt(expense);
+               var expense2 = storedData.imports.filter(c=>c.expenses.length > 0).map(e=>{
+                var x = e.expenses;
+                var p = x.map(i=>parseInt(i.price));
+                return p.reduce((a,b)=>a+b,0);
+             }).reduce((a,b)=>a+b,0);
+                 console.log("check; ",expense,expense2);
+
+                 var profit = Math.abs(parseInt(income) - parseInt(expense));
                 document.getElementById("ready_for_shipping").textContent = readyForShipping.length;
-                document.getElementById("loading_permission").textContent = loadingPermission.length;
+                document.getElementById("income").textContent = thousandSeparator(income,true);
+                document.getElementById("expense").textContent = thousandSeparator(expense,true);
+                document.getElementById("profit").textContent = thousandSeparator(profit,true);
         
         
                 showExportListSummary(result.data);
@@ -1321,10 +1727,10 @@ const showClientStats =()=>{
                     fetchInvoices()
                     .then(invoices=>{
                         updateInvoices(invoices);
-                        var pendingInvoices = invoices ? invoices.filter(inv=>inv.status.toLowerCase() == "paid").reduce((a,b)=> a.price + b.price,0):0;
-                        document.getElementById("pending_invoices").textContent = pendingInvoices;
-                        var pendingApproval = invoices ? invoices.filter(inv=>inv.status.toLowerCase() == "awaiting manager's approval"):[];
-                        document.getElementById("pending_approval").textContent = pendingApproval.length;
+                        // var pendingInvoices = invoices ? invoices.filter(inv=>inv.status.toLowerCase() == "paid").reduce((a,b)=> a.price + b.price,0):0;
+                        // document.getElementById("pending_invoices").textContent = pendingInvoices;
+                        // var pendingApproval = invoices ? invoices.filter(inv=>inv.status.toLowerCase() == "awaiting manager's approval"):[];
+                        // document.getElementById("pending_approval").textContent = pendingApproval.length;
                         fetchClientRoles();
                     })
                     .catch(e=>{
@@ -1680,13 +2086,16 @@ const showExportListSummary = (data)=>{
 //show consignment summary
 const showConsignmentSummary=(consignment,type)=>{
     let quote = 0;
+    let paid = 0;
     if(consignment){
          if(consignment.invoices){
             consignment.invoices.forEach(iv=>{
             quote += iv.price - iv.price*iv.discount*0.01;
+            if(iv.status.toLowerCase() == "paid") paid += quote;
             });
         }
         quote = USD_RATE * quote;
+        paid = USD_RATE * paid;
         let cost = 0;
         if(consignment.expenses){
             consignment.expenses.forEach(c=>{
@@ -1696,7 +2105,6 @@ const showConsignmentSummary=(consignment,type)=>{
         if(consignment.tax_amount) cost += parseInt(consignment.tax_amount);
         if(consignment.tasad_fee) cost += parseInt(consignment.tasad_fee);
 
-    let paid = 0.5*quote;
     var chartArea;
     var chartCtx;
     if(type == "export"){
@@ -1896,7 +2304,7 @@ const switchDetails = (index,data)=>{
                 if(data && data.id){
                     uploadConsignmentFile(currentUser.id,reader.result,data.id,"consignments_tb","shipping instructions")
                     .then(result=>{
-                        // console.log("result: ",result);
+                        console.log("result: ",result);
                         updateConsignmentList(result.data);
                         showFeedback(result.msg,result.code);
                     })
@@ -2030,7 +2438,7 @@ const switchDetails = (index,data)=>{
                 });
                 return pt.includes(c.name.toLowerCase());
             });
-            loadCountries(countries,countriesSelect,null);
+            loadCountries(countriesSelect);
 
             var portSearch = document.getElementById("port_of_origin");
             // var searchablePorts = document.getElementById("searchable_ports");
@@ -2113,7 +2521,10 @@ const switchDetails = (index,data)=>{
                     notify_tin: notify_tin,
                     instructions_file:newData.instructions_file
                 }
-                if(data != null) newData.status = data.status;
+                if(data != null) {
+                    newData.status = data.status;
+                    newData.id = data.id;
+                }
                 console.log("mydata: ",newData);
                 var method = (data == null) ? "POST" : "PUT";
                 var options ={
@@ -2126,6 +2537,7 @@ const switchDetails = (index,data)=>{
                 fetch(url,options)
                 .then(res=>res.json())
                 .then(result=>{
+                    console.log("result: ",result);
                     if(result.code ==0){
                         updateConsignmentList(result.data);
                         showExportList(result.data,"export_form");
@@ -2299,11 +2711,13 @@ const switchDetails = (index,data)=>{
                     fileInput.classList.remove("hidden");
                     fileInput.addEventListener("change",(e)=>{
                         e.preventDefault();
+                        e.stopPropagation();
                         var file = e.target.files[0];
                         if(file){
                             selected = true;
                             var reader = new FileReader();
-                            reader.addEventListener("load",()=>{
+                            reader.addEventListener("load",(event)=>{
+                                event.stopPropagation();
                                 var url = URL.createObjectURL(file);
                                 var fileObj = {url:url,label:selectedOption.value,name:selectedOption.text};
                                 let k = 0;
@@ -3476,22 +3890,35 @@ const showInvoiceList = (invoices,source=null)=>{
             row.appendChild(nContainer);
 
             const qAmount = document.createElement("span");
-            var myprice= parseFloat(d.price) - 0.01 * d.discount * d.price;
+            var myprice= USD_RATE * (parseFloat(d.price) - 0.01 * d.discount * d.price);
             qAmount.textContent = ((storedData.settings) ? storedData.settings.currency : "USD")+" "+thousandSeparator(parseFloat(myprice).toFixed(2));
             row.appendChild(qAmount);
 
             const qStatus = document.createElement("span");
             qStatus.textContent = d.status;
             if(d.status.toLowerCase() == "pending payment") {
-                qStatus.classList.add("success-text");
-                row.classList.add("status-indicator-pending")
+                qStatus.classList.add("info-text");
+                qStatus.classList.remove("success-text");
+                qStatus.classList.remove("fail-text");
+                row.classList.add("status-indicator-pending");
+                row.classList.remove("status-indicator-approved");
+                row.classList.remove("status-indicator-red");
             }
-            else qStatus.classList.add("fail-text");
-            if(d.status.toLowerCase() == "awaiting manager's approval"){
+            else if(d.status.toLowerCase() == "awaiting manager's approval"){
+                qStatus.classList.add("fail-text");
+                qStatus.classList.remove("success-text");
+                qStatus.classList.remove("info-text");
                 row.classList.add("status-indicator-red");
+                row.classList.remove("status-indicator-pending");
+                row.classList.remove("status-indicator-approved");
             }
             if(d.status.toLowerCase() == "paid"){
+                qStatus.classList.add("success-text");
+                qStatus.classList.remove("fail-text");
+                qStatus.classList.remove("info-text");
                 row.classList.add("status-indicator-approved");
+                row.classList.remove("status-indicator-pending");
+                row.classList.remove("status-indicator-red");
             }
             
             row.appendChild(qStatus);
@@ -3499,7 +3926,6 @@ const showInvoiceList = (invoices,source=null)=>{
             parent.appendChild(row);
 
             row.addEventListener("click",(e)=>{
-                console.log("d: ",d);
                 showInvoiceForm("invoice_list",d.id);
             })
         })
@@ -3570,7 +3996,7 @@ const showQuotationList = (quotations,source=null)=>{
 
             const qStatus = document.createElement("span");
             qStatus.textContent = d.status;
-            if(d.status.toLowerCase() == "paid") {
+            if(d.status.toLowerCase() == "approved") {
                 qStatus.classList.add("success-text");
                 qStatus.classList.remove("info-text");
                 qStatus.classList.remove("fail-text");
@@ -3674,7 +4100,7 @@ const showQuotationForm=(source,dataId=null)=>{
                 var print = document.getElementById("print");
                 print.classList.remove("hidden");
                 print.addEventListener("click",(e)=>{
-                    window.open(print_url+"/dashboard/quotation.html?qid="+dataId);
+                    window.print();
                 })
                 qNumber.textContent = "Quotation No: "+formatConsignmentNumber(dataId);
                 form.cs_id.value = data[0].customer_id;
@@ -3696,13 +4122,31 @@ const showQuotationForm=(source,dataId=null)=>{
                 else qStatus.classList.add("fail-text");
                 newStatus = data[0].status;
                 if(data[0].status.toLowerCase() == "awaiting manager's approval"){
-                
+                    newStatus = "Awaiting Client Approval";
                     clientLabel.textContent = "Manager Approve";
-                    clientYes.addEventListener("click",(e)=>{
-                        newStatus = "Awaiting Client Approval";
-                        clientYes.src = "/img/yes.png";
-                        clientNo.src = "/img/no_.png";
-                    })
+                    // clientYes.addEventListener("click",(e)=>{
+                    //     if(confirm("Are you sure you want to approve this item?")){
+                    //         newStatus = "Awaiting Client Approval";
+                    //         clientYes.src = "/img/yes.png";
+                    //         clientNo.src = "/img/no_.png";
+                    //         var url = quotation_url +"/"+currentUser.id;
+                    //             var options = {method:"PUT",body:JSON.stringify({id:dataId,status:newStatus}),headers:{"Content-type":"application/json","Authorization":"Bearer "+currentUser.accessToken}}
+                    //             // console.log("t: "+method,myData);
+                    //             fetch(url,options)
+                    //             .then(res=>res.json())
+                    //             .then(result=>{
+                    //                 console.log("result: ",result.data);
+                    //                 storedData.quotations = result.data;
+                    //                 storage.setItem("data",JSON.stringify(storedData));
+                    //                 showFeedback(result.msg,result.code);
+                    //                 closeQuotationForm(data[0]);
+                    //             })
+                    //             .catch(er=>{
+                    //                 console.log("er: ",er);
+                    //                 showFeedback("Something went wrong: "+e,1);
+                    //             })
+                    //     }
+                    // })
                     clientNo.addEventListener("click",(e)=>{
                         newStatus = "Manager Denied";
                         clientNo.src = "/img/no.png";
@@ -3712,11 +4156,7 @@ const showQuotationForm=(source,dataId=null)=>{
                 else if(data[0].status.toLowerCase() == "awaiting client approval"){
                     clientYes.src = "/img/yes_.png";
                     clientLabel.textContent = "Client Approve";
-                    clientYes.addEventListener("click",(e)=>{
-                        newStatus = "Approved";
-                        clientYes.src = "/img/yes.png";
-                        clientNo.src = "/img/no_.png";
-                    })
+                    
                     clientNo.addEventListener("click",(e)=>{
                         newStatus = "Client Denied";
                         clientNo.src = "/img/no.png";
@@ -3728,7 +4168,31 @@ const showQuotationForm=(source,dataId=null)=>{
                     clientNo.classList.add("hidden");
                     clientLabel.classList.add("hidden");
                 }
-
+                clientYes.addEventListener("click",(e)=>{
+                        
+                    if(confirm("Are you sure you want to approve this item?")){
+                        var url = quotation_url +"/"+currentUser.id;
+                            var options = {method:"PUT",body:JSON.stringify({id:dataId,status:newStatus}),headers:{"Content-type":"application/json","Authorization":"Bearer "+currentUser.accessToken}}
+                            // console.log("t: "+method,myData);
+                            fetch(url,options)
+                            .then(res=>res.json())
+                            .then(result=>{
+                                console.log("result: ",data[0]);
+                                storedData.invoices = result.data;
+                                storage.setItem("data",JSON.stringify(storedData));
+                                newStatus = storedData.invoices.find(iv=>iv.id  == dataId).status;
+                                qStatus.textContent = newStatus;
+                                clientYes.src = "/img/yes.png";
+                                clientNo.src = "/img/no_.png";
+                                showFeedback(result.msg,result.code);
+                                closeInvoiceForm(data[0]);
+                            })
+                            .catch(er=>{
+                                console.log("er: ",er);
+                                showFeedback("Something went wrong: "+e,1);
+                            })
+                    }
+                });
                 var qItemsIds = data[0].items.split("_").map(id=>parseInt(id));
                 console.log("qIIs: ",qItemsIds);
                 console.log("cIs: ",costItems);
@@ -3907,20 +4371,20 @@ const showQuotationForm=(source,dataId=null)=>{
 
 //show Invoice form
 const showInvoiceForm=(source,dataId=null)=>{
+
+    const form = document.getElementById("my_invoice_form"); 
     if(source != "invoice_list"){
         document.getElementById("invoices_content").classList.remove("hidden");
         document.getElementById("invoice_list").classList.add("hidden");
+        form.reset();
     }
     showBankDetails();
     var costItems = storedData.cost_items;
     var costContainer = document.getElementById("inv_cost_container");
-    const form = document.getElementById("my_invoice_form"); 
     const cancelButton = document.getElementById("close_invoice_form");
     const discardButton = document.getElementById("discard_invoice");
    
-    form.reset();
-
-    myCostItems = [];
+    mCostItems = myCostItems;
     var desc= "Create";
     if(dataId != null) desc = "View";
     greet("Finance",{title:"Invoices",description:desc});
@@ -3972,7 +4436,7 @@ const showInvoiceForm=(source,dataId=null)=>{
         var print = document.getElementById("inv_print");
         print.classList.remove("hidden");
         print.addEventListener("click",(e)=>{
-            window.open(print_url+"/dashboard/invoice.html?id="+dataId);
+            window.print();
         })
         qNumber.textContent = "Invoice No: "+formatConsignmentNumber(dataId);
         form.inv_cs_id.value = data[0].customer_id;
@@ -3990,61 +4454,119 @@ const showInvoiceForm=(source,dataId=null)=>{
         
         if(data[0].status.toLowerCase() == "paid") {
             qStatus.classList.add("success-text");
+            qStatus.classList.remove("info-text");
+            qStatus.classList.remove("fail-text");
             discardButton.classList.add("hidden");
             print.classList.remove("hidden");
-            // clientLabel.classList.add("hidden");
-            // clientYes.classList.add("hidden");
-            // clientNo.classList.add("hidden");
-        }
-        else qStatus.classList.add("fail-text");
-        newStatus = data[0].status;
-        if(data[0].status.toLowerCase() == "awaiting manager's approval"){
-        
-            clientLabel.textContent = "Manager Approve";
-            clientYes.addEventListener("click",(e)=>{
-                newStatus = "Pending Payment";
-                clientYes.src = "/img/yes.png";
-                clientNo.src = "/img/no_.png";
-            })
-            clientNo.addEventListener("click",(e)=>{
-                newStatus = "Manager Denied";
-                clientNo.src = "/img/no.png";
-                clientYes.src = "/img/yes_.png";
-                })
-        }
-        else if(data[0].status.toLowerCase() == "pending payment"){
-            clientYes.src = "/img/yes_.png";
-            clientLabel.textContent = "Client Paid?";
-            clientYes.addEventListener("click",(e)=>{
-                newStatus = "Paid";
-                clientYes.src = "/img/yes.png";
-                clientNo.src = "/img/no_.png";
-            })
-            clientNo.addEventListener("click",(e)=>{
-                newStatus = "Pending Payment";
-                clientNo.src = "/img/no.png";
-                clientYes.src = "/img/yes_.png";
-            })
-        }
-        else{
+            clientLabel.classList.add("hidden");
             clientYes.classList.add("hidden");
             clientNo.classList.add("hidden");
-            clientLabel.classList.add("hidden");
         }
+        else if(data[0].status.toLowerCase() == "pending payment"){
+            qStatus.classList.add("info-text");
+            qStatus.classList.remove("success-text");
+            qStatus.classList.remove("fail-text");
+            clientLabel.classList.remove("hidden");
+            clientYes.classList.remove("hidden");
+            clientNo.classList.remove("hidden");
+            clientLabel.textContent = "Client paid?";
+        }
+        else {
+            qStatus.classList.add("fail-text");
+            qStatus.classList.remove("success-text");
+            qStatus.classList.remove("info-text");
+            clientLabel.textContent = "Manager approved?";
+            clientLabel.classList.remove("hidden");
+            clientYes.classList.remove("hidden");
+            clientNo.classList.remove("hidden");
+        }
+        newStatus = data[0].status;
+        // if(data[0].status.toLowerCase() == "awaiting manager's approval"){
+        
+        //     clientLabel.textContent = "Manager Approve";
+        //     newStatus = "Pending Payment";
+        //     clientNo.addEventListener("click",(e)=>{
+        //         newStatus = "Manager Denied";
+        //         clientNo.src = "/img/no.png";
+        //         clientYes.src = "/img/yes_.png";
+        //         })
+        // }
+        // else if(data[0].status.toLowerCase() == "pending payment"){
+            
+        //     clientNo.addEventListener("click",(e)=>{
+        //         newStatus = "Pending Payment";
+        //         clientNo.src = "/img/no.png";
+        //         clientYes.src = "/img/yes_.png";
+        //     })
+        // }
+        // else{
+        //     clientYes.classList.add("hidden");
+        //     clientNo.classList.add("hidden");
+        //     clientLabel.classList.add("hidden");
+        // }
 
+        clientYes.addEventListener("click",e=>{
+            var question = "";
+            var status = data[0].status;
+            if(data[0].status.toLowerCase() === "pending payment"){
+                question = "Has the client paid this invoice?";
+                status = "Paid";
+            }
+            else if(data[0].status.toLowerCase() === "awaiting manager's approval"){
+                question = "Are you sure you want to approve this invoice?";
+                status = "Pending Payment";
+            }
+            if(confirm(question)){
+                var url = invoices_url +"/"+currentUser.id;
+                var myData = {id:dataId,status:status};
+                var options = {method:"PUT",body:JSON.stringify(myData),headers:{"Content-type":"application/json","Authorization":"Bearer "+currentUser.accessToken}}
+                
+                fetch(url,options)
+                .then(res=>res.json())
+                .then(result=>{
+                    console.log("result: ",result);
+                    if(result.code === 0){
+                        var nQ= result.data.find(c=>c.id == dataId);
+                        console.log("res: ",nQ);
+                    
+                        storedData.invoices = result.data;
+                        storage.setItem("data",JSON.stringify(storedData));
+                        storedData = JSON.parse(storage.getItem("data"));
+                        clientNo.src = "/img/no_.png";
+                        clientYes.src = "/img/yes.png";
+                        inv_status.textContent = nQ.status;
+                        form.service.value = nQ.service;
+                    }
+                    
+                    showFeedback(result.msg,result.code);
+                    // showInvoiceForm("invoice_form",dataId);
+                })
+                .catch(er=>{
+                    console.log("er: ",er);
+                    showFeedback("Something went wrong: "+e,1);
+                })
+            }
+            else return;
+        });
+    
         var qItemsIds = data[0].items.split("_").map(id=>parseInt(id));
-        console.log("qIIs: ",qItemsIds);
-        console.log("cIs: ",costItems);
-        qItemsIds.forEach((id)=>{
-            let item = costItems.filter(c=>c.id == id);
-            if(item.length > 0){
-                item[0].count = 1;
-                myCostItems.push(item[0]);
+        
+        var item = {};
+        qItemsIds.forEach(q=>{
+            item[q] = (item[q] || 0 ) +1;
+        })
+        
+        Object.entries(item).map(m=>{
+        costItems.forEach(g=>{
+            if(g.id == m[0]){
+                let k = g;
+                k.count = m[1];
+                mCostItems.push(k);
             }
         })
+    })
     
-        console.log("mcIs: ",myCostItems);
-        showCostItems(myCostItems,form.discount.value,costItemList,data[0].status);
+        showCostItems(mCostItems,form.discount.value,costItemList,data[0].status);
 
         if(data[0].status.toLowerCase() == "paid"){
             form.btnSubmit.classList.add('hidden');
@@ -4061,6 +4583,7 @@ const showInvoiceForm=(source,dataId=null)=>{
         clientLabel.classList.add("hidden");
     }
     
+    
     form.inv_cs_id.addEventListener("change",(e)=>{
         if(e.target.value == -1) showCustomerDetailForm('invoices_content');
         else if(e.target.value != -2){
@@ -4073,20 +4596,20 @@ const showInvoiceForm=(source,dataId=null)=>{
 
             var cons = storedData.consignments.filter(c=>c.exporter_id == id);
             
-            Array.from(consSelect.children).forEach((c,i)=>{if(i>0)consSelect.removeChild(c);})
+            Array.from(consSelect.children).forEach((c,i)=>{if(i>0) consSelect.removeChild(c);})
             cons.forEach(c=>{
                 consSelect.options.add(new Option(formatConsignmentNumber(c.id),c.id));
             })
             consSelect.addEventListener('change',(e)=>{
                 var con = cons.find(c=>c.id == e.target.value);
-                form.quantity.value = con.container_details.length;
+                form.quantity.value = con.no_of_containers;
                 form.goods.value = con.goods_description;
             });
         }
         else consSelect.classList.add("hidden");
         
     })
-    
+   
     // var myItemIds = myCostItems.map(c=>c.id);
     Array.from(costItemEl.children).forEach((ch,i)=>{
         if(i>0) costItemEl.removeChild(ch);
@@ -4096,22 +4619,21 @@ const showInvoiceForm=(source,dataId=null)=>{
     })
     costItemEl.addEventListener("change",(e)=>{
         let itemId = parseInt(e.target.value);
-        let item = costItems.filter(c=>c.id == itemId);
+        let item = costItems.find(c=>c.id == itemId);
         
-        if(costItemCountEl.value){
-            console.log("value: ",costItemCountEl.value);
-            for(let i=0;i<parseInt(costItemCountEl.value);i++){
-                item[0].count = 1;
-                myCostItems.push(item[0]);
-            }
-        }
+        if(costItemCountEl.value) item.count = parseInt(costItemCountEl.value);
         else{
-            item[0].count = 1;
-            myCostItems.push(item[0]);
+            item.count = 1;
         }
-        console.log("cil: ",myCostItems);
-        showCostItems(myCostItems,form.discount.value,costItemList);
+        if(item.per_container === 1){
+            let q = item.count * parseInt(form.quantity.value.trim());
+            item.count =q;
+        }
+        mCostItems.push(item);
+        myCostItems = mCostItems;
+        showCostItems(mCostItems,form.discount.value,costItemList);
         costItemCountEl.value = 1;
+        e.target.value = -1;
     })
 
     form.discount.addEventListener("input",(e)=>{
@@ -4175,7 +4697,17 @@ const showInvoiceForm=(source,dataId=null)=>{
         var containerNum = form.quantity.value;
         var discount = form.discount.value;
         var consignment = form.consignment_no.value
-        var cost_items = myCostItems.map(i=>i.id).join("_");
+
+        var cost_items = myCostItems.map(i=>{
+            let k = i.id;
+            if(i.count > 1){
+                for(p=1;p<i.count;p++){
+                    k = k+"_"+i.id;
+                }
+            }
+            return k;
+            
+        }).join("_");
         var sum = 0;
         myCostItems.forEach(i=>{
             sum += parseInt(i.price);
@@ -4188,18 +4720,14 @@ const showInvoiceForm=(source,dataId=null)=>{
             myData.status = newStatus;
             myData.id = dataId;
         }
+        console.log("my data: ",myData);
         var url = invoices_url +"/"+currentUser.id;
         var options = {method:method,body:JSON.stringify(myData),headers:{"Content-type":"application/json","Authorization":"Bearer "+currentUser.accessToken}}
-        console.log("t: "+method,myData);
+        
         fetch(url,options)
         .then(res=>res.json())
         .then(result=>{
-            console.log("result: ",result);
-            if(dataId == null) {
-                var nQ= result.data.filter(c=>storedData.invoices.map(q=>q.id).indexOf(c.id) === -1);
-                console.log("res: ",nQ);
-                dataId == nQ[0].id;
-            }
+            console.log("result: ",result);            
             storedData.invoices = result.data;
             storage.setItem("data",JSON.stringify(storedData));
             
@@ -4378,32 +4906,8 @@ const showCostItems = (items,discount,container,status=null)=>{
     Array.from(container.children).forEach((c,i)=>{
         if(i>0) container.removeChild(c);
     });
-    console.log("items: ",items);
     
-    var summary =[];
-    summary.push(items[0]);
-    // var myIds = items.map((i)=>i.id);
-    items.forEach((item,x)=>{
-        if(x > 0){
-            let idx = x;
-            var myItem = summary.filter((i,k)=>{
-                if(item.id == i.id){
-                    idx = k;
-                    return i;
-                }
-            });
-            if(myItem.length > 0){
-                myItem[0].count ++;
-                summary[idx] = myItem[0];
-            }
-            else{
-                item.count = 1;
-                summary.push(item);
-            }
-        }
-     
-    })
-    console.log("my items: ",summary);
+    var summary =items;    
     var sum = 0;
     var disc = 0;
     if(summary.length > 0){
@@ -4448,10 +4952,11 @@ const showCostItems = (items,discount,container,status=null)=>{
                 actionSpan.classList.add("actions-dis");
                 removeBut.addEventListener("click",e=>{
                     myCostItems = items.filter(i=>i.id != item.id);
+
                     showCostItems(myCostItems,discount,container);
                 })
             }
-            else if(status == -1){
+            else{
                 actionSpan.classList.add("hidden");
                 row.classList.remove("shadow-minor");
             }
@@ -4480,7 +4985,7 @@ const showCostItems = (items,discount,container,status=null)=>{
         const sTotalVal = document.createElement("span");
         sTotalVal.classList.add("row-end");
         // total.style.textAlign = "right";
-        sTotalVal.textContent = storedData.settings.currency+" "+thousandSeparator(sum);
+        sTotalVal.textContent = "USD "+thousandSeparator(sum);
         container.appendChild(sTotalVal);
         summaryRow.appendChild(sTotal);
         summaryRow.appendChild(sTotalVal);
@@ -4500,7 +5005,7 @@ const showCostItems = (items,discount,container,status=null)=>{
         const discSpanVal = document.createElement("span");
         discSpanVal.classList.add("row-end");
         // total.style.textAlign = "right";
-        discSpanVal.textContent = storedData.settings.currency+" "+thousandSeparator(disc);
+        discSpanVal.textContent = "USD "+thousandSeparator(disc);
         summaryRow2.appendChild(discSpanVal);
         summaryRow2.appendChild(space1);
         container.appendChild(summaryRow2);
@@ -4519,7 +5024,7 @@ const showCostItems = (items,discount,container,status=null)=>{
         totalVal.classList.add("medium-text");
         totalVal.classList.add("row-end");
         // total.style.textAlign = "right";
-        totalVal.textContent = storedData.settings.currency+" "+thousandSeparator(sum - disc);
+        totalVal.textContent = "USD "+thousandSeparator(sum - disc);
         summaryRow3.appendChild(totalVal);
         summaryRow3.appendChild(space2);
         container.appendChild(summaryRow3);
@@ -4848,7 +5353,7 @@ const loadCities = (country,el,target)=>{
    
 }
 //load countriese
-const loadCountries = (countries,el,target)=>{
+const loadCountries = (el)=>{
     var ctry;
     el = document.getElementById("place_of_destination");
     // Array.from(el.children).forEach(child=>el.removeChild(child));
@@ -4857,7 +5362,7 @@ const loadCountries = (countries,el,target)=>{
     var citySearch = document.getElementById("place_of_delivery");
     citySearch.value = "";
             
-    countries.forEach(country=>{
+    COUNTRIES.forEach(country=>{
         var countrySpan = document.createElement("option");
         // countrySpan.textContent = country;
         // countrySpan.value = country.code;
@@ -4866,8 +5371,9 @@ const loadCountries = (countries,el,target)=>{
     })
    
     el.addEventListener("change",(e)=>{
-        ctry = countries.find(c=>c.code.toLowerCase() == e.target.value.toLowerCase());
-        console.log("ctry :",e.target.value,ctry);
+        var val = e.target.value.trim();
+        ctry = COUNTRIES.find(c=>c.name.toLowerCase() == val.toLowerCase());
+        console.log("ctry :",val,ctry);
         var portEl = document.getElementById("port_of_discharge");
         var ports = PORTS.filter(p=>p.country.toLowerCase() === ctry.name.toLowerCase());
         loadPorts(ports,portEl,null);

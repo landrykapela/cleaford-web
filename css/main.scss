@@ -17,7 +17,7 @@ $yellow:#ecec09;
 $tickBlue: #203164;
 $buttonBorderSize:4px;
 $buttonBorderRadius:8px;
-$titleSize:30px;
+$titleSize:24px;
 $standardTextSize:16px;
 $fontFamily:'Baloo Thambi 2';
 $sideBarSize: 200px;
@@ -883,7 +883,7 @@ footer{
   }
   td > select .wide-select,.wide-select{
     width:100% !important;
-    max-width:256px;
+    max-width:256px !important;
   }
  
   .body-row > span.actions{
@@ -943,7 +943,7 @@ footer{
   @include setBg($defaultColor);
   @include addRoundCorner(5px);
   padding:0.5em;
-  @include flex(row,space-between,flex-end);
+  @include flex(column,center,center);
   cursor: pointer;
 }
 .stat-card:hover{
@@ -955,7 +955,7 @@ footer{
 }
 .stat-card :nth-child(1){
   font-size: small;
-  text-align: left;
+  text-align: center;
 }
 .stat-card :nth-child(2){
   align-self: center;
@@ -965,7 +965,7 @@ footer{
 .stat-value{
   font-size: $titleSize;
   color: $primaryColor;
-  padding:0.5em;
+  padding:0.25em;
 }
 .fail{
 @include setBg($failColorFaint);

@@ -1371,7 +1371,7 @@ td > input[type="number"], td > select, th .select, th .num {
 
 td > select .wide-select, .wide-select {
   width: 100% !important;
-  max-width: 256px;
+  max-width: 256px !important;
 }
 
 .body-row > span.actions, .consignment-row > span.actions {
@@ -1478,16 +1478,16 @@ td > select .wide-select, .wide-select {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
-  -webkit-box-orient: horizontal;
+  -webkit-box-orient: vertical;
   -webkit-box-direction: normal;
-      -ms-flex-direction: row;
-          flex-direction: row;
-  -webkit-box-pack: justify;
-      -ms-flex-pack: justify;
-          justify-content: space-between;
-  -webkit-box-align: end;
-      -ms-flex-align: end;
-          align-items: flex-end;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
   cursor: pointer;
 }
 
@@ -1502,7 +1502,7 @@ td > select .wide-select, .wide-select {
 
 .stat-card :nth-child(1) {
   font-size: small;
-  text-align: left;
+  text-align: center;
 }
 
 .stat-card :nth-child(2) {
@@ -1512,9 +1512,9 @@ td > select .wide-select, .wide-select {
 }
 
 .stat-value {
-  font-size: 30px;
+  font-size: 24px;
   color: #ffcc00;
-  padding: 0.5em;
+  padding: 0.25em;
 }
 
 .fail {
@@ -2213,7 +2213,7 @@ fieldset {
 }
 
 .large-text {
-  font-size: 30px;
+  font-size: 24px;
 }
 
 .small-text {
