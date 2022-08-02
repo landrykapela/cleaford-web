@@ -1640,7 +1640,18 @@ const showClientStats =()=>{
             greet("Hello "+currentUser.detail.contact_person.split(" ")[0],null);
             const numberOfCustomers = document.getElementById("no_of_customers");
             numberOfCustomers.textContent = (storedData.customers) ? storedData.customers.length:0; 
-
+            fetchInvoices()
+            .then(invoices=>{
+                updateInvoices(invoices);
+                // var pendingInvoices = invoices ? invoices.filter(inv=>inv.status.toLowerCase() == "paid").reduce((a,b)=> a.price + b.price,0):0;
+                // document.getElementById("pending_invoices").textContent = pendingInvoices;
+                // var pendingApproval = invoices ? invoices.filter(inv=>inv.status.toLowerCase() == "awaiting manager's approval"):[];
+                // document.getElementById("pending_approval").textContent = pendingApproval.length;
+                fetchClientRoles();
+            })
+            .catch(e=>{
+                console.log("error: ",e);
+            })
 
             getPettyCash().then(pc=>{
                 storedData.petty_cash = pc;
@@ -1759,18 +1770,7 @@ const showClientStats =()=>{
                 fetchCostItems()
                 .then(items=>{
                     updateCostItems(items);
-                    fetchInvoices()
-                    .then(invoices=>{
-                        updateInvoices(invoices);
-                        // var pendingInvoices = invoices ? invoices.filter(inv=>inv.status.toLowerCase() == "paid").reduce((a,b)=> a.price + b.price,0):0;
-                        // document.getElementById("pending_invoices").textContent = pendingInvoices;
-                        // var pendingApproval = invoices ? invoices.filter(inv=>inv.status.toLowerCase() == "awaiting manager's approval"):[];
-                        // document.getElementById("pending_approval").textContent = pendingApproval.length;
-                        fetchClientRoles();
-                    })
-                    .catch(e=>{
-                        console.log("error: ",e);
-                    })
+                   
                 }).catch(e=>{
                     console.log("fetchCostItems(): ",e);
                 })
