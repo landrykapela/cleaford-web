@@ -39,7 +39,7 @@ const CONTAINER_FIELDS = [{id:"mbl_number",label:"#MB/L No",required:false,forIm
     
 var currentUser = (session.getItem("currentUser")) ? JSON.parse(session.getItem("currentUser")):null;
 
-var storedData = (storage.getItem("data")) ? JSON.parse(storage.getItem("data")):{employees:[],cost_items:[],roles:[],client_roles:[],customers:[],roles:[],consignments:[],imports:[],clients:[],quotations:[],invoices:[],settings:{currency:"Tsh"}};
+var storedData = (storage.getItem("data") && storage.getItem("data") !="" && storage.getItem("data")!="undefined") ? JSON.parse(storage.getItem("data")):{petty_cash:[],employees:[],cost_items:[],roles:[],client_roles:[],customers:[],roles:[],consignments:[],imports:[],clients:[],quotations:[],invoices:[],settings:{currency:"Tsh"}};
 
 var myCostItems = [];
 const originalSetItem = localStorage.setItem;
@@ -387,7 +387,12 @@ const activateMenu =(target)=>{
                 break;
             case 'pettycash':
                 greet("Finance",{title:"Petty Cash",description:"View"});
-                getPettyCash();
+                getPettyCash().then(r=>{
+                    showPettyCash(r,Date.now());
+                }).catch(e=>{
+                    showFeedback(e,1);
+                });
+                
                 break;
             case 'roles':
                 greet("Settings",{title:"Roles",description:"Manage roles"});
@@ -912,7 +917,7 @@ const signoutUser = ()=>{
         {method:"POST",body:JSON.stringify({email:currentUser.email}),headers:{'Content-type':'application/json'}})
     .then(res=>res.json())
         .then(result=>{
-        // console.log("result: ",result);
+        session.clear();
         storage.clear();
         window.location.pathname = "/signin.html";
     })
@@ -1636,78 +1641,83 @@ const showClientStats =()=>{
             const numberOfCustomers = document.getElementById("no_of_customers");
             numberOfCustomers.textContent = (storedData.customers) ? storedData.customers.length:0; 
 
-            //show charts and maps
-            let chartArea = document.getElementById("chart-area");
-            while(chartArea.hasChildNodes()){
-                chartArea.removeChild(chartArea.childNodes[0]);
-            }
-            const canvas = document.createElement("canvas");
-            chartArea.appendChild(canvas);
-            
-            const labels = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-            var months = [...new Set(storedData.invoices.map(i=>{
-                let d = new Date(i.date_created);
-                return d.getMonth();
-            }))];
-            var dx = storedData.invoices.map(i=>{
-                let x = i;
-                let d = new Date(i.date_created);
-                x.month = d.getMonth();
-                x.year = d.getFullYear();
-                return x;
-            });
-            var dy = storedData.petty_cash.map(i=>{
-                let x = i;
-                let d = new Date(i.date_created);
-                x.month = d.getMonth();
-                x.year = d.getFullYear();
-                return x;
-            });
-            var yy = [];
-            var yx = [];
-            labels.forEach((l,i)=>{
-                var s = dx.filter(d=>d.month === i && d.year === currentYear).map(i=>parseInt(i.price)).reduce((a,b)=>a+b,0);
-                yx.push(s*USD_RATE);
-                var ex = dy.filter(d=>d.month === i && d.year === currentYear && d.type === 0).map(i=>parseInt(i.amount)).reduce((a,b)=>a+b,0);
-                yy.push(ex);
-            })
-            let data = {
-                labels: labels,
-                datasets: [
-                    {
-                    label: 'Sales in Tsh',
-                    data: yx,
-                    borderColor: "#cc9900",
-                    backgroundColor: "#cc9900",
-                    },
-                    {
-                        label: 'Expenses in Tsh',
-                        data: yy,
-                        borderColor: "#0f810f",
-                        backgroundColor: "#0f810f",
-                        },
-                    
-                ]
-            }
-            let config = {
-                type: 'bar',   
-                data: data,
-                options: {
-                responsive: true,
-                maintainAspectRatio:false,
-                plugins: {
-                    title: {
-                    display: true,
-                    text: 'Annual Sales for '+currentYear
-                    }
-                }
-                },
-            }
-            var myChart = drawChart(config,canvas);
-            // myChart.homeZoomLevel = 50;
-            // showCustomersSummary();
-            mapChart();
 
+            getPettyCash().then(pc=>{
+                storedData.petty_cash = pc;
+                storage.setItem("data",JSON.stringify(storedData));
+ //show charts and maps
+ let chartArea = document.getElementById("chart-area");
+ while(chartArea.hasChildNodes()){
+     chartArea.removeChild(chartArea.childNodes[0]);
+ }
+ const canvas = document.createElement("canvas");
+ chartArea.appendChild(canvas);
+ 
+ const labels = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+ 
+ var dx = storedData.invoices.map(i=>{
+     let x = i;
+     let d = new Date(i.date_created);
+     x.month = d.getMonth();
+     x.year = d.getFullYear();
+     return x;
+ });
+ var dy = pc.map(i=>{
+     let x = i;
+     let d = new Date(i.date_created);
+     x.month = d.getMonth();
+     x.year = d.getFullYear();
+     return x;
+ });
+ var yy = [];
+ var yx = [];
+ labels.forEach((l,i)=>{
+     var s = dx.filter(d=>d.month === i && d.year === currentYear).map(i=>parseInt(i.price)).reduce((a,b)=>a+b,0);
+     yx.push(s*USD_RATE);
+     var ex = dy.filter(d=>d.month === i && d.year === currentYear && d.type === 0).map(i=>parseInt(i.amount)).reduce((a,b)=>a+b,0);
+     yy.push(ex);
+ })
+ let data = {
+     labels: labels,
+     datasets: [
+         {
+         label: 'Sales in Tsh',
+         data: yx,
+         borderColor: "#cc9900",
+         backgroundColor: "#cc9900",
+         },
+         {
+             label: 'Expenses in Tsh',
+             data: yy,
+             borderColor: "#0f810f",
+             backgroundColor: "#0f810f",
+             },
+         
+     ]
+ }
+ let config = {
+     type: 'bar',   
+     data: data,
+     options: {
+     responsive: true,
+     maintainAspectRatio:false,
+     plugins: {
+         title: {
+         display: true,
+         text: 'Annual Sales for '+currentYear
+         }
+     }
+     },
+ }
+ var myChart = drawChart(config,canvas);
+ // myChart.homeZoomLevel = 50;
+ // showCustomersSummary();
+ mapChart();
+
+            }).catch(e=>{
+
+            })
+           
             fetchConsignments()
             .then(result=>{
                 storedData.consignments = result.data;
@@ -1717,15 +1727,7 @@ const showClientStats =()=>{
                 const numberOfConsignments = document.getElementById("no_of_consignments");
                 numberOfConsignments.textContent = consignments.length;
                 var readyForShipping = consignments.filter(c=>c.status == 9);
-                // var income = consignments.filter(c=>c.invoices.length > 0).map(e=>{
-                //     var x = e.invoices;
-                //     var p = x.map(i=>parseInt(i.price));
-                //     return p.reduce((a,b)=>a+b,0);
-                //  }).reduce((a,b)=>a+b,0) + storedData.imports.filter(c=>c.invoices.length > 0).map(e=>{
-                //     var x = e.invoices;
-                //     var p = x.map(i=>parseInt(i.price));
-                //     return p.reduce((a,b)=>a+b,0);
-                //  }).reduce((a,b)=>a+b,0);
+                
                  var income = storedData.invoices.filter(iv=>iv.status.toLowerCase() === "paid").map(i=>{
                     let k = parseInt(i.price);
                     if(parseInt(i.discount) > 0) k= parseInt(i.price) * (1 - parseInt(i.discount) * 0.01);
@@ -5317,32 +5319,33 @@ const getPettyCash = ()=>{
         var options = {method:"GET",headers:{
             'Content-type':'application/json','Authorization': 'Bearer '+currentUser.accessToken
         }}
-
-        fetch(url,options)
-        .then(res=>res.json())
-        .then(result=>{
-            console.log("result: ",result);
-            var pc = result.data.map((d,i)=>{
-                let k = d;
-                if(i>0){
-                    let ob = parseInt(result.data[i-1].balance);
-                    k.opening_balance = ob;
-                    let a = parseInt(d.amount);
-                    k.balance = d.type === 0 ? ob - a: ob + a;
-                }
-                return k;
+        return new Promise((resolve,reject)=>{
+            fetch(url,options)
+            .then(res=>res.json())
+            .then(result=>{
+                console.log("result: ",result);
+                var pc = result.data.map((d,i)=>{
+                    let k = d;
+                    if(i>0){
+                        let ob = parseInt(result.data[i-1].balance);
+                        k.opening_balance = ob;
+                        let a = parseInt(d.amount);
+                        k.balance = d.type === 0 ? ob - a: ob + a;
+                    }
+                    return k;
+                })
+                storedData.petty_cash = pc;
+                storage.setItem("data",JSON.stringify(storedData));
+                storedData = JSON.parse(storage.getItem("data"));
+                resolve(pc);
+    
             })
-            storedData.petty_cash = pc;
-            storage.setItem("data",JSON.stringify(storedData));
-            storedData = JSON.parse(storage.getItem("data"));
-            // showFeedback(result.msg,result.code);
-            showPettyCash(storedData.petty_cash,Date.now());
-
+            .catch(e=>{
+                console.log("error: ",e);
+                reject("Oops! Something went wrong! Please try again later");
+            })
         })
-        .catch(e=>{
-            console.log("error: ",e);
-            showFeedback("Oops! Something went wrong! Please try again later",1)
-        })
+        
 }
 //end petty cash
 

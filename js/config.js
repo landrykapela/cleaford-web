@@ -1,4 +1,4 @@
-const base_url = "https://localhost";//https://www.cleaford.app";
+const base_url = "https://www.cleaford.app";
 const map_api_key = "AIzaSyAWALPfQrbJypNehyEnoFKFKs1nDOoqOGk";
 const places_autocomplete_url = "";
 const signup_url = base_url+":5000/signup";
