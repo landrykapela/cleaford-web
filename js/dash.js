@@ -5281,8 +5281,8 @@ const showPettyCash = (records,activeDate,period=null)=>{
         container.insertBefore(row,form);
     }
     showPettyCashForm(closingBal);
-    oBal.textContent = "Opening Balance: "+storedData.settings.currency+" "+((openingBal < 0) ? "("+thousandSeparator(Math.abs(openingBal))+")" : thousandSeparator(Math.abs(openingBal)));
-    cBal.textContent = "Closing Balance:"+storedData.settings.currency+" "+((closingBal < 0) ? "("+thousandSeparator(Math.abs(closingBal))+")" : thousandSeparator(Math.abs(closingBal)));
+    oBal.textContent = "Opening Balance: Tsh."+((openingBal < 0) ? "("+thousandSeparator(Math.abs(openingBal))+")" : thousandSeparator(Math.abs(openingBal)));
+    cBal.textContent = "Closing Balance: Tsh."+((closingBal < 0) ? "("+thousandSeparator(Math.abs(closingBal))+")" : thousandSeparator(Math.abs(closingBal)));
 }
 const deletePettyCash=(id)=>{
     var body = {id:id,status:1};
