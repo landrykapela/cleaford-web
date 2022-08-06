@@ -709,13 +709,13 @@ const listEmployees=data=>{
             data.map((d)=>{
                 let k = d;
                 var now = Date.now();
-                k.status = (d.end_date <= now) ? 1:0;
+                // k.status = (d.end_date <= now) ? 1:0;
                 return k;
             }).forEach(d=>{
                 const row = document.createElement("span");
                 row.classList.add("consignment-row");
                 row.classList.add("shadow-minor");
-                row.classList.add("status-indicator-"+(d.status === 0 ? "approved":"red"));
+                row.classList.add("status-indicator-"+(parseInt(d.status) === 0 ? "approved":"red"));
                 const empNo = document.createElement("span");
                 empNo.textContent = formatConsignmentNumber(d.id);
                 row.appendChild(empNo);
@@ -728,16 +728,6 @@ const listEmployees=data=>{
                 title.textContent = d.title;
                 row.appendChild(title);
                 
-                // const eta = document.createElement("span");
-                // let tcd = "";
-                // if(d.shipping_details){
-                //     let date = new Date(d.shipping_details.eta);
-                //     tcd += (1+ date.getMonth())+"/"+date.getDate()+"/"+date.getFullYear();
-                // }
-                // else tcd = "N/A";
-                // eta.textContent = tcd;
-                // row.appendChild(eta);
-        
                 const email = document.createElement("span");
                 email.textContent = d.email;
                 row.appendChild(email);
@@ -751,7 +741,7 @@ const listEmployees=data=>{
                 row.appendChild(idnumber);
                                 
                 const consStatus = document.createElement("span");
-                consStatus.textContent = (d.status === 0) ? "Active" : "Inactive";
+                consStatus.textContent = (parseInt(d.status) === 0) ? "Active" : "Inactive";
                 row.appendChild(consStatus);
 
                 const btnEdit = document.createElement("span");
@@ -781,25 +771,26 @@ const listEmployees=data=>{
         }
     }
 }
-const getEmployees=()=>{
-    if(storedData.employees.length == 0){
-        fetch(create_employee_url,{method:"POST",body:JSON.stringify({uid:currentUser.id}),headers:{'Content-type':'application/json','Authorization':'Bearer '+currentUser.accessToken}})
-        .then(res=>res.json())
-        .then(result=>{
-            console.log("getempl: ",result);
-            if(result.code === 1){
-                showFeedback(result.msg,1);
-            }
-            else{
-                listEmployees(result.data);
-            }
-        })
-        .catch(e=>{
-            console.log("err :",e);
+const getEmployees=()=>{    
+    fetch(create_employee_url,{method:"POST",body:JSON.stringify({uid:currentUser.id}),headers:{'Content-type':'application/json','Authorization':'Bearer '+currentUser.accessToken}})
+    .then(res=>res.json())
+    .then(result=>{
+        
+        if(result.code === 1){
+            showFeedback(result.msg,1);
+        }
+        else{
+            storedData.employees = result.data;
+            storage.setItem("data",JSON.stringify(storedData));
+            storedData = JSON.parse(storage.getItem("data"));
+            listEmployees(result.data);
+        }
+    })
+    .catch(e=>{
+        console.log("err :",e);
 
-        })
-    }
-    else listEmployees(storedData.employees);
+    })
+   
 }
 //show employee form
 const showEmployeeForm=(source)=>{
@@ -812,6 +803,9 @@ const showEmployeeForm=(source)=>{
     form.classList.remove("hidden");
 
     if(form){
+        Array.from(form.emp_role.children).forEach((c,i)=>{
+            if(i>0) form.emp_role.removeChild(c);
+        })
         storedData.roles.forEach(r=>{
             form.emp_role.options.add(new Option(r.name,r.id));
         })
@@ -850,7 +844,6 @@ const showEmployeeForm=(source)=>{
             var emergency_phone = form.emp_emergency_phone.value.trim();
             var emergency_address = form.emp_emergency_address.value.trim();
             var role = form.emp_role.value;
-console.log("NaN: ",endDate);
             var fd = new FormData();
             fd.append("name",name);
             fd.append("dob",Date.parse(dob));
@@ -885,7 +878,8 @@ const saveEmployee=(emp,tag=null)=>{
     var options={
         body:emp,method:method,headers:{'Authorization':"Bearer "+currentUser.accessToken}
     }
-    console.log("emp: ",...emp);
+    
+    console.log("check in dash.js: ");
     fetch(url,options)
     .then(res=>res.json())
     .then(result=>{
@@ -1674,6 +1668,7 @@ const hideSpinner=()=>{
 //show admin stats
 const showClientStats =()=>{
     if(currentUser.detail){
+        getEmployees();
         var currentYear = (new Date()).getFullYear();
         getCustomers()
         .then(result=>{
@@ -1683,11 +1678,7 @@ const showClientStats =()=>{
             numberOfCustomers.textContent = (storedData.customers) ? storedData.customers.length:0; 
             fetchInvoices()
             .then(invoices=>{
-                updateInvoices(invoices);
-                // var pendingInvoices = invoices ? invoices.filter(inv=>inv.status.toLowerCase() == "paid").reduce((a,b)=> a.price + b.price,0):0;
-                // document.getElementById("pending_invoices").textContent = pendingInvoices;
-                // var pendingApproval = invoices ? invoices.filter(inv=>inv.status.toLowerCase() == "awaiting manager's approval"):[];
-                // document.getElementById("pending_approval").textContent = pendingApproval.length;
+                updateInvoices(invoices)
                 fetchClientRoles();
             })
             .catch(e=>{

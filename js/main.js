@@ -476,8 +476,7 @@ if(loginForm){
                     showAdmin();
                 }
                 else{
-                    if(currentUser.db == null) showProfile();
-                    else showDashboard();
+                    showDashboard();
                 }
             }
         })
