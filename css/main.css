@@ -98,9 +98,9 @@ body {
   -webkit-box-pack: space-evenly;
       -ms-flex-pack: space-evenly;
           justify-content: space-evenly;
-  -webkit-box-align: start;
-      -ms-flex-align: start;
-          align-items: flex-start;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
 }
 
 .row-space {
@@ -273,6 +273,15 @@ header > div.theme-band .colors :nth-child(3) {
 
 header > div.theme-band .colors :nth-child(4) {
   background-color: #666262 !important;
+}
+
+img.passport_size {
+  margin: 0.5em auto;
+  width: 120px;
+  height: auto;
+  -o-object-fit: contain;
+     object-fit: contain;
+  border: 1px solid #cc9900;
 }
 
 main {
@@ -2003,6 +2012,7 @@ td > select .wide-select, .wide-select {
 
 fieldset {
   min-width: 0;
+  width: calc(100% - 2em);
 }
 
 .mt-1 {
@@ -2198,39 +2208,39 @@ fieldset {
 }
 
 .text-right {
-  text-align: right;
+  text-align: right !important;
 }
 
 .text-left {
-  text-align: left;
+  text-align: left !important;
 }
 
 .text-center {
-  text-align: center;
+  text-align: center !important;
 }
 
 .medium-text {
-  font-size: 1.5rem;
+  font-size: 1.5rem !important;
 }
 
 .large-text {
-  font-size: 24px;
+  font-size: 24px !important;
 }
 
 .small-text {
-  font-size: 0.5rem;
+  font-size: 0.5rem !important;
 }
 
 .primary-text {
-  color: #ffcc00;
+  color: #ffcc00 !important;
 }
 
 .primary-dark-text {
-  color: #cc9900;
+  color: #cc9900 !important;
 }
 
 .secondary-text {
-  color: #d3d3d3;
+  color: #d3d3d3 !important;
 }
 
 .fail-text {

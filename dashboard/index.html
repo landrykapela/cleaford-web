@@ -1705,13 +1705,13 @@
                                     <div class="row" id="cost_container">
                                         <input type="number" name="item_count" id="item_count" min=1 value="1"/>
                                         <select class="wide-select" name="cost_item" id="cost_item">
-                                            <option>--select cost item--</option>
+                                            <option value="-1">--select cost item--</option>
                                            
                                         </select>
                                     </div>
                                     <div class="row-end">
                                         <span class="buttons-t fail-text" id="discard_quote">DISCARD</span>
-                                        <span class="buttons-t" id="close_quote_form">CANCEL</span>
+                                        <span class="buttons-t" id="close_quote_form">CLOSE</span>
                                         <input type="submit" id="btnSubmit" name="btnSubmit" value="SAVE"/>
                                     </div>
                                 </div>
@@ -1856,7 +1856,7 @@
                                     </div>
                                     <div class="row-end">
                                         <span class="buttons-t fail-text" id="discard_invoice">DISCARD</span>
-                                        <span class="buttons-t" id="close_invoice_form">CANCEL</span>
+                                        <span class="buttons-t" id="close_invoice_form">CLOSE</span>
                                         <input type="submit" id="btnSubmit" name="btnSubmit" value="SAVE"/>
                                     </div>
                                 </div>
@@ -1955,124 +1955,154 @@
                     <div class="can-hide hidden" id="add_employee_content">
                         <div class="column shadow customer-details">
                             <form id="add_employee_form" name="add_employee_form" class="consignment-forms" method="post" enctype="multipart/form-data">
-                                <div class="row">
-                                    <!-- <input type="hidden" id="customer_id" name="customer_id"/> -->
-                                    <div class="form-group-no-border">
-                                        <label for="emp_name">Employee Name</label>
-                                        <input type="text" id="emp_name" name="emp_name" />
+                                <span class="text-center large-text my-2">Add New Employee</span>
+                                <fieldset class="consignment-section">
+                                    <legend>Personal Information </legend>
+                                    <div class="row">
+                                        <!-- <input type="hidden" id="customer_id" name="customer_id"/> -->
+                                        <div class="form-group-no-border">
+                                            <label for="emp_name">Employee Name &nbsp;&nbsp;<span class="fail-text">*</span></label>
+                                            <input type="text" id="emp_name" name="emp_name" required />
+                                        </div>
+                                        <div class="form-group-no-border">
+                                            <label for="emp_dob">Date of Birth &nbsp;&nbsp;<span class="fail-text">*</span></label>
+                                            <input type="date" id="emp_dob" name="emp_dob" required />
+                                        </div>
                                     </div>
-                                    <div class="form-group-no-border">
-                                        <label for="emp_dob">Date of Birth</label>
-                                        <input type="date" id="emp_dob" name="emp_dob" />
-                                    </div>
+                                    <div class="row">
+                                            <div class="form-group-no-border">
+                                                <label for="emp_photo">Passport-Size Photo</label>
+                                                <input accept="image/*" type="file" id="emp_photo" name="emp_photo" />
+                                            </div>
+                                        <div class="form-group-no-border">
+                                            <label for="emp_address">Physical Address &nbsp;&nbsp;<span class="fail-text">*</span></label>
+                                            <input type="text" id="emp_address" name="emp_address" required/>
+                                        </div>
                                     </div>
                                     <div class="row">
                                         <div class="form-group-no-border">
-                                            <label for="emp_photo">Passport-Size Photo</label>
-                                            <input accepts="image/*" type="file" id="emp_photo" name="emp_photo" />
+                                            <label for="emp_email">E-mail</label>
+                                            <input type="email" id="emp_email" name="emp_email"/>
                                         </div>
-                                    <div class="form-group-no-border">
-                                        <label for="emp_address">Physical Address</label>
-                                        <input type="text" id="emp_address" name="emp_address" />
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="form-group-no-border">
-                                        <label for="emp_email">E-mail</label>
-                                        <input type="email" id="emp_email" name="emp_email"/>
-                                    </div>
-                                    <div class="form-group-no-border">
-                                        <label for="emp_phone">Phone</label>
-                                        <input type="emp_phone" id="emp_phone" name="emp_phone"/>
-                                    </div>
-                                    
-                                </div>
-                                <div class="row">
-                                    <div class="form-group-no-border">
-                                        <label for="emp_id_type">ID Type</label>
-                                        <select type="text" id="emp_id_type" name="emp_id_type" class="wide-select">
-                                            <option value="none">--Select ID Type--</option>
-                                            <option value="nida">NIDA</option>
-                                            <option value="license">Driving License</option>
-                                            <option value="voter">Voter ID</option>
-                                        </select>
-                                    </div>
-                                    <div class="form-group-no-border">
-                                        <label for="emp_id_number">ID Number</label>
-                                        <input type="text" id="emp_id_number" name="emp_id_number"/>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="form-group-no-border">
-                                        <label for="emp_id_expiration">Expiry Date</label>
-                                        <input type="date" id="emp_id_expiration" name="emp_id_expiration" />
+                                        <div class="form-group-no-border">
+                                            <label for="emp_phone">Phone &nbsp;&nbsp;<span class="fail-text">*</span></label>
+                                            <input type="emp_phone" id="emp_phone" name="emp_phone" required/>
+                                        </div>
                                         
                                     </div>
-                                    <div class="form-group-no-border">
-                                        <label for="emp_id_file">Upload ID</label>
-                                        <input type="file" id="emp_id_file" name="emp_id_file" />
+                                    
+                                </fieldset>
+                                <fieldset class="consignment-section">
+                                    <legend>Identification</legend>
+                                    <div class="row">
+                                        <div class="form-group-no-border">
+                                            <label for="emp_id_type">ID Type &nbsp;&nbsp;<span class="fail-text">*</span></label>
+                                            <select type="text" id="emp_id_type" name="emp_id_type" class="wide-select" required>
+                                                <option value="none">--Select ID Type--</option>
+                                                <option value="nida">NIDA</option>
+                                                <option value="license">Driving License</option>
+                                                <option value="voter">Voter ID</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group-no-border">
+                                            <label for="emp_id_number">ID Number &nbsp;&nbsp;<span class="fail-text">*</span></label>
+                                            <input type="text" id="emp_id_number" name="emp_id_number" required/>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="form-group-no-border">
+                                            <label for="emp_id_expiration">Expiry Date</label>
+                                            <input type="date" id="emp_id_expiration" name="emp_id_expiration" />
+                                            
+                                        </div>
+                                        <div class="form-group-no-border">
+                                            <label for="emp_id_file">Upload ID</label>
+                                            <input type="file" id="emp_id_file" name="emp_id_file" />
+                                            
+                                        </div>
+                                    </div>
+                                </fieldset>
+                                <fieldset class="consignment-section">
+                                    <legend>Employment Details</legend>
+                                    <div class="row">
+                                        <div class="form-group-no-border">
+                                            <label for="emp_title">Job Title &nbsp;&nbsp;<span class="fail-text">*</span></label>
+                                            <input type="text" id="emp_title" name="emp_title" required/>
+                                        </div>
+                                        <div class="form-group-no-border">
+                                            <label for="emp_type">Type of Employment &nbsp;&nbsp;<span class="fail-text">*</span></label>
+                                            <select id="emp_type" name="emp_type" class="wide-select" required>
+                                                <option value="none">--select--</option>
+                                                <option value="day_worker">Day Worker</option>
+                                                <option value="contract">Contract</option>
+                                                <option value="part_time">Part Time</option>
+                                                <option value="full_time">Full Time</option>
+                                            </select>
+                                        </div>
                                         
                                     </div>
-                                </div>
-                                <div class="row">
-                                    <div class="form-group-no-border">
-                                        <label for="emp_title">Job Title</label>
-                                        <input type="text" id="emp_title" name="emp_title"/>
+                                    <div class="row">
+                                        <div class="form-group-no-border">
+                                            <label for="emp_salary">Salary &nbsp;&nbsp;<span class="fail-text">*</span></label>
+                                            <input type="text" id="emp_salary" name="emp_salary" required/>
+                                        </div>
+                                        <div class="form-group-no-border">
+                                            <label for="emp_contract_file">Upload Contract</label>
+                                            <input type="file" id="emp_contract_file" name="emp_contract_file" />
+                                           
+                                        </div>
+                                        
                                     </div>
-                                    <div class="form-group-no-border">
-                                        <label for="emp_type">Type of Employment</label>
-                                        <select id="emp_type" name="emp_type" class="wide-select">
-                                            <option value="none">--select--</option>
-                                            <option value="day_worker">Day Worker</option>
-                                            <option value="contract">Contract</option>
-                                            <option value="part_time">Part Time</option>
-                                            <option value="full_time">Full Time</option>
-                                        </select>
+                                    <div class="row">
+                                        <div class="form-group-no-border">
+                                            <label for="emp_start_date">Start Date &nbsp;&nbsp;<span class="fail-text">*</span></label>
+                                            <input type="date" id="emp_start_date" name="emp_start_date" required/>
+                                        </div>
+                                        <div class="form-group-no-border">
+                                            <label for="emp_end_date" id="emp_end_date_label">End Date</label>
+                                            <input type="date" id="emp_end_date" name="emp_end_date"/>
+                                        </div>
                                     </div>
-                                    
-                                </div>
-                                <div class="row">
-                                    <div class="form-group-no-border">
-                                        <label for="emp_salary">Monthly Salary</label>
-                                        <input type="text" id="emp_salary" name="emp_salary"/>
+                                </fieldset>
+                                <fieldset class="consignment-section">
+                                    <legend>Emergency Details</legend>
+                                    <div class="row">
+                                        <div class="form-group-no-border">
+                                            <label for="emp_emergency_contact">Emergency Contact</label>
+                                            <input type="text" id="emp_emergency_contact" name="emp_emergency_contact"/>
+                                        </div>
+                                        <div class="form-group-no-border">
+                                            <label for="emp_emgergency_relationship">Emergency Contact Relationship</label>
+                                            <input type="text" id="emp_emergency_relationship" name="emp_emergency_relationship"/>
+                                        </div>
                                     </div>
-                                    <div class="form-group-no-border">
-                                        <label for="emp_contract_file">Upload Contract</label>
-                                        <input type="file" id="emp_contract_file" name="emp_contract_file" />
-                                       
+                                    <div class="row">
+                                        <div class="form-group-no-border">
+                                            <label for="emp_emgergency_phone">Emergency Contact Phone</label>
+                                            <input type="text" id="emp_emergency_phone" name="emp_emergency_phone"/>
+                                        </div>
+                                        <div class="form-group-no-border">
+                                            <label for="emp_emgergency_address">Emergency Contact Address</label>
+                                            <input type="text" id="emp_emergency_address" name="emp_emergency_address"/>
+                                        </div>
                                     </div>
-                                    
-                                </div>
-                                <div class="row">
-                                    <div class="form-group-no-border">
-                                        <label for="emp_start_date">Start Date</label>
-                                        <input type="date" id="emp_start_date" name="emp_start_date"/>
+                                </fieldset>
+                                <fieldset class="consignment-section">
+                                    <legend>System Access</legend>
+                                    <div class="row">
+                                        <div class="form-group-no-border">
+                                            <label for="emp_role">User Role</label>
+                                            <select id="emp_role" name="emp_role" class="wide-select">
+                                                <option value="-1">No Access</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group-no-border">
+                                           
+                                        </div>
                                     </div>
-                                    <div class="form-group-no-border">
-                                        <label for="emp_end_date">End Date</label>
-                                        <input type="date" id="emp_end_date" name="emp_end_date"/>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="form-group-no-border">
-                                        <label for="emp_emergency_contact">Emergency Contact</label>
-                                        <input type="text" id="emp_emergency_contact" name="emp_emergency_contact"/>
-                                    </div>
-                                    <div class="form-group-no-border">
-                                        <label for="emp_emgergency_relationship">Emergency Contact Relationship</label>
-                                        <input type="text" id="emp_emergency_relationship" name="emp_emergency_relationship"/>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="form-group-no-border">
-                                        <label for="emp_emgergency_phone">Emergency Contact Phone</label>
-                                        <input type="text" id="emp_emergency_phone" name="emp_emergency_phone"/>
-                                    </div>
-                                    <div class="form-group-no-border">
-                                        <label for="emp_emgergency_address">Emergency Contact Address</label>
-                                        <input type="text" id="emp_emergency_address" name="emp_emergency_address"/>
-                                    </div>
-                                </div>
+                                  
+                                </fieldset>
+                                
                                 <div class="row-end">
                                         <span class="buttons-t" id="cancelAddEmployeeButton" onclick="showEmployeeList('add_employee_content');">CANCEL</span>
                                         <input type="submit" value="SAVE" />
@@ -2083,136 +2113,110 @@
                     </div>
                     <div class="can-hide hidden" id="detail_employee_content">
                         <div class="column shadow customer-details">
-                            
-                            <form id="detail_employee_form" name="edit_employee_form" class="consignment-forms" method="post" enctype="multipart/form-data">
-                                <div class="row-end p-3">
-                                    <span class="material-icons" onclick="showEmployeeList('detail_employee_content');">close</span>
-                                </div>
-                                <div class="row">
-                                    <!-- <input type="hidden" id="customer_id" name="customer_id"/> -->
-                                    <div class="form-group-no-border">
-                                        <label for="emp_name">Employee Name</label>
-                                        <input type="text" id="emp_name" name="emp_name" disabled />
-                                    </div>
-                                    <div class="form-group-no-border">
-                                        <label for="emp_dob">Date of Birth</label>
-                                        <input type="text" id="emp_dob" name="emp_dob"  disabled/>
-                                    </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="form-group-no-border">
-                                            <label for="emp_photo" id="emp_photo_label"></label>
-                                            <input accepts="image/*" type="file" id="emp_photo" name="emp_photo" class="hidden"/>
+                            <div class="row-end">
+                                <div class="row-end mt-1">
+                                    <span class="buttons" id="editEmployeeButton">Edit</span>
+                                </div>                               
+                            </div>
+                            <div class="row-space">
+                                <div class="column wide mx-1">
+                                    <div class="mx-3 row-even">
+                                        <div class="column wide">
+                                            <div class="row-even">
+                                                <span class="">Full Name:&nbsp;&nbsp;</span>
+                                                <span class="value" id="detail_emp_name"></span>
+                                            </div>
+                                            <div class="row-even">
+                                                <span class="">Position:&nbsp;&nbsp;</span>
+                                                <span class="value" id="detail_emp_title"></span>
+                                            </div>
+                                            <div class="row-even">
+                                                <span class="">ID No: &nbsp;&nbsp;</span>
+                                                <span id="detail_emp_id_number" class="primary-dark-text">N/A</span>
+                                            </div>
+                                            <div class="row-even">
+                                                <span class="">ID expires in: &nbsp;&nbsp;</span>
+                                                <span id="detail_emp_id_expiration" class="value">N/A</span>
+                                            </div>
+                                            <a href="" id="detail_emp_id_file" target="_blank"></a>
+                                            
+                                            <div class="row-even">
+                                                <span class="">Date of Birth: &nbsp;&nbsp;</span>
+                                                <span id="detail_emp_dob" class="value"></span>
+                                            </div>
+                                            <div class="row-even">
+                                                <span class="">Phone: &nbsp;&nbsp;</span>
+                                                <span id="detail_emp_phone" class="value"></span>
+                                            </div>
+                                            <div class="row-even">
+                                                <span class="">E-mail: &nbsp;&nbsp;</span>
+                                                <span id="detail_emp_email" class="value"></span>
+                                            </div>
+                                            <div class="row-even">
+                                                <span class="">Physical Address: &nbsp;&nbsp;</span>
+                                                <span id="detail_emp_address" class="value"></span>
+                                            </div>
+                                           
                                         </div>
-                                    <div class="form-group-no-border">
-                                        <label for="emp_address">Physical Address</label>
-                                        <input type="text" id="emp_address" name="emp_address"  disabled/>
                                     </div>
+                                   
                                 </div>
-                                <div class="row">
-                                    <div class="form-group-no-border">
-                                        <label for="emp_email">E-mail</label>
-                                        <input type="email" id="emp_email" name="emp_email" disabled/>
+                                
+                                <div class="column wide mx-1">
+                                    <div class="row-even">
+                                        <span class="">Type of Employment:&nbsp;&nbsp;</span>
+                                        <span class="value" id="detail_emp_type"></span>
                                     </div>
-                                    <div class="form-group-no-border">
-                                        <label for="emp_phone">Phone</label>
-                                        <input type="emp_phone" id="emp_phone" name="emp_phone" disabled/>
+                                    <div class="row-even">
+                                        <span class="">Salary (Tsh):&nbsp;&nbsp;</span>
+                                        <span class="value" id="detail_emp_salary"></span>
+                                    </div>
+                                    <div class="row-even">
+                                        <span class="">Contract Start Date:&nbsp;&nbsp;</span>
+                                        <span class="value" id="detail_emp_start_date"></span>
+                                    </div>
+                                    <div class="row-even">
+                                        <span class="">Contract End Date:&nbsp;&nbsp;</span>
+                                        <span class="value" id="detail_emp_end_date"></span>
+                                    </div>
+                                    <a href="" id="detail_emp_contract_file" target="_blank"></a>
+                                    <div class="row-even">
+                                        <span class="">Emergency Contact:&nbsp;&nbsp;</span>
+                                        <span class="value" id="detail_emp_emergency_contact"></span>
+                                    </div>
+                                    <div class="row-even">
+                                        <span class="">Emergency Relationship:&nbsp;&nbsp;</span>
+                                        <span class="value" id="detail_emp_emergency_relationship"></span>
+                                    </div>
+                                    <div class="row-even">
+                                        <span class="">Emergency Phone:&nbsp;&nbsp;</span>
+                                        <span class="value" id="detail_emp_emergency_phone"></span>
                                     </div>
                                     
-                                </div>
-                                <div class="row">
-                                    <div class="form-group-no-border">
-                                        <label for="emp_id_type">ID Type</label>
-                                        <select type="text" id="emp_id_type" name="emp_id_type" class="wide-select" disabled>
-                                            <option value="none">--Select ID Type--</option>
-                                            <option value="nida">NIDA</option>
-                                            <option value="license">Driving License</option>
-                                            <option value="voter">Voter ID</option>
-                                        </select>
-                                    </div>
-                                    <div class="form-group-no-border">
-                                        <label for="emp_id_number">ID Number</label>
-                                        <input type="text" id="emp_id_number" name="emp_id_number" disabled/>
+                                    <div class="row-even">
+                                        <span class="">Emergency Address:&nbsp;&nbsp;</span>
+                                        <span class="value" id="detail_emp_emergency_address"></span>
                                     </div>
                                 </div>
-                                <div class="row">
-                                    <div class="form-group-no-border">
-                                        <label for="emp_id_expiration">Expiry Date</label>
-                                        <input type="text" id="emp_id_expiration" name="emp_id_expiration" disabled />
-                                        
-                                    </div>
-                                    <div class="form-group-no-border">
-                                        <label for="emp_id_file" id="emp_id_file_label"></label>
-                                        <input type="file" id="emp_id_file" name="emp_id_file" class="hidden" />
-                                        
-                                        
-                                    </div>
+                                <div class="column mx-1">
+                                    <img id="detail_emp_photo" class="passport_size " src="../img/avatar.png"/> 
                                 </div>
-                                <div class="row">
-                                    <div class="form-group-no-border">
-                                        <label for="emp_title">Job Title</label>
-                                        <input type="text" id="emp_title" name="emp_title" disabled/>
+                            </div>
+                            <div class="tab-container">
+                                <span class="primary-dark-text">Payment History</span>
+                                <div class="row underline-primary">
+                                    <div class="tab tab-active" id="emp-tab-salary">
+                                        Salaries
                                     </div>
-                                    <div class="form-group-no-border">
-                                        <label for="emp_type">Type of Employment</label>
-                                        <select id="emp_type" name="emp_type" class="wide-select" disabled>
-                                            <option value="none">--select--</option>
-                                            <option value="day_worker">Day Worker</option>
-                                            <option value="contract">Contract</option>
-                                            <option value="part_time">Part Time</option>
-                                            <option value="full_time">Full Time</option>
-                                        </select>
+                                    <div class="tab" id="emp-tab-loan">
+                                        Loans
                                     </div>
-                                    
+                                    <!-- <div class="row-end"> -->
+                                    <span class="row-end">Status Report: &nbsp;<a href="" id="download-report">Download</a> &nbsp;| &nbsp;<a href="" id="email-report" >Email to Employee</a></span>
+                                    <!-- </div> -->
                                 </div>
-                                <div class="row">
-                                    <div class="form-group-no-border">
-                                        <label for="emp_salary">Salary</label>
-                                        <input type="text" id="emp_salary" name="emp_salary" disabled/>
-                                    </div>
-                                    <div class="form-group-no-border">
-                                        <label for="emp_contract_file" id="emp_contract_file_label"></label>
-                                        <input type="file" id="emp_contract_file" name="emp_contract_file" class="hidden"/>
-                                       
-                                    </div>
-                                    
-                                </div>
-                                <div class="row">
-                                    <div class="form-group-no-border">
-                                        <label for="emp_start_date">Start Date</label>
-                                        <input type="text" id="emp_start_date" name="emp_start_date" disabled/>
-                                    </div>
-                                    <div class="form-group-no-border">
-                                        <label for="emp_end_date">End Date</label>
-                                        <input type="text" id="emp_end_date" name="emp_end_date" disabled/>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="form-group-no-border">
-                                        <label for="emp_emergency_contact">Emergency Contact</label>
-                                        <input type="text" id="emp_emergency_contact" name="emp_emergency_contact" disabled/>
-                                    </div>
-                                    <div class="form-group-no-border">
-                                        <label for="emp_emgergency_relationship">Emergency Contact Relationship</label>
-                                        <input type="text" id="emp_emergency_relationship" name="emp_emergency_relationship" disabled/>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="form-group-no-border">
-                                        <label for="emp_emgergency_phone">Emergency Contact Phone</label>
-                                        <input type="text" id="emp_emergency_phone" name="emp_emergency_phone" disabled/>
-                                    </div>
-                                    <div class="form-group-no-border">
-                                        <label for="emp_emgergency_address">Emergency Contact Address</label>
-                                        <input type="text" id="emp_emergency_address" name="emp_emergency_address" disabled/>
-                                    </div>
-                                </div>
-                                <!-- <div class="row-end">
-                                        <span class="buttons-t" id="cancelAddEmployeeButton" onclick="showEmployeeList('add_employee_content');">CANCEL</span>
-                                        <input type="submit" value="SAVE" />
-                                  
-                                </div> -->
-                            </form>
+                                <div id="emp_payment_report"></div>
+                            </div>
                         </div> 
                     </div>
                     <div class="can-hide hidden" id="edit_employee_content">
@@ -2234,7 +2238,7 @@
                                     <div class="row">
                                         <div class="form-group-no-border">
                                             <label for="emp_photo" id="emp_photo_label">Upload Photo</label>
-                                            <input accepts="image/*" type="file" id="emp_photo" name="emp_photo"/>
+                                            <input accept="image/*" type="file" id="emp_photo" name="emp_photo"/>
                                         </div>
                                     <div class="form-group-no-border">
                                         <label for="emp_address">Physical Address</label>

@@ -525,51 +525,77 @@ const showEmployeeDetail=d=>{
     document.getElementById('employee_list').classList.add("hidden");
     document.getElementById('edit_employee_content').classList.add("hidden");
     document.getElementById("detail_employee_content").classList.remove("hidden");
-    var form = document.getElementById("detail_employee_form");
-    form.classList.remove("hidden");
-    console.log("d: ",d);
-    if(form){
-        var dob = new Date(parseInt(d.dob));
-        var idDate = new Date(parseInt(d.id_expire));
-        var sDate = new Date(parseInt(d.start_date));
-        var eDate = new Date(parseInt(d.end_date));
+   
+    var dob = new Date(parseInt(d.dob));
+    var idDate = new Date(parseInt(d.id_expire));
+    var sDate = new Date(parseInt(d.start_date));
+    var eDate = new Date(parseInt(d.end_date));
+    var delay = (parseInt(d.id_expire) - Date.now())/1000;
+    var y = parseInt(delay / 31536000);
+    var m = parseInt((delay % 31536000)/2592000);
+    var dz = parseInt((delay % 2592000)/86400);
 
-        form.emp_name.value = d.name;
-        form.emp_dob.value = dob.getDate()+"/"+dob.getMonth()+1+"/"+dob.getFullYear();
-        form.emp_address.value = d.address;
-        form.emp_id_type.value = d.id_type;
-        form.emp_id_number.value = d.id_no;
-        form.emp_id_expiration.value = idDate.getDate()+"/"+idDate.getMonth()+1+"/"+idDate.getFullYear();
-        form.emp_type.value = d.employment_type;
-        form.emp_email.value = d.email;
-        form.emp_phone.value = d.phone;
-        form.emp_title.value = d.title;
-        form.emp_emergency_address.value = d.emergency_address;
-        form.emp_emergency_contact.value = d.emergency_contact;
-        form.emp_emergency_phone.value = d.emergency_phone;
-        form.emp_emergency_relationship.value = d.emergency_relationship;
-        form.emp_salary.value = d.salary;
-        form.emp_start_date.value = sDate.getDate()+"/"+sDate.getMonth()+1+"/"+sDate.getFullYear();
-        form.emp_end_date.value = eDate.getDate()+"/"+eDate.getMonth()+1+"/"+eDate.getFullYear();
-        var linkPhoto = document.getElementById("emp_photo_label");
-        var linkId = document.getElementById("emp_id_file_label");
-        var linkContract = document.getElementById("emp_contract_file_label");
-        if(d.photo){            
-            linkPhoto.innerHTML = "<a href='"+employee_files_url+"/"+d.photo+"' target='_blank'>view photo</a>";
-            form.emp_photo.classList.add("hidden");
-        }
-        else linkPhoto.textContent = "No Photo uploaded";
-        if(d.id_file){            
-            linkId.innerHTML = "<a href='"+employee_files_url+"/"+d.id_file+"' target='_blank'>view ID</a>";
-            form.emp_id_file.classList.add("hidden");
-        }
-        else linkId.textContent = "No ID file uploaded";
-        if(d.contract_file){            
-            linkContract.innerHTML = "<a href='"+employee_files_url+"/"+d.contract_file+"' target='_blank'>view contract</a>";
-            form.emp_id_file.classList.add("hidden");
-        }
-        else linkContract.textContent = "No contract file uploaded";
+    var exp = delay <= 0 ? "ID Expired" : (y+"y "+m+"m "+dz+"d");
+    document.getElementById("detail_emp_name").textContent = d.name;
+    document.getElementById("detail_emp_dob").textContent = dob.getDate()+"/"+(parseInt(dob.getMonth())+1)+"/"+dob.getFullYear();
+    document.getElementById("detail_emp_address").textContent = d.address;
+    // document.getElementById("detail_emp_id_type").textContent = d.id_type;
+    document.getElementById("detail_emp_id_number").textContent = d.id_no;
+    document.getElementById("detail_emp_id_expiration").textContent = exp;//idDate.getDate()+"/"+idDate.getMonth()+1+"/"+idDate.getFullYear();
+    document.getElementById("detail_emp_type").textContent = d.employment_type.replaceAll("_"," ").toUpperCase();
+    document.getElementById("detail_emp_email").textContent = d.email;
+    document.getElementById("detail_emp_phone").textContent = d.phone;
+    document.getElementById("detail_emp_title").textContent = d.title;
+    document.getElementById("detail_emp_salary").textContent = thousandSeparator(d.salary);
+    document.getElementById("detail_emp_start_date").textContent = sDate.getDate()+"/"+(parseInt(sDate.getMonth())+1)+"/"+sDate.getFullYear();
+    document.getElementById("detail_emp_end_date").textContent = d.employment_type === "full_time" ? "N/A":eDate.getDate()+"/"+(parseInt(eDate.getMonth())+1)+"/"+eDate.getFullYear();
+    
+    document.getElementById("detail_emp_emergency_contact").textContent = d.emergency_contact;
+    document.getElementById("detail_emp_emergency_phone").textContent = d.emergency_phone;
+    document.getElementById("detail_emp_emergency_relationship").textContent = d.emergency_relationship;
+    document.getElementById("detail_emp_emergency_address").textContent = d.emergency_address;
+    var imgPhoto = document.getElementById("detail_emp_photo");
+    if(d.photo) imgPhoto.src = employee_files_url+"/"+d.photo;
+    else imgPhoto.src="/img/avatar.png";
+    var linkId = document.getElementById("detail_emp_id_file");
+    var linkContract = document.getElementById("detail_emp_contract_file");
+    if(d.id_file){            
+        linkId.href=employee_files_url+"/"+d.id_file;
+        linkId.textContent="View ID";
     }
+    else {
+        linkId.textContent = "No ID file uploaded";
+    }
+    if(d.contract_file){            
+        linkContract.href = employee_files_url+"/"+d.contract_file;
+        linkContract.textContent = "View Contract";
+    }
+    else linkContract.textContent = "No contract file uploaded";
+    showSalaryHistory();
+    //tabs
+    var salaryTab = document.getElementById("emp-tab-salary");
+    var loanTab = document.getElementById('emp-tab-loan');
+    salaryTab.addEventListener("click",(e)=>{
+        salaryTab.classList.add("tab-active");
+        loanTab.classList.remove("tab-active");
+        showSalaryHistory();
+    });
+    loanTab.addEventListener("click",(e)=>{
+        salaryTab.classList.remove("tab-active");
+        loanTab.classList.add("tab-active");
+        showEmployeeLoanHistory();
+    });
+
+    document.getElementById("editEmployeeButton").addEventListener("click",(e)=>{
+        showEmployeeEditForm("detail_employee_content",d);
+    })
+}
+const showEmployeeLoanHistory=()=>{
+    document.getElementById("emp_payment_report").textContent = "No loans";
+}
+const showSalaryHistory=()=>{
+    document.getElementById("emp_payment_report").textContent = "No salary records";
+
 }
 const showEmployeeEditForm=(source,d)=>{
     greet("HR",{title:"Employees",description:"Edit Employee"});
@@ -725,7 +751,7 @@ const listEmployees=data=>{
                 row.appendChild(idnumber);
                                 
                 const consStatus = document.createElement("span");
-                consStatus.textContent = (d.status === 1) ? "Inactive" : "Aactive";
+                consStatus.textContent = (d.status === 0) ? "Active" : "Inactive";
                 row.appendChild(consStatus);
 
                 const btnEdit = document.createElement("span");
@@ -786,31 +812,45 @@ const showEmployeeForm=(source)=>{
     form.classList.remove("hidden");
 
     if(form){
- 
+        storedData.roles.forEach(r=>{
+            form.emp_role.options.add(new Option(r.name,r.id));
+        })
+        form.emp_type.addEventListener("change",(e)=>{
+            var type = e.target.value;
+            if(type === "full_time"){
+                form.emp_end_date.classList.add("hidden");
+                document.getElementById("emp_end_date_label").classList.add("hidden");
+            }
+            else {
+                form.emp_end_date.classList.remove("hidden");
+                document.getElementById("emp_end_date_label").classList.remove("hidden");
+            }
+        })
         form.addEventListener("submit",(e)=>{
             e.preventDefault();
 
             var name = form.emp_name.value.trim();
-            var dob = form.emp_dob.value.trim();
+            var dob = Number.isNaN(form.emp_dob.value)?0:form.emp_dob.value;
             var passport = form.emp_photo.files[0];
             var address = form.emp_address.value.trim();
             var email = form.emp_email.value.trim();
             var phone = form.emp_phone.value.trim();
             var id_type = form.emp_id_type.value;
             var id_no = form.emp_id_number.value.trim();
-            var id_expire = form.emp_id_expiration.value.trim();
+            var id_expire = Number.isNaN(form.emp_id_expiration.value)?0:form.emp_id_expiration.value;
             var id_file = form.emp_id_file.files[0];
             var title = form.emp_title.value.trim();
             var emptype = form.emp_type.value;
             var salary = form.emp_salary.value.trim();
             var contract = form.emp_contract_file.files[0];
-            var startDate = form.emp_start_date.value;
-            var endDate = form.emp_end_date.value;
+            var startDate = Number.isNaN(form.emp_start_date.value)?0:form.emp_start_date.value;
+            var endDate = Number.isNaN(form.emp_end_date.value) ? 0:form.emp_end_date.value;
             var emergency_contact = form.emp_emergency_contact.value.trim();
             var emergency_relationship = form.emp_emergency_relationship.value.trim();
             var emergency_phone = form.emp_emergency_phone.value.trim();
             var emergency_address = form.emp_emergency_address.value.trim();
-
+            var role = form.emp_role.value;
+console.log("NaN: ",endDate);
             var fd = new FormData();
             fd.append("name",name);
             fd.append("dob",Date.parse(dob));
@@ -826,12 +866,13 @@ const showEmployeeForm=(source)=>{
             fd.append("employment_type",emptype);
             fd.append("salary",salary);
             fd.append("emp_contract_file",contract);
-            fd.append("start_date",Date.parse(startDate));
-            fd.append("end_date",Date.parse(endDate));
+            if(startDate && startDate !== 0 && startDate !== "") fd.append("start_date",Date.parse(startDate));
+            if(endDate && endDate !== 0 && endDate !== "") fd.append("end_date",Date.parse(endDate));
             fd.append("emergency_contact",emergency_contact);
             fd.append("emergency_address",emergency_address);
             fd.append("emergency_phone",emergency_phone);
             fd.append("emergency_relationship",emergency_relationship);
+            fd.append("role",role);
             
             saveEmployee(fd);
         })
@@ -4026,7 +4067,7 @@ const showQuotationList = (quotations,source=null)=>{
 
             const qAmount = document.createElement("span");
             var myprice = parseFloat(d.price).toFixed(2) - 0.01*d.price* d.discount;
-            qAmount.textContent = storedData.settings.currency+" "+thousandSeparator(myprice);
+            qAmount.textContent = "Tsh. "+thousandSeparator(myprice);
             row.appendChild(qAmount);
 
             const qStatus = document.createElement("span");
@@ -4075,7 +4116,7 @@ const showQuotationForm=(source,dataId=null)=>{
        
         // activateMenu("exports")
     }
-    
+    var mCostItems = myCostItems;
             var costItems = storedData.cost_items;
             var costContainer = document.getElementById("cost_container");
             const form = document.getElementById("my_quote_form");
@@ -4127,9 +4168,7 @@ const showQuotationForm=(source,dataId=null)=>{
             var customerRegion = document.getElementById("cs_region");
 
             var newStatus = "Awaiting Manager's Approval";
-            var myQItems = [];
-            
-
+           
             var data = storedData.quotations.filter(q=>q.id == dataId);
             if(data.length > 0){
                 var print = document.getElementById("print");
@@ -4213,9 +4252,8 @@ const showQuotationForm=(source,dataId=null)=>{
                             .then(res=>res.json())
                             .then(result=>{
                                 console.log("result: ",data[0]);
-                                storedData.invoices = result.data;
+                                storedData.quotations = result.data;
                                 storage.setItem("data",JSON.stringify(storedData));
-                                newStatus = storedData.invoices.find(iv=>iv.id  == dataId).status;
                                 qStatus.textContent = newStatus;
                                 clientYes.src = "/img/yes.png";
                                 clientNo.src = "/img/no_.png";
@@ -4229,19 +4267,26 @@ const showQuotationForm=(source,dataId=null)=>{
                     }
                 });
                 var qItemsIds = data[0].items.split("_").map(id=>parseInt(id));
-                console.log("qIIs: ",qItemsIds);
-                console.log("cIs: ",costItems);
+                
                 myCostItems = [];
-                qItemsIds.forEach((id)=>{
-                    let item = costItems.filter(c=>c.id == id);
-                    if(item.length > 0){
-                        item[0].count = 1;
-                        myCostItems.push(item[0]);
-                    }
+                
+                var item = {};
+                qItemsIds.forEach(q=>{
+                    item[q] = (item[q] || 0 ) +1;
                 })
-            
+                
+                Object.entries(item).map(m=>{
+                    costItems.forEach(g=>{
+                        if(g.id == m[0]){
+                            let k = g;
+                            k.count = m[1];
+                            mCostItems.push(k);
+                        }
+                    })
+                })
+                myCostItems = mCostItems;
                 console.log("mcIs: ",myCostItems);
-                showCostItems(myCostItems,form.discount.value,costItemList,data[0].status);
+                showCostItems(mCostItems,form.discount.value,costItemList,data[0].status);
 
                 if(data[0].status.toLowerCase() == "approved" || data[0].status.toLowerCase().includes("denied")){
                     form.btnSubmit.classList.add('hidden');
@@ -4277,26 +4322,43 @@ const showQuotationForm=(source,dataId=null)=>{
             costItems.forEach(ci=>{
                 costItemEl.options.add(new Option(ci.name,ci.id));
             })
+            // costItemEl.addEventListener("change",(e)=>{
+            //     let itemId = parseInt(e.target.value);
+            //     let item = costItems.fin(c=>c.id == itemId);
+                
+            //     if(costItemCountEl.value){
+            //         console.log("value: ",costItemCountEl.value);
+            //         for(let i=0;i<parseInt(costItemCountEl.value);i++){
+            //             item[0].count = 1;
+            //             myCostItems.push(item[0]);
+            //         }
+            //     }
+            //     else{
+            //         item[0].count = 1;
+            //         myCostItems.push(item[0]);
+            //     }
+            //     console.log("cil: ",myCostItems);
+            //     showCostItems(myCostItems,form.discount.value,costItemList);
+            //     costItemCountEl.value = 1;
+            // })
             costItemEl.addEventListener("change",(e)=>{
                 let itemId = parseInt(e.target.value);
-                let item = costItems.filter(c=>c.id == itemId);
+                let item = costItems.find(c=>c.id == itemId);
                 
-                if(costItemCountEl.value){
-                    console.log("value: ",costItemCountEl.value);
-                    for(let i=0;i<parseInt(costItemCountEl.value);i++){
-                        item[0].count = 1;
-                        myCostItems.push(item[0]);
-                    }
-                }
+                if(costItemCountEl.value) item.count = parseInt(costItemCountEl.value);
                 else{
-                    item[0].count = 1;
-                    myCostItems.push(item[0]);
+                    item.count = 1;
                 }
-                console.log("cil: ",myCostItems);
+                if(item.per_container === 1){
+                    let q = item.count * parseInt(form.quantity.value.trim());
+                    item.count =q;
+                }
+                myCostItems.push(item);
+                // myCostItems = mCostItems;
                 showCostItems(myCostItems,form.discount.value,costItemList);
                 costItemCountEl.value = 1;
-            })
-
+                e.target.value = -1;
+            });
             form.discount.addEventListener("input",(e)=>{
                 let val = e.target.value;
                 if(val){
@@ -4333,11 +4395,14 @@ const showQuotationForm=(source,dataId=null)=>{
                                 fetch(url,options)
                                 .then(res=>res.json())
                                 .then(result=>{
-                                    console.log("result: ",data[0]);
+                                    console.log("result: ",result);
                                     storedData.quotations = result.data;
                                     storage.setItem("data",JSON.stringify(storedData));
                                     showFeedback(result.msg,result.code);
-                                    closeQuotationForm(data[0]);
+                                    if(result.code === 0){
+                                        var d = result.data.find(g=>g.id == data[0].id);
+                                        closeQuotationForm(d);
+                                    }
                                 })
                                 .catch(er=>{
                                     console.log("er: ",er);
@@ -4359,11 +4424,20 @@ const showQuotationForm=(source,dataId=null)=>{
                 var containerNum = form.quantity.value;
                 var discount = form.discount.value;
                 console.log("dx: ",myCostItems);
-                var cost_items = myCostItems.map(i=>i.id).join("_");
+                var cost_items = myCostItems.map(i=>{
+                    let k = i.id;
+                    if(i.count > 1){
+                        for(p=1;p<i.count;p++){
+                            k = k+"_"+i.id;
+                        }
+                    }
+                    return k;
+                    
+                }).join("_");
                 var sum = 0;
                 myCostItems.forEach(i=>{
-                    // var a = (i.count * i.cost)
-                    sum += parseInt(i.price);
+                    var a = parseInt(i.count) * parseInt(i.price);
+                    sum += a;
                     console.log("a: ",sum);
                 });
                 console.log("x: ",sum);
@@ -4386,17 +4460,17 @@ const showQuotationForm=(source,dataId=null)=>{
                     if(dataId == null) {
                         var nQ= result.data.filter(c=>storedData.quotations.map(q=>q.id).indexOf(c.id) === -1);
                         console.log("res: ",nQ);
-                        dataId == nQ[0].id;
+                        dataId = nQ.length > 0 ? nQ[0].id:dataId;
                     }
 
                     storedData.quotations = result.data;
                     storage.setItem("data",JSON.stringify(storedData));
                     showFeedback(result.msg,result.code);
-                    showQuotationForm("quotation_form",dataId);
+                    // showQuotationForm("quotation_form",dataId);
                 })
                 .catch(er=>{
                     console.log("er: ",er);
-                    showFeedback("Something went wrong: "+e,1);
+                    showFeedback("Something went wrong: ",1);
                 })
             })
         
@@ -4419,7 +4493,7 @@ const showInvoiceForm=(source,dataId=null)=>{
     const cancelButton = document.getElementById("close_invoice_form");
     const discardButton = document.getElementById("discard_invoice");
    
-    mCostItems = myCostItems;
+    var mCostItems = myCostItems;
     var desc= "Create";
     if(dataId != null) desc = "View";
     greet("Finance",{title:"Invoices",description:desc});

@@ -97,7 +97,7 @@ body {
   @include flex(row,center,center);
 }
 .row-even{
-  @include flex(row,space-evenly,flex-start);
+  @include flex(row,space-evenly,center);
 }
 .row-space{
   @include flex(row,space-between,flex-start);
@@ -166,6 +166,13 @@ header > div.theme-band .colors :nth-child(3){
 }
 header > div.theme-band .colors :nth-child(4){
   @include setBg($faintDark);
+}
+img.passport_size{
+  margin:0.5em auto;
+  width:120px;
+  height:auto;
+  object-fit: contain;
+  border: 1px solid $primaryDarkColor;
 }
 //main
 main{
@@ -488,6 +495,7 @@ form input[type="submit"]{
   padding:unset;
   padding:0.5em !important;
 }
+
   .form-group,.form-group-no-border{
     padding:0.25em 0.5em;
     @include addRoundCorner(4px);
@@ -1328,6 +1336,7 @@ footer{
 }
 fieldset{
   min-width: 0;
+  width:calc(100% - 2em);
 }
 //end layouts
 
@@ -1488,31 +1497,31 @@ fieldset{
   font-weight: bold;
 }
 .text-right{
-  text-align: right;
+  text-align: right !important;
 }
 .text-left{
-  text-align: left;
+  text-align: left !important;
 }
 .text-center{
-  text-align: center;
+  text-align: center !important;
 }
 .medium-text {
-  font-size: 1.5rem;
+  font-size: 1.5rem !important;
 }
 .large-text {
-  font-size: $titleSize;
+  font-size: $titleSize !important;
 }
 .small-text {
-  font-size: 0.5rem;
+  font-size: 0.5rem !important;
 }
 .primary-text{
-  color:$primaryColor;
+  color:$primaryColor !important;
 }
 .primary-dark-text{
-  color:$primaryDarkColor;
+  color:$primaryDarkColor !important;
 }
 .secondary-text{
-  color:$secondaryColor;
+  color:$secondaryColor !important;
 }
 .fail-text{
   color:$failColor !important;
