@@ -1673,7 +1673,8 @@ const showClientStats =()=>{
         getCustomers()
         .then(result=>{
             updateCustomers(result.data);
-            greet("Hello "+currentUser.detail.contact_person.split(" ")[0],null);
+            var mName = currentUser.employee ? currentUser.employee.name : currentUser.detail.contact_person;
+            greet("Hello "+mName.split(" ")[0],null);
             const numberOfCustomers = document.getElementById("no_of_customers");
             numberOfCustomers.textContent = (storedData.customers) ? storedData.customers.length:0; 
             fetchInvoices()
@@ -6706,22 +6707,30 @@ if(window.location.pathname == "/dashboard/"){
     if(currentUser == null) window.location.pathname = "/signin.html";
     else{
         var clientDetails = currentUser.detail;
-         if(clientDetails) {
-             greet("Hello "+clientDetails.contact_person.split(" ")[0],null);
-             document.querySelector("#account-name").textContent = clientDetails.contact_person;
-             let source = (currentUser.avatar) ? currentUser.avatar :clientDetails.logo;
+        var empDetails = currentUser.employee;
+        //  if(clientDetails) {
+            var clientName = empDetails.name ? empDetails.name : clientDetails.contact_person;
+            var photo = empDetails.photo;
+             greet("Hello "+clientName.split(" ")[0],null);
+             document.querySelector("#account-name").textContent = clientName;
+             let source = (currentUser.avatar) ? files_url +"/"+ currentUser.avatar :employee_files_url+"/"+photo;
             //  document.querySelector("#account-image").src = source;
              
-             if(clientDetails.logo) {
+             if(source) {
                  document.querySelector("#avatar").src = source;
-                 document.querySelector("#client_logo").src = clientDetails.logo;
+                 
              }
              else{
                 document.querySelector("#avatar").src = (currentUser.avatar) ? currentUser.avatar :"/img/favicon.png";
+             }
+             if(clientDetails.logo){
+                document.querySelector("#client_logo").src = files_url+"/"+clientDetails.logo;
+             }
+             else{
                 document.querySelector("#client_logo").src = "/img/logo.png";
              }
-         }
-         else greet("Hello "+currentUser.email,null);
+        //  }
+        //  else greet("Hello "+currentUser.email,null);
          showClientStats();
          fetchRoles()
             .then(result=>{
