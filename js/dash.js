@@ -6710,10 +6710,10 @@ if(window.location.pathname == "/dashboard/"){
         var empDetails = currentUser.employee;
         //  if(clientDetails) {
             var clientName = (empDetails && empDetails.name) ? empDetails.name : clientDetails.contact_person;
-            var photo = empDetails.photo;
+            var photo = empDetails ? empDetails.photo:null;
              greet("Hello "+clientName.split(" ")[0],null);
              document.querySelector("#account-name").textContent = clientName;
-             let source = (currentUser.avatar) ? files_url +"/"+ currentUser.avatar :employee_files_url+"/"+photo;
+             let source = (currentUser.avatar) ? files_url +"/"+ currentUser.avatar :(photo ? employee_files_url+"/"+photo : "/img/avatar.png");
             //  document.querySelector("#account-image").src = source;
              
              if(source) {
@@ -6723,7 +6723,7 @@ if(window.location.pathname == "/dashboard/"){
              else{
                 document.querySelector("#avatar").src = (currentUser.avatar) ? currentUser.avatar :"/img/favicon.png";
              }
-             if(clientDetails.logo){
+             if(clientDetails && clientDetails.logo){
                 document.querySelector("#client_logo").src = files_url+"/"+clientDetails.logo;
              }
              else{
