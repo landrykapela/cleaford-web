@@ -6709,7 +6709,7 @@ if(window.location.pathname == "/dashboard/"){
         var clientDetails = currentUser.detail;
         var empDetails = currentUser.employee;
         //  if(clientDetails) {
-            var clientName = empDetails.name ? empDetails.name : clientDetails.contact_person;
+            var clientName = (empDetails && empDetails.name) ? empDetails.name : clientDetails.contact_person;
             var photo = empDetails.photo;
              greet("Hello "+clientName.split(" ")[0],null);
              document.querySelector("#account-name").textContent = clientName;
